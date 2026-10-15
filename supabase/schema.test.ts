@@ -1,7 +1,23 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
 import { beforeAll, describe, expect, it } from "vitest";
+import { ID_PASSI } from "../src/data/passi";
 import { DOMANDE_GRATIS_AL_MESE } from "../src/lib/chat/quota";
+import { VERSIONE_REGOLE } from "../src/lib/percorso/regole";
+import {
+  ATTIVITA,
+  AVVII,
+  CANTONI,
+  CLIENTI,
+  FATTURATI,
+  IMPIEGHI,
+  LUNGHEZZA_MASSIMA_ATTIVITA_ALTRO,
+  PERMESSI,
+  SI_NO,
+  SOCI,
+  VERSIONE_RISPOSTE,
+  leggiRisposte,
+} from "../src/lib/percorso/risposte";
 
 // Esegue tutte le migrazioni, in ordine, su un Postgres in memoria con lo
 // stretto necessario di Supabase (schema auth, ruoli). pgvector e pg_cron non
@@ -204,5 +220,99 @@ describe("limite di richieste per connessione (consuma_limite)", () => {
     await expect(come("anon", "", () => consuma("listaAttesa:xyz"))).rejects.toThrow(/permission denied/);
     const r = await comeUtente(() => db.query<{ n: number }>("select count(*)::int as n from public.limiti_richieste"));
     expect(r.rows[0]?.n).toBe(0);
+  });
+});
+
+describe("vincoli sulle scritture dell'utente", () => {
+  const PERCORSO = "44444444-4444-4444-4444-444444444444";
+  const piuLungo = <T extends string>(valori: readonly T[]) =>
+    valori.reduce((a, b) => (b.length > a.length ? b : a));
+
+  beforeAll(async () => {
+    await db.exec(`insert into auth.users (id, email) values ('${PERCORSO}', 'percorso@example.ch')`);
+  });
+
+  it("tutti i passi reali si possono segnare come fatti", async () => {
+    const valori = ID_PASSI.map((_, i) => `($1, $${i + 2})`).join(", ");
+    await comeUtente(
+      () => db.query(`insert into public.passi_completati (user_id, passo_id) values ${valori}`, [PERCORSO, ...ID_PASSI]),
+      PERCORSO,
+    );
+    const r = await db.query<{ n: number }>("select count(*)::int as n from public.passi_completati where user_id = $1", [
+      PERCORSO,
+    ]);
+    expect(r.rows[0]?.n).toBe(ID_PASSI.length);
+  });
+
+  it("rifiuta un passo_id che non ha la forma degli id dei passi", async () => {
+    for (const id of ["Passo Finto", "x".repeat(65), "", "passo;drop"]) {
+      await expect(
+        comeUtente(
+          () => db.query("insert into public.passi_completati (user_id, passo_id) values ($1, $2)", [PERCORSO, id]),
+          PERCORSO,
+        ),
+      ).rejects.toThrow(/passi_completati_id_formato/);
+    }
+  });
+
+  it("rifiuta oltre 100 passi completati per utente", async () => {
+    const altri = Array.from({ length: 100 - ID_PASSI.length }, (_, i) => `finto-${i}`);
+    const valori = altri.map((_, i) => `($1, $${i + 2})`).join(", ");
+    await comeUtente(
+      () => db.query(`insert into public.passi_completati (user_id, passo_id) values ${valori}`, [PERCORSO, ...altri]),
+      PERCORSO,
+    );
+    await expect(
+      comeUtente(
+        () => db.query("insert into public.passi_completati (user_id, passo_id) values ($1, 'uno-di-troppo')", [PERCORSO]),
+        PERCORSO,
+      ),
+    ).rejects.toThrow(/troppi passi completati/);
+  });
+
+  it("accetta le risposte valide più lunghe e rifiuta un questionario enorme", async () => {
+    const massime = {
+      versione: VERSIONE_RISPOSTE,
+      attivita: "altro" as const,
+      // Le virgolette raddoppiano nel testo JSON: è il caso peggiore.
+      attivitaAltro: '"'.repeat(LUNGHEZZA_MASSIMA_ATTIVITA_ALTRO),
+      cantone: piuLungo(CANTONI),
+      soci: piuLungo(SOCI),
+      fatturato: piuLungo(FATTURATI),
+      clienti: piuLungo(CLIENTI),
+      impiego: piuLungo(IMPIEGHI),
+      avviata: piuLungo(AVVII),
+      permesso: piuLungo(PERMESSI),
+      locali: piuLungo(SI_NO),
+      venditaOnline: piuLungo(SI_NO),
+    };
+    expect(leggiRisposte(massime)).not.toBeNull();
+    expect(ATTIVITA).toContain("altro");
+
+    const salva = (risposte: unknown) =>
+      comeUtente(
+        () =>
+          db.query(
+            `insert into public.questionari (user_id, risposte, versione_regole) values ($1, $2::jsonb, $3)
+             on conflict (user_id) do update set risposte = excluded.risposte`,
+            [PERCORSO, JSON.stringify(risposte), VERSIONE_REGOLE],
+          ),
+        PERCORSO,
+      );
+    await expect(salva(massime)).resolves.toBeDefined();
+    await expect(salva({ ...massime, riempitivo: "x".repeat(5000) })).rejects.toThrow(/questionari_risposte_dimensione/);
+    await expect(salva(["non", "un", "oggetto"])).rejects.toThrow(/questionari_risposte_oggetto/);
+  });
+
+  it("domande_chat non accetta domande vuote o troppe fonti nemmeno dal server", async () => {
+    await expect(
+      db.query("insert into public.domande_chat (user_id, domanda) values ($1, '')", [PERCORSO]),
+    ).rejects.toThrow(/domande_chat_domanda_lunghezza/);
+    await expect(
+      db.query("insert into public.domande_chat (user_id, domanda, fonti_citate) values ($1, 'ok', $2)", [
+        PERCORSO,
+        Array.from({ length: 21 }, (_, i) => `f${i}`),
+      ]),
+    ).rejects.toThrow(/domande_chat_fonti_massimo/);
   });
 });
