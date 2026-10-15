@@ -117,10 +117,16 @@ export async function registraIscrizione(
     mittente: Mittente;
     /** Limite per connessione: false se da qui sono arrivate troppe iscrizioni. */
     richiestaConsentita?: () => Promise<boolean>;
+    /**
+     * Esegue un lavoro dopo la risposta (nella Server Action: `after` di
+     * next/server). L'invio dell'email passa da qui, così il tempo di risposta
+     * è lo stesso per un indirizzo nuovo e per uno già in lista.
+     */
+    pianifica: (lavoro: () => Promise<unknown>) => void;
     ora?: Date;
   },
 ): Promise<EsitoIscrizione> {
-  const { archivio, inviaEmail, mittente, richiestaConsentita, ora = new Date() } = dipendenze;
+  const { archivio, inviaEmail, mittente, richiestaConsentita, pianifica, ora = new Date() } = dipendenze;
   if (!archivio) return { tipo: "demo" };
   // Senza nome, indirizzo ed email del titolare non si raccolgono dati e non
   // parte nessuna email: il mittente deve essere identificabile (LCSl art. 3
@@ -149,31 +155,33 @@ export async function registraIscrizione(
   // Già in lista: stessa risposta di una nuova iscrizione. Se non ha ancora
   // confermato rimandiamo il link, ma al massimo una volta ogni 24 ore (così
   // il modulo non si può usare per riempire di email la casella di qualcuno).
+  // L'esito non dipende dall'invio, che parte dopo la risposta.
   if (serveInvioConferma(inserimento, ora)) {
-    await inviaConferma(dati.email, inserimento.token, { archivio, inviaEmail, mittente, ora });
+    const { token } = inserimento;
+    pianifica(() => inviaConferma(dati.email, token, { archivio, inviaEmail, mittente, ora }));
   }
   return { tipo: "ok", conferma: "email" };
 }
 
-/** Manda l'email di conferma e, se parte, lo segna. Gli errori finiscono solo nel log. */
+/** Manda l'email di conferma e, se parte, lo segna. Non lancia mai: gli errori finiscono solo nel log. */
 async function inviaConferma(
   a: string,
   token: string,
   dip: { archivio: ArchivioListaAttesa; inviaEmail: InviaEmail; mittente: Mittente; ora: Date },
 ): Promise<void> {
-  const email = componiEmailConferma({ token, mittente: dip.mittente });
-  const inviata = await dip.inviaEmail({
-    a,
-    oggetto: email.oggetto,
-    html: email.html,
-    testo: email.testo,
-    intestazioni: email.intestazioni,
-    chiaveIdempotenza: chiaveInvioConferma(token, dip.ora),
-  });
-  if (!inviata) return;
   try {
-    await dip.archivio.segnaInvio(token);
+    const email = componiEmailConferma({ token, mittente: dip.mittente });
+    const inviata = await dip.inviaEmail({
+      a,
+      oggetto: email.oggetto,
+      html: email.html,
+      testo: email.testo,
+      intestazioni: email.intestazioni,
+      chiaveIdempotenza: chiaveInvioConferma(token, dip.ora),
+    });
+    if (inviata) await dip.archivio.segnaInvio(token);
   } catch (errore) {
-    console.error("[lista-attesa] data di invio non salvata:", errore instanceof Error ? errore.message : errore);
+    // Niente dati personali nei log: solo il messaggio tecnico.
+    console.error("[lista-attesa] invio della conferma non riuscito:", errore instanceof Error ? errore.message : errore);
   }
 }

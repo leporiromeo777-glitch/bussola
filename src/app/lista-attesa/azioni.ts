@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { sito } from "@/lib/sito";
 import { archivioListaAttesa } from "@/lib/lista-attesa/archivio";
 import { confermaIscrizione } from "@/lib/lista-attesa/esiti-conferma";
@@ -64,6 +65,8 @@ export async function iscriviListaAttesa(prev: StatoIscrizione, form: FormData):
     inviaEmail: creaInvioEmail(),
     mittente: { nomeSito: sito.nome, urlSito: sito.url, titolare: sito.titolare },
     richiestaConsentita: () => richiestaConsentita("listaAttesa"),
+    // L'email parte dopo la risposta: stessi tempi per indirizzi nuovi e già in lista.
+    pianifica: after,
   });
   const { titolo, testo } = messaggioIscrizione(esito, dati.email);
 

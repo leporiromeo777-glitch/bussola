@@ -64,18 +64,28 @@ function archivioFinto(opzioni: { guasto?: boolean } = {}) {
 const ORA = new Date("2026-10-19T09:00:00Z");
 const oreFa = (ore: number) => new Date(ORA.getTime() - ore * 3_600_000).toISOString();
 
+type Dipendenze = Omit<Parameters<typeof registraIscrizione>[1], "pianifica">;
+
+/** registraIscrizione con i lavori pianificati eseguiti subito e attesi prima di rispondere al test. */
+async function registra(d: DatiIscrizione, dip: Dipendenze) {
+  const lavori: Promise<unknown>[] = [];
+  const esito = await registraIscrizione(d, { ...dip, pianifica: (lavoro) => void lavori.push(lavoro()) });
+  await Promise.all(lavori);
+  return esito;
+}
+
 afterEach(() => vi.restoreAllMocks());
 
 describe("registraIscrizione", () => {
   it("in modalità demo (niente database) non salva nulla", async () => {
     const invia = vi.fn<InviaEmail>();
-    expect(await registraIscrizione(dati, { archivio: null, inviaEmail: invia, mittente })).toEqual({ tipo: "demo" });
+    expect(await registra(dati, { archivio: null, inviaEmail: invia, mittente })).toEqual({ tipo: "demo" });
     expect(invia).not.toHaveBeenCalled();
   });
 
   it("salva la riga con il consenso e senza email se Resend non è configurato", async () => {
     const { archivio, righe, invii } = archivioFinto();
-    const esito = await registraIscrizione(dati, { archivio, inviaEmail: null, mittente });
+    const esito = await registra(dati, { archivio, inviaEmail: null, mittente });
     expect(esito).toEqual({ tipo: "ok", conferma: "lancio" });
     expect(righe).toEqual([
       {
@@ -96,7 +106,7 @@ describe("registraIscrizione", () => {
   it("invia l'email di conferma con il token e segna la data di invio", async () => {
     const { archivio, invii } = archivioFinto();
     const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
-    const esito = await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
+    const esito = await registra(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
     expect(esito).toEqual({ tipo: "ok", conferma: "email" });
     expect(invia).toHaveBeenCalledOnce();
     const messaggio = invia.mock.calls[0]![0];
@@ -109,7 +119,7 @@ describe("registraIscrizione", () => {
   it("se l'invio fallisce l'esito non cambia e la data di invio resta vuota", async () => {
     const { archivio, righe, invii } = archivioFinto();
     const invia = vi.fn<InviaEmail>().mockResolvedValue(false);
-    expect(await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente, ora: ORA })).toEqual({
+    expect(await registra(dati, { archivio, inviaEmail: invia, mittente, ora: ORA })).toEqual({
       tipo: "ok",
       conferma: "email",
     });
@@ -120,8 +130,8 @@ describe("registraIscrizione", () => {
   it("dopo un invio fallito, iscriversi di nuovo rimanda subito il link", async () => {
     const { archivio, invii } = archivioFinto();
     const invia = vi.fn<InviaEmail>().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
-    await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
-    await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
+    await registra(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
+    await registra(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
     expect(invia).toHaveBeenCalledTimes(2);
     expect(invii).toEqual([TOKEN]);
   });
@@ -130,7 +140,7 @@ describe("registraIscrizione", () => {
     const { archivio, righe } = archivioFinto();
     righe.push({ ...dati, consenso_email: true, token: TOKEN, confermato_il: null, conferma_inviata_il: oreFa(25) });
     const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
-    const esito = await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
+    const esito = await registra(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
     expect(esito).toEqual({ tipo: "ok", conferma: "email" });
     expect(invia).toHaveBeenCalledOnce();
     const messaggio = invia.mock.calls[0]![0];
@@ -144,7 +154,7 @@ describe("registraIscrizione", () => {
     const { archivio, righe } = archivioFinto();
     righe.push({ ...dati, consenso_email: true, token: TOKEN, confermato_il: null, conferma_inviata_il: null });
     const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
-    await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
+    await registra(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
     expect(invia).toHaveBeenCalledOnce();
   });
 
@@ -152,7 +162,7 @@ describe("registraIscrizione", () => {
     const { archivio, righe } = archivioFinto();
     righe.push({ ...dati, consenso_email: true, token: TOKEN, confermato_il: null, conferma_inviata_il: oreFa(23) });
     const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
-    const esito = await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
+    const esito = await registra(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
     expect(esito).toEqual({ tipo: "ok", conferma: "email" });
     expect(invia).not.toHaveBeenCalled();
   });
@@ -167,7 +177,7 @@ describe("registraIscrizione", () => {
       conferma_inviata_il: oreFa(200),
     });
     const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
-    const esito = await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
+    const esito = await registra(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
     expect(esito).toEqual({ tipo: "ok", conferma: "email" });
     expect(invia).not.toHaveBeenCalled();
   });
@@ -175,8 +185,8 @@ describe("registraIscrizione", () => {
   it("un'email già in lista dà la stessa risposta di una nuova e non manda una seconda email lo stesso giorno", async () => {
     const { archivio } = archivioFinto();
     const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
-    const prima = await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
-    const seconda = await registraIscrizione(
+    const prima = await registra(dati, { archivio, inviaEmail: invia, mittente, ora: ORA });
+    const seconda = await registra(
       { ...dati, email: "giulia@example.ch" },
       { archivio, inviaEmail: invia, mittente, ora: ORA },
     );
@@ -187,11 +197,66 @@ describe("registraIscrizione", () => {
 
   it("senza Resend anche il duplicato risponde come una nuova iscrizione", async () => {
     const { archivio } = archivioFinto();
-    await registraIscrizione(dati, { archivio, inviaEmail: null, mittente });
-    expect(await registraIscrizione(dati, { archivio, inviaEmail: null, mittente })).toEqual({
+    await registra(dati, { archivio, inviaEmail: null, mittente });
+    expect(await registra(dati, { archivio, inviaEmail: null, mittente })).toEqual({
       tipo: "ok",
       conferma: "lancio",
     });
+  });
+
+  it("risponde senza aspettare l'invio dell'email, che parte dopo", async () => {
+    const { archivio, invii } = archivioFinto();
+    const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
+    const lavori: (() => Promise<unknown>)[] = [];
+    const esito = await registraIscrizione(dati, {
+      archivio,
+      inviaEmail: invia,
+      mittente,
+      ora: ORA,
+      pianifica: (lavoro) => void lavori.push(lavoro),
+    });
+    expect(esito).toEqual({ tipo: "ok", conferma: "email" });
+    expect(invia).not.toHaveBeenCalled();
+    expect(lavori).toHaveLength(1);
+
+    await lavori[0]!();
+    expect(invia).toHaveBeenCalledOnce();
+    expect(invii).toEqual([TOKEN]);
+  });
+
+  it("due invii ravvicinati prima che il primo sia segnato usano la stessa chiave di idempotenza", async () => {
+    const { archivio } = archivioFinto();
+    const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
+    const lavori: (() => Promise<unknown>)[] = [];
+    for (let i = 0; i < 2; i++) {
+      const esito = await registraIscrizione(dati, {
+        archivio,
+        inviaEmail: invia,
+        mittente,
+        ora: ORA,
+        pianifica: (l) => void lavori.push(l),
+      });
+      expect(esito).toEqual({ tipo: "ok", conferma: "email" });
+    }
+    // Nessuna risposta ha aspettato l'invio.
+    expect(invia).not.toHaveBeenCalled();
+    await Promise.all(lavori.map((l) => l()));
+    // Resend scarta il doppione: stessa chiave e stesso contenuto.
+    const chiavi = invia.mock.calls.map(([m]) => m.chiaveIdempotenza);
+    expect(chiavi).toEqual([`lista-attesa-conferma/${TOKEN}/2026-10-19`, `lista-attesa-conferma/${TOKEN}/2026-10-19`]);
+    expect(invia.mock.calls[0]![0]).toEqual(invia.mock.calls[1]![0]);
+  });
+
+  it("un errore durante l'invio pianificato finisce solo nel log", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { archivio } = archivioFinto();
+    const invia = vi.fn<InviaEmail>().mockRejectedValue(new Error("rete"));
+    expect(await registra(dati, { archivio, inviaEmail: invia, mittente, ora: ORA })).toEqual({
+      tipo: "ok",
+      conferma: "email",
+    });
+    expect(log).toHaveBeenCalled();
+    expect(JSON.stringify(log.mock.calls)).not.toContain("giulia@example.ch");
   });
 
   it("se la data di invio non si salva l'iscrizione resta riuscita", async () => {
@@ -201,7 +266,7 @@ describe("registraIscrizione", () => {
       throw new Error("update non riuscito");
     };
     const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
-    expect(await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente, ora: ORA })).toEqual({
+    expect(await registra(dati, { archivio, inviaEmail: invia, mittente, ora: ORA })).toEqual({
       tipo: "ok",
       conferma: "email",
     });
@@ -212,7 +277,7 @@ describe("registraIscrizione", () => {
   it("l'email di conferma non contiene il nome scritto nel modulo", async () => {
     const { archivio } = archivioFinto();
     const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
-    await registraIscrizione({ ...dati, nome: "Giulia Spam" }, { archivio, inviaEmail: invia, mittente });
+    await registra({ ...dati, nome: "Giulia Spam" }, { archivio, inviaEmail: invia, mittente });
     const messaggio = invia.mock.calls[0]![0];
     expect(messaggio.testo).not.toContain("Giulia Spam");
     expect(messaggio.html).not.toContain("Giulia Spam");
@@ -225,7 +290,7 @@ describe("registraIscrizione", () => {
     ]) {
       const { archivio, righe } = archivioFinto();
       const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
-      const esito = await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente: { ...mittente, titolare } });
+      const esito = await registra(dati, { archivio, inviaEmail: invia, mittente: { ...mittente, titolare } });
       expect(esito).toEqual({ tipo: "demo" });
       expect(righe).toEqual([]);
       expect(invia).not.toHaveBeenCalled();
@@ -235,7 +300,7 @@ describe("registraIscrizione", () => {
   it("oltre il limite per connessione non salva e non manda email", async () => {
     const { archivio, righe } = archivioFinto();
     const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
-    const esito = await registraIscrizione(dati, {
+    const esito = await registra(dati, {
       archivio,
       inviaEmail: invia,
       mittente,
@@ -250,7 +315,7 @@ describe("registraIscrizione", () => {
   it("entro il limite per connessione iscrive come sempre", async () => {
     const { archivio, righe } = archivioFinto();
     const consentita = vi.fn(async () => true);
-    const esito = await registraIscrizione(dati, {
+    const esito = await registra(dati, {
       archivio,
       inviaEmail: null,
       mittente,
@@ -264,7 +329,7 @@ describe("registraIscrizione", () => {
   it("se il database non risponde restituisce un errore senza scrivere l'email nei log", async () => {
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
     const { archivio } = archivioFinto({ guasto: true });
-    expect(await registraIscrizione(dati, { archivio, inviaEmail: null, mittente })).toEqual({ tipo: "errore" });
+    expect(await registra(dati, { archivio, inviaEmail: null, mittente })).toEqual({ tipo: "errore" });
     expect(JSON.stringify(log.mock.calls)).not.toContain("giulia@example.ch");
   });
 });
