@@ -510,7 +510,7 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
       case "non_so":
         return {
           stato: "da_fare",
-          perche: "Non sai ancora quanto incasserai: a fine anno somma la cifra d'affari e confrontala con le soglie.",
+          perche: "Non sai ancora quanto fatturerai: a fine anno somma la cifra d'affari e confrontala con le soglie.",
         };
       case "almeno_100k":
         return {

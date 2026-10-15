@@ -355,6 +355,9 @@ describe("regole: IVA", () => {
     expect(stato({ fatturato: "non_so" }, "soglie-annuali")).toBe("da_fare");
     expect(stato({ fatturato: "meno_10k" }, "soglie-annuali")).toBe("facoltativo");
     expect(stato({ fatturato: "almeno_100k" }, "soglie-annuali")).toBe("facoltativo");
+    expect(passo(calcolaPercorso(risposte({ fatturato: "non_so" })), "soglie-annuali").perche).toMatch(
+      /quanto fatturerai/,
+    );
   });
 });
 

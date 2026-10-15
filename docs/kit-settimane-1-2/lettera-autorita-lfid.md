@@ -410,7 +410,7 @@ delle regole «2026-10-15»). Ricontrollala prima di stampare.
 | 1 | Che attività vuoi avviare? | Servizi digitali o creativi · Consulenza o formazione · Artigianato o edilizia · Trasporti · Commercio o vendita online · Ristorazione, bar o alimentari · Salute, cura o benessere · Altro | Alcuni settori hanno bisogno di un'autorizzazione o di un passaggio in più prima di iniziare |
 | 2 | Dove avrà sede la tua attività? | Ticino · Grigioni · Un altro Cantone | Uffici, cassa AVS, imposte e autorizzazioni dipendono dal Cantone |
 | 3 | Parti da solo o con dei soci? | Da solo o da sola · Con uno o più soci | La ditta individuale ha un solo titolare |
-| 4 | Quanto pensi di incassare nei primi 12 mesi? | Meno di CHF 10'000 · Da CHF 10'000 a CHF 60'000 · Da CHF 60'000 a meno di CHF 100'000 · CHF 100'000 o più · Non lo so ancora | Da CHF 100'000 di cifra d'affari cambiano le regole per IVA e registro di commercio |
+| 4 | Quanto pensi di fatturare nei primi 12 mesi? | Meno di CHF 10'000 · Da CHF 10'000 a CHF 60'000 · Da CHF 60'000 a meno di CHF 100'000 · CHF 100'000 o più · Non lo so ancora | Da CHF 100'000 di cifra d'affari cambiano le regole per IVA e registro di commercio |
 | 5 | Per quanti clienti pensi di lavorare? | Uno solo · Due o tre · Molti | Per l'AVS conta anche lavorare per diversi clienti |
 | 6 | Hai anche un lavoro da dipendente? | No · Sì, a tempo parziale · Sì, a tempo pieno | Cambia come funzionano AVS, assicurazione infortuni e dichiarazione d'imposta |
 | 7 | Hai già iniziato a lavorare in proprio? | Non ancora · Sì, da meno di 3 mesi · Sì, da più di 3 mesi | Alcune pratiche vanno fatte nei primi mesi |

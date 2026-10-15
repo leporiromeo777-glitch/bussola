@@ -104,6 +104,14 @@ describe("domande del questionario", () => {
     ]);
   });
 
+  it("la cifra d'affari si conta sul fatturato senza IVA, non sull'incassato (art. 10 cpv. 2bis LIVA)", () => {
+    const fatturato = DOMANDE.find((d) => d.id === "fatturato");
+    expect(fatturato?.titolo).toBe("Quanto pensi di fatturare nei primi 12 mesi?");
+    expect(fatturato?.perche).toContain("CHF 100'000");
+    expect(fatturato?.perche).toContain("totale delle fatture ai clienti (senza IVA)");
+    expect(`${fatturato?.titolo} ${fatturato?.perche}`).not.toMatch(/incass/i);
+  });
+
   it("etichettaRisposta restituisce il testo dell'opzione", () => {
     expect(etichettaRisposta("cantone", "TI")).toBe("Ticino");
     expect(etichettaRisposta("permesso", "g")).toBe("Permesso G (frontaliere)");
