@@ -71,7 +71,7 @@ function InvitoAccesso() {
       </p>
       <Link
         href="/accedi?next=/chat"
-        className="mt-4 inline-block rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-strong dark:text-background"
+        className="mt-4 inline-block rounded-lg bg-brand px-4 py-2 font-medium text-background hover:bg-brand-strong"
       >
         Accedi e chiedi
       </Link>

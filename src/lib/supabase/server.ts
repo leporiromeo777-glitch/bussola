@@ -9,9 +9,11 @@ import { supabasePublicEnv } from "./env";
  * Supabase non è configurato.
  */
 export async function createClient() {
+  // Leggere i cookie prima di tutto rende dinamiche le pagine che usano il
+  // client anche quando Supabase non è configurato al momento della build.
+  const cookieStore = await cookies();
   const env = supabasePublicEnv();
   if (!env) return null;
-  const cookieStore = await cookies();
 
   return createServerClient(env.url, env.key, {
     cookies: {

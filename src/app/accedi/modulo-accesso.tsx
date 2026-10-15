@@ -38,7 +38,7 @@ export function ModuloAccesso({ next }: { next?: string }) {
       <button
         type="submit"
         disabled={inCorso}
-        className="rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-strong disabled:opacity-60"
+        className="rounded-lg bg-brand px-4 py-2 font-medium text-background hover:bg-brand-strong disabled:opacity-60"
       >
         {inCorso ? "Invio…" : "Ricevi il link di accesso"}
       </button>

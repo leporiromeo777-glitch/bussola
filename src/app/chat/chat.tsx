@@ -183,7 +183,7 @@ export function Chat({ quotaIniziale, esempi }: { quotaIniziale: QuotaPubblica |
           <button
             type="submit"
             disabled={inCorso || quotaEsaurita || bozza.trim().length < LUNGHEZZA_MINIMA_DOMANDA}
-            className="rounded-lg bg-brand px-4 py-2 font-medium text-white hover:bg-brand-strong disabled:opacity-60 dark:text-background"
+            className="rounded-lg bg-brand px-4 py-2 font-medium text-background hover:bg-brand-strong disabled:opacity-60"
           >
             {inCorso ? "Sto rispondendo…" : "Chiedi"}
           </button>
