@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Avviso, PaginaLegale } from "@/components/landing/pagina-legale";
 import { DatiTitolare, EmailTitolare } from "@/components/landing/titolare";
 import { SCAMBI_PRECEDENTI_MASSIMI } from "@/lib/chat/limiti";
+import { luogoDatabase } from "@/lib/privacy";
 import { sito } from "@/lib/sito";
 
 export const metadata: Metadata = {
@@ -22,6 +23,9 @@ const hosting = process.env.VERCEL
     : "Netlify, Inc. oppure Vercel Inc. (USA), secondo il fornitore scelto [da indicare prima del lancio]";
 
 const statisticheAttive = Boolean(process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN);
+
+// Regione del progetto Supabase: "svizzera" (Zurigo) o "ue" (Francoforte).
+const luogoDati = luogoDatabase(process.env.NEXT_PUBLIC_SUPABASE_REGIONE_DATI);
 
 const LPD = "https://www.fedlex.admin.ch/eli/cc/2022/491/it";
 const LCSL = "https://www.fedlex.admin.ch/eli/cc/1988/223_223_223/it";
@@ -48,7 +52,7 @@ export default function PaginaPrivacy() {
         <ul>
           <li>Raccogliamo solo i dati che servono a farti usare {sito.nome} e a scriverti, se ce lo chiedi.</li>
           <li>Non vendiamo i tuoi dati e non li usiamo per pubblicità.</li>
-          <li>Il database è su server nell&apos;Unione europea.</li>
+          <li>Il database è su server {luogoDati}.</li>
           <li>
             Puoi chiedere in ogni momento di vedere, correggere o cancellare i tuoi dati scrivendo a <EmailTitolare />.
           </li>
@@ -209,7 +213,7 @@ export default function PaginaPrivacy() {
         <ul>
           <li>
             <strong>Supabase, Inc. (USA)</strong>: database e accesso all&apos;account (compresa l&apos;email con il
-            link di accesso). I dati sono salvati su server nell&apos;Unione europea.
+            link di accesso). I dati sono salvati su server {luogoDati}.
           </li>
           <li>
             <strong>Hosting del sito</strong>: {hosting}.

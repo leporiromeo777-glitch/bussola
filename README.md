@@ -55,7 +55,10 @@ npm run build
 
 ### Supabase (database e accesso)
 
-1. Crea un progetto in una **regione UE** (per esempio Zurigo o Francoforte).
+1. Crea un progetto in **Svizzera** (eu-central-2, Zurigo) o **nell'UE**
+   (eu-central-1, Francoforte) e indica la scelta in
+   `NEXT_PUBLIC_SUPABASE_REGIONE_DATI` (`svizzera` o `ue`): l'informativa
+   sulla privacy dice dove sono i dati.
 2. Esegui la migrazione `supabase/migrations/20261015000000_schema_iniziale.sql`
    dal SQL editor (o con `supabase db push`).
 3. In *Authentication > URL Configuration* imposta come Site URL il dominio del

@@ -138,7 +138,7 @@ modelli locali; in produzione conviene un'API, per qualità e affidabilità.
 | Parte | Scelta consigliata | Perché |
 |---|---|---|
 | Sito e app | Next.js su Netlify o Vercel | Veloce da costruire, piano gratuito per partire |
-| Database e login | Supabase (Postgres con pgvector), regione UE | Utenti, percorsi e base di fonti in un solo posto |
+| Database e login | Supabase (Postgres con pgvector), regione Svizzera (Zurigo) o UE (Francoforte) | Utenti, percorsi e base di fonti in un solo posto |
 | AI | Un modello di punta via API (es. Claude) con ricerca sulle fonti (RAG) | Risponde solo dalle fonti verificate e cita il link |
 | Pagamenti | Stripe, con carta e TWINT | Vedi la sezione sui prezzi |
 | Email | Resend o simile | Promemoria delle scadenze |
