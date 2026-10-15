@@ -338,8 +338,13 @@ export const fontiPercorso = {
     ente: "Polizia cantonale ticinese",
   },
   lear: {
-    titolo: "Legge sugli esercizi alberghieri e sulla ristorazione (LEAR), art. 5",
+    titolo: "Legge sugli esercizi alberghieri e sulla ristorazione (LEAR), artt. 5 e 9",
     url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/792",
+    ente: RACCOLTA_TI,
+  },
+  rlear: {
+    titolo: "Regolamento sugli esercizi alberghieri e sulla ristorazione (RLEAR)",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/793",
     ente: RACCOLTA_TI,
   },
   lan: {

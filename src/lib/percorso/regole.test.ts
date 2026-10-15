@@ -105,6 +105,21 @@ describe("regole: autorizzazioni di settore", () => {
     expect(avviso?.fonti).toContain(fontiPercorso.lear);
   });
 
+  it("LEAR: autorizzazione all'art. 5, diploma del gerente all'art. 9 e di regola, con eccezioni", () => {
+    const percorso = calcolaPercorso(risposte({ attivita: "ristorazione_alimentari" }));
+    const p = passo(percorso, "autorizzazione-esercizio-pubblico");
+    expect(p.passo.descrizione).toContain("(LEAR, art. 5)");
+    expect(p.passo.descrizione).toContain("(LEAR, art. 9)");
+    expect(p.passo.descrizione).toMatch(/Di regola serve anche un gerente/);
+    expect(p.passo.descrizione).toMatch(/tre anni di pratica/);
+    expect(p.passo.cosaFare[0]).toBe("Leggi gli artt. 5 e 9 della LEAR.");
+    expect(p.passo.fonti).toEqual(expect.arrayContaining([fontiPercorso.lear, fontiPercorso.rlear]));
+    expect(fontiPercorso.lear.titolo).toContain("artt. 5 e 9");
+    const avviso = percorso.avvisi.find((a) => a.id === "autorizzazione-ristorazione");
+    expect(avviso?.testo).toMatch(/di regola serve un gerente/);
+    expect(avviso?.testo).toMatch(/eccezioni/);
+  });
+
   it("ristorazione fuori dal Ticino: LEAR solo da verificare", () => {
     expect(stato({ attivita: "ristorazione_alimentari", cantone: "GR" }, "autorizzazione-esercizio-pubblico")).toBe(
       "facoltativo",

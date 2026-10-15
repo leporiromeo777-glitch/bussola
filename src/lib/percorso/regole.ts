@@ -582,7 +582,7 @@ function calcolaAvvisi(r: Risposte): Avviso[] {
       livello: "importante",
       titolo: "Ristorante o bar: prima l'autorizzazione",
       testo: inTicino(r)
-        ? "In Ticino un esercizio pubblico può essere aperto e gestito solo dopo aver ottenuto l'autorizzazione, con un gerente che ha il diploma cantonale di esercente."
+        ? "In Ticino un esercizio pubblico può essere aperto e gestito solo dopo aver ottenuto l'autorizzazione; di regola serve un gerente con il diploma cantonale di esercente (con alcune eccezioni)."
         : "Per ristoranti e bar valgono regole cantonali: verifica con gli uffici del tuo Cantone prima di aprire.",
       fonti: inTicino(r)
         ? [fontiPercorso.lear]

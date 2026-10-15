@@ -130,14 +130,14 @@ export const PASSI = [
     fase: "prima di iniziare",
     titolo: "Ristorante o bar: chiedi l'autorizzazione prima di aprire",
     descrizione:
-      "In Ticino un esercizio pubblico (per esempio un ristorante, un bar o un albergo) può essere aperto e gestito soltanto dopo aver ottenuto l'autorizzazione. Serve anche un gerente con il diploma cantonale di esercente (LEAR, art. 5).",
+      "In Ticino un esercizio pubblico (per esempio un ristorante, un bar o un albergo) può essere aperto e gestito soltanto dopo aver ottenuto l'autorizzazione (LEAR, art. 5). Di regola serve anche un gerente con il diploma cantonale di esercente oppure, senza un certificato riconosciuto, con almeno tre anni di pratica come esercente in un altro Cantone (LEAR, art. 9); il regolamento prevede eccezioni.",
     cosaFare: [
-      "Leggi l'art. 5 della LEAR.",
+      "Leggi gli artt. 5 e 9 della LEAR.",
       "Guarda la procedura per l'autorizzazione degli esercizi pubblici nell'elenco della Polizia cantonale.",
-      "Decidi chi farà da gerente con il diploma cantonale di esercente.",
+      "Decidi chi farà da gerente. Nel regolamento (RLEAR) trovi le attività per cui il diploma di esercente non serve.",
     ],
     link: { etichetta: "Autorizzazioni della Polizia cantonale", url: fontiPercorso.poliziaAutorizzazioni.url },
-    fonti: [fontiPercorso.lear, fontiPercorso.poliziaAutorizzazioni],
+    fonti: [fontiPercorso.lear, fontiPercorso.rlear, fontiPercorso.poliziaAutorizzazioni],
     verificatoIl: VERIFICATO_IL,
     domandaChat: "Cosa serve in Ticino per aprire un bar o un ristorante?",
   },
