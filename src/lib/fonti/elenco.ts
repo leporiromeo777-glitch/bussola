@@ -25,6 +25,28 @@ export const schemaFonte = z
 
 export type FonteElenco = z.infer<typeof schemaFonte>;
 
+/**
+ * Segnaposto messo in `verificato_da` dagli import automatici
+ * ("import automatico - da ricontrollare a mano"): nessuno ha ancora
+ * aperto e letto la pagina.
+ */
+const SEGNAPOSTO_VERIFICA = /^import automatico/i;
+
+/** true se la fonte non è ancora stata ricontrollata a mano da una persona. */
+export function daRicontrollare(fonte: Pick<FonteElenco, "verificato_da">): boolean {
+  return SEGNAPOSTO_VERIFICA.test(fonte.verificato_da.trim());
+}
+
+/**
+ * Cosa fa l'import con una fonte: la chat usa solo le fonti attive e
+ * ricontrollate a mano (docs/fonti.md). Le altre si salvano con
+ * attiva = false, senza scaricarle.
+ */
+export function statoImport(fonte: Pick<FonteElenco, "attiva" | "verificato_da">): "attiva" | "disattivata" | "da_ricontrollare" {
+  if (!fonte.attiva) return "disattivata";
+  return daRicontrollare(fonte) ? "da_ricontrollare" : "attiva";
+}
+
 export const schemaElenco = z.array(schemaFonte).superRefine((fonti, ctx) => {
   const visti = new Map<string, number>();
   fonti.forEach((fonte, i) => {

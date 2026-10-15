@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { leggiElenco } from "./elenco";
+import { daRicontrollare, leggiElenco, statoImport } from "./elenco";
 
 const voce = {
   id: "ahv-2-02-indipendenti",
@@ -51,5 +51,25 @@ describe("leggiElenco", () => {
     const esito = leggiElenco(json);
     expect(esito.ok ? [] : esito.errori).toEqual([]);
     if (esito.ok) expect(esito.fonti.length).toBeGreaterThanOrEqual(6);
+  });
+});
+
+describe("statoImport", () => {
+  it("attiva solo le fonti ricontrollate a mano", () => {
+    expect(statoImport({ attiva: true, verificato_da: "Maria Rossi" })).toBe("attiva");
+  });
+
+  it("non attiva le fonti con il segnaposto dell'import automatico", () => {
+    const fonte = { attiva: true, verificato_da: "import automatico - da ricontrollare a mano" };
+    expect(daRicontrollare(fonte)).toBe(true);
+    expect(statoImport(fonte)).toBe("da_ricontrollare");
+    expect(statoImport({ attiva: true, verificato_da: "  Import automatico" })).toBe("da_ricontrollare");
+  });
+
+  it("lascia disattivate le fonti con attiva = false", () => {
+    expect(statoImport({ attiva: false, verificato_da: "Maria Rossi" })).toBe("disattivata");
+    expect(statoImport({ attiva: false, verificato_da: "import automatico - da ricontrollare a mano" })).toBe(
+      "disattivata",
+    );
   });
 });

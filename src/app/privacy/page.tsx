@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Avviso, PaginaLegale } from "@/components/landing/pagina-legale";
 import { DatiTitolare, EmailTitolare } from "@/components/landing/titolare";
+import { SCAMBI_PRECEDENTI_MASSIMI } from "@/lib/chat/limiti";
+import { dataSvizzera } from "@/data/svizzera";
+import { ELENCO_DPF, GARANZIE_USA, informativaPrivacy, OPDA } from "@/lib/privacy";
 import { sito } from "@/lib/sito";
 
 export const metadata: Metadata = {
@@ -12,19 +15,20 @@ export const metadata: Metadata = {
 
 const AGGIORNATO = { iso: "2026-10-15", testo: "15.10.2026" };
 
-// Il fornitore di hosting si riconosce dalle variabili che Vercel e Netlify
-// impostano durante la build; altrimenti resta da indicare a mano.
-const hosting = process.env.VERCEL
-  ? "Vercel Inc. (USA)"
-  : process.env.NETLIFY
-    ? "Netlify, Inc. (USA)"
-    : "Netlify, Inc. oppure Vercel Inc. (USA), secondo il fornitore scelto [da indicare prima del lancio]";
-
 const statisticheAttive = Boolean(process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN);
+
+// Regione del database, hosting, garanzie per gli USA e durata dei log:
+// src/lib/privacy.ts. Le parti tra parentesi quadre sono da completare.
+const { luogoDati, hosting, durataDatiTecnici } = informativaPrivacy;
 
 const LPD = "https://www.fedlex.admin.ch/eli/cc/2022/491/it";
 const LCSL = "https://www.fedlex.admin.ch/eli/cc/1988/223_223_223/it";
 const IFPDT = "https://www.edoeb.admin.ch/it";
+
+/** Garanzia per i dati comunicati negli Stati Uniti (LPD art. 19 cpv. 4). */
+function GaranziaUsa({ testo }: { testo: string }) {
+  return <> Garanzia per i dati negli USA: {testo}.</>;
+}
 
 export default function PaginaPrivacy() {
   return (
@@ -47,7 +51,7 @@ export default function PaginaPrivacy() {
         <ul>
           <li>Raccogliamo solo i dati che servono a farti usare {sito.nome} e a scriverti, se ce lo chiedi.</li>
           <li>Non vendiamo i tuoi dati e non li usiamo per pubblicità.</li>
-          <li>Il database è su server nell&apos;Unione europea.</li>
+          <li>Il database è su server {luogoDati}.</li>
           <li>
             Puoi chiedere in ogni momento di vedere, correggere o cancellare i tuoi dati scrivendo a <EmailTitolare />.
           </li>
@@ -186,11 +190,10 @@ export default function PaginaPrivacy() {
             cancelliamo anche questi dati.
           </li>
           <li>
-            <strong>Domande alla chat:</strong> 12 mesi.
+            <strong>Domande alla chat:</strong> 12 mesi, poi vengono cancellate automaticamente.
           </li>
           <li>
-            <strong>Dati tecnici:</strong> per il tempo previsto dal fornitore di hosting e del database [durata da
-            indicare prima del lancio].
+            <strong>Dati tecnici:</strong> {durataDatiTecnici}.
           </li>
         </ul>
         <p>
@@ -208,18 +211,23 @@ export default function PaginaPrivacy() {
         <ul>
           <li>
             <strong>Supabase, Inc. (USA)</strong>: database e accesso all&apos;account (compresa l&apos;email con il
-            link di accesso). I dati sono salvati su server nell&apos;Unione europea.
+            link di accesso). I dati sono salvati su server {luogoDati}.
+            <GaranziaUsa testo={GARANZIE_USA.supabase} />
           </li>
           <li>
-            <strong>Hosting del sito</strong>: {hosting}.
+            <strong>Hosting del sito</strong>: {hosting.nome}.
+            {hosting.garanzia ? <GaranziaUsa testo={hosting.garanzia} /> : null}
           </li>
           <li>
-            <strong>Anthropic, PBC (USA)</strong>: genera le risposte della chat. Riceve solo la tua domanda e i testi
-            delle fonti pubbliche trovate per rispondere, non la tua email né altri dati dell&apos;account.
+            <strong>Anthropic, PBC (USA)</strong>: genera le risposte della chat. Riceve la tua domanda, al massimo
+            le {SCAMBI_PRECEDENTI_MASSIMI} domande e risposte precedenti della stessa conversazione e i testi delle
+            fonti pubbliche trovate per rispondere; non riceve la tua email né altri dati dell&apos;account.
+            <GaranziaUsa testo={GARANZIE_USA.anthropic} />
           </li>
           <li>
             <strong>Resend (USA)</strong>: invia le email della lista d&apos;attesa (conferma e aggiornamenti).
             Riceve il tuo indirizzo email, il nome se l&apos;hai indicato e il testo dell&apos;email.
+            <GaranziaUsa testo={GARANZIE_USA.resend} />
           </li>
           {statisticheAttive ? (
             <li>
@@ -229,9 +237,17 @@ export default function PaginaPrivacy() {
           ) : null}
         </ul>
         <p>
-          L&apos;Unione europea ha un livello di protezione dei dati riconosciuto come adeguato dalla Svizzera. Per gli
-          Stati Uniti la comunicazione dei dati si basa sulla certificazione del fornitore secondo lo Swiss-U.S. Data
-          Privacy Framework oppure su clausole contrattuali standard [da confermare per ogni fornitore].
+          Per la Svizzera la protezione dei dati è adeguata negli Stati dell&apos;Unione europea e, negli Stati Uniti,
+          solo presso le imprese certificate secondo lo Swiss-U.S. Data Privacy Framework (
+          <a href={OPDA} target="_blank" rel="noopener noreferrer">
+            ordinanza sulla protezione dei dati, allegato 1
+          </a>
+          ; vedi l&apos;
+          <a href={ELENCO_DPF.url} target="_blank" rel="noopener noreferrer">
+            elenco delle imprese certificate
+          </a>
+          , controllato il {dataSvizzera(ELENCO_DPF.verificatoIl)}). Per ogni fornitore negli Stati Uniti trovi qui
+          sopra la garanzia usata.
         </p>
         <p>Non vendiamo i tuoi dati e non li diamo a terzi per pubblicità.</p>
       </section>

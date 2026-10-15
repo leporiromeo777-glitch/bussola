@@ -9,7 +9,8 @@
   --brand: #0f5e6b;
   --brand-strong: #0b4954;
   --brand-soft: #e3f0f1;
-  --accent: #d9822b;
+  /* Usato anche per testo piccolo: 5,30:1 su #ffffff e 5,08:1 su #fbfaf7 (WCAG AA 4,5:1). */
+  --accent: #9c5c1c;
   --danger: #b42318;
   --success: #1d7a46;
 }

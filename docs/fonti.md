@@ -21,6 +21,17 @@ Come funziona, in breve:
 > `"verificato_da": "import automatico - da ricontrollare a mano"`.
 > **Prima della beta vanno aperte e ricontrollate una per una** (vedi
 > "Controllo mensile"), poi si mette il proprio nome in `verificato_da`.
+> Finché `verificato_da` comincia con "import automatico", `npm run
+> fonti:importa` salva la fonte con `attiva = false` e senza scaricarla:
+> la chat non la usa e il riepilogo la segna come "non ancora ricontrollata
+> a mano".
+>
+> Revisione del 15.10.2026: `pmi-ditta-individuale-lanciarsi` è disattivata
+> (`"attiva": false`) perché dice che si chiede prima lo statuto alla Suva e
+> solo dopo all'AVS, mentre la domanda va alla cassa AVS, che la inoltra alla
+> Suva. Al suo posto ci sono `suva-accertamento-indipendente` e
+> `avs-presentare-domanda-indipendente`, con la procedura giusta. Quando due
+> pagine si contraddicono, la chat dà la precedenza all'ufficio che decide.
 
 ## Aggiungere una fonte
 
@@ -61,7 +72,7 @@ Aggiungi una voce in `supabase/fonti/elenco.json`:
 | `cantone` | `TI`, `GR` oppure `null` per le fonti federali. |
 | `argomenti` | Parole chiave libere, utili per orientarsi. |
 | `verificato_il` | Data (AAAA-MM-GG) in cui **tu** hai aperto e letto la pagina. La chat la mostra accanto a ogni fonte. |
-| `verificato_da` | Chi l'ha controllata. |
+| `verificato_da` | Nome di chi l'ha controllata. Con il segnaposto "import automatico - da ricontrollare a mano" la fonte resta fuori dalla chat. |
 | `attiva` | Facoltativo. `false` toglie la fonte dalla chat senza cancellarla. |
 
 Poi prova l'estrazione senza toccare il database:
@@ -71,7 +82,9 @@ npm run fonti:importa -- --prova --solo ti-rc-iscrizione-ditta-individuale
 ```
 
 Guarda i frammenti stampati: devono contenere il testo della pagina, non menu
-o banner. Se va bene, importa davvero (sezione seguente).
+o banner. La prova funziona anche con il segnaposto in `verificato_da`, così
+puoi controllare i frammenti prima di firmare la fonte con il tuo nome. Se va
+bene, importa davvero (sezione seguente).
 
 ## Eseguire l'import
 
@@ -91,7 +104,8 @@ npm run fonti:importa -- --solo <id>          # una fonte sola
 npm run fonti:importa -- --prova              # solo scarica e divide, senza database
 ```
 
-Per ogni fonte lo script:
+Per ogni fonte lo script (le fonti con `"attiva": false` o con il segnaposto in
+`verificato_da` le salva solo con `attiva = false`, senza scaricarle):
 
 1. scarica la pagina (con un User-Agent riconoscibile, seguendo i
    reindirizzamenti, al massimo 30 secondi);
@@ -146,6 +160,21 @@ Le regole cambiano (aliquote AVS, soglie, emolumenti). Ogni fonte ha
 5. Fai una prova nella chat con 2-3 domande sui temi cambiati.
 6. Fai il commit di `elenco.json` con un messaggio tipo
    "Controllo fonti di novembre 2026".
+
+**Cambio d'anno degli importi AVS.** Gli importi AVS (contributo minimo,
+tavola scalare) cambiano spesso il 1° gennaio. Per il 2027:
+
+- `ufas-importi-2027` è la scheda UFAS con i valori validi dal 01.01.2027
+  (contributo minimo CHF 541, tavola scalare da CHF 10'300 a 61'500);
+- `ahv-2-02-indipendenti` e `ufas-attivita-indipendente` riportano ancora i
+  valori 2026. Quando esce l'opuscolo 2.02 edizione 2027 (di solito a
+  novembre), ricontrollalo e rilancia
+  `npm run fonti:importa -- --solo ahv-2-02-indipendenti`: l'indirizzo
+  `ahv-iv.ch/p/2.02.i` resta lo stesso. Fai lo stesso con la pagina UFAS
+  quando viene aggiornata;
+- quando il Consiglio federale pubblica gli importi di un nuovo anno (di
+  solito in autunno), aggiungi la nuova scheda UFAS e, dal 1° gennaio,
+  metti `"attiva": false` a quella vecchia.
 
 Per disattivare subito una fonte sbagliata, senza aspettare l'import:
 

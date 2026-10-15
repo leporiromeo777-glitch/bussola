@@ -55,7 +55,10 @@ npm run build
 
 ### Supabase (database e accesso)
 
-1. Crea un progetto in una **regione UE** (per esempio Zurigo o Francoforte).
+1. Crea un progetto in **Svizzera** (eu-central-2, Zurigo) o **nell'UE**
+   (eu-central-1, Francoforte) e indica la scelta in
+   `NEXT_PUBLIC_SUPABASE_REGIONE_DATI` (`svizzera` o `ue`): l'informativa
+   sulla privacy dice dove sono i dati.
 2. Esegui la migrazione `supabase/migrations/20261015000000_schema_iniziale.sql`
    dal SQL editor (o con `supabase db push`).
 3. In *Authentication > URL Configuration* imposta come Site URL il dominio del
@@ -98,6 +101,21 @@ Prima di pubblicare compila `NEXT_PUBLIC_SITO_URL`,
 `NEXT_PUBLIC_TITOLARE_NOME`, `NEXT_PUBLIC_TITOLARE_INDIRIZZO` e
 `NEXT_PUBLIC_TITOLARE_EMAIL`: servono per l'impressum (LCSl), l'informativa
 privacy (LPD) e per attivare TWINT su Stripe.
+
+### Informativa sulla privacy
+
+Finché l'informativa (`/privacy`) ha parti tra parentesi quadre, la lista
+d'attesa non salva le iscrizioni: resta in modalità demo e il server scrive
+nei log cosa manca. Prima di aprirla:
+
+- compila i dati del titolare e `NEXT_PUBLIC_SUPABASE_REGIONE_DATI`;
+- pubblica su Vercel o Netlify (il fornitore si riconosce da solo nella
+  build);
+- in `src/lib/privacy.ts` scrivi per quanto tempo hosting e database tengono
+  i log e conferma le clausole contrattuali standard di Supabase, Anthropic
+  e Resend, che al 15.10.2026 non sono certificati Swiss-U.S. Data Privacy
+  Framework (Vercel e Netlify sì). Ricontrolla l'elenco su
+  https://www.dataprivacyframework.gov/list prima del lancio.
 
 ## Pubblicare
 

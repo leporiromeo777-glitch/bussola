@@ -1,6 +1,6 @@
 -- Bussola: schema iniziale.
--- Da eseguire su un progetto Supabase in regione UE (es. eu-central-2 Zurigo
--- o eu-central-1 Francoforte), dal SQL editor o con `supabase db push`.
+-- Da eseguire su un progetto Supabase in Svizzera (eu-central-2, Zurigo) o
+-- nell'UE (eu-central-1, Francoforte), dal SQL editor o con `supabase db push`.
 
 create extension if not exists vector with schema extensions;
 

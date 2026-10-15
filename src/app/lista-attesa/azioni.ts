@@ -8,6 +8,7 @@ import { esitoFinto, registraIscrizione } from "@/lib/lista-attesa/iscrizione";
 import { MESSAGGIO_DEMO, messaggioIscrizione } from "@/lib/lista-attesa/messaggi";
 import { provenienzaDaUrl } from "@/lib/lista-attesa/provenienza";
 import { creaInvioEmail, emailConfigurata } from "@/lib/lista-attesa/resend";
+import { informativaPrivacy } from "@/lib/privacy";
 import {
   leggiToken,
   trappolaCompilata,
@@ -58,7 +59,7 @@ export async function iscriviListaAttesa(prev: StatoIscrizione, form: FormData):
   }
 
   const esito = await registraIscrizione(dati, {
-    archivio: archivioListaAttesa(),
+    archivio: archivioRaccolta(),
     inviaEmail: creaInvioEmail(),
     mittente: { nomeSito: sito.nome, urlSito: sito.url, titolare: sito.titolare },
   });
@@ -84,6 +85,22 @@ export async function iscriviListaAttesa(prev: StatoIscrizione, form: FormData):
         tentativo,
       };
   }
+}
+
+/**
+ * Archivio per le nuove iscrizioni. Finché l'informativa sulla privacy ha
+ * parti da completare (titolare, hosting, garanzie per gli USA, durata dei
+ * log) non raccogliamo dati: la lista d'attesa resta in modalità demo.
+ */
+function archivioRaccolta() {
+  const archivio = archivioListaAttesa();
+  if (archivio && informativaPrivacy.incompleta) {
+    console.warn(
+      `[lista-attesa] modalità demo: completa l'informativa sulla privacy (${informativaPrivacy.daCompletare.join(", ")}) in src/lib/privacy.ts e nelle variabili d'ambiente.`,
+    );
+    return null;
+  }
+  return archivio;
 }
 
 export type StatoDisiscrizione = { stato: "iniziale" } | { stato: "errore"; messaggio: string };

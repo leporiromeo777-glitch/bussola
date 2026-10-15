@@ -31,8 +31,8 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
     risposta: (
       <>
         Bussola è un progetto di {sito.titolare.nome}, che sta affrontando adesso gli stessi passi e costruisce il
-        prodotto con l&apos;aiuto dell&apos;intelligenza artificiale. Le fonti ufficiali sono controllate a mano, una
-        per una. Indirizzo e contatti sono nell&apos;
+        prodotto con l&apos;aiuto dell&apos;intelligenza artificiale. Ogni fonte ufficiale viene controllata a mano
+        prima di essere usata. Indirizzo e contatti sono nell&apos;
         <Link href="/impressum" className={classeLink}>
           impressum
         </Link>
