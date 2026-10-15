@@ -29,7 +29,7 @@ beforeAll(async () => {
   db = new PGlite();
   await db.exec(`
     create schema extensions; create schema auth;
-    create role anon; create role authenticated;
+    create role anon; create role authenticated; create role service_role;
     create table auth.users (id uuid primary key default gen_random_uuid(), email text);
     create function auth.uid() returns uuid language sql stable as
       $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
@@ -61,6 +61,11 @@ async function come<T>(ruolo: "authenticated" | "anon", utente: string, fn: () =
 }
 
 const comeUtente = <T>(fn: () => Promise<T>, utente = UTENTE) => come("authenticated", utente, fn);
+
+const consuma = (chiave: string, massimo = 3, finestra = 3600) =>
+  db
+    .query<{ ok: boolean }>("select public.consuma_limite($1, $2, $3) as ok", [chiave, massimo, finestra])
+    .then((r) => r.rows[0]?.ok);
 
 async function prenota(domanda = "Devo iscrivermi all'IVA?") {
   const r = await db.query<{ id: number | null }>("select public.prenota_domanda($1) as id", [domanda]);
@@ -162,5 +167,34 @@ describe("quota della chat (prenota_domanda e chiudi_domanda)", () => {
     await comeUtente(() => db.query("select public.chiudi_domanda($1, $2, $3)", [id, [], true]));
     const dopo = await db.query<{ senza_risposta: boolean }>("select senza_risposta from public.domande_chat where id = $1", [id]);
     expect(dopo.rows[0]?.senza_risposta).toBe(false);
+  });
+});
+
+describe("limite di richieste per connessione (consuma_limite)", () => {
+  it("consente fino al massimo nella finestra, poi rifiuta", async () => {
+    const esiti = [];
+    for (let i = 0; i < 4; i++) esiti.push(await consuma("listaAttesa:abc"));
+    expect(esiti).toEqual([true, true, true, false]);
+    // Un'altra connessione ha il suo conteggio.
+    expect(await consuma("listaAttesa:def")).toBe(true);
+  });
+
+  it("le richieste fuori dalla finestra non contano più e vengono cancellate", async () => {
+    await db.exec(`
+      insert into public.limiti_richieste (chiave, creato_il)
+      select 'accesso:vecchia', now() - interval '2 hours' from generate_series(1, 5);
+    `);
+    expect(await consuma("accesso:vecchia")).toBe(true);
+    const r = await db.query<{ n: number }>(
+      "select count(*)::int as n from public.limiti_richieste where chiave = 'accesso:vecchia'",
+    );
+    expect(r.rows[0]?.n).toBe(1);
+  });
+
+  it("solo il server con la chiave segreta può usarlo; gli utenti non vedono la tabella", async () => {
+    await expect(comeUtente(() => consuma("listaAttesa:xyz"))).rejects.toThrow(/permission denied/);
+    await expect(come("anon", "", () => consuma("listaAttesa:xyz"))).rejects.toThrow(/permission denied/);
+    const r = await comeUtente(() => db.query<{ n: number }>("select count(*)::int as n from public.limiti_richieste"));
+    expect(r.rows[0]?.n).toBe(0);
   });
 });

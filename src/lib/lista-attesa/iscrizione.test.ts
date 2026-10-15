@@ -113,6 +113,44 @@ describe("registraIscrizione", () => {
     });
   });
 
+  it("l'email di conferma non contiene il nome scritto nel modulo", async () => {
+    const { archivio } = archivioFinto();
+    const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
+    await registraIscrizione({ ...dati, nome: "Giulia Spam" }, { archivio, inviaEmail: invia, mittente });
+    const messaggio = invia.mock.calls[0]![0];
+    expect(messaggio.testo).not.toContain("Giulia Spam");
+    expect(messaggio.html).not.toContain("Giulia Spam");
+  });
+
+  it("oltre il limite per connessione non salva e non manda email", async () => {
+    const { archivio, righe } = archivioFinto();
+    const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
+    const esito = await registraIscrizione(dati, {
+      archivio,
+      inviaEmail: invia,
+      mittente,
+      richiestaConsentita: async () => false,
+    });
+    expect(esito).toEqual({ tipo: "troppe_richieste" });
+    expect(righe).toEqual([]);
+    expect(invia).not.toHaveBeenCalled();
+    expect(messaggioIscrizione(esito, "giulia@example.ch").testo).toMatch(/troppe iscrizioni/);
+  });
+
+  it("entro il limite per connessione iscrive come sempre", async () => {
+    const { archivio, righe } = archivioFinto();
+    const consentita = vi.fn(async () => true);
+    const esito = await registraIscrizione(dati, {
+      archivio,
+      inviaEmail: null,
+      mittente,
+      richiestaConsentita: consentita,
+    });
+    expect(esito).toEqual({ tipo: "ok", conferma: "lancio" });
+    expect(consentita).toHaveBeenCalledOnce();
+    expect(righe).toHaveLength(1);
+  });
+
   it("se il database non risponde restituisce un errore senza scrivere l'email nei log", async () => {
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
     const { archivio } = archivioFinto({ guasto: true });

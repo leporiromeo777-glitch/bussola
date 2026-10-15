@@ -48,7 +48,12 @@ export type InviaEmail = (messaggio: MessaggioEmail) => Promise<boolean>;
  * email; "lancio" = salvato, gli scriveremo all'apertura. Un'email già in
  * lista dà lo stesso esito di una nuova: non riveliamo chi è iscritto.
  */
-export type EsitoIscrizione = { tipo: "ok"; conferma: "email" | "lancio" } | { tipo: "demo" } | { tipo: "errore" };
+export type EsitoIscrizione =
+  | { tipo: "ok"; conferma: "email" | "lancio" }
+  | { tipo: "demo" }
+  | { tipo: "errore" }
+  /** Troppe iscrizioni dalla stessa connessione in poco tempo. */
+  | { tipo: "troppe_richieste" };
 
 /** Risposta per i bot (campo trappola compilato): uguale a un'iscrizione riuscita. */
 export function esitoFinto(emailAttiva: boolean): EsitoIscrizione {
@@ -57,10 +62,17 @@ export function esitoFinto(emailAttiva: boolean): EsitoIscrizione {
 
 export async function registraIscrizione(
   dati: DatiIscrizione,
-  dipendenze: { archivio: ArchivioListaAttesa | null; inviaEmail: InviaEmail | null; mittente: Mittente },
+  dipendenze: {
+    archivio: ArchivioListaAttesa | null;
+    inviaEmail: InviaEmail | null;
+    mittente: Mittente;
+    /** Limite per connessione: false se da qui sono arrivate troppe iscrizioni. */
+    richiestaConsentita?: () => Promise<boolean>;
+  },
 ): Promise<EsitoIscrizione> {
-  const { archivio, inviaEmail, mittente } = dipendenze;
+  const { archivio, inviaEmail, mittente, richiestaConsentita } = dipendenze;
   if (!archivio) return { tipo: "demo" };
+  if (richiestaConsentita && !(await richiestaConsentita())) return { tipo: "troppe_richieste" };
 
   let inserimento: EsitoInserimento;
   try {
@@ -83,7 +95,7 @@ export async function registraIscrizione(
   if (inserimento.tipo === "duplicata") return esitoFinto(inviaEmail !== null);
   if (!inviaEmail) return { tipo: "ok", conferma: "lancio" };
 
-  const email = componiEmailConferma({ nome: dati.nome, token: inserimento.token, mittente });
+  const email = componiEmailConferma({ token: inserimento.token, mittente });
   const inviata = await inviaEmail({
     a: dati.email,
     oggetto: email.oggetto,

@@ -8,6 +8,7 @@ import { esitoFinto, registraIscrizione } from "@/lib/lista-attesa/iscrizione";
 import { MESSAGGIO_DEMO, messaggioIscrizione } from "@/lib/lista-attesa/messaggi";
 import { provenienzaDaUrl } from "@/lib/lista-attesa/provenienza";
 import { creaInvioEmail, emailConfigurata } from "@/lib/lista-attesa/resend";
+import { richiestaConsentita } from "@/lib/limiti/server";
 import {
   leggiToken,
   trappolaCompilata,
@@ -61,6 +62,7 @@ export async function iscriviListaAttesa(prev: StatoIscrizione, form: FormData):
     archivio: archivioListaAttesa(),
     inviaEmail: creaInvioEmail(),
     mittente: { nomeSito: sito.nome, urlSito: sito.url, titolare: sito.titolare },
+    richiestaConsentita: () => richiestaConsentita("listaAttesa"),
   });
   const { titolo, testo } = messaggioIscrizione(esito, dati.email);
 
@@ -70,6 +72,7 @@ export async function iscriviListaAttesa(prev: StatoIscrizione, form: FormData):
     case "demo":
       return { stato: "demo", titolo, messaggio: testo };
     case "errore":
+    case "troppe_richieste":
       return {
         stato: "errore",
         messaggio: testo,

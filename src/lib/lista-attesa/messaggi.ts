@@ -8,6 +8,9 @@ export const MESSAGGIO_DEMO =
 export const MESSAGGIO_ERRORE =
   "Non siamo riusciti a salvare l'iscrizione. Riprova tra qualche minuto: i dati che hai scritto sono ancora qui.";
 
+export const MESSAGGIO_TROPPE_RICHIESTE =
+  "Da questa connessione sono arrivate troppe iscrizioni in poco tempo. Riprova tra un'ora, oppure da un'altra rete (per esempio con i dati del telefono).";
+
 /** Testo da mostrare dopo l'invio del modulo, in base all'esito. */
 export function messaggioIscrizione(esito: EsitoIscrizione, email: string): Messaggio {
   switch (esito.tipo) {
@@ -15,6 +18,8 @@ export function messaggioIscrizione(esito: EsitoIscrizione, email: string): Mess
       return { titolo: "Iscrizioni non ancora attive", testo: MESSAGGIO_DEMO };
     case "errore":
       return { titolo: "Qualcosa non ha funzionato", testo: MESSAGGIO_ERRORE };
+    case "troppe_richieste":
+      return { titolo: "Troppe iscrizioni da questa connessione", testo: MESSAGGIO_TROPPE_RICHIESTE };
     case "ok":
       return esito.conferma === "email"
         ? {

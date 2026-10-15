@@ -88,6 +88,26 @@ describe("validaIscrizione", () => {
     }
   });
 
+  it.each(["Giulia", "Anna-Lena D'Alessandro", "Zoë Müller", "Nicolò", "N’Diaye", "José María"])(
+    "accetta il nome %s",
+    (nome) => {
+      const r = validaIscrizione(modulo({ ...valido, nome }));
+      expect(r.ok && r.dati.nome).toBe(nome);
+    },
+  );
+
+  it.each([
+    "Hai vinto CHF 1000, ritira su www.truffa-premi.ch entro oggi",
+    "www.truffa.ch",
+    "https://truffa.example",
+    "Giulia: chiama 079",
+    "<b>Giulia</b>",
+  ])("rifiuta un nome che non è un nome: %s", (nome) => {
+    const r = validaIscrizione(modulo({ ...valido, nome }));
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.errori.nome).toBe("Il nome può contenere solo lettere, spazi, apostrofi e trattini.");
+  });
+
   it("ignora i file al posto del testo", () => {
     const form = modulo(valido);
     form.set("nome", new Blob(["x"]));

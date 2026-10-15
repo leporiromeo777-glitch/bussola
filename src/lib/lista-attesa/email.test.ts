@@ -27,7 +27,7 @@ describe("link", () => {
 
 describe("componiEmailConferma", () => {
   it("contiene il link di conferma e quello per disiscriversi, in HTML e in testo", () => {
-    const email = componiEmailConferma({ nome: "Giulia", token, mittente });
+    const email = componiEmailConferma({ token, mittente });
     for (const corpo of [email.html, email.testo]) {
       expect(corpo).toContain(`https://bussola.example/lista-attesa/conferma?token=${token}`);
       expect(corpo).toContain(`https://bussola.example/lista-attesa/disiscriviti?token=${token}`);
@@ -47,20 +47,17 @@ describe("componiEmailConferma", () => {
     }
   });
 
-  it("saluta per nome se c'è, altrimenti in modo generico", () => {
-    expect(componiEmailConferma({ nome: "Giulia", token, mittente }).testo.startsWith("Ciao Giulia,")).toBe(true);
-    expect(componiEmailConferma({ nome: "  ", token, mittente }).testo.startsWith("Ciao,")).toBe(true);
-    expect(componiEmailConferma({ nome: null, token, mittente }).html).toContain("<p style=\"margin:0 0 16px;\">Ciao,</p>");
+  it("saluta sempre in modo generico: nessun testo scritto da chi compila il modulo", () => {
+    const email = componiEmailConferma({ token, mittente });
+    expect(email.testo.startsWith("Ciao,\n")).toBe(true);
+    expect(email.html).toContain("<p style=\"margin:0 0 16px;\">Ciao,</p>");
   });
 
-  it("fa l'escape del nome scritto dall'utente nell'HTML", () => {
-    const email = componiEmailConferma({ nome: `<img src=x onerror="alert(1)">`, token, mittente });
-    expect(email.html).not.toContain("<img");
-    expect(email.html).toContain("Ciao &lt;img src=x onerror=&quot;alert(1)&quot;&gt;,");
-  });
-
-  it("tiene il nome su una riga nel testo semplice", () => {
-    const email = componiEmailConferma({ nome: "Giulia\r\nBcc: altro@example.ch", token, mittente });
-    expect(email.testo.split("\n")[0]).toBe("Ciao Giulia Bcc: altro@example.ch,");
+  it("il testo dell'email è uguale per ogni iscrizione, a parte i link con il token", () => {
+    const altro = "9b1d2c3e-4f5a-4b6c-8d7e-0f1a2b3c4d5e";
+    const a = componiEmailConferma({ token, mittente });
+    const b = componiEmailConferma({ token: altro, mittente });
+    expect(b.testo.replaceAll(altro, token)).toBe(a.testo);
+    expect(b.html.replaceAll(altro, token)).toBe(a.html);
   });
 });
