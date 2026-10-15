@@ -259,3 +259,83 @@ export function dataSvizzera(iso: string): string {
   const [a, m, g] = iso.slice(0, 10).split("-");
   return `${g}.${m}.${a}`;
 }
+
+// ---------------------------------------------------------------------------
+// Strumenti (tariffa oraria, budget, preventivo e fattura). Aggiunti il
+// 15.10.2026: i valori della tavola scalare AVS sono in avs-tavola-scalare.ts.
+// ---------------------------------------------------------------------------
+
+/** Fonti usate solo dagli strumenti in /strumenti. */
+export const fontiStrumenti = {
+  oavs21: {
+    titolo: "Ordinanza sull'AVS (OAVS), art. 21: tavola scalare dei contributi",
+    url: "https://www.fedlex.admin.ch/eli/cc/63/1185_1183_1185/it#art_21",
+    ente: "Confederazione (Fedlex)",
+  },
+  adeguamentiAvs2027: {
+    titolo: "Ordinanze sugli adeguamenti AVS/AI/IPG dal 2027 (testo provvisorio)",
+    url: "https://cms.news.admin.ch/fileservice/sdweb-docs-prod-nsbcch-files/files/2026/10/02/10735a88-7905-4354-9b3f-2b4a118acd39.pdf",
+    ente: "Consiglio federale",
+  },
+  ufasContributi: {
+    titolo: "Contributi: panoramica e calcolatore",
+    url: "https://www.bsv.admin.ch/it/contributi-panoramica",
+    ente: "Ufficio federale delle assicurazioni sociali (UFAS)",
+  },
+  lafam16: {
+    titolo: "Legge sugli assegni familiari (LAFam), art. 16",
+    url: "https://www.fedlex.admin.ch/eli/cc/2008/51/it#art_16",
+    ente: "Confederazione (Fedlex)",
+  },
+  afcCalcolatoreImposte: {
+    titolo: "Calcolatore d'imposta",
+    url: "https://www.estv.admin.ch/it/calcolatore-d-imposta-calcolare-le-imposte",
+    ente: "Amministrazione federale delle contribuzioni (AFC)",
+  },
+  liva26: { titolo: "Legge sull'IVA, art. 26", url: `${LIVA}#art_26`, ente: "Confederazione (Fedlex)" },
+  afcIdi: {
+    titolo: "Numero d'identificazione delle imprese (IDI)",
+    url: "https://www.estv.admin.ch/it/numero-identificazione-delle-imprese-idi",
+    ente: "Amministrazione federale delle contribuzioni (AFC)",
+  },
+  co954a: { titolo: "Codice delle obbligazioni, art. 954a", url: `${CO}#art_954_a`, ente: "Confederazione (Fedlex)" },
+  sixLineeGuidaQr: {
+    titolo: "Swiss Implementation Guidelines for the QR-bill, versione 2.3",
+    url: "https://www.six-group.com/dam/download/banking-services/standardization/qr-bill/ig-qr-bill-v2.3-en.pdf",
+    ente: "SIX",
+  },
+} as const satisfies Record<string, Fonte>;
+
+/** Dati usati dagli strumenti, oltre a quelli già sopra. */
+export const datiStrumenti = {
+  guadagnoMassimoAssegniFamiliari: dato(
+    148_200,
+    fonti.iasAliquote2025,
+    "Il contributo per gli assegni familiari si calcola solo fino al guadagno massimo assicurato LAINF (LAFam art. 16 cpv. 4). Valore del foglio IAS 2025.",
+  ),
+  limiteAttivitaAccessoria: dato(
+    2_500,
+    fonti.avsPromemoria202,
+    "Attività indipendente accessoria: fino a questo reddito annuo i contributi AVS/AI/IPG si pagano solo se li chiedi tu (punto 6).",
+  ),
+  quotaMassimaPilastro3a: dato(
+    0.2,
+    fonti.opp3,
+    "Senza cassa pensione il versamento 3a deducibile è al massimo il 20% del reddito da attività lucrativa, entro l'importo massimo dell'anno.",
+  ),
+  qrIid: dato(
+    { da: 30_000, a: 31_999 },
+    fontiStrumenti.sixLineeGuidaQr,
+    "I QR-IBAN hanno un QR-IID tra 30000 e 31999 (cap. 2.8) e si usano solo con il riferimento QR (QRR).",
+  ),
+  importoQr: dato(
+    { minimo: 0.01, massimo: 999_999_999.99 },
+    fontiStrumenti.sixLineeGuidaQr,
+    "Importo ammesso nella sezione pagamento, in CHF o EUR (cap. 3).",
+  ),
+  indirizzoStrutturatoQr: dato(
+    "2025-11-22",
+    fonti.six,
+    "Dal 22.11.2025 nella QR-fattura è ammesso solo l'indirizzo strutturato (tipo S): NPA, località e paese obbligatori.",
+  ),
+} as const;
