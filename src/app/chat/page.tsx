@@ -77,7 +77,7 @@ function AvvisoDemo() {
         Questa è una versione di prova: mancano le chiavi di configurazione (Supabase e Claude), quindi la chat non
         può rispondere. Nel frattempo puoi seguire i passi del tuo percorso.
       </p>
-      <Link href="/questionario" className="mt-4 inline-block font-medium text-brand underline underline-offset-2">
+      <Link href="/percorso" className="mt-4 inline-block font-medium text-brand underline underline-offset-2">
         Vai al tuo percorso
       </Link>
     </div>
