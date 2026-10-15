@@ -16,6 +16,7 @@ import {
   indirizzoCompleto,
   pulisciTestoQr,
   validaIbanPerQr,
+  validaPagamentoQr,
   type DatiPagamentoQr,
   type ErroreQr,
   type IndirizzoStrutturato,
@@ -286,7 +287,42 @@ export function controllaDocumento(doc: Documento): Problema[] {
   });
   const totali = calcolaTotali(doc);
   if (totali.totale < 0) p.push({ campo: "righe", messaggio: "Il totale non può essere negativo." });
+
+  // Fattura: senza una sezione pagamento valida il PDF esce senza conto né codice QR.
+  if (doc.tipo === "fattura") {
+    for (const errore of erroriPagamento(doc)) {
+      // Nome, NPA e località sono già chiesti sopra con un messaggio più chiaro.
+      if (errore.campo === "creditore.nome" && p.some((x) => x.campo === "emittente.nome")) continue;
+      if (/^creditore\.(npa|localita)$/.test(errore.campo) && p.some((x) => x.campo === "emittente.localita")) continue;
+      const messaggio = messaggioPagamento(errore);
+      if (!p.some((x) => x.messaggio === messaggio)) p.push({ campo: `pagamento.${errore.campo}`, messaggio });
+    }
+  }
   return p;
+}
+
+/** Cosa impedisce la sezione pagamento della fattura (vuoto se si può creare). */
+export function erroriPagamento(doc: Documento): ErroreQr[] {
+  const pagamento = pagamentoDaDocumento(doc);
+  if (!pagamento.ok) return pagamento.errori;
+  const valido = validaPagamentoQr(pagamento.dati);
+  return valido.ok ? [] : valido.errori;
+}
+
+const CAMPI_INDIRIZZO_EMITTENTE: Record<string, string> = {
+  nome: "nome",
+  via: "via",
+  numero: "numero civico",
+  npa: "NPA",
+  localita: "località",
+  paese: "paese",
+};
+
+/** I messaggi sull'indirizzo del creditore dicono di quale campo si tratta. */
+function messaggioPagamento(errore: ErroreQr): string {
+  const campo = /^creditore\.(\w+)$/.exec(errore.campo)?.[1];
+  if (!campo) return errore.messaggio;
+  return `Il tuo indirizzo nella QR-fattura (${CAMPI_INDIRIZZO_EMITTENTE[campo] ?? campo}): ${errore.messaggio}`;
 }
 
 /**

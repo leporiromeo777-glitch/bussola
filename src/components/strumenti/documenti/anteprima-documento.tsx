@@ -178,7 +178,7 @@ export function AnteprimaDocumento({ doc }: { doc: Documento }) {
           <p className="mt-6">
             {doc.scadenza ? `Da pagare entro il ${data(doc.scadenza)}` : "Da pagare"}
             {e.iban ? ` sul conto ${formattaIban(e.iban)}` : ""}
-            {e.nome ? `, intestato a ${e.nome}` : ""}.
+            {e.iban && e.nome ? `, intestato a ${e.nome}` : ""}.
           </p>
         ) : doc.scadenza ? (
           <p className="mt-6">Questo preventivo è valido fino al {data(doc.scadenza)}.</p>

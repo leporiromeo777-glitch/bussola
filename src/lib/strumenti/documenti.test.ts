@@ -9,6 +9,7 @@ import {
   duplicaDocumento,
   elementiObbligatoriIva,
   emittenteVuoto,
+  erroriPagamento,
   normalizzaNumeroIva,
   nuovoDocumento,
   pagamentoDaDocumento,
@@ -175,6 +176,40 @@ describe("controlli", () => {
     expect(campi).toEqual(
       expect.arrayContaining(["emittente.nome", "emittente.numeroIva", "valuta", "numero", "scadenza", "cliente.nome", "righe.r-.descrizione"]),
     );
+  });
+
+  it("fattura: controlla anche la sezione pagamento", () => {
+    const campi = (d: Documento) => controllaDocumento(d).map((p) => p.campo);
+    // Senza IBAN: il PDF uscirebbe senza conto e senza QR.
+    const senzaIban = controllaDocumento(fattura({ emittente: { ...emittente, iban: "" } }));
+    expect(senzaIban).toContainEqual({ campo: "pagamento.iban", messaggio: "Scrivi l'IBAN del conto su cui vuoi ricevere i pagamenti." });
+    // IBAN che non vale per la QR-fattura (non CH/LI) o sbagliato.
+    expect(campi(fattura({ emittente: { ...emittente, iban: "DE89 3704 0044 0532 0130 00" } }))).toContain("pagamento.iban");
+    expect(campi(fattura({ emittente: { ...emittente, iban: "CH93 0076 2011 6238 5295 8" } }))).toContain("pagamento.iban");
+    // QR-IBAN con un numero senza cifre: nessun riferimento QR possibile.
+    expect(campi(fattura({ numero: "Logo-Bar", emittente: { ...emittente, iban: "CH44 3199 9123 0008 8901 2" } }))).toContain(
+      "pagamento.riferimento",
+    );
+    // QR-IBAN con un riferimento scritto a mano sbagliato.
+    expect(
+      campi(fattura({ riferimento: "manuale", riferimentoManuale: "123", emittente: { ...emittente, iban: "CH44 3199 9123 0008 8901 2" } })),
+    ).toContain("pagamento.riferimento");
+    // Importo zero.
+    expect(campi(fattura({ righe: [riga("Omaggio", "1", "0")] }))).toContain("pagamento.importo");
+    // Carattere non ammesso nel tuo nome: il messaggio dice in quale campo.
+    const emoji = controllaDocumento(fattura({ emittente: { ...emittente, nome: "Giulia 😀" } }));
+    const problemaNome = emoji.find((p) => p.campo === "pagamento.creditore.nome");
+    expect(problemaNome?.messaggio).toContain("Il tuo indirizzo nella QR-fattura (nome)");
+    expect(problemaNome?.messaggio).toContain("😀");
+    // Nome o località mancanti si segnalano una volta sola, con il messaggio chiaro.
+    const senzaNome = campi(fattura({ emittente: { ...emittente, nome: "", npa: "" } }));
+    expect(senzaNome).toContain("emittente.nome");
+    expect(senzaNome).toContain("emittente.localita");
+    expect(senzaNome).not.toContain("pagamento.creditore.nome");
+    expect(senzaNome).not.toContain("pagamento.creditore.npa");
+    // Il preventivo non ha la sezione pagamento: l'IBAN non serve.
+    expect(controllaDocumento({ ...fattura({ emittente: { ...emittente, iban: "" } }), tipo: "preventivo" })).toEqual([]);
+    expect(erroriPagamento(fattura())).toEqual([]);
   });
 
   it("senza righe compilate", () => {
