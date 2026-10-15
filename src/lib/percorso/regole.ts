@@ -175,6 +175,26 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
         };
   },
 
+  "notifica-derrate-alimentari": (r) => {
+    if (r.attivita !== "ristorazione_alimentari") {
+      return { stato: "non_serve", perche: "Riguarda chi produce, trasforma o vende alimenti." };
+    }
+    const chi =
+      "Hai indicato ristorazione, bar o alimentari: chi lavora con gli alimenti, anche con un catering o con prodotti fatti in casa, deve notificare l'attività";
+    if (inTicino(r)) {
+      return { stato: "da_fare", perche: `${chi} al ${ufficiPercorso.laboratorioCantonaleTicino.valore.nome}.` };
+    }
+    return {
+      stato: "da_fare",
+      perche: `${chi} all'autorità cantonale per le derrate alimentari del tuo Cantone.`,
+      note: [
+        r.cantone === "GR"
+          ? "Il formulario e l'indirizzo del passo sono ticinesi. Nei Grigioni la notifica si fa con il modulo online dell'Ufficio per la sicurezza delle derrate alimentari e la salute degli animali (trovi il link tra le fonti)."
+          : "Il formulario e l'indirizzo del passo sono ticinesi: nel tuo Cantone usa quelli dell'autorità cantonale per le derrate alimentari.",
+      ],
+    };
+  },
+
   "autorizzazione-sanitaria": (r) => {
     if (r.attivita !== "salute_benessere") {
       return { stato: "non_serve", perche: "Riguarda le attività sanitarie." };

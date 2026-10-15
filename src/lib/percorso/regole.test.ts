@@ -115,6 +115,35 @@ describe("regole: autorizzazioni di settore", () => {
     expect(stato({}, "autorizzazione-esercizio-pubblico")).toBe("non_serve");
   });
 
+  it("alimenti: notifica dell'attività al Cantone (ODerr art. 20), anche senza locale pubblico", () => {
+    const percorso = calcolaPercorso(risposte({ attivita: "ristorazione_alimentari", locali: "no" }));
+    const p = passo(percorso, "notifica-derrate-alimentari");
+    expect(p.stato).toBe("da_fare");
+    expect(p.perche).toContain("Laboratorio cantonale");
+    expect(p.passo.fonti).toEqual(
+      expect.arrayContaining([fontiPercorso.oderr20, fontiPercorso.laboratorioCantonaleNotifica]),
+    );
+    expect(p.passo.link.url).toBe(fontiPercorso.laboratorioCantonaleNotifica.url);
+    expect(p.passo.descrizione).toMatch(/mercatini, feste scolastiche/);
+  });
+
+  it("alimenti fuori dal Ticino: notifica all'autorità del proprio Cantone", () => {
+    const notifica = (cantone: Risposte["cantone"]) =>
+      passo(calcolaPercorso(risposte({ attivita: "ristorazione_alimentari", cantone })), "notifica-derrate-alimentari");
+    for (const cantone of ["GR", "altro"] as const) {
+      expect(notifica(cantone).stato).toBe("da_fare");
+      expect(notifica(cantone).perche).toContain("del tuo Cantone");
+      expect(notifica(cantone).perche).not.toContain("Laboratorio cantonale");
+    }
+    expect(notifica("GR").note.join(" ")).toMatch(/Grigioni/);
+  });
+
+  it("le altre attività non hanno la notifica degli alimenti", () => {
+    for (const attivita of ["digitale_creativo", "commercio_online", "salute_benessere", "altro"] as const) {
+      expect(stato({ attivita }, "notifica-derrate-alimentari")).toBe("non_serve");
+    }
+  });
+
   it("salute in Ticino: autorizzazione sanitaria da fare e avviso", () => {
     const percorso = calcolaPercorso(risposte({ attivita: "salute_benessere" }));
     expect(passo(percorso, "autorizzazione-sanitaria").stato).toBe("da_fare");
@@ -514,6 +543,7 @@ describe("persone tipo", () => {
     );
     for (const id of [
       "autorizzazione-esercizio-pubblico",
+      "notifica-derrate-alimentari",
       "locali-pubblico",
       "iscrizione-rc",
       "iscrizione-iva",
