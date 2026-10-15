@@ -14,14 +14,23 @@ export type FlussoModello = {
   messaggioFinale(): Promise<Pick<BetaMessage, "stop_reason" | "content">>;
 };
 
-/** Registro di una domanda in public.domande_chat. */
-export type RegistroDomanda = { domanda: string; fonti_citate: string[]; senza_risposta: boolean };
+/**
+ * Esito di una domanda, da scrivere sulla riga di public.domande_chat già
+ * prenotata (e contata nella quota) prima di chiamare Claude.
+ */
+export type RegistroDomanda = { fonti_citate: string[]; senza_risposta: boolean };
 
 /** Dipendenze esterne della chat: si sostituiscono nei test. */
 export type DipendenzeChat = {
   cerca(testo: string): Promise<FrammentoTrovato[]>;
   genera(richiesta: RichiestaModello): FlussoModello;
+  /** Completa la domanda prenotata con le fonti citate. */
   salva(registro: RegistroDomanda): Promise<void>;
+  /**
+   * Toglie la prenotazione dopo un errore vero (ricerca o modello), così non
+   * conta nella quota. Mai dopo un'interruzione di chi chiede: quella conta.
+   */
+  annulla(): Promise<void>;
   /** Messaggio per l'utente per un errore del modello; null se la richiesta è stata interrotta. */
   descriviErrore(errore: unknown): string | null;
   registraErrore(contesto: string, errore: unknown): void;
@@ -37,7 +46,8 @@ export type DomandaChat = {
 /**
  * Risponde a una domanda: cerca i frammenti delle fonti, e solo se ne trova
  * chiede a Claude una risposta con citazioni; trasmette il testo man mano e
- * alla fine la risposta con le fonti. Registra ogni domanda a cui risponde.
+ * alla fine la risposta con le fonti. La domanda è già prenotata (e contata):
+ * qui si completa con le fonti citate, oppure si annulla dopo un errore vero.
  */
 export async function* rispondi(dip: DipendenzeChat, input: DomandaChat): AsyncGenerator<EventoChat, void, undefined> {
   const domanda = input.domanda.trim();
@@ -50,6 +60,7 @@ export async function* rispondi(dip: DipendenzeChat, input: DomandaChat): AsyncG
     if (trovati.length === 0 && ultima) trovati = await dip.cerca(`${ultima.domanda} ${domanda}`);
   } catch (errore) {
     dip.registraErrore("ricerca nelle fonti", errore);
+    await annullaSenzaBloccare(dip);
     yield { t: "errore", messaggio: MESSAGGI.ricercaNonRiuscita };
     return;
   }
@@ -57,7 +68,7 @@ export async function* rispondi(dip: DipendenzeChat, input: DomandaChat): AsyncG
   const frammenti = raggruppaPerFonte(trovati);
   if (frammenti.length === 0) {
     // Nessuna fonte: niente chiamata a Claude, risposta fissa.
-    await salvaSenzaBloccare(dip, { domanda, fonti_citate: [], senza_risposta: true });
+    await salvaSenzaBloccare(dip, { fonti_citate: [], senza_risposta: true });
     yield {
       t: "fine",
       risposta: [{ testo: MESSAGGI.nessunaFonte, citazioni: [] }],
@@ -80,26 +91,36 @@ export async function* rispondi(dip: DipendenzeChat, input: DomandaChat): AsyncG
     finale = await flusso.messaggioFinale();
   } catch (errore) {
     const messaggio = dip.descriviErrore(errore);
+    // Interrotta da chi chiede: la prenotazione resta e la domanda conta.
     if (messaggio === null) return;
     dip.registraErrore("risposta di Claude", errore);
+    await annullaSenzaBloccare(dip);
     yield { t: "errore", messaggio };
     return;
   }
 
   const esito = interpretaRisposta(finale, frammenti);
   await salvaSenzaBloccare(dip, {
-    domanda,
     fonti_citate: esito.fonti.map((f) => f.fonte_id),
     senza_risposta: esito.senza_risposta,
   });
   yield { t: "fine", ...esito, ...(input.quotaDopo ? { quota: input.quotaDopo } : {}) };
 }
 
-/** Il registro serve alla quota e a trovare le fonti mancanti, ma non deve bloccare la risposta. */
+/** Il registro serve a trovare le fonti mancanti, ma non deve bloccare la risposta. */
 async function salvaSenzaBloccare(dip: DipendenzeChat, registro: RegistroDomanda) {
   try {
     await dip.salva(registro);
   } catch (errore) {
     dip.registraErrore("registro della domanda", errore);
+  }
+}
+
+/** Se l'annullamento non riesce la domanda resta contata: meglio così che bloccare. */
+async function annullaSenzaBloccare(dip: DipendenzeChat) {
+  try {
+    await dip.annulla();
+  } catch (errore) {
+    dip.registraErrore("annullamento della domanda", errore);
   }
 }

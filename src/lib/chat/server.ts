@@ -1,5 +1,6 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { createClient } from "@/lib/supabase/server";
 import { dettagliErrore, messaggioErrore } from "./errori";
 import type { DipendenzeChat } from "./flusso";
@@ -49,14 +50,38 @@ export async function leggiQuota(supabase: ClientSupabase, userId: string, ora =
   return calcolaQuota((profilo.data as ProfiloPiano | null) ?? null, conteggio.count ?? 0, ora);
 }
 
+export type PrenotazioneDomanda = { tipo: "prenotata"; id: number } | { tipo: "quota_esaurita" } | { tipo: "errore" };
+
+/**
+ * Prenota la domanda con public.prenota_domanda: controlla la quota e scrive
+ * la riga in un colpo solo, sotto un lock per utente. Così né le richieste
+ * parallele né quelle interrotte a metà superano la quota.
+ */
+export async function prenotaDomanda(supabase: ClientSupabase, domanda: string): Promise<PrenotazioneDomanda> {
+  const { data, error } = await supabase.rpc("prenota_domanda", { p_domanda: domanda });
+  if (error) {
+    registraErrore("prenotazione della domanda", new Error(`prenota_domanda: ${error.code ?? "?"} ${error.message}`));
+    return { tipo: "errore" };
+  }
+  if (data === null) return { tipo: "quota_esaurita" };
+  const id = Number(data);
+  if (!Number.isSafeInteger(id)) {
+    registraErrore("prenotazione della domanda", new Error("prenota_domanda: id non valido"));
+    return { tipo: "errore" };
+  }
+  return { tipo: "prenotata", id };
+}
+
 /** Collega la chat a Supabase (ricerca e registro) e a Claude (risposta in streaming). */
 export function dipendenzeChat(opzioni: {
   supabase: ClientSupabase;
   userId: string;
+  /** Riga di domande_chat prenotata per questa domanda. */
+  idDomanda: number;
   anthropic: Anthropic;
   segnale: AbortSignal;
 }): DipendenzeChat {
-  const { supabase, userId, anthropic, segnale } = opzioni;
+  const { supabase, userId, idDomanda, anthropic, segnale } = opzioni;
   return {
     async cerca(testo) {
       const { data, error } = await supabase.rpc("cerca_frammenti", {
@@ -96,8 +121,22 @@ export function dipendenzeChat(opzioni: {
     },
 
     async salva(registro) {
-      const { error } = await supabase.from("domande_chat").insert({ user_id: userId, ...registro });
-      if (error) throw new Error(`domande_chat: ${error.message}`);
+      const { error } = await supabase.rpc("chiudi_domanda", {
+        p_id: idDomanda,
+        p_fonti: registro.fonti_citate,
+        p_senza: registro.senza_risposta,
+      });
+      if (error) throw new Error(`chiudi_domanda: ${error.message}`);
+    },
+
+    async annulla() {
+      // Interrotta da chi chiede: la domanda resta contata.
+      if (segnale.aborted) return;
+      // Solo con la chiave segreta: all'utente non si dà un modo per azzerarsi la quota.
+      const admin = createAdminClient();
+      if (!admin) return;
+      const { error } = await admin.from("domande_chat").delete().eq("id", idDomanda).eq("user_id", userId);
+      if (error) throw new Error(`domande_chat (annullamento): ${error.message}`);
     },
 
     descriviErrore: messaggioErrore,

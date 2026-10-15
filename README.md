@@ -56,8 +56,9 @@ npm run build
 ### Supabase (database e accesso)
 
 1. Crea un progetto in una **regione UE** (per esempio Zurigo o Francoforte).
-2. Esegui la migrazione `supabase/migrations/20261015000000_schema_iniziale.sql`
-   dal SQL editor (o con `supabase db push`).
+2. Esegui tutte le migrazioni di `supabase/migrations/`, in ordine di nome
+   (prima `20261015000000_schema_iniziale.sql`, poi le successive), dal SQL
+   editor o con `supabase db push`.
 3. In *Authentication > URL Configuration* imposta come Site URL il dominio del
    sito e aggiungi `https://<dominio>/auth/conferma*` tra i Redirect URLs.
 4. Facoltativo, per far funzionare il link anche se si apre su un altro
