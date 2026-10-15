@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  articoloNumero,
   arrotonda,
   arrotonda5Centesimi,
   arrotondaPerEccesso,
@@ -122,4 +123,18 @@ describe("numeroBreve", () => {
     expect(numeroBreve(15.2, 2)).toBe("15,2");
     expect(numeroBreve(100, 2)).toBe("100");
   });
+});
+
+describe("articoloNumero", () => {
+  it.each([
+    ["8,3%", "l'"],
+    ["11,2%", "l'"],
+    ["1,5%", "l'"],
+    ["80%", "l'"],
+    ["0,5%", "lo "],
+    ["10%", "il "],
+    ["9,4%", "il "],
+    ["18%", "il "],
+    ["111%", "il "],
+  ])("%s → %s", (testo, atteso) => expect(articoloNumero(testo)).toBe(atteso));
 });

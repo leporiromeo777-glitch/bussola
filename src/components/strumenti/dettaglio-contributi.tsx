@@ -1,8 +1,14 @@
 import { tavoleScalari } from "@/data/avs-tavola-scalare";
 import { datiStrumenti, fonti, fontiStrumenti, percentuale, supplementiTicino, uffici } from "@/data/svizzera";
 import { descrizioneCaso, type StimaContributi } from "@/lib/strumenti/avs";
-import { importo, numeroSvizzero } from "@/lib/strumenti/numeri";
+import { articoloNumero, importo, numeroSvizzero } from "@/lib/strumenti/numeri";
 import { EtichettaStima, FonteLink, Fonti, RigaValore } from "./ui";
+
+/** "Circa l'11,2% del reddito", con l'articolo giusto davanti al numero. */
+function notaTassoEffettivo(tasso: number): string {
+  const testo = percentuale(tasso, 1);
+  return `Circa ${articoloNumero(testo)}${testo} del reddito`;
+}
 
 /** Dettaglio dei contributi sociali stimati, con le fonti di ogni percentuale. */
 export function DettaglioContributi({ stima, titolo }: { stima: StimaContributi; titolo?: string }) {
@@ -50,7 +56,7 @@ export function DettaglioContributi({ stima, titolo }: { stima: StimaContributi;
         />
         <RigaValore
           etichetta="Totale all'anno"
-          nota={stima.tassoEffettivo !== null ? `Circa il ${percentuale(stima.tassoEffettivo, 1)} del reddito` : undefined}
+          nota={stima.tassoEffettivo !== null ? notaTassoEffettivo(stima.tassoEffettivo) : undefined}
           valore={importo(stima.totale)}
           forte
         />

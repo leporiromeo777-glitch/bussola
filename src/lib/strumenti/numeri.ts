@@ -108,6 +108,18 @@ export function importo(valore: number, decimali: 0 | 2 = 2, valuta = "CHF"): st
   return testo.startsWith("-") ? `-${valuta} ${testo.slice(1)}` : `${valuta} ${testo}`;
 }
 
+/**
+ * Articolo determinativo davanti a un numero scritto in cifre, come si legge:
+ * "l'8,3%", "l'11,2%", "l'1,5%", "lo 0,5%", ma "il 10%" e "il 18%".
+ */
+export function articoloNumero(testo: string): "il " | "l'" | "lo " {
+  const intero = /^\d+/.exec(testo.replace(/'/g, ""))?.[0] ?? "";
+  if (intero === "0") return "lo ";
+  // uno, undici, otto, ottanta, ottocento…: iniziano per vocale.
+  if (intero === "1" || intero === "11" || intero.startsWith("8")) return "l'";
+  return "il ";
+}
+
 /** Limita un numero a un intervallo. */
 export function limita(valore: number, minimo: number, massimo: number): number {
   return Math.min(massimo, Math.max(minimo, valore));
