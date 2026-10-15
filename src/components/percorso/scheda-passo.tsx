@@ -39,7 +39,7 @@ export function SchedaPasso({
   return (
     <li
       id={`passo-${passo.id}`}
-      className={`scroll-mt-24 rounded-xl border bg-card p-4 break-inside-avoid sm:p-5 ${
+      className={`scroll-mt-24 rounded-xl border bg-card p-4 sm:p-5 ${
         prossimo ? "border-brand ring-1 ring-brand" : "border-border"
       }`}
     >
@@ -54,7 +54,7 @@ export function SchedaPasso({
         />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 className="font-semibold">
+            <h3 className="font-semibold break-after-avoid">
               <label htmlFor={idCasella} className={`cursor-pointer ${fatto ? "text-muted line-through" : ""}`}>
                 <span className="sr-only">Fatto: </span>
                 {passo.titolo}
@@ -152,7 +152,7 @@ export function SchedaPasso({
               </Link>
             </div>
             <p className="hidden text-sm print:block">
-              Pagina ufficiale: {passo.link.etichetta}, {passo.link.url}
+              Pagina ufficiale: {passo.link.etichetta}, <span className="break-all">{passo.link.url}</span>
             </p>
 
             <ElencoFonti fonti={passo.fonti} verificatoIl={passo.verificatoIl} />

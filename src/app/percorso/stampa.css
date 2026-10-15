@@ -1,0 +1,53 @@
+/*
+ * Stampa del percorso (pulsante "Stampa", anche "Salva come PDF"): niente
+ * intestazione, piè di pagina e link "Vai al contenuto" del sito; colori
+ * chiari anche se il sistema è in modalità scura, perché si stampa su carta
+ * bianca. Sono le stesse regole di base di src/app/strumenti/stampa.css:
+ * caricate insieme non si contraddicono.
+ */
+@media print {
+  body > header,
+  body > footer,
+  body > a[href="#contenuto"] {
+    display: none !important;
+  }
+
+  :root:root {
+    --background: #ffffff;
+    --foreground: #1c1f24;
+    --muted: #4b515b;
+    --card: #ffffff;
+    --border: #d6d2c9;
+    --brand: #0f5e6b;
+    --brand-strong: #0b4954;
+    --brand-soft: #eef6f7;
+    --accent: #b5651d;
+    --danger: #b42318;
+    --success: #1d7a46;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #1c1f24;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+
+  a[href^="http"] {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+}

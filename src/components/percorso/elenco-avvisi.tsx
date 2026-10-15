@@ -13,7 +13,7 @@ export function ElencoAvvisi({ avvisi, verificatoIl }: { avvisi: readonly Avviso
   if (avvisi.length === 0) return null;
   return (
     <section aria-labelledby="titolo-avvisi">
-      <h2 id="titolo-avvisi" className="text-xl font-semibold tracking-tight">
+      <h2 id="titolo-avvisi" className="text-xl font-semibold tracking-tight break-after-avoid">
         Da sapere subito
       </h2>
       <ul className="mt-4 space-y-3">

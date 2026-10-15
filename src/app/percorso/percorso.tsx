@@ -279,7 +279,7 @@ export function Percorso({
             const idTitolo = `fase-${FASI.indexOf(fase)}`;
             return (
               <section key={fase} aria-labelledby={idTitolo}>
-                <h2 id={idTitolo} className="text-xl font-semibold tracking-tight">
+                <h2 id={idTitolo} className="text-xl font-semibold tracking-tight break-after-avoid">
                   {TITOLI_FASI[fase]}
                 </h2>
                 <ol className="mt-4 space-y-3">
@@ -395,21 +395,31 @@ function ConfermaSalvataggio({
 }
 
 function RiepilogoRisposte({ risposte }: { risposte: Risposte }) {
+  const elenco = (classe: string) => (
+    <dl className={classe}>
+      {DOMANDE.map((d) => (
+        <div key={d.id} className="contents">
+          <dt className="text-muted">{d.breve}</dt>
+          <dd>
+            {etichettaRisposta(d.id, risposte[d.id])}
+            {d.id === "attivita" && risposte.attivitaAltro ? `: ${risposte.attivitaAltro}` : ""}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
   return (
-    <details className="rounded-xl border border-border bg-card p-4 text-sm print:block">
-      <summary className="cursor-pointer font-medium print:list-none">Le tue risposte</summary>
-      <dl className="mt-3 grid gap-x-4 gap-y-1 sm:grid-cols-[auto_1fr]">
-        {DOMANDE.map((d) => (
-          <div key={d.id} className="contents">
-            <dt className="text-muted">{d.breve}</dt>
-            <dd>
-              {etichettaRisposta(d.id, risposte[d.id])}
-              {d.id === "attivita" && risposte.attivitaAltro ? `: ${risposte.attivitaAltro}` : ""}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </details>
+    <>
+      <details className="rounded-xl border border-border bg-card p-4 text-sm print:hidden">
+        <summary className="cursor-pointer font-medium">Le tue risposte</summary>
+        {elenco("mt-3 grid gap-x-4 gap-y-1 sm:grid-cols-[auto_1fr]")}
+      </details>
+      {/* Un <details> chiuso non stampa il contenuto: sulla carta le risposte ci sono sempre. */}
+      <section className="hidden rounded-xl border border-border p-4 text-sm break-inside-avoid print:block">
+        <h2 className="font-medium">Le tue risposte</h2>
+        {elenco("mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1")}
+      </section>
+    </>
   );
 }
 
