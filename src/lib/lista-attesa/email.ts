@@ -56,7 +56,7 @@ export function componiEmailConferma({ token, mittente }: { token: string; mitte
   const testo = [
     "Ciao,",
     "",
-    `grazie per l'interesse per ${nomeSito}. Per confermare che questo indirizzo è tuo, apri questo link:`,
+    `grazie per l'interesse per ${nomeSito}. Per confermare che questo indirizzo è tuo, apri questo link e premi «Confermo l'iscrizione»:`,
     "",
     conferma,
     "",
@@ -80,8 +80,8 @@ export function componiEmailConferma({ token, mittente }: { token: string; mitte
 <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
 <p style="margin:0 0 24px;font-size:18px;font-weight:600;color:#0f5e6b;">${e(nomeSito)}</p>
 <p style="margin:0 0 16px;">Ciao,</p>
-<p style="margin:0 0 24px;">grazie per l'interesse per ${e(nomeSito)}. Per confermare che questo indirizzo è tuo, premi il pulsante:</p>
-<p style="margin:0 0 24px;"><a href="${e(conferma)}" style="display:inline-block;background:#0f5e6b;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:999px;">Confermo l'iscrizione</a></p>
+<p style="margin:0 0 24px;">grazie per l'interesse per ${e(nomeSito)}. Per confermare che questo indirizzo è tuo, premi il pulsante: si apre una pagina dove ti basta premere «Confermo l'iscrizione».</p>
+<p style="margin:0 0 24px;"><a href="${e(conferma)}" style="display:inline-block;background:#0f5e6b;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:999px;">Conferma l'iscrizione</a></p>
 <p style="margin:0 0 16px;font-size:14px;color:#5d6470;">Se il pulsante non funziona, copia questo link nel browser:<br><a href="${e(conferma)}" style="color:#0f5e6b;word-break:break-all;">${e(conferma)}</a></p>
 <p style="margin:0 0 16px;">Dopo la conferma ti scriviamo quando apre la beta chiusa e al massimo due aggiornamenti al mese.</p>
 <p style="margin:0 0 24px;">Se non hai chiesto tu l'iscrizione, ignora questa email: senza conferma non ti scriveremo più.</p>
