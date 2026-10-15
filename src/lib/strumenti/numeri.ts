@@ -8,8 +8,10 @@ const SEPARATORI_MIGLIAIA = /['’‘\s  ]/g;
 
 /**
  * Legge un numero scritto a mano: `1'200`, `1 200`, `1200.50`, `1200,50`,
- * `1.200,50`, `CHF 80`, `8,1%`. Restituisce null se il campo è vuoto o non è
- * un numero.
+ * `1.200,50`, `CHF 80`, `8,1%`. Un solo punto seguito da esattamente 3 cifre
+ * vale come separatore delle migliaia, come si scrive spesso in Ticino:
+ * `1.500` = 1500, `60.000` = 60000 (ma `0.125` resta 0.125 e `1.50` resta
+ * 1.5). Restituisce null se il campo è vuoto o non è un numero.
  */
 export function leggiNumero(testo: string | null | undefined): number | null {
   if (testo == null) return null;
@@ -32,6 +34,9 @@ export function leggiNumero(testo: string | null | undefined): number | null {
     // 1.200.000: punti come separatori delle migliaia.
     if (!/^-?\d{1,3}(\.\d{3})+$/.test(t)) return null;
     t = t.split(".").join("");
+  } else if (/^[-+]?[1-9]\d{0,2}\.\d{3}$/.test(t)) {
+    // 1.500 o 60.000: un solo punto con 3 cifre dopo, all'italiana.
+    t = t.replace(".", "");
   }
 
   if (!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(t)) return null;

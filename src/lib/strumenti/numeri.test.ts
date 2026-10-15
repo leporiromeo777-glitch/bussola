@@ -30,6 +30,21 @@ describe("leggiNumero", () => {
     ["−250", -250],
     ["  42  ", 42],
     ["0", 0],
+    // Migliaia all'italiana con un solo punto.
+    ["1.500", 1500],
+    ["60.000", 60_000],
+    ["-2.000", -2000],
+    ["CHF 2.000", 2000],
+    // Decimali veri: restano decimali.
+    ["0.125", 0.125],
+    ["1.50", 1.5],
+    ["12.5", 12.5],
+    ["1500.50", 1500.5],
+    ["1500,50", 1500.5],
+    ["1'500", 1500],
+    ["1 500", 1500],
+    ["1\u00a0500", 1500],
+    ["1\u202f500", 1500],
   ])("legge %s come %s", (testo, atteso) => {
     expect(leggiNumero(testo)).toBe(atteso);
   });
