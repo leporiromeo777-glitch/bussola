@@ -19,7 +19,7 @@ export const sito = {
 
 /** Voci principali di navigazione dell'app. */
 export const navigazione = [
-  { href: "/questionario", etichetta: "Il tuo percorso" },
+  { href: "/percorso", etichetta: "Il tuo percorso" },
   { href: "/chat", etichetta: "Chiedi a Bussola" },
   { href: "/strumenti", etichetta: "Strumenti" },
 ] as const;

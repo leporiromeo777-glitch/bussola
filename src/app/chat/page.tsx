@@ -16,9 +16,12 @@ export const metadata: Metadata = {
     "Fai una domanda sull'apertura della tua ditta individuale: Bussola risponde solo con fonti ufficiali verificate e ti mostra sempre il link.",
 };
 
-export default async function PaginaChat() {
+export default async function PaginaChat({ searchParams }: PageProps<"/chat">) {
   // Sempre al momento della richiesta: dipende dall'utente collegato e dalle variabili d'ambiente.
   await connection();
+  const { domanda } = await searchParams;
+  // Domanda precompilata dai link "Chiedi a Bussola" del percorso: solo testo, troncato.
+  const domandaIniziale = typeof domanda === "string" ? domanda.trim().slice(0, 1000) : "";
   const attiva = supabaseConfigured() && anthropicConfigurato();
   const user = attiva ? await getUser() : null;
 
@@ -55,7 +58,7 @@ export default async function PaginaChat() {
         .
       </p>
 
-      {!attiva ? <AvvisoDemo /> : user ? <Chat quotaIniziale={quota} esempi={DOMANDE_ESEMPIO} /> : <InvitoAccesso />}
+      {!attiva ? <AvvisoDemo /> : user ? <Chat quotaIniziale={quota} esempi={DOMANDE_ESEMPIO} domandaIniziale={domandaIniziale} /> : <InvitoAccesso domanda={domandaIniziale} />}
 
       <noscript>
         <p className="mt-6 rounded-lg border border-border bg-card p-4 text-sm">
@@ -81,7 +84,8 @@ function AvvisoDemo() {
   );
 }
 
-function InvitoAccesso() {
+function InvitoAccesso({ domanda }: { domanda: string }) {
+  const destinazione = domanda ? `/chat?domanda=${encodeURIComponent(domanda)}` : "/chat";
   return (
     <div className="mt-8 rounded-2xl border border-border bg-card p-5">
       <h2 className="font-semibold">Accedi per fare le tue domande</h2>
@@ -89,7 +93,7 @@ function InvitoAccesso() {
         Con il piano gratuito hai {DOMANDE_GRATIS_AL_MESE} domande al mese. Niente password: ricevi un link via email.
       </p>
       <Link
-        href="/accedi?next=/chat"
+        href={`/accedi?next=${encodeURIComponent(destinazione)}`}
         className="mt-4 inline-block rounded-lg bg-brand px-4 py-2 font-medium text-background hover:bg-brand-strong"
       >
         Accedi e chiedi

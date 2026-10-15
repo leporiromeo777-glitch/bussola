@@ -102,10 +102,27 @@ export default function PaginaPrivacy() {
         <ul>
           <li>
             <strong>Dati:</strong> le risposte al questionario (per esempio tipo di attività, Cantone, fatturato
-            previsto, eventuali soci) e i passi che segni come completati.
+            previsto, numero di clienti, eventuali soci, cittadinanza o tipo di permesso) e i passi che segni come
+            completati.
           </li>
           <li>
             <strong>Perché:</strong> per calcolare il tuo percorso personale e ricordarti a che punto sei.
+          </li>
+          <li>
+            <strong>Dove:</strong> senza account restano solo nel tuo browser (memoria locale del dispositivo). Se
+            accedi, li salviamo anche nel tuo account, così li ritrovi su altri dispositivi.
+          </li>
+        </ul>
+
+        <h3>Strumenti (tariffa, budget, business plan, preventivi e fatture)</h3>
+        <ul>
+          <li>
+            <strong>Dati:</strong> quello che inserisci negli strumenti, compresi i dati dei tuoi clienti e il tuo IBAN
+            se prepari una fattura.
+          </li>
+          <li>
+            <strong>Dove:</strong> solo nel tuo browser. Non li riceviamo e non li salviamo sui nostri server; puoi
+            cancellarli dallo strumento stesso.
           </li>
         </ul>
 

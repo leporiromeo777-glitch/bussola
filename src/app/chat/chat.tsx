@@ -21,9 +21,17 @@ type Messaggio = {
 
 const LUNGHEZZA_RISPOSTA_IN_CRONOLOGIA = 2_000;
 
-export function Chat({ quotaIniziale, esempi }: { quotaIniziale: QuotaPubblica | null; esempi: readonly string[] }) {
+export function Chat({
+  quotaIniziale,
+  esempi,
+  domandaIniziale = "",
+}: {
+  quotaIniziale: QuotaPubblica | null;
+  esempi: readonly string[];
+  domandaIniziale?: string;
+}) {
   const [messaggi, setMessaggi] = useState<Messaggio[]>([]);
-  const [bozza, setBozza] = useState("");
+  const [bozza, setBozza] = useState(domandaIniziale);
   const [inCorso, setInCorso] = useState(false);
   const [quota, setQuota] = useState(quotaIniziale);
   const [annuncio, setAnnuncio] = useState("");
