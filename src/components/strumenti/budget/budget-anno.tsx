@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { fonti, fontiStrumenti, regole, tasseRegistroCommercio } from "@/data/svizzera";
+import { fonti, fontiStrumenti, regole, regolePercorso, tasseRegistroCommercio } from "@/data/svizzera";
 import { CHIAVI_ARCHIVIO } from "@/lib/strumenti/archivio";
 import {
   calcolaBudget,
+  costoIscrizioneRegistro,
   datiBudgetIniziali,
   MESI,
   mesiDaInizio,
@@ -124,13 +125,17 @@ export function BudgetAnno() {
           <Casella
             id="iscrizione-registro"
             className="mt-6"
-            etichetta={`Mi iscrivo al registro di commercio (${importo(tasseRegistroCommercio.valore.stimaTitolareConFirma, 0)} nel primo mese)`}
+            etichetta={`Mi iscrivo al registro di commercio (${importo(costoIscrizioneRegistro(), 0)} nel primo mese)`}
             selezionata={dati.iscrizioneRegistro}
             onCambia={(v) => imposta("iscrizioneRegistro", v)}
             aiuto={
               <>
-                Facoltativa sotto {importo(regole.sogliaRegistroCommercio.valore, 0)} di cifra d&apos;affari annua. {tasseRegistroCommercio.nota}{" "}
-                <FonteLink fonte={tasseRegistroCommercio.fonte} />
+                Facoltativa sotto {importo(regole.sogliaRegistroCommercio.valore, 0)} di cifra d&apos;affari annua.{" "}
+                {importo(tasseRegistroCommercio.valore.stimaTitolareConFirma, 0)} di tasse per il titolare con firma
+                individuale (<FonteLink fonte={tasseRegistroCommercio.fonte} />) +{" "}
+                {importo(regolePercorso.autenticazioneFirmaRcTicino.valore, 0)} per l&apos;autenticazione della firma (
+                <FonteLink fonte={regolePercorso.autenticazioneFirmaRcTicino.fonte} />
+                ). {regolePercorso.autenticazioneFirmaRcTicino.nota}
               </>
             }
           />
