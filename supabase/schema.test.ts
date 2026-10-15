@@ -97,6 +97,14 @@ describe("schema iniziale", () => {
     }
   });
 
+  it("la lista d'attesa ricorda quando è partita l'ultima email di conferma", async () => {
+    const r = await db.query<{ conferma_inviata_il: string | null }>(
+      "insert into public.lista_attesa (email, consenso_email) values ('nuova@example.ch', true) returning conferma_inviata_il",
+    );
+    expect(r.rows).toEqual([{ conferma_inviata_il: null }]);
+    await db.exec("delete from public.lista_attesa where email = 'nuova@example.ch'");
+  });
+
   it("la lista d'attesa non è leggibile dagli utenti", async () => {
     const r = await comeUtente(() => db.query<{ n: number }>("select count(*)::int as n from public.lista_attesa"));
     expect(r.rows[0]?.n).toBe(0);

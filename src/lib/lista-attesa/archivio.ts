@@ -23,11 +23,32 @@ export function archivioListaAttesa(): ArchivioListaAttesa | null {
   return {
     async inserisci(riga) {
       const { data, error } = await db.from(TABELLA).insert(riga).select("token_conferma").single();
-      if (error) {
-        if (error.code === DUPLICATO) return { tipo: "duplicata" };
-        throw errore("insert", error);
-      }
-      return { tipo: "nuova", token: String(data.token_conferma) };
+      if (!error) return { tipo: "nuova", token: String(data.token_conferma) };
+      if (error.code !== DUPLICATO) throw errore("insert", error);
+
+      // Già in lista: servono token e stato della conferma per rimandare il link.
+      // L'email arriva già in minuscolo dalla validazione, come nell'indice unico.
+      const { data: esistente, error: erroreLettura } = await db
+        .from(TABELLA)
+        .select("token_conferma, confermato_il, conferma_inviata_il")
+        .eq("email", riga.email)
+        .maybeSingle();
+      if (erroreLettura) throw errore("select", erroreLettura);
+      if (!esistente) throw errore("select", { message: "iscrizione duplicata non trovata" });
+      return {
+        tipo: "duplicata",
+        token: String(esistente.token_conferma),
+        confermata: esistente.confermato_il !== null,
+        ultimoInvio: esistente.conferma_inviata_il === null ? null : String(esistente.conferma_inviata_il),
+      };
+    },
+
+    async segnaInvio(token) {
+      const { error } = await db
+        .from(TABELLA)
+        .update({ conferma_inviata_il: new Date().toISOString() })
+        .eq("token_conferma", token);
+      if (error) throw errore("update", error);
     },
 
     async conferma(token) {

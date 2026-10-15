@@ -24,7 +24,7 @@ export function messaggioIscrizione(esito: EsitoIscrizione, email: string): Mess
       return esito.conferma === "email"
         ? {
             titolo: "Ci sei quasi: controlla la tua email",
-            testo: `Se l'indirizzo ${email} è nuovo, ti arriva un'email con il link per confermare l'iscrizione (guarda anche nello spam). Se eri già in lista, non devi fare nulla.`,
+            testo: `Ti abbiamo mandato un'email a ${email} con il link per confermare l'iscrizione (guarda anche nello spam). Se non arriva, iscriviti di nuovo con lo stesso indirizzo: te la rimandiamo, al massimo una volta al giorno. Se avevi già confermato, non devi fare nulla.`,
           }
         : {
             titolo: "Fatto, sei in lista!",
