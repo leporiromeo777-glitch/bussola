@@ -60,10 +60,16 @@ npm run build
    dal SQL editor (o con `supabase db push`).
 3. In *Authentication > URL Configuration* imposta come Site URL il dominio del
    sito e aggiungi `https://<dominio>/auth/conferma*` tra i Redirect URLs.
-4. Facoltativo, per far funzionare il link anche se si apre su un altro
-   dispositivo: nel template email "Magic Link" usa come link
-   `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email`. Con il template
-   predefinito il link funziona nello stesso browser in cui è stato chiesto.
+4. Lascia il template email "Magic Link" **predefinito** (flusso PKCE): il link
+   funziona solo nel browser in cui è stato chiesto, e così deve restare.
+   Esiste un template alternativo con
+   `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email`, che funziona su
+   qualsiasi dispositivo, ma è sconsigliato: chi riceve quel link entra
+   nell'account di chi l'ha chiesto. Un malintenzionato può mandare il proprio
+   link a qualcuno e farlo entrare, senza che se ne accorga, nel proprio account
+   (login CSRF). Per questo `/percorso` chiede sempre conferma, mostrando
+   l'email dell'account, prima di salvare nell'account le risposte fatte nel
+   browser senza accesso.
 5. Copia in `.env.local` e nell'hosting `NEXT_PUBLIC_SUPABASE_URL` e
    `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, e solo lato server
    `SUPABASE_SECRET_KEY`.

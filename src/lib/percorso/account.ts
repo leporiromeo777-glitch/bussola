@@ -8,7 +8,7 @@ import { ACCOUNT_VUOTO, type DatiAccount } from "./sincronizza";
 type ClienteSupabase = NonNullable<Awaited<ReturnType<typeof createClient>>>;
 
 export type Collegamento =
-  | { ok: true; supabase: ClienteSupabase; userId: string }
+  | { ok: true; supabase: ClienteSupabase; userId: string; email: string | null }
   | { ok: false; motivo: "non_configurato" | "non_collegato" };
 
 /** Client Supabase dell'utente collegato (RLS), oppure il motivo per cui non c'è. */
@@ -17,7 +17,7 @@ export async function utenteCollegato(): Promise<Collegamento> {
   if (!supabase) return { ok: false, motivo: "non_configurato" };
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return { ok: false, motivo: "non_collegato" };
-  return { ok: true, supabase, userId: data.user.id };
+  return { ok: true, supabase, userId: data.user.id, email: data.user.email ?? null };
 }
 
 /**
@@ -29,7 +29,7 @@ export async function leggiDatiAccount(): Promise<DatiAccount> {
   try {
     const collegamento = await utenteCollegato();
     if (!collegamento.ok) return ACCOUNT_VUOTO;
-    const { supabase, userId } = collegamento;
+    const { supabase, userId, email } = collegamento;
     const [questionario, passi] = await Promise.all([
       supabase.from("questionari").select("risposte, aggiornato_il").eq("user_id", userId).maybeSingle(),
       supabase.from("passi_completati").select("passo_id").eq("user_id", userId),
@@ -39,6 +39,8 @@ export async function leggiDatiAccount(): Promise<DatiAccount> {
     const righePassi = passi.error ? [] : ((passi.data ?? []) as { passo_id: unknown }[]);
     return {
       collegato: true,
+      userId,
+      email,
       risposte,
       aggiornatoIl: risposte ? (riga?.aggiornato_il ?? null) : null,
       passiFatti: righePassi.map((r) => r.passo_id).filter(eIdPasso),

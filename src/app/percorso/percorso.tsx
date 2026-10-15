@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { BarraProgresso } from "@/components/percorso/barra-progresso";
 import { ElencoAvvisi } from "@/components/percorso/elenco-avvisi";
 import { IconaRicomincia, IconaStampa } from "@/components/percorso/icone";
@@ -9,13 +9,20 @@ import { NotaInformazione } from "@/components/percorso/nota-informazione";
 import { RiquadroScadenze } from "@/components/percorso/riquadro-scadenze";
 import { SchedaPasso } from "@/components/percorso/scheda-passo";
 import { classeLink, classePulsantePrincipale, classePulsanteSecondario } from "@/components/percorso/stili";
-import { useIdratato, usePassiFattiLocali, useRisposteLocali } from "@/components/percorso/usa-archivio";
+import {
+  useIdratato,
+  usePassiFattiLocali,
+  useProprietarioLocale,
+  useRisposteLocali,
+} from "@/components/percorso/usa-archivio";
 import { FASI, TITOLI_FASI, VERIFICATO_IL, type IdPasso } from "@/data/passi";
 import { dataSvizzera } from "@/data/svizzera";
 import {
   analizzaPassiFatti,
   cambiaPasso,
   CHIAVE_PASSI_FATTI,
+  dimenticaPercorsoLocale,
+  impostaProprietario,
   leggiGrezzo,
   salvaPassiFattiLocali,
   salvaRisposteLocali,
@@ -27,6 +34,29 @@ import { messaggioErrore, type EsitoSalvataggio } from "@/lib/percorso/salvatagg
 import { scegliRisposte, type DatiAccount } from "@/lib/percorso/sincronizza";
 import { salvaRisposte } from "../questionario/azioni";
 import { segnaPasso, sincronizzaPassi } from "./azioni";
+
+/** Copia nel browser i dati dell'account (o svuota il browser se l'account non ha ancora un percorso). */
+function copiaAccountNelBrowser(account: DatiAccount) {
+  if (!account.risposte) {
+    dimenticaPercorsoLocale();
+    return;
+  }
+  salvaRisposteLocali(account.risposte, account.aggiornatoIl ?? undefined);
+  salvaPassiFattiLocali(account.passiFatti);
+  impostaProprietario(account.userId);
+}
+
+/** Salva nell'account le risposte e i passi fatti nel browser. */
+async function salvaNellAccount(risposte: Risposte, passi: IdPasso[]): Promise<EsitoSalvataggio> {
+  try {
+    const esito = await salvaRisposte(risposte);
+    return esito.ok ? await sincronizzaPassi(passi) : esito;
+  } catch {
+    return { ok: false, motivo: "errore" };
+  }
+}
+
+type StatoCaricamento = "in_corso" | "fatto" | "rifiutato" | null;
 
 export function Percorso({
   account,
@@ -40,50 +70,77 @@ export function Percorso({
   const idratato = useIdratato();
   const locali = useRisposteLocali();
   const passiLocali = usePassiFattiLocali();
-  const scelta = scegliRisposte(account, locali);
+  const proprietario = useProprietarioLocale();
+  const scelta = scegliRisposte(account, locali, proprietario);
   const risposte = scelta.risposte;
 
-  // Collegato: i passi fatti dell'account (aggiornati subito, poi salvati). Senza accesso: quelli del browser,
+  // Dati del browser creati senza accesso: finché l'utente non dice "Salva" restano solo nel browser,
+  // anche da collegati (potrebbero essere di un'altra persona, o l'account potrebbe non essere il suo).
+  const [caricamento, setCaricamento] = useState<StatoCaricamento>(null);
+  const inAttesaDelSi = account.collegato && scelta.daConfermare && caricamento !== "fatto";
+  const conAccount = account.collegato && !inAttesaDelSi;
+
+  // Con l'account: i passi fatti dell'account (aggiornati subito, poi salvati). Senza: quelli del browser,
   // con una copia in memoria se il browser non salva.
   const [fattiAccount, setFattiAccount] = useState<IdPasso[]>(account.passiFatti);
   const [fattiInMemoria, setFattiInMemoria] = useState<IdPasso[] | null>(null);
   const fatti = useMemo(() => {
-    if (!account.collegato) return fattiInMemoria ?? passiLocali;
+    if (!conAccount) return fattiInMemoria ?? passiLocali;
     // Finché il percorso del browser non è nell'account, mostra anche i passi fatti nel browser.
     return scelta.daCaricare ? [...new Set([...fattiAccount, ...passiLocali])] : fattiAccount;
-  }, [account.collegato, fattiAccount, fattiInMemoria, passiLocali, scelta.daCaricare]);
+  }, [conAccount, fattiAccount, fattiInMemoria, passiLocali, scelta.daCaricare]);
   const insiemeFatti = useMemo(() => new Set<string>(fatti), [fatti]);
 
   const [annuncio, setAnnuncio] = useState("");
   const [avvisoSalvataggio, setAvvisoSalvataggio] = useState<string | null>(null);
   const sincronizzato = useRef(false);
 
-  // Dopo l'accesso: copia nell'account il percorso fatto nel browser, oppure copia l'account nel browser.
+  /** Copia nell'account il percorso del browser. `manuale`: dopo il "Salva" dell'utente, che può riprovare. */
+  function caricaNellAccount(manuale: boolean) {
+    if (!locali || sincronizzato.current) return;
+    sincronizzato.current = true;
+    const daCopiare = passiLocali;
+    setCaricamento("in_corso");
+    setAvvisoSalvataggio(null);
+    void salvaNellAccount(locali.risposte, daCopiare).then((esito) => {
+      if (esito.ok) {
+        impostaProprietario(account.userId);
+        setFattiAccount((attuali) => [...new Set([...attuali, ...daCopiare])]);
+        setCaricamento("fatto");
+        setAnnuncio("Ho salvato il percorso nel tuo account.");
+      } else {
+        if (manuale) sincronizzato.current = false;
+        setCaricamento(null);
+        setAvvisoSalvataggio(messaggioErrore(esito));
+      }
+    });
+  }
+  const caricaDaSolo = useEffectEvent(() => caricaNellAccount(false));
+
+  // Dopo l'accesso: allinea browser e account.
   useEffect(() => {
     if (!account.collegato || !idratato || sincronizzato.current) return;
-    if (scelta.daCaricare && locali) {
+    if (scelta.datiDiAltri) {
+      // Nel browser c'è la copia di un altro account: non si carica, si sostituisce con questo.
       sincronizzato.current = true;
-      const daCopiare = passiLocali;
-      void (async () => {
-        try {
-          const esito = await salvaRisposte(locali.risposte);
-          const esitoPassi = esito.ok ? await sincronizzaPassi(daCopiare) : esito;
-          if (esito.ok && esitoPassi.ok) {
-            setFattiAccount((attuali) => [...new Set([...attuali, ...daCopiare])]);
-            setAnnuncio("Ho salvato il percorso nel tuo account.");
-          } else {
-            setAvvisoSalvataggio(messaggioErrore(esitoPassi.ok ? esito : esitoPassi));
-          }
-        } catch {
-          setAvvisoSalvataggio(messaggioErrore({ ok: false, motivo: "errore" }));
-        }
-      })();
+      copiaAccountNelBrowser(account);
+    } else if (scelta.daCaricare && locali) {
+      // Dati di questo account modificati nel browser: si caricano da soli. Dati senza proprietario: si aspetta il sì.
+      if (!scelta.daConfermare) caricaDaSolo();
     } else if (scelta.origine === "account" && scelta.risposte) {
       sincronizzato.current = true;
-      salvaRisposteLocali(scelta.risposte, account.aggiornatoIl ?? undefined);
-      salvaPassiFattiLocali(account.passiFatti);
+      copiaAccountNelBrowser(account);
     }
-  }, [account, idratato, locali, passiLocali, scelta.daCaricare, scelta.origine, scelta.risposte]);
+  }, [
+    account,
+    idratato,
+    locali,
+    scelta.daCaricare,
+    scelta.daConfermare,
+    scelta.datiDiAltri,
+    scelta.origine,
+    scelta.risposte,
+  ]);
 
   const percorso = useMemo(() => (risposte ? calcolaPercorso(risposte) : null), [risposte]);
 
@@ -95,7 +152,7 @@ export function Percorso({
     const nuovi = cambiaPasso(fatti, id, fatto);
     const salvatoNelBrowser = salvaPassiFattiLocali(nuovi);
     setAnnuncio(fatto ? `«${titolo}»: fatto.` : `«${titolo}»: di nuovo da fare.`);
-    if (!account.collegato) {
+    if (!conAccount) {
       setFattiInMemoria(salvatoNelBrowser ? null : nuovi);
       if (!salvatoNelBrowser) {
         setAvvisoSalvataggio(
@@ -138,7 +195,7 @@ export function Percorso({
         </h1>
         <p className="mt-3 text-muted">
           I passi qui sotto sono in ordine. Spunta quelli fatti:{" "}
-          {account.collegato ? "li salviamo nel tuo account." : "restano in questo browser."}
+          {conAccount ? "li salviamo nel tuo account." : "restano in questo browser."}
         </p>
         <div className="mt-4 flex flex-wrap gap-3 print:hidden">
           <Link href="/questionario" className={`${classePulsanteSecondario} text-sm`}>
@@ -151,6 +208,21 @@ export function Percorso({
           </button>
         </div>
       </header>
+
+      {inAttesaDelSi ? (
+        <ConfermaSalvataggio
+          email={account.email}
+          sostituisce={account.risposte !== null}
+          stato={caricamento}
+          onSalva={() => caricaNellAccount(true)}
+          onRifiuta={() => setCaricamento("rifiutato")}
+        />
+      ) : null}
+      {caricamento === "fatto" ? (
+        <p className="mt-6 max-w-3xl rounded-lg border border-border bg-card p-3 text-sm print:hidden">
+          Fatto: il percorso è salvato nel tuo account{account.email ? ` ${account.email}` : ""}.
+        </p>
+      ) : null}
 
       <div className="mt-6 max-w-3xl space-y-4">
         <NotaInformazione />
@@ -264,6 +336,61 @@ export function Percorso({
         ufficiali vengono ricontrollate ogni mese.
       </p>
     </div>
+  );
+}
+
+/** Chiede prima di salvare nell'account le risposte create in questo browser senza accesso. */
+function ConfermaSalvataggio({
+  email,
+  sostituisce,
+  stato,
+  onSalva,
+  onRifiuta,
+}: {
+  email: string | null;
+  sostituisce: boolean;
+  stato: StatoCaricamento;
+  onSalva: () => void;
+  onRifiuta: () => void;
+}) {
+  const inCorso = stato === "in_corso";
+  if (stato === "rifiutato") {
+    return (
+      <p className="mt-6 max-w-3xl rounded-lg border border-border bg-card p-3 text-sm print:hidden">
+        Il percorso resta solo in questo browser: non l&apos;ho salvato nel tuo account
+        {email ? ` ${email}` : ""}.{" "}
+        <button type="button" onClick={onSalva} className={classeLink}>
+          Salvalo nell&apos;account
+        </button>
+      </p>
+    );
+  }
+  return (
+    <section
+      aria-labelledby="titolo-conferma-account"
+      className="mt-6 max-w-3xl rounded-xl border-2 border-brand bg-card p-5 print:hidden"
+    >
+      <h2 id="titolo-conferma-account" className="text-lg font-semibold text-balance">
+        Vuoi salvare nel tuo account {email ? <strong className="break-all">{email}</strong> : null} le risposte di
+        questo browser?
+      </h2>
+      <p className="mt-2 text-sm">
+        Hai risposto al questionario in questo browser senza accedere. Se le salvi, ritrovi il percorso e i passi fatti
+        su tutti i tuoi dispositivi.
+        {sostituisce ? " Le risposte salvate prima nell'account verranno sostituite." : ""}
+      </p>
+      <p className="mt-2 text-sm text-muted">
+        Se non riconosci questo indirizzo email, scegli «No» ed esci dall&apos;account.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        <button type="button" onClick={onSalva} disabled={inCorso} className={`${classePulsantePrincipale} text-sm`}>
+          {inCorso ? "Sto salvando…" : "Salva"}
+        </button>
+        <button type="button" onClick={onRifiuta} disabled={inCorso} className={`${classePulsanteSecondario} text-sm`}>
+          No
+        </button>
+      </div>
+    </section>
   );
 }
 

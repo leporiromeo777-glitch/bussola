@@ -6,8 +6,8 @@ import { IconaFreccia } from "@/components/landing/icone";
 import { BarraProgresso } from "@/components/percorso/barra-progresso";
 import { IconaIndietro } from "@/components/percorso/icone";
 import { classePulsantePrincipale, classePulsanteSecondario } from "@/components/percorso/stili";
-import { useRisposteLocali } from "@/components/percorso/usa-archivio";
-import { salvaRisposteLocali } from "@/lib/percorso/archivio";
+import { useProprietarioLocale, useRisposteLocali } from "@/components/percorso/usa-archivio";
+import { salvaRisposteLocali, scartaDatiDiAltri } from "@/lib/percorso/archivio";
 import { DOMANDE } from "@/lib/percorso/domande";
 import {
   leggiRisposte,
@@ -25,7 +25,8 @@ export function Questionario({ account }: { account: DatiAccount }) {
   const router = useRouter();
   const idBase = useId();
   const locali = useRisposteLocali();
-  const precedenti = scegliRisposte(account, locali).risposte;
+  // Le risposte copiate da un altro account non vengono riprese.
+  const precedenti = scegliRisposte(account, locali, useProprietarioLocale()).risposte;
   const [bozza, setBozza] = useState<Bozza | null>(null);
   const valori: Bozza = bozza ?? precedenti ?? {};
   const [indice, setIndice] = useState(0);
@@ -81,6 +82,8 @@ export function Questionario({ account }: { account: DatiAccount }) {
       }
       return;
     }
+    // Se nel browser c'è la copia di un altro account, i suoi passi fatti non restano accanto a queste risposte.
+    scartaDatiDiAltri(account.collegato ? account.userId : null);
     salvaRisposteLocali(risposte);
     avvia(async () => {
       if (account.collegato) {
