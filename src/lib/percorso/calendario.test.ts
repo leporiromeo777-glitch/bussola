@@ -6,7 +6,9 @@ import {
   dateScadenza,
   eventiDaScadenze,
   generaIcs,
+  nomiCalendario,
   piegaRiga,
+  prefissoDate,
   proteggiTesto,
   type EventoCalendario,
 } from "./calendario";
@@ -119,6 +121,36 @@ describe("date delle scadenze", () => {
     expect(eventi[0].descrizione).toContain("Fonte: Promemoria 2.02");
     expect(eventi[1].titolo).toBe("Annuncio all'IVA (30 giorni dopo l'inizio del 01.02.2027)");
     expect(new Set(eventi.map((e) => e.uid)).size).toBe(eventi.length);
+  });
+});
+
+describe("anno del riquadro e del file", () => {
+  const evento = (data: string): EventoCalendario => ({ uid: data, data, titolo: "x", descrizione: "y" });
+
+  it("il termine IVA dall'inizio si legge «Entro il …», le altre date «Nel {anno}: …»", () => {
+    const scadenze = calcolaPercorso(ticino).scadenze;
+    const iva = scadenze.find((s) => s.id === "annuncio-iva");
+    const avs = scadenze.find((s) => s.id === "acconti-avs");
+    if (!iva || !avs) throw new Error("scadenze mancanti");
+    expect(prefissoDate(iva, 2027)).toBe("Entro il ");
+    expect(prefissoDate(avs, 2027)).toBe("Nel 2027: ");
+  });
+
+  it("con l'anno nel nome solo se tutte le date sono di quell'anno", () => {
+    expect(nomiCalendario([evento("2027-01-10"), evento("2027-04-10")], 2027)).toEqual({
+      nomeCalendario: "Bussola: scadenze 2027",
+      nomeFile: "bussola-scadenze-2027.ics",
+    });
+    expect(nomiCalendario([], 2027).nomeFile).toBe("bussola-scadenze-2027.ics");
+    // Il 15.10.2026 il calendario è del 2027, ma il termine IVA da un inizio al 01.10.2026 cade nel 2026.
+    const eventi = eventiDaScadenze(calcolaPercorso(ticino).scadenze, { anno: 2027, inizioAttivita: "2026-10-01" });
+    expect(eventi.some((e) => e.data === "2026-10-31")).toBe(true);
+    expect(nomiCalendario(eventi, 2027)).toEqual({
+      nomeCalendario: "Bussola: scadenze",
+      nomeFile: "bussola-scadenze.ics",
+    });
+    // Un solo evento, ma di un altro anno: niente anno nel nome.
+    expect(nomiCalendario([evento("2026-10-31")], 2027).nomeCalendario).toBe("Bussola: scadenze");
   });
 });
 

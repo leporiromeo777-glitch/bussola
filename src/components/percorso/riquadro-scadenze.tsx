@@ -2,7 +2,14 @@
 
 import { useId, useState } from "react";
 import { dataSvizzera } from "@/data/svizzera";
-import { dataIsoValida, dateScadenza, eventiDaScadenze, generaIcs } from "@/lib/percorso/calendario";
+import {
+  dataIsoValida,
+  dateScadenza,
+  eventiDaScadenze,
+  generaIcs,
+  nomiCalendario,
+  prefissoDate,
+} from "@/lib/percorso/calendario";
 import type { Scadenza } from "@/lib/percorso/regole";
 import { ElencoFonti } from "./elenco-fonti";
 import { IconaCalendario } from "./icone";
@@ -29,12 +36,13 @@ export function RiquadroScadenze({
 
   function scarica() {
     const eventi = eventiDaScadenze(scadenze, { anno, inizioAttivita: inizioValido });
-    const ics = generaIcs(eventi, { adesso: new Date(), nomeCalendario: `Bussola: scadenze ${anno}` });
+    const { nomeCalendario, nomeFile } = nomiCalendario(eventi, anno);
+    const ics = generaIcs(eventi, { adesso: new Date(), nomeCalendario });
     try {
       const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
       const a = document.createElement("a");
       a.href = url;
-      a.download = `bussola-scadenze-${anno}.ics`;
+      a.download = nomeFile;
       document.body.append(a);
       a.click();
       a.remove();
@@ -67,7 +75,8 @@ export function RiquadroScadenze({
               <p className="text-sm">{s.quando}</p>
               {date.length > 0 ? (
                 <p className="mt-1 text-sm text-muted">
-                  Nel {anno}: {date.map((d) => dataSvizzera(d.data)).join(" · ")}
+                  {prefissoDate(s, anno)}
+                  {date.map((d) => dataSvizzera(d.data)).join(" · ")}
                 </p>
               ) : null}
               {s.dettaglio ? <p className="mt-1 text-sm text-muted">{s.dettaglio}</p> : null}
@@ -103,8 +112,10 @@ export function RiquadroScadenze({
           Scarica il calendario {anno} (.ics)
         </button>
         <p className="mt-2 text-xs text-muted">
-          Contiene le date {anno} con una fonte ufficiale, con un promemoria una settimana prima. Le scadenze senza data
-          fissa (per esempio il termine della dichiarazione) restano solo qui.
+          Contiene le date {anno} con una fonte ufficiale
+          {conInizio ? " e, se indichi la data di inizio, il termine IVA calcolato da quella data" : ""}, con un
+          promemoria una settimana prima. Le scadenze senza data fissa (per esempio il termine della dichiarazione)
+          restano solo qui.
         </p>
         <p role="status" aria-live="polite" className="mt-2 text-sm">
           {annuncio}
