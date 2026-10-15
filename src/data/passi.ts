@@ -194,13 +194,14 @@ export const PASSI = [
     titolo: "Sappi a chi chiedere aiuto",
     descrizione: `In Ticino Fondounimpresa offre un accompagnamento di al massimo ${fondo.oreMassime} ore in ${fondo.anniMassimi} anni a chi apre una piccola attività, e corsi su business plan, contabilità e marketing. Per i casi personali (imposte, contabilità) la persona giusta è un fiduciario autorizzato.`,
     cosaFare: [
-      `Fondounimpresa (${fondounimpresa.luogo}): tel. ${fondounimpresa.telefono}, ${fondounimpresa.email}. È per cittadini svizzeri o stranieri con permesso B o C residenti in Ticino o nella Regione Moesa. Non fa contabilità né dichiarazioni d'imposta. Chiedi se l'accompagnamento ha un costo: le pagine ufficiali non lo dicono.`,
+      `Fondounimpresa (${fondounimpresa.luogo}): tel. ${fondounimpresa.telefono}, ${fondounimpresa.email}. È per cittadini svizzeri o stranieri con permesso B o C residenti in Ticino o nella Regione Moesa. Non fa contabilità né dichiarazioni d'imposta. L'accompagnamento è un servizio pubblico gratuito; i corsi si pagano.`,
       "Per l'AVS c'è un'agenzia in ogni Comune ticinese: dà informazioni e aiuta a determinare il reddito degli indipendenti.",
       "Per il tuo caso personale cerca un fiduciario autorizzato nell'albo online del Cantone.",
     ],
     link: { etichetta: "Fondounimpresa", url: fontiPercorso.fondounimpresa.url },
     fonti: [
       fontiPercorso.fondounimpresa,
+      fontiPercorso.fondounimpresaGratuito,
       fontiPercorso.fondounimpresaBreve,
       fontiPercorso.portaleImpresaServizi,
       fontiPercorso.dlAvsTicino,

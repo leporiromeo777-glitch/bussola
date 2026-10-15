@@ -1,8 +1,9 @@
 # Ricerca sulle fonti ufficiali (15.10.2026)
 
 Ogni scheda riporta i fatti con il link alla fonte ufficiale. Le schede su
-forma giuridica, AVS e LFid sono state ricontrollate da un verificatore
-indipendente; le correzioni sono già applicate nel testo.
+forma giuridica, AVS, imposte e LFid sono state ricontrollate da un
+verificatore indipendente; le correzioni sono già applicate nel testo. La
+scheda sui concorrenti viene da prove dirette sui siti.
 
 | Scheda | Tema |
 |---|---|

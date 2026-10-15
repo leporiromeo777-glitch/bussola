@@ -499,6 +499,11 @@ export const fontiPercorso = {
     url: "https://www.ifc.ti.ch/consulenze/fondounimpresa/accompagnamento/accompagnamento-alla-microimprenditorialita",
     ente: "Istituto della formazione continua (IFC), Ticino",
   },
+  fondounimpresaGratuito: {
+    titolo: "Fondounimpresa: avviare un'impresa in Svizzera",
+    url: "https://www.ifc.ti.ch/consulenze/fondounimpresa/approfondimenti/dettaglio/avviare-unimpresa-in-svizzera",
+    ente: "Istituto della formazione continua (IFC), Ticino",
+  },
   fondounimpresaBreve: {
     titolo: "Fondounimpresa: accompagnamento breve",
     url: "https://www.ifc.ti.ch/consulenze/fondounimpresa/accompagnamento/accompagnamento-breve",
@@ -545,7 +550,7 @@ export const regolePercorso = {
   fondounimpresa: dato(
     { oreMassime: 15, anniMassimi: 2 },
     fontiPercorso.fondounimpresa,
-    "Per cittadini svizzeri o stranieri con permesso B o C residenti in Ticino o nella Regione Moesa. Non comprende contabilità, corrispondenza e dichiarazione d'imposta. Il costo non è indicato.",
+    "Per cittadini svizzeri o stranieri con permesso B o C residenti in Ticino o nella Regione Moesa. Non comprende contabilità, corrispondenza e dichiarazione d'imposta. L'IFC lo definisce un servizio pubblico gratuito (pagina fondounimpresaGratuito); i corsi invece si pagano.",
   ),
 } as const;
 
