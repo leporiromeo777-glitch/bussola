@@ -3,13 +3,14 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { destinazioneInterna } from "@/lib/destinazione";
 import { createClient } from "@/lib/supabase/server";
 
 export type StatoAccesso = { stato: "iniziale" | "inviato" | "errore"; messaggio?: string };
 
 const schema = z.object({
   email: z.email({ error: "Inserisci un indirizzo email valido." }),
-  next: z.string().startsWith("/").optional(),
+  next: z.string().optional(),
 });
 
 /** Invia il link di accesso via email (nessuna password). */
@@ -26,7 +27,7 @@ export async function inviaLinkAccesso(_prev: StatoAccesso, form: FormData): Pro
   }
 
   const origin = (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITO_URL ?? "";
-  const next = dati.data.next && !dati.data.next.startsWith("//") ? dati.data.next : "/questionario";
+  const next = destinazioneInterna(dati.data.next);
   const { error } = await supabase.auth.signInWithOtp({
     email: dati.data.email,
     options: { emailRedirectTo: `${origin}/auth/conferma?next=${encodeURIComponent(next)}` },
