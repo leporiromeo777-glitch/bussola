@@ -1,7 +1,11 @@
 "use client";
 
 import { useActionState } from "react";
+import { CampoTurnstile } from "@/components/turnstile";
 import { inviaLinkAccesso, type StatoAccesso } from "./azioni";
+
+/** Chiave pubblica di Cloudflare Turnstile; senza, la verifica anti-robot è spenta. */
+const CHIAVE_TURNSTILE = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 export function ModuloAccesso({ next }: { next?: string }) {
   const [stato, azione, inCorso] = useActionState<StatoAccesso, FormData>(inviaLinkAccesso, {
@@ -30,6 +34,7 @@ export function ModuloAccesso({ next }: { next?: string }) {
         autoComplete="email"
         className="rounded-lg border border-border bg-card px-3 py-2"
       />
+      {CHIAVE_TURNSTILE ? <CampoTurnstile key={stato.tentativo ?? 0} chiaveSito={CHIAVE_TURNSTILE} azione="accesso" /> : null}
       {stato.stato === "errore" ? (
         <p role="alert" className="text-sm text-danger">
           {stato.messaggio}

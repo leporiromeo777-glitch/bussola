@@ -68,6 +68,22 @@ npm run build
 5. Copia in `.env.local` e nell'hosting `NEXT_PUBLIC_SUPABASE_URL` e
    `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, e solo lato server
    `SUPABASE_SECRET_KEY`.
+6. Protezione dagli abusi del link di accesso (prima del lancio):
+   - In *Authentication > Attack Protection* attiva il CAPTCHA con
+     **Cloudflare Turnstile** e incolla la chiave segreta del widget creato su
+     Cloudflare. Metti la chiave del sito in `NEXT_PUBLIC_TURNSTILE_SITE_KEY`:
+     il modulo di accesso mostra la verifica e passa il token a Supabase.
+     Attiva le due cose insieme: con il CAPTCHA acceso su Supabase ma senza
+     chiave del sito nell'app nessuno riesce ad accedere.
+   - In *Authentication > SMTP Settings* configura un tuo SMTP (per esempio
+     quello di Resend): con il servizio email predefinito Supabase manda
+     pochissime email all'ora per tutto il progetto. Poi in
+     *Authentication > Rate Limits* alza il limite di email all'ora a un
+     valore adatto al lancio.
+   - L'app limita anche, per connessione, le richieste di link e le
+     iscrizioni alla lista d'attesa (`LIMITI_RICHIESTE` in
+     `src/lib/limiti/richieste.ts`, tabella `limiti_richieste` con
+     un'impronta dell'IP, mai l'IP in chiaro). Serve `SUPABASE_SECRET_KEY`.
 
 ### Fonti della chat
 
