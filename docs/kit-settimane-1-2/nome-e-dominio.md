@@ -163,9 +163,10 @@ Nella griglia A vale 2 solo «per ora»: lo conferma la ricerca di somiglianza.
 | Quando sei titolare del marchio o la ditta è nel RC con il nome | Valuta il dominio .swiss | [Regole .swiss](https://www.nic.swiss/it/requisiti-per-la-registrazione-e-processo-di-registrazione) | Da verificare |
 | Solo se lo decidi | Iscrizione della ditta individuale nel RC (facoltativa sotto CHF 100'000 di cifra d'affari, [art. 931 CO](https://www.fedlex.admin.ch/eli/cc/27/317_321_377/it#art_931)) | [RC Ticino](https://www4.ti.ch/di/dg/rf/sportello/formulari-rc/di-iscrizione) | Circa fr. 140-150 in Ticino: fr. 80 di prima iscrizione + fr. 20 per la funzione + fr. 20 per la firma + l'autenticazione (dettagli in [`forma-registro-iva.md`](../ricerca/forma-registro-iva.md)) |
 
-**Lettere.** Le lettere della settimana 1 (autorità LFid, Agire,
-Fondounimpresa) devono portare il nome definitivo. Se il 19.10 non hai ancora
-deciso, descrivi il servizio per quello che fa e scrivi «nome provvisorio».
+**Lettere.** Le lettere della settimana 1 (Autorità LFid, Fondounimpresa,
+Agire) partono dal 20 al 22.10. Se hai già scelto il nome, usalo ovunque:
+lettere, scheda progetto, sito. Altrimenti lascia «(nome provvisorio)», come
+prevede `prima-di-spedire.md`.
 
 ---
 
@@ -260,6 +261,8 @@ Esempio con «Timone». Esegui i comandi dalla cartella del progetto.
     | xargs sed -i '' 's/Bussola/Timone/g'
   ```
 
+- **Dopo la sostituzione** togli la nota «… è un nome provvisorio» in cima ai
+  file del kit: non è più vera.
 - **Da non toccare:** `docs/ricerca/`. Sono schede datate e in parte parlano
   proprio della verifica del nome «Bussola».
 - **Segnaposto del kit:** compila `[dominio]` e `@[account]` (soprattutto in

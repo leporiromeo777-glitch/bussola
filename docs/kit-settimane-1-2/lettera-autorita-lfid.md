@@ -178,10 +178,10 @@ b) Questionario e checklist personale. Un questionario di 10 domande a
 scelta, di circa 5 minuti: tipo di attività, Cantone, soci, cifra d'affari
 prevista (in fasce), numero di clienti, eventuale lavoro da dipendente,
 attività già iniziata o no, cittadinanza o permesso, locale aperto al
-pubblico, vendita online. Dalle risposte, regole fisse scritte da me e uguali
-per tutti (non l'intelligenza artificiale) scelgono da un elenco di 22 passi
-quelli che di regola valgono in quella situazione, li mettono in ordine e
-indicano per ognuno il link al modulo o alla pagina ufficiale. Le stesse
+pubblico, vendita online. Dalle risposte, regole fisse, definite in anticipo
+e uguali per tutti (non l'intelligenza artificiale), scelgono da un elenco
+di 22 passi quelli che di regola valgono in quella situazione, li mettono in
+ordine e indicano per ognuno il link al modulo o alla pagina ufficiale. Le stesse
 risposte danno sempre la stessa checklist. Esempio: chi prevede una cifra
 d'affari di CHF 100'000 o più vede il passo «Annunciati all'IVA entro 30
 giorni»; chi prevede meno legge che di regola è esentato e che l'iscrizione
@@ -553,6 +553,7 @@ Distinti saluti
      2026 la tassa è di CHF 800 più CHF 600 all'anno
      ([LFid art. 8](https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/618);
      [RFid art. 4a e 5](https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/619);
+     [FAQ dell'Autorità](https://www4.ti.ch/di/dg/fiduciari/sportello/domande-frequenti);
      [Regolamento tasse art. 1-2](https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/621)).
      Non è una soluzione per i prossimi mesi.
 5. **Aggiorna tutto il resto:** testi della landing, pagina «Cosa Bussola non

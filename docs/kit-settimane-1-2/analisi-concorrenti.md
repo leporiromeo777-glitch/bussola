@@ -11,8 +11,8 @@ completa resta il riferimento per i dettagli.
 > **«valutazione»** la conclusione è mia, non un fatto. Il protocollo della
 > sezione 5 serve anche a ricontrollare la scheda a mano.
 >
-> «Bussola» è un nome provvisorio (vedi `nome-e-dominio.md`): per cambiarlo,
-> cerca e sostituisci in tutti i file di questa cartella.
+> Il nome del prodotto è provvisorio: per cambiarlo in tutta la cartella usa
+> il comando di `nome-e-dominio.md`, sezione 7.
 
 ---
 
@@ -260,7 +260,8 @@ concorrenti. Il webinar sull'IA dice che il tema li interessa.
 - Chiedere quali domande fanno sempre i loro utenti, come con i fiduciari.
 - Più avanti: partner o cliente B2B, come prevede il piano.
 - Ordine: webinar del 19.10 (ascoltare, non presentarsi come venditore),
-  lettera o e-mail il 20.10, richiesta di un colloquio di 30 minuti.
+  poi l'e-mail del 20.10 con la richiesta di un colloquio di 20 minuti
+  (`email-fondounimpresa.md`, versione A).
 
 ### Gli altri, in breve
 
@@ -297,10 +298,10 @@ concorrenti. Il webinar sull'IA dice che il tema li interessa.
 
 | Priorità | Partner | Cosa offri | Cosa chiedi | Quando e come |
 |---|---|---|---|---|
-| 1 | **Fondounimpresa** ([IFC](https://www.ifc.ti.ch/consulenze/fondounimpresa/)) | Utenti che hanno bisogno di una persona; strumenti online per la parte che il servizio non copre | Un colloquio di 30 minuti; le domande più frequenti dei loro utenti; se i consulenti possono girare la tua richiesta di interviste | Webinar 19.10, lettera 20.10 (file delle lettere di questa cartella) |
+| 1 | **Fondounimpresa** ([IFC](https://www.ifc.ti.ch/consulenze/fondounimpresa/)) | Utenti che hanno bisogno di una persona; strumenti online per la parte che il servizio non copre | Un colloquio di 20 minuti; le domande più frequenti dei loro utenti; se i consulenti possono girare la tua richiesta di interviste | Webinar 19.10, e-mail mar 20.10, follow-up mar 27.10 (`email-fondounimpresa.md`) |
 | 1 | **Fiduciari autorizzati** ([albo](https://www4.ti.ch/di/dg/fiduciari/albo-online/albo)) | Clienti già preparati per i casi personali, con un'eventuale commissione sempre dichiarata all'utente | Le domande ricorrenti, gli errori costosi, a quali condizioni ricevere casi. Obiettivo del piano: 2 fiduciari partner entro gennaio 2027 | 5 interviste nelle settimane 1-2 (`interviste-fiduciari.md`) |
 | 2 | **IFJ** ([ifj.ch](https://www.ifj.ch/it)) | Nessuna offerta per ora | Contatti con giovani fondatori | «La serata del fondatore», Lugano, 20.10.2026 alle 18:30 |
-| 2 | **Fondazione Agire** ([agire.ch](https://agire.ch/)) | Il progetto, a uno stadio iniziale | Un primo colloquio sul percorso di Bussola come startup | E-mail nella settimana 1 (info@agire.ch, indicato nel piano) |
+| 2 | **Fondazione Agire** ([agire.ch](https://agire.ch/)) | Il progetto, a uno stadio iniziale | Un primo colloquio sul percorso di Bussola come startup | E-mail gio 22.10, follow-up gio 29.10 (`email-fondazione-agire.md`) |
 | 2 | **Scuole professionali, SUPSI, USI** | Più avanti, un pilota (piano: gennaio 2027) | Ora solo presentazioni per le interviste (`messaggi-contatto.md`) | Settimane 1-2 tramite docenti e associazioni |
 | 3 | **EasyGov** ([easygov.swiss](https://www.easygov.swiss/easygov/#/it/costituire-un-impresa)) | Utenti preparati prima di aprire il portale | Niente: basta linkare il passo giusto | Nessun contatto ora |
 | 3 | **Banche** ([UBS](https://www.ubs.com/ch/it/services/founding-and-succession/founding/businessplan.html), [PostFinance](https://www.postfinance.ch/it/imprese/tipo-di-attivita/fondatori-start-up/offerta-lancio.html)) | Più avanti, una licenza B2B (piano) | - | Non prima del 2027 |
