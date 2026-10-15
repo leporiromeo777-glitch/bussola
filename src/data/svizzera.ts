@@ -147,7 +147,7 @@ export const regole = {
   sogliaRegistroCommercio: dato(100_000, fonti.co931, "Cifra d'affari (non utile) dell'ultimo esercizio. Sotto la soglia l'iscrizione è facoltativa (art. 931 cpv. 3 CO)."),
   sogliaIva: dato(100_000, fonti.liva10, "Cifra d'affari annua, in Svizzera e all'estero, da prestazioni non escluse dall'imposta."),
   termineAnnuncioIvaGiorni: dato(30, fonti.liva66, "Giorni dall'inizio dell'assoggettamento per annunciarsi all'AFC."),
-  sogliaContabilitaSemplificata: dato(500_000, fonti.co957, "Sotto questa cifra d'affari la ditta individuale può tenere solo entrate, uscite e situazione patrimoniale."),
+  sogliaContabilitaSemplificata: dato(500_000, fonti.co957, "Con una cifra d'affari inferiore a questa nell'ultimo esercizio la ditta individuale può tenere solo entrate, uscite e situazione patrimoniale; da CHF 500'000 esatti serve la contabilità completa."),
   capitaleMinimoSagl: dato(20_000, fonti.co773),
   capitaleMinimoSa: dato(100_000, fonti.co621),
 } as const;
@@ -156,7 +156,7 @@ export const regole = {
 export const aliquoteIva = dato(
   { normale: 0.081, ridotta: 0.026, alloggio: 0.038 },
   fonti.afcAliquote,
-  "Il 29.11.2026 si vota un aumento di 0,4 punti dell'aliquota normale, non prima del 2028.",
+  "Il 29.11.2026 si vota un aumento dell'aliquota normale all'8,5% e di quella per l'alloggio al 4%, non prima del 2028. L'aliquota per l'alloggio vale per legge fino al 31.12.2027; il Parlamento l'ha prorogata al 31.12.2031 (termine di referendum 21.1.2027). Dopo il numero IVA si scrive IVA, MWST o TVA, non VAT.",
 );
 
 /** Tasse federali per la prima iscrizione di una ditta individuale nel registro di commercio. */
