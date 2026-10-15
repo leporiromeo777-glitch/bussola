@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import Script from "next/script";
 import { navigazione, sito } from "@/lib/sito";
 import "./globals.css";
 
@@ -12,6 +13,9 @@ export const metadata: Metadata = {
   title: { default: `${sito.nome}: ${sito.slogan}`, template: `%s · ${sito.nome}` },
   description: sito.descrizione,
 };
+
+// Statistiche senza cookie (Plausible), solo se il dominio è configurato.
+const dominioPlausible = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -58,6 +62,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </nav>
           </div>
         </footer>
+        {dominioPlausible ? (
+          <Script
+            src="https://plausible.io/js/script.js"
+            data-domain={dominioPlausible}
+            strategy="afterInteractive"
+          />
+        ) : null}
       </body>
     </html>
   );
