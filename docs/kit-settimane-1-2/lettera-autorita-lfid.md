@@ -180,7 +180,7 @@ prevista (in fasce), numero di clienti, eventuale lavoro da dipendente,
 attività già iniziata o no, cittadinanza o permesso, locale aperto al
 pubblico, vendita online. Dalle risposte, regole fisse, definite in anticipo
 e uguali per tutti (non l'intelligenza artificiale), scelgono da un elenco
-di 22 passi quelli che di regola valgono in quella situazione, li mettono in
+di 23 passi quelli che di regola valgono in quella situazione, li mettono in
 ordine e indicano per ognuno il link al modulo o alla pagina ufficiale. Le stesse
 risposte danno sempre la stessa checklist. Esempio: chi prevede una cifra
 d'affari di CHF 100'000 o più vede il passo «Annunciati all'IVA entro 30
@@ -423,7 +423,7 @@ delle regole «2026-10-15»). Ricontrollala prima di stampare.
 - Le regole sono fisse e scritte a mano. Non usano l'intelligenza
   artificiale. Le stesse risposte danno sempre la stessa checklist. Ogni
   checklist salva la versione delle regole con cui è stata prodotta.
-- Partono da un elenco di 22 passi, divisi in quattro fasi: «Prima di
+- Partono da un elenco di 23 passi, divisi in quattro fasi: «Prima di
   iniziare», «Aprire l'attività», «I primi mesi», «Ogni anno».
 - Per ogni passo la regola assegna uno stato («da fare», «facoltativo», «non
   serve») e una frase che spiega perché, con il link al modulo o alla pagina
