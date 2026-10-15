@@ -18,7 +18,7 @@ import {
   type RisultatoBudget,
 } from "@/lib/strumenti/budget";
 import { dataIsoLocale } from "@/lib/strumenti/documenti";
-import { importo } from "@/lib/strumenti/numeri";
+import { importo, numeroBreve } from "@/lib/strumenti/numeri";
 import { NotaDatiLocali, PulsanteStampa } from "../dati-locali";
 import { DettaglioContributi } from "../dettaglio-contributi";
 import { IconaCestino, IconaPiu } from "../icone";
@@ -455,7 +455,7 @@ function Risultati({ r }: { r: RisultatoBudget }) {
             </li>
             {r.riservaPercento !== null ? (
               <li>
-                Riserva imposte: {r.riservaPercento}% del risultato dopo i contributi = {importo(r.riservaImposte, 0)},
+                Riserva imposte: {numeroBreve(r.riservaPercento, 2)}% del risultato dopo i contributi = {importo(r.riservaImposte, 0)},
                 percentuale scelta da te.
               </li>
             ) : (
