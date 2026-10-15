@@ -342,7 +342,11 @@ function Risultati({ r }: { r: RisultatoBudget }) {
           valore={importo(r.totali.risultato, 0)}
           negativo={r.totali.risultato < 0}
         />
-        <Riquadro etichetta="Mese di pareggio" nota="Da qui il saldo cumulato resta positivo" valore={pareggio} />
+        <Riquadro
+          etichetta="Mese di pareggio"
+          nota={r.mesePareggio === null ? "A fine anno il saldo cumulato è ancora sotto zero" : "Da qui il saldo cumulato resta positivo"}
+          valore={pareggio}
+        />
         <Riquadro
           etichetta="Saldo dopo 12 mesi"
           nota={r.fabbisognoMassimo > 0 && r.meseFabbisogno !== null ? `Punto più basso: ${importo(-r.fabbisognoMassimo, 0)} a ${nomeMese(r.mesi[r.meseFabbisogno])}` : "Mai sotto zero"}
