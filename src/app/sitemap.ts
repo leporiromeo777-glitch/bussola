@@ -7,6 +7,11 @@ const PAGINE: { percorso: string; frequenza: "weekly" | "monthly" | "yearly"; pr
   { percorso: "/percorso", frequenza: "monthly", priorita: 0.6 },
   { percorso: "/chat", frequenza: "monthly", priorita: 0.7 },
   { percorso: "/strumenti", frequenza: "monthly", priorita: 0.7 },
+  { percorso: "/strumenti/tariffa", frequenza: "monthly", priorita: 0.6 },
+  { percorso: "/strumenti/budget", frequenza: "monthly", priorita: 0.6 },
+  { percorso: "/strumenti/business-plan", frequenza: "monthly", priorita: 0.6 },
+  { percorso: "/strumenti/preventivo", frequenza: "monthly", priorita: 0.6 },
+  { percorso: "/strumenti/fattura", frequenza: "monthly", priorita: 0.6 },
   { percorso: "/privacy", frequenza: "yearly", priorita: 0.3 },
   { percorso: "/impressum", frequenza: "yearly", priorita: 0.3 },
 ];
