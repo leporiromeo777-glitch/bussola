@@ -22,6 +22,17 @@
     "verificato_da": "import automatico - da ricontrollare a mano"
   },
   {
+    "id": "ufas-importi-2027",
+    "url": "https://cms.news.admin.ch/fileservice/sdweb-docs-prod-nsbcch-files/files/2026/10/02/5ab00ecd-a640-4c4a-829c-ee47bb35fec1.pdf",
+    "titolo": "Importi validi dal 1° gennaio 2027 (AVS/AI/IPG, PC, LPP)",
+    "ente": "Ufficio federale delle assicurazioni sociali (UFAS)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": ["avs", "contributi", "2027", "tavola scalare"],
+    "verificato_il": "2026-10-15",
+    "verificato_da": "import automatico - da ricontrollare a mano"
+  },
+  {
     "id": "pmi-forma-giuridica-ditta-individuale",
     "url": "https://www.kmu.admin.ch/it/forma-giuridica-ditta-individuale",
     "titolo": "Forma giuridica: Ditta individuale",

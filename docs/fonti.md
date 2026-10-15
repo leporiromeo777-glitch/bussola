@@ -154,6 +154,21 @@ Le regole cambiano (aliquote AVS, soglie, emolumenti). Ogni fonte ha
 6. Fai il commit di `elenco.json` con un messaggio tipo
    "Controllo fonti di novembre 2026".
 
+**Cambio d'anno degli importi AVS.** Gli importi AVS (contributo minimo,
+tavola scalare) cambiano spesso il 1° gennaio. Per il 2027:
+
+- `ufas-importi-2027` è la scheda UFAS con i valori validi dal 01.01.2027
+  (contributo minimo CHF 541, tavola scalare da CHF 10'300 a 61'500);
+- `ahv-2-02-indipendenti` e `ufas-attivita-indipendente` riportano ancora i
+  valori 2026. Quando esce l'opuscolo 2.02 edizione 2027 (di solito a
+  novembre), ricontrollalo e rilancia
+  `npm run fonti:importa -- --solo ahv-2-02-indipendenti`: l'indirizzo
+  `ahv-iv.ch/p/2.02.i` resta lo stesso. Fai lo stesso con la pagina UFAS
+  quando viene aggiornata;
+- quando il Consiglio federale pubblica gli importi di un nuovo anno (di
+  solito in autunno), aggiungi la nuova scheda UFAS e, dal 1° gennaio,
+  metti `"attiva": false` a quella vecchia.
+
 Per disattivare subito una fonte sbagliata, senza aspettare l'import:
 
 ```sql
