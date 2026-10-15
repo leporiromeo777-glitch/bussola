@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
+import { fonti } from "@/data/svizzera";
 import { DOMANDE_GRATIS_AL_MESE, quotaPubblica } from "@/lib/chat/quota";
 import { anthropicConfigurato, leggiQuota } from "@/lib/chat/server";
 import type { QuotaPubblica } from "@/lib/chat/tipi";
@@ -34,6 +35,24 @@ export default async function PaginaChat() {
       <p className="mt-2 max-w-2xl text-muted">
         Rispondo solo con le fonti ufficiali che abbiamo verificato e ti mostro sempre il link: è informazione
         generale con fonti ufficiali, non consulenza.
+      </p>
+      <p className="mt-2 max-w-2xl text-sm text-muted">
+        Stai parlando con un&apos;intelligenza artificiale (Claude, di Anthropic), non con un fiduciario. Salviamo la
+        tua domanda per contare le domande del mese e per capire quali fonti mancano; non la usiamo per addestrare
+        modelli. Per il tuo caso personale trovi un professionista nell&apos;
+        <a
+          href={fonti.albofiduciari.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-brand underline underline-offset-2"
+        >
+          albo dei fiduciari autorizzati
+        </a>
+        . Dettagli nell&apos;
+        <Link href="/privacy" className="text-brand underline underline-offset-2">
+          informativa privacy
+        </Link>
+        .
       </p>
 
       {!attiva ? <AvvisoDemo /> : user ? <Chat quotaIniziale={quota} esempi={DOMANDE_ESEMPIO} /> : <InvitoAccesso />}
