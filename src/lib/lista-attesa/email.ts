@@ -40,37 +40,23 @@ export function linkDisiscrizione(urlSito: string, token: string): string {
   return linkConToken(urlSito, "/lista-attesa/disiscriviti", token);
 }
 
-/** Nome per il saluto: una riga, senza spazi doppi, al massimo 80 caratteri. */
-function nomePerSaluto(nome: string | null | undefined): string | null {
-  const pulito = (nome ?? "").replace(/\s+/g, " ").trim();
-  return pulito === "" ? null : Array.from(pulito).slice(0, 80).join("");
-}
-
 /**
  * Email di conferma dell'iscrizione alla lista d'attesa (double opt-in).
- * Il nome è scritto dall'utente: nell'HTML va sempre passato da escapeHtml.
+ * Non contiene niente di scritto da chi compila il modulo (nemmeno il nome):
+ * il modulo non si può usare per spedire testo a indirizzi altrui.
  */
-export function componiEmailConferma({
-  nome,
-  token,
-  mittente,
-}: {
-  nome?: string | null;
-  token: string;
-  mittente: Mittente;
-}): EmailComposta {
+export function componiEmailConferma({ token, mittente }: { token: string; mittente: Mittente }): EmailComposta {
   const conferma = linkConferma(mittente.urlSito, token);
   const disiscrizione = linkDisiscrizione(mittente.urlSito, token);
-  const saluto = nomePerSaluto(nome);
   const { nomeSito, titolare } = mittente;
   const host = new URL(mittente.urlSito).host;
 
   const oggetto = `Conferma la tua iscrizione alla lista d'attesa di ${nomeSito}`;
 
   const testo = [
-    saluto ? `Ciao ${saluto},` : "Ciao,",
+    "Ciao,",
     "",
-    `grazie per l'interesse per ${nomeSito}. Per confermare che questo indirizzo è tuo, apri questo link:`,
+    `grazie per l'interesse per ${nomeSito}. Per confermare che questo indirizzo è tuo, apri questo link e premi «Confermo l'iscrizione»:`,
     "",
     conferma,
     "",
@@ -93,9 +79,9 @@ export function componiEmailConferma({
 <body style="margin:0;padding:0;background:#fbfaf7;color:#1c1f24;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.5;">
 <div style="max-width:560px;margin:0 auto;padding:32px 20px;">
 <p style="margin:0 0 24px;font-size:18px;font-weight:600;color:#0f5e6b;">${e(nomeSito)}</p>
-<p style="margin:0 0 16px;">${saluto ? `Ciao ${e(saluto)},` : "Ciao,"}</p>
-<p style="margin:0 0 24px;">grazie per l'interesse per ${e(nomeSito)}. Per confermare che questo indirizzo è tuo, premi il pulsante:</p>
-<p style="margin:0 0 24px;"><a href="${e(conferma)}" style="display:inline-block;background:#0f5e6b;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:999px;">Confermo l'iscrizione</a></p>
+<p style="margin:0 0 16px;">Ciao,</p>
+<p style="margin:0 0 24px;">grazie per l'interesse per ${e(nomeSito)}. Per confermare che questo indirizzo è tuo, premi il pulsante: si apre una pagina dove ti basta premere «Confermo l'iscrizione».</p>
+<p style="margin:0 0 24px;"><a href="${e(conferma)}" style="display:inline-block;background:#0f5e6b;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:999px;">Conferma l'iscrizione</a></p>
 <p style="margin:0 0 16px;font-size:14px;color:#5d6470;">Se il pulsante non funziona, copia questo link nel browser:<br><a href="${e(conferma)}" style="color:#0f5e6b;word-break:break-all;">${e(conferma)}</a></p>
 <p style="margin:0 0 16px;">Dopo la conferma ti scriviamo quando apre la beta chiusa e al massimo due aggiornamenti al mese.</p>
 <p style="margin:0 0 24px;">Se non hai chiesto tu l'iscrizione, ignora questa email: senza conferma non ti scriveremo più.</p>

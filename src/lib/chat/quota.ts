@@ -1,7 +1,10 @@
 import { FUSO_ORARIO } from "./formato";
 import type { Piano, QuotaPubblica } from "./tipi";
 
-/** Domande alla chat incluse nel piano gratuito, per mese di calendario (ora di Zurigo). */
+/**
+ * Domande alla chat incluse nel piano gratuito, per mese di calendario (ora di Zurigo).
+ * Lo stesso numero è in public.prenota_domanda (supabase/migrations): cambiali insieme.
+ */
 export const DOMANDE_GRATIS_AL_MESE = 10;
 
 export type ProfiloPiano = { piano: string | null; piano_scade_il: string | null };
@@ -107,13 +110,6 @@ export function calcolaQuota(profilo: ProfiloPiano | null, usate: number, ora: D
     rinnovo: inizioMeseSuccessivo(ora),
     scadenzaPiano: scadenza && !Number.isNaN(scadenza.getTime()) ? scadenza : null,
   };
-}
-
-/** La quota dopo una domanda in più nello stesso mese. */
-export function conUnaDomandaInPiu(quota: Quota): Quota {
-  const usate = quota.usate + 1;
-  const rimanenti = quota.limite === null ? null : Math.max(0, quota.limite - usate);
-  return { ...quota, usate, rimanenti, esaurita: rimanenti === 0 };
 }
 
 /** Data AAAA-MM-GG di un istante, nell'ora di Zurigo. */

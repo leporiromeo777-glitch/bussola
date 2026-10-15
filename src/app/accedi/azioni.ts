@@ -3,35 +3,64 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { MESSAGGI_ACCESSO, leggiCaptcha, messaggioErroreInvio } from "@/lib/accesso/captcha";
+import { destinazioneInterna } from "@/lib/destinazione";
+import { richiestaConsentita } from "@/lib/limiti/server";
 import { createClient } from "@/lib/supabase/server";
 
-export type StatoAccesso = { stato: "iniziale" | "inviato" | "errore"; messaggio?: string };
+export type StatoAccesso = {
+  stato: "iniziale" | "inviato" | "errore";
+  messaggio?: string;
+  /** Email scritta, per ripresentarla nel campo dopo un errore (React svuota il modulo dopo l'invio). */
+  email?: string;
+  /** true se l'errore riguarda l'indirizzo scritto (il campo si segna come non valido). */
+  emailNonValida?: boolean;
+  /** Cambia a ogni errore: il modulo si rimonta (e la verifica anti-robot riparte con un token nuovo). */
+  tentativo?: number;
+};
 
 const schema = z.object({
   email: z.email({ error: "Inserisci un indirizzo email valido." }),
-  next: z.string().startsWith("/").optional(),
+  next: z.string().optional(),
 });
 
 /** Invia il link di accesso via email (nessuna password). */
-export async function inviaLinkAccesso(_prev: StatoAccesso, form: FormData): Promise<StatoAccesso> {
+export async function inviaLinkAccesso(prev: StatoAccesso, form: FormData): Promise<StatoAccesso> {
+  const errore = (messaggio: string | undefined, emailNonValida = false): StatoAccesso => ({
+    stato: "errore",
+    messaggio,
+    email: String(form.get("email") ?? "").slice(0, 320),
+    ...(emailNonValida ? { emailNonValida } : {}),
+    tentativo: (prev.tentativo ?? 0) + 1,
+  });
   const dati = schema.safeParse({
     email: String(form.get("email") ?? "").trim(),
     next: form.get("next") ? String(form.get("next")) : undefined,
   });
-  if (!dati.success) return { stato: "errore", messaggio: dati.error.issues[0]?.message };
+  if (!dati.success) return errore(dati.error.issues[0]?.message, true);
+
+  // Verifica anti-robot (Cloudflare Turnstile), attiva se la chiave del sito è impostata.
+  // Il token lo controlla Supabase Auth (CAPTCHA in Attack Protection).
+  const captcha = leggiCaptcha(form, process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+  if (!captcha.ok) return errore(captcha.messaggio);
 
   const supabase = await createClient();
-  if (!supabase) {
-    return { stato: "errore", messaggio: "L'accesso non è ancora attivo (Supabase non configurato)." };
-  }
+  if (!supabase) return errore("L'accesso non è ancora disponibile su questo sito.");
+
+  // La richiesta a Supabase parte dal nostro server: i suoi limiti per IP vedono
+  // il server, non chi chiede. Qui si limita per connessione di chi chiede.
+  if (!(await richiestaConsentita("accesso"))) return errore(MESSAGGI_ACCESSO.troppeRichieste);
 
   const origin = (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITO_URL ?? "";
-  const next = dati.data.next && !dati.data.next.startsWith("//") ? dati.data.next : "/questionario";
+  const next = destinazioneInterna(dati.data.next);
   const { error } = await supabase.auth.signInWithOtp({
     email: dati.data.email,
-    options: { emailRedirectTo: `${origin}/auth/conferma?next=${encodeURIComponent(next)}` },
+    options: {
+      emailRedirectTo: `${origin}/auth/conferma?next=${encodeURIComponent(next)}`,
+      ...(captcha.token ? { captchaToken: captcha.token } : {}),
+    },
   });
-  if (error) return { stato: "errore", messaggio: "Invio non riuscito. Riprova tra qualche minuto." };
+  if (error) return errore(messaggioErroreInvio(error.code));
   return { stato: "inviato" };
 }
 

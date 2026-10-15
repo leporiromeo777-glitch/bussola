@@ -2,13 +2,16 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { sito } from "@/lib/sito";
 import { archivioListaAttesa } from "@/lib/lista-attesa/archivio";
+import { confermaIscrizione } from "@/lib/lista-attesa/esiti-conferma";
 import { esitoFinto, registraIscrizione } from "@/lib/lista-attesa/iscrizione";
 import { MESSAGGIO_DEMO, messaggioIscrizione } from "@/lib/lista-attesa/messaggi";
 import { provenienzaDaUrl } from "@/lib/lista-attesa/provenienza";
 import { creaInvioEmail, emailConfigurata } from "@/lib/lista-attesa/resend";
 import { informativaPrivacy } from "@/lib/privacy";
+import { richiestaConsentita } from "@/lib/limiti/server";
 import {
   leggiToken,
   trappolaCompilata,
@@ -62,6 +65,9 @@ export async function iscriviListaAttesa(prev: StatoIscrizione, form: FormData):
     archivio: archivioRaccolta(),
     inviaEmail: creaInvioEmail(),
     mittente: { nomeSito: sito.nome, urlSito: sito.url, titolare: sito.titolare },
+    richiestaConsentita: () => richiestaConsentita("listaAttesa"),
+    // L'email parte dopo la risposta: stessi tempi per indirizzi nuovi e già in lista.
+    pianifica: after,
   });
   const { titolo, testo } = messaggioIscrizione(esito, dati.email);
 
@@ -71,6 +77,7 @@ export async function iscriviListaAttesa(prev: StatoIscrizione, form: FormData):
     case "demo":
       return { stato: "demo", titolo, messaggio: testo };
     case "errore":
+    case "troppe_richieste":
       return {
         stato: "errore",
         messaggio: testo,
@@ -101,6 +108,16 @@ function archivioRaccolta() {
     return null;
   }
   return archivio;
+}
+
+/**
+ * Conferma l'iscrizione (pulsante della pagina /lista-attesa/conferma), poi
+ * porta alla pagina di ringraziamento. È una POST: aprire il link dell'email
+ * da solo non conferma nulla.
+ */
+export async function confermaListaAttesa(form: FormData): Promise<void> {
+  const esito = await confermaIscrizione(form.get("token"), archivioListaAttesa());
+  redirect(`/lista-attesa/confermata?esito=${esito}`);
 }
 
 export type StatoDisiscrizione = { stato: "iniziale" } | { stato: "errore"; messaggio: string };

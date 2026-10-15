@@ -32,7 +32,13 @@ export const schemaIscrizione = z.object({
   nome: z
     .string()
     .transform((v) => v.replace(/\s+/g, " ").trim())
-    .pipe(z.string().max(LIMITI.nome, { error: `Il nome può avere al massimo ${LIMITI.nome} caratteri.` }))
+    .pipe(
+      z
+        .string()
+        .max(LIMITI.nome, { error: `Il nome può avere al massimo ${LIMITI.nome} caratteri.` })
+        // Solo un nome: niente cifre, punti, link o frasi.
+        .regex(/^[\p{L}\p{M}'’ -]*$/u, { error: "Il nome può contenere solo lettere, spazi, apostrofi e trattini." }),
+    )
     .transform(vuotoANull),
   cantone: z
     .enum([...VALORI_CANTONE, ""], { error: "Scegli il Cantone dall'elenco." })

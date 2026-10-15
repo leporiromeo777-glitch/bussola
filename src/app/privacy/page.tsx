@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 const AGGIORNATO = { iso: "2026-10-15", testo: "15.10.2026" };
 
 const statisticheAttive = Boolean(process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN);
+const verificaAntiRobotAttiva = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
 // Regione del database, hosting, garanzie per gli USA e durata dei log:
 // src/lib/privacy.ts. Le parti tra parentesi quadre sono da completare.
@@ -154,6 +155,11 @@ export default function PaginaPrivacy() {
             registrati automaticamente dal fornitore di hosting e dal database.
           </li>
           <li>
+            <strong>Protezione dei moduli:</strong> per limitare gli abusi dei moduli di iscrizione e di accesso
+            conserviamo per al massimo un giorno un&apos;impronta cifrata del tuo indirizzo IP, mai l&apos;indirizzo in
+            chiaro.
+          </li>
+          <li>
             <strong>Perché:</strong> per far funzionare il sito, proteggerlo dagli abusi e correggere gli errori.
           </li>
         </ul>
@@ -164,7 +170,8 @@ export default function PaginaPrivacy() {
         <p>
           Trattiamo i dati solo per gli scopi descritti sopra e nel rispetto dei principi della LPD. Per le email della
           lista d&apos;attesa ti chiediamo un consenso esplicito: spunti una casella e, se l&apos;invio delle email è
-          attivo, confermi l&apos;indirizzo con un link (doppia conferma). Ogni email indica chi la manda e come
+          attivo, confermi l&apos;indirizzo con il pulsante della pagina che apri dal link dell&apos;email (doppia
+          conferma). Ogni email indica chi la manda e come
           disiscriversi gratis, come chiede la{" "}
           <a href={LCSL} target="_blank" rel="noopener noreferrer">
             legge contro la concorrenza sleale (LCSl, art. 3 cpv. 1 lett. o)
@@ -183,14 +190,16 @@ export default function PaginaPrivacy() {
         <ul>
           <li>
             <strong>Lista d&apos;attesa:</strong> finché non ti disiscrivi, al più tardi 12 mesi dopo il lancio del
-            servizio.
+            servizio. Se non confermi l&apos;iscrizione, la cancelliamo automaticamente 30 giorni dopo l&apos;ultima
+            email di conferma.
           </li>
           <li>
             <strong>Account, questionario e percorso:</strong> finché hai un account. Se chiedi di cancellarlo,
             cancelliamo anche questi dati.
           </li>
           <li>
-            <strong>Domande alla chat:</strong> 12 mesi, poi vengono cancellate automaticamente.
+            <strong>Domande alla chat:</strong> 12 mesi: le domande più vecchie vengono cancellate automaticamente
+            ogni notte.
           </li>
           <li>
             <strong>Dati tecnici:</strong> {durataDatiTecnici}.
@@ -226,9 +235,16 @@ export default function PaginaPrivacy() {
           </li>
           <li>
             <strong>Resend (USA)</strong>: invia le email della lista d&apos;attesa (conferma e aggiornamenti).
-            Riceve il tuo indirizzo email, il nome se l&apos;hai indicato e il testo dell&apos;email.
+            Riceve il tuo indirizzo email e il testo dell&apos;email.
             <GaranziaUsa testo={GARANZIE_USA.resend} />
           </li>
+          {verificaAntiRobotAttiva ? (
+            <li>
+              <strong>Cloudflare, Inc. (USA)</strong>: verifica anti-robot (Turnstile) nella pagina di accesso.
+              Riceve dati tecnici del browser e l&apos;indirizzo IP. Garanzia per il trasferimento:{" "}
+              [da confermare prima del lancio].
+            </li>
+          ) : null}
           {statisticheAttive ? (
             <li>
               <strong>Plausible Insights OÜ (Estonia, UE)</strong>: statistiche di visita senza cookie e senza

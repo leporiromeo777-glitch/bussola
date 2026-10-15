@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** Pagina di arrivo dopo il link di conferma (vedi ../conferma/route.ts). Solo lettura. */
+/** Pagina di arrivo dopo il pulsante di conferma (vedi ../conferma/page.tsx). Solo lettura. */
 export default async function PaginaConfermata({ searchParams }: PageProps<"/lista-attesa/confermata">) {
   const esito = leggiEsito((await searchParams).esito);
 

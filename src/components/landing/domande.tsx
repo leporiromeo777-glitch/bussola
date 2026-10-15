@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { sito } from "@/lib/sito";
+import { sito, valoreSegnaposto } from "@/lib/sito";
 import { IconaFrecciaGiu } from "./icone";
 import { Sezione } from "./sezione";
 
@@ -30,9 +30,18 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
     domanda: "Chi c'è dietro?",
     risposta: (
       <>
-        Bussola è un progetto di {sito.titolare.nome}, che sta affrontando adesso gli stessi passi e costruisce il
-        prodotto con l&apos;aiuto dell&apos;intelligenza artificiale. Ogni fonte ufficiale viene controllata a mano
-        prima di essere usata. Indirizzo e contatti sono nell&apos;
+        {valoreSegnaposto(sito.titolare.nome) ? (
+          <>
+            Bussola è un progetto indipendente, nato da chi sta affrontando adesso gli stessi passi e costruisce il
+            prodotto con l&apos;aiuto dell&apos;intelligenza artificiale.
+          </>
+        ) : (
+          <>
+            Bussola è un progetto di {sito.titolare.nome}, che sta affrontando adesso gli stessi passi e costruisce il
+            prodotto con l&apos;aiuto dell&apos;intelligenza artificiale.
+          </>
+        )}{" "}
+        Ogni fonte ufficiale viene controllata a mano prima di essere usata. Indirizzo e contatti sono nell&apos;
         <Link href="/impressum" className={classeLink}>
           impressum
         </Link>

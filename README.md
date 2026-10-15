@@ -59,8 +59,9 @@ npm run build
    (eu-central-1, Francoforte) e indica la scelta in
    `NEXT_PUBLIC_SUPABASE_REGIONE_DATI` (`svizzera` o `ue`): l'informativa
    sulla privacy dice dove sono i dati.
-2. Esegui la migrazione `supabase/migrations/20261015000000_schema_iniziale.sql`
-   dal SQL editor (o con `supabase db push`).
+2. Esegui tutte le migrazioni di `supabase/migrations/`, in ordine di nome
+   (prima `20261015000000_schema_iniziale.sql`, poi le successive), dal SQL
+   editor o con `supabase db push`.
 3. In *Authentication > URL Configuration* imposta come Site URL il dominio del
    sito e aggiungi `https://<dominio>/auth/conferma*` tra i Redirect URLs.
 4. Facoltativo, per far funzionare il link anche se si apre su un altro
@@ -70,6 +71,22 @@ npm run build
 5. Copia in `.env.local` e nell'hosting `NEXT_PUBLIC_SUPABASE_URL` e
    `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, e solo lato server
    `SUPABASE_SECRET_KEY`.
+6. Protezione dagli abusi del link di accesso (prima del lancio):
+   - In *Authentication > Attack Protection* attiva il CAPTCHA con
+     **Cloudflare Turnstile** e incolla la chiave segreta del widget creato su
+     Cloudflare. Metti la chiave del sito in `NEXT_PUBLIC_TURNSTILE_SITE_KEY`:
+     il modulo di accesso mostra la verifica e passa il token a Supabase.
+     Attiva le due cose insieme: con il CAPTCHA acceso su Supabase ma senza
+     chiave del sito nell'app nessuno riesce ad accedere.
+   - In *Authentication > SMTP Settings* configura un tuo SMTP (per esempio
+     quello di Resend): con il servizio email predefinito Supabase manda
+     pochissime email all'ora per tutto il progetto. Poi in
+     *Authentication > Rate Limits* alza il limite di email all'ora a un
+     valore adatto al lancio.
+   - L'app limita anche, per connessione, le richieste di link e le
+     iscrizioni alla lista d'attesa (`LIMITI_RICHIESTE` in
+     `src/lib/limiti/richieste.ts`, tabella `limiti_richieste` con
+     un'impronta dell'IP, mai l'IP in chiaro). Serve `SUPABASE_SECRET_KEY`.
 
 ### Fonti della chat
 
@@ -100,7 +117,9 @@ iscrizioni vengono salvate lo stesso.
 Prima di pubblicare compila `NEXT_PUBLIC_SITO_URL`,
 `NEXT_PUBLIC_TITOLARE_NOME`, `NEXT_PUBLIC_TITOLARE_INDIRIZZO` e
 `NEXT_PUBLIC_TITOLARE_EMAIL`: servono per l'impressum (LCSl), l'informativa
-privacy (LPD) e per attivare TWINT su Stripe.
+privacy (LPD) e per attivare TWINT su Stripe. Finché uno di questi tre dati
+manca (o è vuoto), la lista d'attesa non salva iscrizioni e non manda email:
+il mittente deve essere identificabile.
 
 ### Informativa sulla privacy
 

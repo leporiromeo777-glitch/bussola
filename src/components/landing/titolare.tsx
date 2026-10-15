@@ -1,12 +1,7 @@
-import { sito } from "@/lib/sito";
+import { sito, titolareIncompleto, valoreSegnaposto } from "@/lib/sito";
 
-/** I valori di sito.titolare non ancora completati sono scritti tra parentesi quadre. */
-export function valoreSegnaposto(valore: string): boolean {
-  return /^\[.*\]$/.test(valore.trim());
-}
-
-/** true se almeno un dato del titolare (nome, indirizzo, email) è ancora da completare. */
-export const titolareIncompleto = Object.values(sito.titolare).some(valoreSegnaposto);
+// Definiti in src/lib/sito.ts perché servono anche lato server (email della lista d'attesa).
+export { titolareIncompleto, valoreSegnaposto };
 
 /** Nome, indirizzo ed email del titolare, come blocco <address>. */
 export function DatiTitolare() {

@@ -8,6 +8,9 @@ export const MESSAGGIO_DEMO =
 export const MESSAGGIO_ERRORE =
   "Non siamo riusciti a salvare l'iscrizione. Riprova tra qualche minuto: i dati che hai scritto sono ancora qui.";
 
+export const MESSAGGIO_TROPPE_RICHIESTE =
+  "Da questa connessione sono arrivate troppe iscrizioni in poco tempo. Riprova tra un'ora, oppure da un'altra rete (per esempio con i dati del telefono).";
+
 /** Testo da mostrare dopo l'invio del modulo, in base all'esito. */
 export function messaggioIscrizione(esito: EsitoIscrizione, email: string): Messaggio {
   switch (esito.tipo) {
@@ -15,11 +18,13 @@ export function messaggioIscrizione(esito: EsitoIscrizione, email: string): Mess
       return { titolo: "Iscrizioni non ancora attive", testo: MESSAGGIO_DEMO };
     case "errore":
       return { titolo: "Qualcosa non ha funzionato", testo: MESSAGGIO_ERRORE };
+    case "troppe_richieste":
+      return { titolo: "Troppe iscrizioni da questa connessione", testo: MESSAGGIO_TROPPE_RICHIESTE };
     case "ok":
       return esito.conferma === "email"
         ? {
             titolo: "Ci sei quasi: controlla la tua email",
-            testo: `Se l'indirizzo ${email} è nuovo, ti arriva un'email con il link per confermare l'iscrizione (guarda anche nello spam). Se eri già in lista, non devi fare nulla.`,
+            testo: `Ti abbiamo mandato un'email a ${email} con il link per confermare l'iscrizione (guarda anche nello spam). Se non arriva, iscriviti di nuovo con lo stesso indirizzo: te la rimandiamo, al massimo una volta al giorno. Se avevi già confermato, non devi fare nulla.`,
           }
         : {
             titolo: "Fatto, sei in lista!",
