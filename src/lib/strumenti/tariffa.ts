@@ -236,7 +236,7 @@ export function calcolaTariffa(dati: DatiTariffa): EsitoTariffa {
   const avvisi: Avviso[] = [];
   const soglie = avvisoSoglie(fatturato, "tariffa");
   if (soglie) avvisi.push(soglie);
-  avvisi.push(...avvisiPilastro3a(pilastro3a, utilePrimaDeiContributi - contributi.totale, dati.anno));
+  avvisi.push(...avvisiPilastro3a(pilastro3a, utilePrimaDeiContributi - contributi.totale, dati.anno, dati.situazione));
 
   return {
     ok: true,

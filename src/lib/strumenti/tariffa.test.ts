@@ -130,6 +130,25 @@ describe("calcolaTariffa", () => {
     expect(r.avvisi.some((a) => a.id === "pilastro-3a-massimo")).toBe(true);
   });
 
+  it("attività accessoria: avvisa del massimo 3a con cassa pensione", () => {
+    const r = ok(dati({ situazione: "accessoria", redditoDesiderato: "40'000", pilastro3a: "10'000" }));
+    const avviso = r.avvisi.find((a) => a.id === "pilastro-3a-cassa-pensione");
+    expect(avviso).toBeDefined();
+    expect(avviso!.titolo).toContain("CHF 7'258");
+    expect(avviso!.testo).toContain("CHF 36'288");
+    expect(avviso!.fonti.map((f) => f.url).join(" ")).toContain("fedlex.admin.ch");
+    // Attività principale: nessun avviso sulla cassa pensione.
+    const principale = ok(dati({ redditoDesiderato: "40'000", pilastro3a: "10'000" }));
+    expect(principale.avvisi.some((a) => a.id === "pilastro-3a-cassa-pensione")).toBe(false);
+    // Sotto il massimo con cassa pensione: niente avviso.
+    const poco = ok(dati({ situazione: "accessoria", redditoDesiderato: "40'000", pilastro3a: "7'000" }));
+    expect(poco.avvisi.some((a) => a.id === "pilastro-3a-cassa-pensione")).toBe(false);
+    // Sopra il massimo senza cassa pensione basta l'avviso "massimo".
+    const troppo = ok(dati({ situazione: "accessoria", redditoDesiderato: "200'000", pilastro3a: "40'000" }));
+    expect(troppo.avvisi.map((a) => a.id)).toContain("pilastro-3a-massimo");
+    expect(troppo.avvisi.some((a) => a.id === "pilastro-3a-cassa-pensione")).toBe(false);
+  });
+
   it("anno 2027 con le fasce spostate", () => {
     const r = ok(dati({ anno: 2027 }));
     expect(r.anno).toBe(2027);
