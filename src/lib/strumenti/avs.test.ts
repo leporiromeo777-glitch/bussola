@@ -116,6 +116,21 @@ describe("attività accessoria", () => {
     const s = stimaContributi(5_000, 2026, "accessoria");
     expect(s.caso).toBe("tassoMinimoAccessoria");
     expect(s.avsAiIpg).toBe(268.55); // 5'000 × 5,371%
+    expect(descrizioneCaso(s)).toContain("5,371%");
+    expect(descrizioneCaso(s)).toContain("puoi chiedere");
+  });
+
+  it("il tasso più basso si chiede solo se costa meno del contributo minimo", () => {
+    // 9'800 × 5,371% = 526.36 < 530: conviene il tasso.
+    expect(stimaContributi(9_800, 2026, "accessoria")).toMatchObject({ caso: "tassoMinimoAccessoria", avsAiIpg: 526.36 });
+    // 10'099 → 10'000 × 5,371% = 537.10 > 530: si paga il minimo.
+    const s = stimaContributi(10_099, 2026, "accessoria");
+    expect(s).toMatchObject({ caso: "minimo", tasso: null, avsAiIpg: 530, speseAmministrative: 10.6 });
+    expect(descrizioneCaso(s)).toContain("costerebbe di più");
+    // 2027: 10'250 → 10'200 × 5,371% = 547.84 > 541.
+    expect(stimaContributi(10_250, 2027, "accessoria")).toMatchObject({ caso: "minimo", avsAiIpg: 541 });
+    // Nel caso principale la frase sull'attività accessoria non c'è.
+    expect(descrizioneCaso(stimaContributi(5_000, 2026))).not.toContain("accessoria");
   });
 
   it("dal limite inferiore in su vale la tavola normale", () => {

@@ -19,7 +19,7 @@
  * È una stima indicativa: l'importo vero lo decide la cassa di compensazione.
  */
 import { anniTavola, parametriAnno, tavoleScalari, type AnnoAvs, type FasciaScalare } from "@/data/avs-tavola-scalare";
-import { datiStrumenti, supplementiTicino } from "@/data/svizzera";
+import { datiStrumenti, percentuale, supplementiTicino } from "@/data/svizzera";
 import { arrotonda, importo } from "./numeri";
 
 export type { AnnoAvs };
@@ -38,7 +38,7 @@ export type CasoAvs =
   | "scalare"
   /** Reddito dal limite superiore in su: 10%. */
   | "massimo"
-  /** Accessoria sotto il limite inferiore: tasso più basso invece del minimo. */
+  /** Accessoria sotto il limite inferiore: tasso più basso su richiesta, quando costa meno del minimo. */
   | "tassoMinimoAccessoria"
   /** Accessoria fino a CHF 2'500: contributi solo su richiesta. */
   | "suRichiesta";
@@ -97,13 +97,13 @@ export function contributoAvsAiIpg(
     return { caso: "massimo", tasso: p.tassoMassimo, fascia: null, avsAiIpg: arrotonda(reddito * p.tassoMassimo) };
   }
   if (reddito < p.limiteInferioreScala) {
+    // Con il minimo già pagato sul salario si PUÒ chiedere il tasso più basso
+    // della tavola (promemoria 2.02, punto 6): conviene solo se costa meno.
     if (situazione === "accessoria") {
-      return {
-        caso: "tassoMinimoAccessoria",
-        tasso: p.tassoMinimoScala,
-        fascia: null,
-        avsAiIpg: arrotonda(reddito * p.tassoMinimoScala),
-      };
+      const conTasso = arrotonda(reddito * p.tassoMinimoScala);
+      if (conTasso < p.contributoMinimo) {
+        return { caso: "tassoMinimoAccessoria", tasso: p.tassoMinimoScala, fascia: null, avsAiIpg: conTasso };
+      }
     }
     return { caso: "minimo", tasso: null, fascia: null, avsAiIpg: p.contributoMinimo };
   }
@@ -203,13 +203,18 @@ export function descrizioneCaso(stima: StimaContributi): string {
   const p = parametriAnno(stima.anno).valore;
   switch (stima.caso) {
     case "minimo":
-      return `Reddito sotto ${importo(p.limiteInferioreScala, 0)}: si paga il contributo minimo (${importo(p.contributoMinimo, 0)}).`;
+      return (
+        `Reddito sotto ${importo(p.limiteInferioreScala, 0)}: si paga il contributo minimo (${importo(p.contributoMinimo, 0)}).` +
+        (stima.situazione === "accessoria"
+          ? ` Il tasso più basso della tavola (${percentuale(p.tassoMinimoScala, 3)}), che con un'attività accessoria puoi chiedere, qui costerebbe di più.`
+          : "")
+      );
     case "scalare":
       return "Reddito nella tavola scalare: il tasso AVS/AI/IPG è ridotto.";
     case "massimo":
       return `Reddito da ${importo(p.limiteSuperioreScala, 0)} in su: tasso pieno AVS/AI/IPG.`;
     case "tassoMinimoAccessoria":
-      return "Attività accessoria con il contributo minimo già pagato sul salario: si applica il tasso più basso della tavola.";
+      return `Attività accessoria con il contributo minimo già pagato sul salario: puoi chiedere alla cassa il tasso più basso della tavola (${percentuale(p.tassoMinimoScala, 3)}), che qui costa meno del contributo minimo.`;
     case "suRichiesta":
       return "Attività accessoria con reddito basso: i contributi si pagano solo se li chiedi tu.";
   }
