@@ -41,7 +41,8 @@
     "cantone": null,
     "argomenti": ["ditta individuale", "fondazione", "responsabilità"],
     "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "verificato_da": "import automatico - da ricontrollare a mano",
+    "attiva": false
   },
   {
     "id": "pmi-check-list-costituzione",
@@ -95,6 +96,28 @@
     "livello": "cantonale",
     "cantone": "TI",
     "argomenti": ["avs", "cassa di compensazione", "affiliazione", "indipendenti"],
+    "verificato_il": "2026-10-15",
+    "verificato_da": "import automatico - da ricontrollare a mano"
+  },
+  {
+    "id": "avs-presentare-domanda-indipendente",
+    "url": "https://selbststaendig-erwerbend.ch/it/presentare-una-domanda",
+    "titolo": "Presentare una domanda di riconoscimento come indipendente",
+    "ente": "Casse di compensazione AVS (indipendente.ch)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": ["avs", "riconoscimento", "indipendenti", "domanda"],
+    "verificato_il": "2026-10-15",
+    "verificato_da": "import automatico - da ricontrollare a mano"
+  },
+  {
+    "id": "suva-accertamento-indipendente",
+    "url": "https://www.suva.ch/it-ch/assicurazione/assicurazione-contro-gli-infortuni/accertamento-indipendente-dipendente",
+    "titolo": "Accertamento: indipendente o dipendente?",
+    "ente": "Suva",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": ["suva", "edilizia", "trasporti", "statuto", "indipendenti"],
     "verificato_il": "2026-10-15",
     "verificato_da": "import automatico - da ricontrollare a mano"
   },

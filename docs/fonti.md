@@ -21,6 +21,13 @@ Come funziona, in breve:
 > `"verificato_da": "import automatico - da ricontrollare a mano"`.
 > **Prima della beta vanno aperte e ricontrollate una per una** (vedi
 > "Controllo mensile"), poi si mette il proprio nome in `verificato_da`.
+>
+> Revisione del 15.10.2026: `pmi-ditta-individuale-lanciarsi` è disattivata
+> (`"attiva": false`) perché dice che si chiede prima lo statuto alla Suva e
+> solo dopo all'AVS, mentre la domanda va alla cassa AVS, che la inoltra alla
+> Suva. Al suo posto ci sono `suva-accertamento-indipendente` e
+> `avs-presentare-domanda-indipendente`, con la procedura giusta. Quando due
+> pagine si contraddicono, la chat dà la precedenza all'ufficio che decide.
 
 ## Aggiungere una fonte
 
