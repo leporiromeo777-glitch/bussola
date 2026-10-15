@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  env: {
+    // Fornitore di hosting per l'informativa sulla privacy (src/lib/privacy.ts),
+    // fissato durante la build: VERCEL e NETLIFY non sempre esistono quando il
+    // server risponde.
+    BUSSOLA_HOSTING: process.env.VERCEL ? "vercel" : process.env.NETLIFY ? "netlify" : "",
+  },
   turbopack: {
     rules: {
       "*.css": {

@@ -102,6 +102,21 @@ Prima di pubblicare compila `NEXT_PUBLIC_SITO_URL`,
 `NEXT_PUBLIC_TITOLARE_EMAIL`: servono per l'impressum (LCSl), l'informativa
 privacy (LPD) e per attivare TWINT su Stripe.
 
+### Informativa sulla privacy
+
+Finché l'informativa (`/privacy`) ha parti tra parentesi quadre, la lista
+d'attesa non salva le iscrizioni: resta in modalità demo e il server scrive
+nei log cosa manca. Prima di aprirla:
+
+- compila i dati del titolare e `NEXT_PUBLIC_SUPABASE_REGIONE_DATI`;
+- pubblica su Vercel o Netlify (il fornitore si riconosce da solo nella
+  build);
+- in `src/lib/privacy.ts` scrivi per quanto tempo hosting e database tengono
+  i log e conferma le clausole contrattuali standard di Supabase, Anthropic
+  e Resend, che al 15.10.2026 non sono certificati Swiss-U.S. Data Privacy
+  Framework (Vercel e Netlify sì). Ricontrolla l'elenco su
+  https://www.dataprivacyframework.gov/list prima del lancio.
+
 ## Pubblicare
 
 Funziona su Netlify o Vercel come un normale progetto Next.js. Imposta le
