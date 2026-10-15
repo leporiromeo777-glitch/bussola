@@ -27,16 +27,24 @@ export function ModuloAccesso({ next }: { next?: string }) {
         La tua email
       </label>
       <input
+        // La key cambia a ogni errore: il campo si rimonta con l'email scritta.
+        key={stato.tentativo ?? 0}
         id="email"
         name="email"
         type="email"
         required
         autoComplete="email"
-        className="rounded-lg border border-border bg-card px-3 py-2"
+        defaultValue={stato.email ?? ""}
+        aria-invalid={stato.stato === "errore" && stato.emailNonValida ? true : undefined}
+        aria-describedby={stato.stato === "errore" ? "accesso-errore" : undefined}
+        className="rounded-lg border border-border bg-card px-3 py-2 aria-[invalid=true]:border-danger"
       />
-      {CHIAVE_TURNSTILE ? <CampoTurnstile key={stato.tentativo ?? 0} chiaveSito={CHIAVE_TURNSTILE} azione="accesso" /> : null}
+      {CHIAVE_TURNSTILE ? (
+        // Nuovo widget (e nuovo token) dopo ogni errore: un token vale una volta sola.
+        <CampoTurnstile key={stato.tentativo ?? 0} chiaveSito={CHIAVE_TURNSTILE} azione="accesso" />
+      ) : null}
       {stato.stato === "errore" ? (
-        <p role="alert" className="text-sm text-danger">
+        <p id="accesso-errore" role="alert" className="text-sm text-danger">
           {stato.messaggio}
         </p>
       ) : null}

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import Script from "next/script";
 import { navigazione, sito } from "@/lib/sito";
+import { supabaseConfigured } from "@/lib/supabase/env";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -13,6 +14,9 @@ export const metadata: Metadata = {
   title: { default: `${sito.nome}: ${sito.slogan}`, template: `%s · ${sito.nome}` },
   description: sito.descrizione,
 };
+
+// In modalità demo (Supabase non configurato) l'accesso non funziona: niente link nell'header.
+const accessoAttivo = supabaseConfigured();
 
 // Statistiche senza cookie (Plausible), solo se il dominio è configurato.
 const dominioPlausible = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
@@ -38,12 +42,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   {voce.etichetta}
                 </Link>
               ))}
-              <Link
-                href="/accedi"
-                className="rounded-full border border-border px-3 py-1 text-foreground hover:border-brand"
-              >
-                Accedi
-              </Link>
+              {accessoAttivo ? (
+                <Link
+                  href="/accedi"
+                  className="rounded-full border border-border px-3 py-1 text-foreground hover:border-brand"
+                >
+                  Accedi
+                </Link>
+              ) : null}
             </nav>
           </div>
         </header>

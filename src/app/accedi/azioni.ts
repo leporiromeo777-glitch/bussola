@@ -11,6 +11,10 @@ import { createClient } from "@/lib/supabase/server";
 export type StatoAccesso = {
   stato: "iniziale" | "inviato" | "errore";
   messaggio?: string;
+  /** Email scritta, per ripresentarla nel campo dopo un errore (React svuota il modulo dopo l'invio). */
+  email?: string;
+  /** true se l'errore riguarda l'indirizzo scritto (il campo si segna come non valido). */
+  emailNonValida?: boolean;
   /** Cambia a ogni errore: il modulo si rimonta (e la verifica anti-robot riparte con un token nuovo). */
   tentativo?: number;
 };
@@ -22,16 +26,18 @@ const schema = z.object({
 
 /** Invia il link di accesso via email (nessuna password). */
 export async function inviaLinkAccesso(prev: StatoAccesso, form: FormData): Promise<StatoAccesso> {
-  const errore = (messaggio: string | undefined): StatoAccesso => ({
+  const errore = (messaggio: string | undefined, emailNonValida = false): StatoAccesso => ({
     stato: "errore",
     messaggio,
+    email: String(form.get("email") ?? "").slice(0, 320),
+    ...(emailNonValida ? { emailNonValida } : {}),
     tentativo: (prev.tentativo ?? 0) + 1,
   });
   const dati = schema.safeParse({
     email: String(form.get("email") ?? "").trim(),
     next: form.get("next") ? String(form.get("next")) : undefined,
   });
-  if (!dati.success) return errore(dati.error.issues[0]?.message);
+  if (!dati.success) return errore(dati.error.issues[0]?.message, true);
 
   // Verifica anti-robot (Cloudflare Turnstile), attiva se la chiave del sito è impostata.
   // Il token lo controlla Supabase Auth (CAPTCHA in Attack Protection).
@@ -39,7 +45,7 @@ export async function inviaLinkAccesso(prev: StatoAccesso, form: FormData): Prom
   if (!captcha.ok) return errore(captcha.messaggio);
 
   const supabase = await createClient();
-  if (!supabase) return errore("L'accesso non è ancora attivo (Supabase non configurato).");
+  if (!supabase) return errore("L'accesso non è ancora disponibile su questo sito.");
 
   // La richiesta a Supabase parte dal nostro server: i suoi limiti per IP vedono
   // il server, non chi chiede. Qui si limita per connessione di chi chiede.
