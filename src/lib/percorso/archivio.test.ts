@@ -1,15 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   analizzaPassiFatti,
+  analizzaProprietario,
   analizzaRisposteSalvate,
   cambiaPasso,
   CHIAVE_PASSI_FATTI,
   CHIAVE_RISPOSTE,
+  CHIAVE_UTENTE,
+  dimenticaPercorsoLocale,
   EVENTO_ARCHIVIO,
+  impostaProprietario,
   iscriviti,
   leggiGrezzo,
   salvaPassiFattiLocali,
   salvaRisposteLocali,
+  scartaDatiDiAltri,
   scriviGrezzo,
   svuotaMemoria,
 } from "./archivio";
@@ -60,6 +65,13 @@ describe("lettura dei dati salvati", () => {
     expect(analizzaPassiFatti(null)).toEqual([]);
     expect(analizzaPassiFatti("rotto")).toEqual([]);
     expect(analizzaPassiFatti(JSON.stringify({ a: 1 }))).toEqual([]);
+  });
+
+  it("proprietario: una stringa non vuota, altrimenti null", () => {
+    expect(analizzaProprietario("utente-a")).toBe("utente-a");
+    expect(analizzaProprietario(null)).toBeNull();
+    expect(analizzaProprietario("")).toBeNull();
+    expect(analizzaProprietario("   ")).toBeNull();
   });
 
   it("cambiaPasso aggiunge e toglie", () => {
@@ -134,6 +146,36 @@ describe("nel browser", () => {
     expect(leggiGrezzo(CHIAVE_RISPOSTE)).toBeNull();
     expect(salvaRisposteLocali(risposte, salvate.aggiornatoIl)).toBe(false);
     expect(analizzaRisposteSalvate(leggiGrezzo(CHIAVE_RISPOSTE))).toEqual(salvate);
+  });
+
+  it("all'uscita dall'account cancella risposte, passi fatti e proprietario", () => {
+    salvaRisposteLocali(risposte, salvate.aggiornatoIl);
+    salvaPassiFattiLocali(["fatture"]);
+    impostaProprietario("utente-a");
+    dimenticaPercorsoLocale();
+    for (const chiave of [CHIAVE_RISPOSTE, CHIAVE_PASSI_FATTI, CHIAVE_UTENTE]) {
+      expect(spazio.has(chiave)).toBe(false);
+      expect(leggiGrezzo(chiave)).toBeNull();
+    }
+  });
+
+  it("nuove risposte di un'altra persona: i passi fatti dell'altro account vengono tolti", () => {
+    salvaPassiFattiLocali(["fatture"]);
+    impostaProprietario("utente-a");
+    // Stesso account: non cambia nulla.
+    scartaDatiDiAltri("utente-a");
+    expect(leggiGrezzo(CHIAVE_UTENTE)).toBe("utente-a");
+    expect(leggiGrezzo(CHIAVE_PASSI_FATTI)).toBe('["fatture"]');
+    // Un altro account, o nessun accesso: via passi e proprietario.
+    scartaDatiDiAltri(null);
+    expect(leggiGrezzo(CHIAVE_UTENTE)).toBeNull();
+    expect(leggiGrezzo(CHIAVE_PASSI_FATTI)).toBeNull();
+  });
+
+  it("dati fatti senza accesso: restano anche quando arrivano nuove risposte", () => {
+    salvaPassiFattiLocali(["fatture"]);
+    scartaDatiDiAltri("utente-b");
+    expect(leggiGrezzo(CHIAVE_PASSI_FATTI)).toBe('["fatture"]');
   });
 
   it("quando il browser torna a salvare, la copia in memoria lascia il posto allo spazio vero", () => {

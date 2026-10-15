@@ -1,4 +1,4 @@
-import { chf } from "@/data/svizzera";
+import { chf, regole } from "@/data/svizzera";
 import type { IdDomanda, Risposte } from "./risposte";
 
 export type Opzione<V extends string = string> = { valore: V; etichetta: string; aiuto?: string };
@@ -74,8 +74,9 @@ export const DOMANDE: readonly Domande[] = [
   {
     id: "fatturato",
     breve: "Cifra d'affari nei primi 12 mesi",
-    titolo: "Quanto pensi di incassare nei primi 12 mesi?",
-    perche: `Da ${chf(100_000)} di cifra d'affari cambiano le regole per IVA e registro di commercio. Conta l'incassato, non il guadagno.`,
+    titolo: "Quanto pensi di fatturare nei primi 12 mesi?",
+    // Per l'IVA conta quanto fatturi o concordi, senza IVA, non quanto incassi (art. 10 cpv. 2bis LIVA).
+    perche: `Da ${chf(regole.sogliaIva.valore)} di cifra d'affari cambiano le regole per IVA e registro di commercio. Conta il totale delle fatture ai clienti (senza IVA), anche se ti pagano dopo, non il guadagno.`,
     opzioni: [
       { valore: "meno_10k", etichetta: `Meno di ${chf(10_000)}` },
       { valore: "da_10k_a_60k", etichetta: `Da ${chf(10_000)} a ${chf(60_000)}` },

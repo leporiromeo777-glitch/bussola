@@ -4,6 +4,7 @@ import { leggiDatiAccount } from "@/lib/percorso/account";
 import { annoScadenzario } from "@/lib/percorso/calendario";
 import { supabaseConfigured } from "@/lib/supabase/env";
 import { Percorso } from "./percorso";
+import "./stampa.css";
 
 export const metadata: Metadata = {
   title: "Il tuo percorso",

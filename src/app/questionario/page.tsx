@@ -27,7 +27,7 @@ export default async function PaginaQuestionario() {
       </p>
       <p className="mt-2 text-sm text-muted">
         {account.collegato
-          ? "Le risposte vengono salvate nel tuo account, così ritrovi il percorso su ogni dispositivo."
+          ? `Le risposte vengono salvate nel tuo account${account.email ? ` ${account.email}` : ""}, così ritrovi il percorso su ogni dispositivo.`
           : "Le risposte restano solo in questo browser."}
       </p>
 

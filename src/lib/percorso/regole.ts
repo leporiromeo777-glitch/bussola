@@ -106,8 +106,10 @@ function notaCassaAvs(r: Risposte): string {
 }
 
 function notaAttivitaAccessoria(): string {
-  const minimo = avsIndipendenti[2026].valore.tassoMinimoScala;
-  return `Se l'attività in proprio è accessoria e il reddito non supera ${chf(regolePercorso.attivitaAccessoriaAvs.valore)} l'anno, i contributi si pagano solo se li chiedi tu. Se sul salario hai già pagato il contributo minimo, puoi chiedere il tasso più basso (${percentuale(minimo, 3)}).`;
+  const avs2026 = avsIndipendenti[2026].valore;
+  const avs2027 = avsIndipendenti[2027].valore;
+  // Promemoria 2.02, punto 6: il tasso più basso vale solo sotto il limite inferiore della tavola scalare.
+  return `Se l'attività in proprio è accessoria e il reddito non supera ${chf(regolePercorso.attivitaAccessoriaAvs.valore)} l'anno, i contributi si pagano solo se li chiedi tu. Se sul salario hai già pagato il contributo minimo e il reddito dell'attività in proprio è inferiore a ${chf(avs2026.limiteInferioreScala)} (${chf(avs2027.limiteInferioreScala)} dal 2027), puoi chiedere il tasso più basso (${percentuale(avs2026.tassoMinimoScala, 3)}) invece del contributo minimo (${chf(avs2026.contributoMinimo)} nel 2026, ${chf(avs2027.contributoMinimo)} dal 2027). Sopra questo limite vale la tavola scalare.`;
 }
 
 /** Una regola per ogni passo del catalogo. */
@@ -171,6 +173,26 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
           perche:
             "La LEAR è una legge ticinese: nel tuo Cantone valgono regole cantonali, da verificare con gli uffici del Cantone prima di aprire.",
         };
+  },
+
+  "notifica-derrate-alimentari": (r) => {
+    if (r.attivita !== "ristorazione_alimentari") {
+      return { stato: "non_serve", perche: "Riguarda chi produce, trasforma o vende alimenti." };
+    }
+    const chi =
+      "Hai indicato ristorazione, bar o alimentari: chi lavora con gli alimenti, anche con un catering o con prodotti fatti in casa, deve notificare l'attività";
+    if (inTicino(r)) {
+      return { stato: "da_fare", perche: `${chi} al ${ufficiPercorso.laboratorioCantonaleTicino.valore.nome}.` };
+    }
+    return {
+      stato: "da_fare",
+      perche: `${chi} all'autorità cantonale per le derrate alimentari del tuo Cantone.`,
+      note: [
+        r.cantone === "GR"
+          ? "Il formulario e l'indirizzo del passo sono ticinesi. Nei Grigioni la notifica si fa con il modulo online dell'Ufficio per la sicurezza delle derrate alimentari e la salute degli animali (trovi il link tra le fonti)."
+          : "Il formulario e l'indirizzo del passo sono ticinesi: nel tuo Cantone usa quelli dell'autorità cantonale per le derrate alimentari.",
+      ],
+    };
   },
 
   "autorizzazione-sanitaria": (r) => {
@@ -488,7 +510,7 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
       case "non_so":
         return {
           stato: "da_fare",
-          perche: "Non sai ancora quanto incasserai: a fine anno somma la cifra d'affari e confrontala con le soglie.",
+          perche: "Non sai ancora quanto fatturerai: a fine anno somma la cifra d'affari e confrontala con le soglie.",
         };
       case "almeno_100k":
         return {
@@ -560,7 +582,7 @@ function calcolaAvvisi(r: Risposte): Avviso[] {
       livello: "importante",
       titolo: "Ristorante o bar: prima l'autorizzazione",
       testo: inTicino(r)
-        ? "In Ticino un esercizio pubblico può essere aperto e gestito solo dopo aver ottenuto l'autorizzazione, con un gerente che ha il diploma cantonale di esercente."
+        ? "In Ticino un esercizio pubblico può essere aperto e gestito solo dopo aver ottenuto l'autorizzazione; di regola serve un gerente con il diploma cantonale di esercente (con alcune eccezioni)."
         : "Per ristoranti e bar valgono regole cantonali: verifica con gli uffici del tuo Cantone prima di aprire.",
       fonti: inTicino(r)
         ? [fontiPercorso.lear]

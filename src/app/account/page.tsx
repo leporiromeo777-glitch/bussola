@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient, getUser } from "@/lib/supabase/server";
-import { esci } from "../accedi/azioni";
+import { PulsanteEsci } from "./pulsante-esci";
 
 export const metadata: Metadata = { title: "Il tuo account" };
 
@@ -23,11 +23,7 @@ export default async function PaginaAccount() {
         <dt className="text-muted">Piano</dt>
         <dd className="capitalize">{profilo?.piano ?? "gratis"}</dd>
       </dl>
-      <form action={esci} className="mt-8">
-        <button type="submit" className="rounded-lg border border-border px-4 py-2 hover:border-brand">
-          Esci
-        </button>
-      </form>
+      <PulsanteEsci />
     </div>
   );
 }

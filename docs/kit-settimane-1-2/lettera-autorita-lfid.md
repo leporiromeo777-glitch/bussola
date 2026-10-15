@@ -180,7 +180,7 @@ prevista (in fasce), numero di clienti, eventuale lavoro da dipendente,
 attività già iniziata o no, cittadinanza o permesso, locale aperto al
 pubblico, vendita online. Dalle risposte, regole fisse, definite in anticipo
 e uguali per tutti (non l'intelligenza artificiale), scelgono da un elenco
-di 22 passi quelli che di regola valgono in quella situazione, li mettono in
+di 23 passi quelli che di regola valgono in quella situazione, li mettono in
 ordine e indicano per ognuno il link al modulo o alla pagina ufficiale. Le stesse
 risposte danno sempre la stessa checklist. Esempio: chi prevede una cifra
 d'affari di CHF 100'000 o più vede il passo «Annunciati all'IVA entro 30
@@ -410,7 +410,7 @@ delle regole «2026-10-15»). Ricontrollala prima di stampare.
 | 1 | Che attività vuoi avviare? | Servizi digitali o creativi · Consulenza o formazione · Artigianato o edilizia · Trasporti · Commercio o vendita online · Ristorazione, bar o alimentari · Salute, cura o benessere · Altro | Alcuni settori hanno bisogno di un'autorizzazione o di un passaggio in più prima di iniziare |
 | 2 | Dove avrà sede la tua attività? | Ticino · Grigioni · Un altro Cantone | Uffici, cassa AVS, imposte e autorizzazioni dipendono dal Cantone |
 | 3 | Parti da solo o con dei soci? | Da solo o da sola · Con uno o più soci | La ditta individuale ha un solo titolare |
-| 4 | Quanto pensi di incassare nei primi 12 mesi? | Meno di CHF 10'000 · Da CHF 10'000 a CHF 60'000 · Da CHF 60'000 a meno di CHF 100'000 · CHF 100'000 o più · Non lo so ancora | Da CHF 100'000 di cifra d'affari cambiano le regole per IVA e registro di commercio |
+| 4 | Quanto pensi di fatturare nei primi 12 mesi? | Meno di CHF 10'000 · Da CHF 10'000 a CHF 60'000 · Da CHF 60'000 a meno di CHF 100'000 · CHF 100'000 o più · Non lo so ancora | Da CHF 100'000 di cifra d'affari cambiano le regole per IVA e registro di commercio |
 | 5 | Per quanti clienti pensi di lavorare? | Uno solo · Due o tre · Molti | Per l'AVS conta anche lavorare per diversi clienti |
 | 6 | Hai anche un lavoro da dipendente? | No · Sì, a tempo parziale · Sì, a tempo pieno | Cambia come funzionano AVS, assicurazione infortuni e dichiarazione d'imposta |
 | 7 | Hai già iniziato a lavorare in proprio? | Non ancora · Sì, da meno di 3 mesi · Sì, da più di 3 mesi | Alcune pratiche vanno fatte nei primi mesi |
@@ -423,7 +423,7 @@ delle regole «2026-10-15»). Ricontrollala prima di stampare.
 - Le regole sono fisse e scritte a mano. Non usano l'intelligenza
   artificiale. Le stesse risposte danno sempre la stessa checklist. Ogni
   checklist salva la versione delle regole con cui è stata prodotta.
-- Partono da un elenco di 22 passi, divisi in quattro fasi: «Prima di
+- Partono da un elenco di 23 passi, divisi in quattro fasi: «Prima di
   iniziare», «Aprire l'attività», «I primi mesi», «Ogni anno».
 - Per ogni passo la regola assegna uno stato («da fare», «facoltativo», «non
   serve») e una frase che spiega perché, con il link al modulo o alla pagina

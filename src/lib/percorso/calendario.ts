@@ -104,6 +104,27 @@ export function eventiDaScadenze(
   return eventi.sort((a, b) => a.data.localeCompare(b.data) || a.uid.localeCompare(b.uid));
 }
 
+/** Come si presenta la data di una scadenza nel riquadro: "Entro il …" per i termini dall'inizio, "Nel 2027: …" per le altre. */
+export function prefissoDate(scadenza: Scadenza, anno: number): string {
+  return scadenza.calendario.tipo === "dopo-inizio" ? "Entro il " : `Nel ${anno}: `;
+}
+
+/**
+ * Nome del calendario e del file .ics: con l'anno solo se tutte le date sono
+ * di quell'anno. Il termine IVA calcolato dalla data di inizio può cadere in
+ * un altro anno (per esempio a ottobre, quando il calendario è già dell'anno
+ * seguente).
+ */
+export function nomiCalendario(
+  eventi: readonly EventoCalendario[],
+  anno: number,
+): { nomeCalendario: string; nomeFile: string } {
+  const soloQuellAnno = eventi.every((e) => e.data.slice(0, 4) === String(anno));
+  return soloQuellAnno
+    ? { nomeCalendario: `Bussola: scadenze ${anno}`, nomeFile: `bussola-scadenze-${anno}.ics` }
+    : { nomeCalendario: "Bussola: scadenze", nomeFile: "bussola-scadenze.ics" };
+}
+
 /** Protegge un valore TEXT (RFC 5545, 3.3.11): \ ; , e gli a capo. */
 export function proteggiTesto(testo: string): string {
   return testo

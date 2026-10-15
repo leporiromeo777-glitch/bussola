@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FASI, PASSI, type IdPasso } from "@/data/passi";
-import { fonti, fontiPercorso } from "@/data/svizzera";
+import { avsIndipendenti, chf, fonti, fontiPercorso } from "@/data/svizzera";
 import { avanzamento, calcolaPercorso, prossimoPasso, VERSIONE_REGOLE, type Percorso, type StatoPasso } from "./regole";
 import { VERSIONE_RISPOSTE, type Risposte } from "./risposte";
 
@@ -105,6 +105,21 @@ describe("regole: autorizzazioni di settore", () => {
     expect(avviso?.fonti).toContain(fontiPercorso.lear);
   });
 
+  it("LEAR: autorizzazione all'art. 5, diploma del gerente all'art. 9 e di regola, con eccezioni", () => {
+    const percorso = calcolaPercorso(risposte({ attivita: "ristorazione_alimentari" }));
+    const p = passo(percorso, "autorizzazione-esercizio-pubblico");
+    expect(p.passo.descrizione).toContain("(LEAR, art. 5)");
+    expect(p.passo.descrizione).toContain("(LEAR, art. 9)");
+    expect(p.passo.descrizione).toMatch(/Di regola serve anche un gerente/);
+    expect(p.passo.descrizione).toMatch(/tre anni di pratica/);
+    expect(p.passo.cosaFare[0]).toBe("Leggi gli artt. 5 e 9 della LEAR.");
+    expect(p.passo.fonti).toEqual(expect.arrayContaining([fontiPercorso.lear, fontiPercorso.rlear]));
+    expect(fontiPercorso.lear.titolo).toContain("artt. 5 e 9");
+    const avviso = percorso.avvisi.find((a) => a.id === "autorizzazione-ristorazione");
+    expect(avviso?.testo).toMatch(/di regola serve un gerente/);
+    expect(avviso?.testo).toMatch(/eccezioni/);
+  });
+
   it("ristorazione fuori dal Ticino: LEAR solo da verificare", () => {
     expect(stato({ attivita: "ristorazione_alimentari", cantone: "GR" }, "autorizzazione-esercizio-pubblico")).toBe(
       "facoltativo",
@@ -113,6 +128,35 @@ describe("regole: autorizzazioni di settore", () => {
 
   it("le altre attività non hanno l'autorizzazione LEAR", () => {
     expect(stato({}, "autorizzazione-esercizio-pubblico")).toBe("non_serve");
+  });
+
+  it("alimenti: notifica dell'attività al Cantone (ODerr art. 20), anche senza locale pubblico", () => {
+    const percorso = calcolaPercorso(risposte({ attivita: "ristorazione_alimentari", locali: "no" }));
+    const p = passo(percorso, "notifica-derrate-alimentari");
+    expect(p.stato).toBe("da_fare");
+    expect(p.perche).toContain("Laboratorio cantonale");
+    expect(p.passo.fonti).toEqual(
+      expect.arrayContaining([fontiPercorso.oderr20, fontiPercorso.laboratorioCantonaleNotifica]),
+    );
+    expect(p.passo.link.url).toBe(fontiPercorso.laboratorioCantonaleNotifica.url);
+    expect(p.passo.descrizione).toMatch(/mercatini, feste scolastiche/);
+  });
+
+  it("alimenti fuori dal Ticino: notifica all'autorità del proprio Cantone", () => {
+    const notifica = (cantone: Risposte["cantone"]) =>
+      passo(calcolaPercorso(risposte({ attivita: "ristorazione_alimentari", cantone })), "notifica-derrate-alimentari");
+    for (const cantone of ["GR", "altro"] as const) {
+      expect(notifica(cantone).stato).toBe("da_fare");
+      expect(notifica(cantone).perche).toContain("del tuo Cantone");
+      expect(notifica(cantone).perche).not.toContain("Laboratorio cantonale");
+    }
+    expect(notifica("GR").note.join(" ")).toMatch(/Grigioni/);
+  });
+
+  it("le altre attività non hanno la notifica degli alimenti", () => {
+    for (const attivita of ["digitale_creativo", "commercio_online", "salute_benessere", "altro"] as const) {
+      expect(stato({ attivita }, "notifica-derrate-alimentari")).toBe("non_serve");
+    }
   });
 
   it("salute in Ticino: autorizzazione sanitaria da fare e avviso", () => {
@@ -212,6 +256,17 @@ describe("regole: AVS", () => {
     expect(testo).toContain("CHF 2'500");
     expect(testo).toContain("5,371%");
     expect(testoCompleto(calcolaPercorso(risposte()), "riconoscimento-avs")).not.toContain("CHF 2'500");
+  });
+
+  it("tasso più basso solo sotto il limite inferiore della tavola scalare (Promemoria 2.02, punto 6)", () => {
+    for (const impiego of ["parziale", "pieno"] as const) {
+      const note = passo(calcolaPercorso(risposte({ impiego })), "riconoscimento-avs").note;
+      const nota = note.find((n) => n.includes("5,371%"));
+      expect(nota).toContain(`inferiore a ${chf(avsIndipendenti[2026].valore.limiteInferioreScala)}`);
+      expect(nota).toContain(`${chf(avsIndipendenti[2027].valore.limiteInferioreScala)} dal 2027`);
+      expect(nota).toContain("CHF 10'100");
+      expect(nota).toMatch(/Sopra questo limite vale la tavola scalare/);
+    }
   });
 
   it("già avviata da più di 3 mesi: avviso di presentare subito la domanda", () => {
@@ -315,6 +370,9 @@ describe("regole: IVA", () => {
     expect(stato({ fatturato: "non_so" }, "soglie-annuali")).toBe("da_fare");
     expect(stato({ fatturato: "meno_10k" }, "soglie-annuali")).toBe("facoltativo");
     expect(stato({ fatturato: "almeno_100k" }, "soglie-annuali")).toBe("facoltativo");
+    expect(passo(calcolaPercorso(risposte({ fatturato: "non_so" })), "soglie-annuali").perche).toMatch(
+      /quanto fatturerai/,
+    );
   });
 });
 
@@ -503,6 +561,7 @@ describe("persone tipo", () => {
     );
     for (const id of [
       "autorizzazione-esercizio-pubblico",
+      "notifica-derrate-alimentari",
       "locali-pubblico",
       "iscrizione-rc",
       "iscrizione-iva",

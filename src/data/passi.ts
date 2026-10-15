@@ -60,6 +60,7 @@ const avs2027 = avsIndipendenti[2027].valore;
 const fondo = regolePercorso.fondounimpresa.valore;
 const esazione = ufficiPercorso.esazioneCondoniTicino.valore;
 const fondounimpresa = ufficiPercorso.fondounimpresa.valore;
+const laboratorio = ufficiPercorso.laboratorioCantonaleTicino.valore;
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -129,16 +130,40 @@ export const PASSI = [
     fase: "prima di iniziare",
     titolo: "Ristorante o bar: chiedi l'autorizzazione prima di aprire",
     descrizione:
-      "In Ticino un esercizio pubblico (per esempio un ristorante, un bar o un albergo) può essere aperto e gestito soltanto dopo aver ottenuto l'autorizzazione. Serve anche un gerente con il diploma cantonale di esercente (LEAR, art. 5).",
+      "In Ticino un esercizio pubblico (per esempio un ristorante, un bar o un albergo) può essere aperto e gestito soltanto dopo aver ottenuto l'autorizzazione (LEAR, art. 5). Di regola serve anche un gerente con il diploma cantonale di esercente oppure, senza un certificato riconosciuto, con almeno tre anni di pratica come esercente in un altro Cantone (LEAR, art. 9); il regolamento prevede eccezioni.",
     cosaFare: [
-      "Leggi l'art. 5 della LEAR.",
+      "Leggi gli artt. 5 e 9 della LEAR.",
       "Guarda la procedura per l'autorizzazione degli esercizi pubblici nell'elenco della Polizia cantonale.",
-      "Decidi chi farà da gerente con il diploma cantonale di esercente.",
+      "Decidi chi farà da gerente. Nel regolamento (RLEAR) trovi le attività per cui il diploma di esercente non serve.",
     ],
     link: { etichetta: "Autorizzazioni della Polizia cantonale", url: fontiPercorso.poliziaAutorizzazioni.url },
-    fonti: [fontiPercorso.lear, fontiPercorso.poliziaAutorizzazioni],
+    fonti: [fontiPercorso.lear, fontiPercorso.rlear, fontiPercorso.poliziaAutorizzazioni],
     verificatoIl: VERIFICATO_IL,
     domandaChat: "Cosa serve in Ticino per aprire un bar o un ristorante?",
+  },
+  {
+    id: "notifica-derrate-alimentari",
+    fase: "prima di iniziare",
+    titolo: "Alimenti: notifica la tua attività al Cantone",
+    descrizione:
+      "Chi produce, trasforma, conserva, trasporta o vende alimenti, anche con un catering o con prodotti fatti in casa, deve notificare la sua attività all'autorità cantonale (ODerr, art. 20). Non serve per le vendite occasionali e piccole a mercatini, feste scolastiche e simili. Per gli alimenti di origine animale può servire anche un'autorizzazione (ODerr, art. 21).",
+    cosaFare: [
+      `In Ticino compila il formulario per la notifica di attività alimentari e invialo, completo, al ${laboratorio.nome}: ${laboratorio.indirizzo}, ${laboratorio.email}, tel. ${laboratorio.telefono}.`,
+      "Il Laboratorio non manda una conferma: circa 2 settimane dopo l'invio puoi controllare la registrazione sul suo sito.",
+      "Se lavori alimenti di origine animale (per esempio carne, latte o uova), chiedi al Laboratorio se ti serve anche un'autorizzazione: la legge prevede diverse eccezioni.",
+      "Più avanti notifica anche i cambiamenti importanti nell'attività e la chiusura.",
+    ],
+    link: { etichetta: "Laboratorio cantonale: notifica", url: fontiPercorso.laboratorioCantonaleNotifica.url },
+    fonti: [
+      fontiPercorso.oderr20,
+      fontiPercorso.oderr21,
+      fontiPercorso.laboratorioCantonaleNotifica,
+      fontiPercorso.formularioNotificaDerrate,
+      fontiPercorso.grNotificaDerrate,
+    ],
+    verificatoIl: VERIFICATO_IL,
+    tempoStimato: "30 minuti per il formulario",
+    domandaChat: "Vendo prodotti alimentari fatti in casa: devo notificare la mia attività?",
   },
   {
     id: "autorizzazione-sanitaria",

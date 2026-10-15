@@ -271,6 +271,8 @@ const OIVA = "https://www.fedlex.admin.ch/eli/cc/2009/828/it";
 const LAVS = "https://www.fedlex.admin.ch/eli/cc/63/837_843_843/it";
 const OAVS = "https://www.fedlex.admin.ch/eli/cc/63/1185_1183_1185/it";
 const LAMAL = "https://www.fedlex.admin.ch/eli/cc/1995/1328_1328_1328/it";
+const ODERR = "https://www.fedlex.admin.ch/eli/cc/2017/63/it";
+const LABORATORIO_TI = "Cantone Ticino, Laboratorio cantonale";
 const PMI = "Portale PMI (SECO)";
 const FEDLEX = "Confederazione (Fedlex)";
 const IAS = "Istituto delle assicurazioni sociali (IAS), Ticino";
@@ -336,8 +338,13 @@ export const fontiPercorso = {
     ente: "Polizia cantonale ticinese",
   },
   lear: {
-    titolo: "Legge sugli esercizi alberghieri e sulla ristorazione (LEAR), art. 5",
+    titolo: "Legge sugli esercizi alberghieri e sulla ristorazione (LEAR), artt. 5 e 9",
     url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/792",
+    ente: RACCOLTA_TI,
+  },
+  rlear: {
+    titolo: "Regolamento sugli esercizi alberghieri e sulla ristorazione (RLEAR)",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/793",
     ente: RACCOLTA_TI,
   },
   lan: {
@@ -349,6 +356,31 @@ export const fontiPercorso = {
     titolo: "Procedure per le autorizzazioni di libero esercizio",
     url: "https://www4.ti.ch/dss/dsp/us/sportello/procedure-per-le-autorizzazioni-di-libero-esercizio",
     ente: "Cantone Ticino, Ufficio di sanità",
+  },
+  oderr20: {
+    titolo: "Ordinanza sulle derrate alimentari e gli oggetti d'uso (ODerr), art. 20",
+    url: `${ODERR}#art_20`,
+    ente: FEDLEX,
+  },
+  oderr21: {
+    titolo: "Ordinanza sulle derrate alimentari e gli oggetti d'uso (ODerr), art. 21",
+    url: `${ODERR}#art_21`,
+    ente: FEDLEX,
+  },
+  laboratorioCantonaleNotifica: {
+    titolo: "Annunciare la propria attività di commercio di derrate alimentari",
+    url: "https://www4.ti.ch/dss/dsp/lc/informazioni-e-servizi/dettaglio?tx_tichdsslabcantonale_lcschede%5Baction%5D=show&tx_tichdsslabcantonale_lcschede%5Bcontroller%5D=Scheda&tx_tichdsslabcantonale_lcschede%5Bidc%5D=13&tx_tichdsslabcantonale_lcschede%5Bscheda%5D=1&cHash=309da7cd28df37ae6eb122061dc5e6ea",
+    ente: LABORATORIO_TI,
+  },
+  formularioNotificaDerrate: {
+    titolo: "Formulario per la notifica di attività alimentari",
+    url: "https://www4.ti.ch/fileadmin/DSS/DSP/LC/Formulari/Formulario_per_la_notifica_DA_05_2021.pdf",
+    ente: LABORATORIO_TI,
+  },
+  grNotificaDerrate: {
+    titolo: "Derrate alimentari: modulo di notifica (Grigioni)",
+    url: "https://www.gr.ch/IT/istituzioni/amministrazione/dvs/alt/derratealimentari/derratealimentari/Seiten/default.aspx",
+    ente: "Cantone dei Grigioni, Ufficio per la sicurezza delle derrate alimentari e la salute degli animali",
   },
   umIndipendentiUeAels: {
     titolo: "Avvertenze per cittadini UE/AELS indipendenti",
@@ -573,6 +605,16 @@ export const ufficiPercorso = {
       telefonoAffiliazioni: "+41 91 821 92 88",
     },
     fontiPercorso.iasAcconti,
+  ),
+  laboratorioCantonaleTicino: dato(
+    {
+      nome: "Laboratorio cantonale",
+      indirizzo: "Via Mirasole 22, 6500 Bellinzona",
+      telefono: "+41 91 814 61 11",
+      email: "dss-lc@ti.ch",
+    },
+    fontiPercorso.laboratorioCantonaleNotifica,
+    "Riceve le notifiche delle attività alimentari (art. 20 ODerr). Non manda una conferma: dopo circa 2 settimane la registrazione si controlla sul suo sito.",
   ),
   fondounimpresa: dato(
     { nome: "Fondounimpresa", luogo: "Camorino", telefono: "+41 91 814 16 71", email: "fondounimpresa@edu.ti.ch" },

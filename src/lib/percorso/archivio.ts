@@ -9,6 +9,12 @@ import { leggiRisposte, type Risposte } from "./risposte";
 
 export const CHIAVE_RISPOSTE = "bussola:percorso:risposte";
 export const CHIAVE_PASSI_FATTI = "bussola:percorso:passi-fatti";
+/**
+ * Id dell'account di cui il browser tiene una copia (risposte e passi fatti).
+ * Senza questa chiave i dati sono stati creati senza accesso: non sono di
+ * nessun account e vanno salvati in un account solo se l'utente lo conferma.
+ */
+export const CHIAVE_UTENTE = "bussola:percorso:utente";
 
 /** Evento per avvisare i componenti della stessa scheda (l'evento "storage" arriva solo alle altre). */
 export const EVENTO_ARCHIVIO = "bussola:percorso-archivio";
@@ -117,6 +123,36 @@ export function salvaRisposteLocali(risposte: Risposte, aggiornatoIl: string = n
 
 export function salvaPassiFattiLocali(passi: Iterable<string>): boolean {
   return scriviGrezzo(CHIAVE_PASSI_FATTI, JSON.stringify([...new Set([...passi].filter(eIdPasso))]));
+}
+
+/** Id del proprietario salvato: una stringa non vuota, altrimenti null. */
+export function analizzaProprietario(grezzo: string | null): string | null {
+  const id = grezzo?.trim();
+  return id ? id : null;
+}
+
+/** Segna di quale account sono i dati del browser (null: di nessuno). */
+export function impostaProprietario(userId: string | null): boolean {
+  return scriviGrezzo(CHIAVE_UTENTE, userId);
+}
+
+/** Cancella dal browser risposte, passi fatti e proprietario: per esempio quando si esce dall'account. */
+export function dimenticaPercorsoLocale(): void {
+  scriviGrezzo(CHIAVE_RISPOSTE, null);
+  scriviGrezzo(CHIAVE_PASSI_FATTI, null);
+  scriviGrezzo(CHIAVE_UTENTE, null);
+}
+
+/**
+ * Prima di salvare nel browser nuove risposte di `utente` (null: senza accesso):
+ * se la copia nel browser è di un altro account, i suoi passi fatti e il
+ * proprietario vengono tolti, così non finiscono nell'account di nessun altro.
+ */
+export function scartaDatiDiAltri(utente: string | null): void {
+  const proprietario = analizzaProprietario(leggiGrezzo(CHIAVE_UTENTE));
+  if (proprietario === null || proprietario === utente) return;
+  scriviGrezzo(CHIAVE_PASSI_FATTI, null);
+  scriviGrezzo(CHIAVE_UTENTE, null);
 }
 
 /** Aggiunge o toglie un passo dall'elenco dei fatti; restituisce il nuovo elenco. */

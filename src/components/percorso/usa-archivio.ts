@@ -3,9 +3,11 @@
 import { useMemo, useSyncExternalStore } from "react";
 import {
   analizzaPassiFatti,
+  analizzaProprietario,
   analizzaRisposteSalvate,
   CHIAVE_PASSI_FATTI,
   CHIAVE_RISPOSTE,
+  CHIAVE_UTENTE,
   iscriviti,
   leggiGrezzo,
 } from "@/lib/percorso/archivio";
@@ -28,6 +30,11 @@ export function useRisposteLocali() {
 export function usePassiFattiLocali() {
   const grezzo = useValoreLocale(CHIAVE_PASSI_FATTI);
   return useMemo(() => analizzaPassiFatti(grezzo), [grezzo]);
+}
+
+/** Id dell'account a cui appartengono i dati del browser (null: creati senza accesso). */
+export function useProprietarioLocale(): string | null {
+  return analizzaProprietario(useValoreLocale(CHIAVE_UTENTE));
 }
 
 const nessunaIscrizione = () => () => {};
