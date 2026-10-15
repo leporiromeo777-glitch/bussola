@@ -1,24 +1,58 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+  type FormEvent,
+} from "react";
 import { IconaFreccia } from "@/components/landing/icone";
 import { BarraProgresso } from "@/components/percorso/barra-progresso";
 import { IconaIndietro } from "@/components/percorso/icone";
 import { classePulsantePrincipale, classePulsanteSecondario } from "@/components/percorso/stili";
 import { useProprietarioLocale, useRisposteLocali } from "@/components/percorso/usa-archivio";
 import { salvaRisposteLocali, scartaDatiDiAltri } from "@/lib/percorso/archivio";
-import { DOMANDE } from "@/lib/percorso/domande";
 import {
-  leggiRisposte,
-  LUNGHEZZA_MASSIMA_ATTIVITA_ALTRO,
-  VERSIONE_RISPOSTE,
-  type Risposte,
-} from "@/lib/percorso/risposte";
+  analizzaBozza,
+  cancellaBozza,
+  indiceDiRipresa,
+  leggiBozzaGrezza,
+  salvaBozza,
+  type Bozza,
+} from "@/lib/percorso/bozza";
+import { DOMANDE } from "@/lib/percorso/domande";
+import { leggiRisposte, LUNGHEZZA_MASSIMA_ATTIVITA_ALTRO, VERSIONE_RISPOSTE } from "@/lib/percorso/risposte";
 import { scegliRisposte, type DatiAccount } from "@/lib/percorso/sincronizza";
 import { salvaRisposte } from "./azioni";
 
-type Bozza = Partial<Omit<Risposte, "versione">>;
+const nessunaIscrizione = () => () => {};
+
+/** La bozza di questa scheda (null sul server e durante l'idratazione, poi quella salvata). */
+function useBozzaSalvata() {
+  const grezzo = useSyncExternalStore(nessunaIscrizione, leggiBozzaGrezza, () => null);
+  return useMemo(() => analizzaBozza(grezzo), [grezzo]);
+}
+
+/**
+ * Stato di una voce della cronologia del browser: la domanda mostrata e se la
+ * voce l'ha aggiunta "Avanti" (allora la voce prima è la domanda precedente).
+ */
+type VoceCronologia = { domanda: number; spinta: boolean };
+
+function voceAttuale(): Partial<VoceCronologia> | null {
+  try {
+    const stato: unknown = window.history.state;
+    return stato && typeof stato === "object" ? (stato as Partial<VoceCronologia>) : null;
+  } catch {
+    return null;
+  }
+}
 
 /** Il questionario: una domanda per schermata, con avanzamento, "Indietro" e il perché di ogni domanda. */
 export function Questionario({ account }: { account: DatiAccount }) {
@@ -27,9 +61,12 @@ export function Questionario({ account }: { account: DatiAccount }) {
   const locali = useRisposteLocali();
   // Le risposte copiate da un altro account non vengono riprese.
   const precedenti = scegliRisposte(account, locali, useProprietarioLocale()).risposte;
+  const salvata = useBozzaSalvata();
+  // null finché non si tocca nulla in questa pagina: valgono la bozza ripresa o le risposte precedenti.
   const [bozza, setBozza] = useState<Bozza | null>(null);
-  const valori: Bozza = bozza ?? precedenti ?? {};
-  const [indice, setIndice] = useState(0);
+  const [indiceScelto, setIndiceScelto] = useState<number | null>(null);
+  const valori: Bozza = bozza ?? salvata?.bozza ?? precedenti ?? {};
+  const indice = indiceScelto ?? (salvata ? indiceDiRipresa(salvata.indice, valori) : 0);
   const [errore, setErrore] = useState<string | null>(null);
   const [inCorso, avvia] = useTransition();
   const titolo = useRef<HTMLHeadingElement>(null);
@@ -49,15 +86,59 @@ export function Questionario({ account }: { account: DatiAccount }) {
   const idErrore = `${idBase}-errore`;
   const idAltro = `${idBase}-altro`;
 
-  function vai(nuovo: number) {
+  function mostra(destinazione: number) {
     spostaFocus.current = true;
     setErrore(null);
-    setIndice(Math.min(Math.max(nuovo, 0), DOMANDE.length - 1));
+    setIndiceScelto(destinazione);
+    salvaBozza({ indice: destinazione, bozza: valori });
   }
 
+  function vai(nuovo: number) {
+    const destinazione = Math.min(Math.max(nuovo, 0), DOMANDE.length - 1);
+    try {
+      const url = `?domanda=${destinazione + 1}`;
+      if (destinazione > indice) {
+        // Ogni "Avanti" aggiunge una voce alla cronologia: il tasto Indietro del browser (o di Android) torna
+        // alla domanda prima invece di uscire dal questionario. La voce attuale ricorda la sua domanda.
+        const attuale = voceAttuale();
+        const spinta = attuale?.domanda === indice && attuale.spinta === true;
+        window.history.replaceState({ domanda: indice, spinta } satisfies VoceCronologia, "");
+        window.history.pushState({ domanda: destinazione, spinta: true } satisfies VoceCronologia, "", url);
+      } else {
+        window.history.replaceState({ domanda: destinazione, spinta: false } satisfies VoceCronologia, "", url);
+      }
+    } catch {
+      // Senza cronologia il questionario funziona lo stesso.
+    }
+    mostra(destinazione);
+  }
+
+  /** "Indietro" della pagina: come il tasto del browser se la voce prima è la domanda precedente. */
+  function indietro() {
+    const voce = voceAttuale();
+    if (voce?.spinta === true && voce.domanda === indice) window.history.back();
+    else vai(indice - 1);
+  }
+
+  // Tasto Indietro o Avanti del browser tra le domande.
+  const suCronologia = useEffectEvent((domanda: number) => {
+    const destinazione = indiceDiRipresa(domanda, valori);
+    if (destinazione !== indice) mostra(destinazione);
+  });
+  useEffect(() => {
+    function suPopstate(evento: PopStateEvent) {
+      const domanda = (evento.state as Partial<VoceCronologia> | null)?.domanda;
+      if (typeof domanda === "number") suCronologia(domanda);
+    }
+    window.addEventListener("popstate", suPopstate);
+    return () => window.removeEventListener("popstate", suPopstate);
+  }, []);
+
   function aggiorna(modifica: Bozza) {
-    setBozza({ ...valori, ...modifica });
+    const nuova = { ...valori, ...modifica };
+    setBozza(nuova);
     setErrore(null);
+    salvaBozza({ indice, bozza: nuova });
   }
 
   function avanti(evento: FormEvent<HTMLFormElement>) {
@@ -85,6 +166,7 @@ export function Questionario({ account }: { account: DatiAccount }) {
     // Se nel browser c'è la copia di un altro account, i suoi passi fatti non restano accanto a queste risposte.
     scartaDatiDiAltri(account.collegato ? account.userId : null);
     salvaRisposteLocali(risposte);
+    cancellaBozza();
     avvia(async () => {
       if (account.collegato) {
         try {
@@ -107,7 +189,11 @@ export function Questionario({ account }: { account: DatiAccount }) {
         testo={`Domanda ${indice + 1} di ${DOMANDE.length}`}
       />
 
-      {precedenti && bozza === null && indice === 0 ? (
+      {salvata && bozza === null && indiceScelto === null ? (
+        <p className="mt-4 rounded-lg bg-brand-soft p-3 text-sm">
+          Abbiamo ripreso le risposte che stavi dando: continua da qui.
+        </p>
+      ) : precedenti && bozza === null && indice === 0 ? (
         <p className="mt-4 rounded-lg bg-brand-soft p-3 text-sm">
           Abbiamo ripreso le tue risposte precedenti: cambia solo quello che serve.
         </p>
@@ -178,7 +264,7 @@ export function Questionario({ account }: { account: DatiAccount }) {
 
       <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         {indice > 0 ? (
-          <button type="button" onClick={() => vai(indice - 1)} disabled={inCorso} className={classePulsanteSecondario}>
+          <button type="button" onClick={indietro} disabled={inCorso} className={classePulsanteSecondario}>
             <IconaIndietro className="size-4" />
             Indietro
           </button>
