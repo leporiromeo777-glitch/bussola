@@ -4,7 +4,10 @@ import { useMemo } from "react";
 import type { Documento } from "@/lib/strumenti/documenti";
 import { sezionePagamentoSvg } from "@/lib/strumenti/qr-svg";
 
-/** La sezione pagamento in fondo alla fattura, oppure l'elenco di cosa manca. */
+/**
+ * La sezione pagamento in fondo alla fattura (210 × 105 mm in stampa), oppure
+ * l'elenco di cosa manca, che non si stampa.
+ */
 export function SezionePagamento({ doc }: { doc: Documento }) {
   const esito = useMemo(() => sezionePagamentoSvg(doc), [doc]);
 
@@ -24,7 +27,8 @@ export function SezionePagamento({ doc }: { doc: Documento }) {
   // L'SVG viene da swissqrbill, che fa l'escape dei testi inseriti.
   return (
     <div
-      className="aspect-[2/1] w-full break-inside-avoid print:h-[105mm] print:w-[210mm]"
+      data-sezione-pagamento=""
+      className="aspect-[2/1] w-full break-inside-avoid stampa:h-[105mm] stampa:w-[210mm]"
       dangerouslySetInnerHTML={{ __html: esito.svg }}
     />
   );

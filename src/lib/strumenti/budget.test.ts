@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { tasseRegistroCommercio } from "@/data/svizzera";
+import { regolePercorso, tasseRegistroCommercio } from "@/data/svizzera";
 import { stimaContributi } from "./avs";
 import {
   annoAvsPerPeriodo,
   calcolaBudget,
+  costoIscrizioneRegistro,
   datiBudgetIniziali,
   meseSuccessivo,
   mesiDaInizio,
@@ -140,10 +141,13 @@ describe("calcolaBudget", () => {
     expect(r.contributi.caso).toBe("minimo");
   });
 
-  it("iscrizione al registro di commercio: tassa nel primo mese, da svizzera.ts", () => {
+  it("iscrizione al registro di commercio: tasse e autenticazione della firma nel primo mese, da svizzera.ts", () => {
     const { risultato: r } = calcolaBudget(dati({ iscrizioneRegistro: true, ricavi: tutti("1000") }));
-    expect(r.tassaRegistro).toBe(tasseRegistroCommercio.valore.stimaTitolareConFirma);
-    expect(r.mesi[0].costiAvvio).toBe(120);
+    expect(r.tassaRegistro).toBe(
+      tasseRegistroCommercio.valore.stimaTitolareConFirma + regolePercorso.autenticazioneFirmaRcTicino.valore,
+    );
+    expect(costoIscrizioneRegistro()).toBe(r.tassaRegistro);
+    expect(r.mesi[0].costiAvvio).toBe(140); // 120 di tasse + 20 di autenticazione
     expect(r.mesi[1].costiAvvio).toBe(0);
   });
 

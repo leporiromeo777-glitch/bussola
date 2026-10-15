@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+/*
+ * stampa: come print, ma vale anche mentre si misura il foglio prima di
+ * stampare (classe misura-stampa, vedi anteprima-documento.tsx). All'evento
+ * beforeprint il browser usa ancora gli stili dello schermo.
+ */
+@custom-variant stampa {
+  @media print {
+    @slot;
+  }
+  &:where(.misura-stampa, .misura-stampa *) {
+    @slot;
+  }
+}
+
 :root {
   --background: #fbfaf7;
   --foreground: #1c1f24;

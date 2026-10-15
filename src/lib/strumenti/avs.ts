@@ -13,10 +13,13 @@
  * alta, cioè prudente. Non togliamo l'interesse sul capitale proprio investito
  * (punto 7), che riduce il reddito: anche questo rende la stima prudente.
  *
+ * Il reddito si arrotonda al multiplo di 100 franchi immediatamente
+ * inferiore (art. 8 cpv. 1 LAVS): 60'499 conta come 60'400.
+ *
  * È una stima indicativa: l'importo vero lo decide la cassa di compensazione.
  */
 import { anniTavola, parametriAnno, tavoleScalari, type AnnoAvs, type FasciaScalare } from "@/data/avs-tavola-scalare";
-import { datiStrumenti, supplementiTicino } from "@/data/svizzera";
+import { datiStrumenti, percentuale, supplementiTicino } from "@/data/svizzera";
 import { arrotonda, importo } from "./numeri";
 
 export type { AnnoAvs };
@@ -35,7 +38,7 @@ export type CasoAvs =
   | "scalare"
   /** Reddito dal limite superiore in su: 10%. */
   | "massimo"
-  /** Accessoria sotto il limite inferiore: tasso più basso invece del minimo. */
+  /** Accessoria sotto il limite inferiore: tasso più basso su richiesta, quando costa meno del minimo. */
   | "tassoMinimoAccessoria"
   /** Accessoria fino a CHF 2'500: contributi solo su richiesta. */
   | "suRichiesta";
@@ -43,7 +46,7 @@ export type CasoAvs =
 export type StimaContributi = {
   anno: AnnoAvs;
   situazione: SituazioneAvs;
-  /** Reddito su cui si calcolano i contributi (mai sotto zero). */
+  /** Reddito su cui si calcolano i contributi: utile arrotondato ai 100 franchi inferiori, mai sotto zero. */
   redditoAvs: number;
   caso: CasoAvs;
   /** Tasso AVS/AI/IPG applicato (frazione), null se si paga il contributo minimo fisso o niente. */
@@ -60,34 +63,47 @@ export type StimaContributi = {
   tassoEffettivo: number | null;
 };
 
+/** Reddito AVS: arrotondato al multiplo di 100 franchi immediatamente inferiore, mai sotto zero (art. 8 cpv. 1 LAVS). */
+export function arrotondaRedditoAvs(utile: number): number {
+  const passo = datiStrumenti.arrotondamentoRedditoAvs.valore;
+  // Prima al centesimo, così 60'399.999999 (errore di virgola mobile) conta come 60'400.
+  return Math.floor(arrotonda(Math.max(0, utile), 2) / passo) * passo;
+}
+
 /** Trova la fascia della tavola scalare per un reddito, o null se fuori dalla tavola. */
 export function fasciaPerReddito(reddito: number, anno: AnnoAvs): FasciaScalare | null {
   return tavoleScalari[anno].fasce.find((f) => f.da <= reddito && reddito < f.a) ?? null;
 }
 
-/** Solo AVS/AI/IPG, senza supplementi cantonali. */
+/**
+ * Solo AVS/AI/IPG, senza supplementi cantonali. `utile` è il reddito prima
+ * dell'arrotondamento: qui si arrotonda ai 100 franchi inferiori.
+ */
 export function contributoAvsAiIpg(
-  redditoAvs: number,
+  utile: number,
   anno: AnnoAvs,
   situazione: SituazioneAvs = "principale",
 ): Pick<StimaContributi, "caso" | "tasso" | "fascia" | "avsAiIpg"> {
   const p = parametriAnno(anno).valore;
-  const reddito = Math.max(0, redditoAvs);
+  const lordo = Math.max(0, utile);
+  const reddito = arrotondaRedditoAvs(lordo);
 
-  if (situazione === "accessoria" && reddito <= datiStrumenti.limiteAttivitaAccessoria.valore) {
+  // Il limite di CHF 2'500 si confronta con l'utile non arrotondato: da 2'500.01
+  // contiamo i contributi (stima prudente, e il salto resta in puntiDiSalto).
+  if (situazione === "accessoria" && lordo <= datiStrumenti.limiteAttivitaAccessoria.valore) {
     return { caso: "suRichiesta", tasso: null, fascia: null, avsAiIpg: 0 };
   }
   if (reddito >= p.limiteSuperioreScala) {
     return { caso: "massimo", tasso: p.tassoMassimo, fascia: null, avsAiIpg: arrotonda(reddito * p.tassoMassimo) };
   }
   if (reddito < p.limiteInferioreScala) {
+    // Con il minimo già pagato sul salario si PUÒ chiedere il tasso più basso
+    // della tavola (promemoria 2.02, punto 6): conviene solo se costa meno.
     if (situazione === "accessoria") {
-      return {
-        caso: "tassoMinimoAccessoria",
-        tasso: p.tassoMinimoScala,
-        fascia: null,
-        avsAiIpg: arrotonda(reddito * p.tassoMinimoScala),
-      };
+      const conTasso = arrotonda(reddito * p.tassoMinimoScala);
+      if (conTasso < p.contributoMinimo) {
+        return { caso: "tassoMinimoAccessoria", tasso: p.tassoMinimoScala, fascia: null, avsAiIpg: conTasso };
+      }
     }
     return { caso: "minimo", tasso: null, fascia: null, avsAiIpg: p.contributoMinimo };
   }
@@ -111,8 +127,9 @@ export function stimaContributi(
   anno: AnnoAvs,
   situazione: SituazioneAvs = "principale",
 ): StimaContributi {
-  const redditoAvs = arrotonda(Math.max(0, utilePrimaDeiContributi));
-  const base = contributoAvsAiIpg(redditoAvs, anno, situazione);
+  const utile = Math.max(0, utilePrimaDeiContributi);
+  const redditoAvs = arrotondaRedditoAvs(utile);
+  const base = contributoAvsAiIpg(utile, anno, situazione);
 
   // Se l'AVS non viene riscossa (accessoria fino a CHF 2'500), non contiamo
   // nemmeno i supplementi: se chiedi di pagare, valgono le regole normali.
@@ -139,9 +156,10 @@ export function stimaContributi(
 }
 
 /**
- * Punti in cui il totale dei contributi salta (inizio di ogni fascia, limiti,
- * tetto degli assegni familiari): tra due punti il calcolo è continuo e
- * cresce con il reddito. Servono al risolutore della tariffa.
+ * Punti in cui il totale dei contributi salta di più (inizio di ogni fascia,
+ * limiti, tetto degli assegni familiari). Tra due punti i contributi crescono
+ * a gradini di 100 franchi (il reddito si arrotonda ai 100 franchi inferiori),
+ * di meno di CHF 100 per gradino. Servono al risolutore della tariffa.
  */
 export function puntiDiSalto(anno: AnnoAvs, situazione: SituazioneAvs = "principale"): number[] {
   const p = parametriAnno(anno).valore;
@@ -185,13 +203,18 @@ export function descrizioneCaso(stima: StimaContributi): string {
   const p = parametriAnno(stima.anno).valore;
   switch (stima.caso) {
     case "minimo":
-      return `Reddito sotto ${importo(p.limiteInferioreScala, 0)}: si paga il contributo minimo (${importo(p.contributoMinimo, 0)}).`;
+      return (
+        `Reddito sotto ${importo(p.limiteInferioreScala, 0)}: si paga il contributo minimo (${importo(p.contributoMinimo, 0)}).` +
+        (stima.situazione === "accessoria"
+          ? ` Il tasso più basso della tavola (${percentuale(p.tassoMinimoScala, 3)}), che con un'attività accessoria puoi chiedere, qui costerebbe di più.`
+          : "")
+      );
     case "scalare":
       return "Reddito nella tavola scalare: il tasso AVS/AI/IPG è ridotto.";
     case "massimo":
       return `Reddito da ${importo(p.limiteSuperioreScala, 0)} in su: tasso pieno AVS/AI/IPG.`;
     case "tassoMinimoAccessoria":
-      return "Attività accessoria con il contributo minimo già pagato sul salario: si applica il tasso più basso della tavola.";
+      return `Attività accessoria con il contributo minimo già pagato sul salario: puoi chiedere alla cassa il tasso più basso della tavola (${percentuale(p.tassoMinimoScala, 3)}), che qui costa meno del contributo minimo.`;
     case "suRichiesta":
       return "Attività accessoria con reddito basso: i contributi si pagano solo se li chiedi tu.";
   }

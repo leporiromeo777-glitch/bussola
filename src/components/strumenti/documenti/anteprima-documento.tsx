@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { dataSvizzera, percentuale } from "@/data/svizzera";
 import {
   calcolaTotali,
@@ -9,6 +10,7 @@ import {
   tassoIva,
   type Documento,
 } from "@/lib/strumenti/documenti";
+import { pagineDelFoglio, type BloccoStampa } from "@/lib/strumenti/impaginazione";
 import { importo, numeroSvizzero } from "@/lib/strumenti/numeri";
 import { formattaIban, type IndirizzoStrutturato } from "@/lib/strumenti/qr";
 import { SezionePagamento } from "./sezione-pagamento";
@@ -24,11 +26,92 @@ function data(iso: string) {
   return dataIsoValida(iso) ? dataSvizzera(iso) : "";
 }
 
+const PX_PER_MM = 96 / 25.4;
+
+/**
+ * Misura il foglio con gli stili di stampa (classe misura-stampa) e calcola
+ * quante pagine A4 servono perché la sezione pagamento finisca in fondo
+ * all'ultima. I pezzi che non si spezzano sono i figli del corpo e, nella
+ * tabella, l'intestazione e ogni riga.
+ */
+function pagineStampa(articolo: HTMLElement, corpo: HTMLElement): number {
+  if (!articolo.querySelector("[data-sezione-pagamento]")) return 1;
+  const origine = articolo.getBoundingClientRect().top;
+  const mm = (px: number) => px / PX_PER_MM;
+  const blocco = (el: Element, inTabella: boolean): BloccoStampa => {
+    const r = el.getBoundingClientRect();
+    return { alto: mm(r.top - origine), altezza: mm(r.height), inTabella };
+  };
+  const blocchi: BloccoStampa[] = [];
+  let altezzaIntestazioneTabella = 0;
+  for (const figlio of Array.from(corpo.children)) {
+    const tabella = figlio.querySelector("table");
+    if (!tabella) {
+      blocchi.push(blocco(figlio, false));
+      continue;
+    }
+    if (tabella.tHead) {
+      const intestazione = blocco(tabella.tHead, false);
+      altezzaIntestazioneTabella = intestazione.altezza;
+      blocchi.push(intestazione);
+    }
+    for (const corpoTabella of Array.from(tabella.tBodies)) {
+      for (const riga of Array.from(corpoTabella.rows)) blocchi.push(blocco(riga, true));
+    }
+  }
+  const stile = getComputedStyle(corpo);
+  return pagineDelFoglio(blocchi, {
+    margineSopra: mm(Number.parseFloat(stile.paddingTop) || 0),
+    margineSotto: mm(Number.parseFloat(stile.paddingBottom) || 0),
+    altezzaIntestazioneTabella,
+  });
+}
+
+/**
+ * Prima di stampare fissa l'altezza del foglio a un numero intero di pagine
+ * A4 (variabile CSS --pagine): così la sezione pagamento della QR-fattura
+ * finisce sul bordo inferiore dell'ultima pagina, come chiedono le linee
+ * guida SIX, anche quando le voci occupano più pagine.
+ */
+function useImpaginazioneStampa() {
+  const articoloRef = useRef<HTMLElement>(null);
+  const corpoRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const prima = () => {
+      const articolo = articoloRef.current;
+      const corpo = corpoRef.current;
+      if (!articolo || !corpo) return;
+      // All'evento beforeprint valgono ancora gli stili dello schermo: la
+      // classe attiva le varianti stampa: il tempo di misurare.
+      articolo.classList.add("misura-stampa");
+      try {
+        articolo.style.setProperty("--pagine", String(pagineStampa(articolo, corpo)));
+      } finally {
+        articolo.classList.remove("misura-stampa");
+      }
+    };
+    const dopo = () => articoloRef.current?.style.removeProperty("--pagine");
+    window.addEventListener("beforeprint", prima);
+    window.addEventListener("afterprint", dopo);
+    return () => {
+      window.removeEventListener("beforeprint", prima);
+      window.removeEventListener("afterprint", dopo);
+    };
+  }, []);
+
+  return { articoloRef, corpoRef };
+}
+
 /**
  * Il documento come foglio A4: colori fissi (è carta), font in px per lo
- * schermo e in pt per la stampa. La fattura ha in fondo la sezione pagamento.
+ * schermo e in pt per la stampa (variante stampa:, che vale anche mentre si
+ * misura il foglio). La fattura ha in fondo la sezione pagamento: in stampa
+ * il foglio è alto un numero intero di pagine e la sezione sta in fondo
+ * all'ultima. Il corpo ripete i suoi margini su ogni pagina.
  */
 export function AnteprimaDocumento({ doc }: { doc: Documento }) {
+  const { articoloRef, corpoRef } = useImpaginazioneStampa();
   const totali = calcolaTotali(doc);
   const e = doc.emittente;
   const conIva = e.ivaIscritto;
@@ -39,13 +122,14 @@ export function AnteprimaDocumento({ doc }: { doc: Documento }) {
 
   return (
     <article
+      ref={articoloRef}
       aria-label={`${tipo.singolare} ${doc.numero}`}
-      className="pagina-foglio mx-auto flex w-full max-w-[210mm] flex-col overflow-hidden rounded-xl border border-border bg-white text-[13px] leading-snug text-[#1c1f24] shadow-sm print:min-h-[295mm] print:w-[210mm] print:max-w-none print:overflow-visible print:rounded-none print:border-0 print:text-[9.5pt] print:shadow-none"
+      className="pagina-foglio mx-auto flex w-full max-w-[210mm] flex-col overflow-hidden rounded-xl border border-border bg-white text-[13px] leading-snug text-[#1c1f24] shadow-sm stampa:min-h-[calc(var(--pagine,1)*297mm)] stampa:w-[210mm] stampa:max-w-none stampa:overflow-visible stampa:rounded-none stampa:border-0 stampa:text-[9.5pt] stampa:shadow-none"
     >
-      <div className="flex-1 p-6 sm:p-[14mm] print:p-[15mm_16mm_8mm]">
-        <header className="flex flex-col gap-6 sm:flex-row sm:justify-between print:flex-row">
+      <div ref={corpoRef} className="flex-1 p-6 sm:p-[14mm] stampa:p-[15mm_16mm_8mm] stampa:box-decoration-clone">
+        <header className="flex flex-col gap-6 sm:flex-row sm:justify-between stampa:flex-row stampa:justify-between">
           <div>
-            <p className="text-base font-semibold print:text-[12pt]">{e.nome || "Il tuo nome e cognome"}</p>
+            <p className="text-base font-semibold stampa:text-[12pt]">{e.nome || "Il tuo nome e cognome"}</p>
             {righeIndirizzo(e).map((r) => (
               <p key={r}>{r}</p>
             ))}
@@ -53,9 +137,9 @@ export function AnteprimaDocumento({ doc }: { doc: Documento }) {
             {e.telefono ? <p>{e.telefono}</p> : null}
             {numeroIva ? <p className="mt-1">{numeroIva}</p> : null}
           </div>
-          <div className="sm:text-right print:text-right">
-            <h2 className="text-2xl font-semibold tracking-tight text-[#0f5e6b] print:text-[18pt]">{tipo.singolare}</h2>
-            <dl className="mt-1 grid grid-cols-[auto_auto] justify-start gap-x-3 sm:justify-end print:justify-end">
+          <div className="sm:text-right stampa:text-right">
+            <h2 className="text-2xl font-semibold tracking-tight text-[#0f5e6b] stampa:text-[18pt]">{tipo.singolare}</h2>
+            <dl className="mt-1 grid grid-cols-[auto_auto] justify-start gap-x-3 sm:justify-end stampa:justify-end">
               <dt className="text-[#4b515b]">Numero</dt>
               <dd className="font-medium">{doc.numero}</dd>
               <dt className="text-[#4b515b]">Data</dt>
@@ -76,7 +160,7 @@ export function AnteprimaDocumento({ doc }: { doc: Documento }) {
           </div>
         </header>
 
-        <section aria-label="Cliente" className="mt-8 sm:ml-auto sm:w-[45%] print:ml-auto print:w-[45%]">
+        <section aria-label="Cliente" className="mt-8 sm:ml-auto sm:w-[45%] stampa:ml-auto stampa:w-[45%]">
           <p className="text-[11px] uppercase tracking-wide text-[#4b515b]">Per</p>
           <p className="font-medium">{doc.cliente.nome || "Nome del cliente"}</p>
           {righeIndirizzo(doc.cliente).map((r) => (
@@ -89,7 +173,7 @@ export function AnteprimaDocumento({ doc }: { doc: Documento }) {
           <p className={doc.oggetto.trim() ? "mt-1" : "mt-8"}>Prestazione: {doc.periodoPrestazione}</p>
         ) : null}
 
-        <div className="mt-6 overflow-x-auto print:overflow-visible">
+        <div className="mt-6 overflow-x-auto stampa:overflow-visible">
           <table className="w-full border-collapse text-left">
             <thead>
               <tr className="border-b-2 border-[#1c1f24] text-[11px] uppercase tracking-wide text-[#4b515b]">
@@ -166,7 +250,7 @@ export function AnteprimaDocumento({ doc }: { doc: Documento }) {
               <dd>{importo(totali.arrotondamento, 2, valuta)}</dd>
             </div>
           ) : null}
-          <div className="mt-1 flex justify-between gap-4 border-t-2 border-[#1c1f24] pt-1.5 text-base font-semibold print:text-[11pt]">
+          <div className="mt-1 flex justify-between gap-4 border-t-2 border-[#1c1f24] pt-1.5 text-base font-semibold stampa:text-[11pt]">
             <dt>Totale{conIva ? " IVA inclusa" : ""}</dt>
             <dd>{importo(totali.totale, 2, valuta)}</dd>
           </div>
@@ -178,7 +262,7 @@ export function AnteprimaDocumento({ doc }: { doc: Documento }) {
           <p className="mt-6">
             {doc.scadenza ? `Da pagare entro il ${data(doc.scadenza)}` : "Da pagare"}
             {e.iban ? ` sul conto ${formattaIban(e.iban)}` : ""}
-            {e.nome ? `, intestato a ${e.nome}` : ""}.
+            {e.iban && e.nome ? `, intestato a ${e.nome}` : ""}.
           </p>
         ) : doc.scadenza ? (
           <p className="mt-6">Questo preventivo è valido fino al {data(doc.scadenza)}.</p>

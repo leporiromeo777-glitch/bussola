@@ -3,6 +3,7 @@ import { tavoleScalari } from "@/data/avs-tavola-scalare";
 import { avsIndipendenti } from "@/data/svizzera";
 import {
   annoPredefinito,
+  arrotondaRedditoAvs,
   contributoAvsAiIpg,
   descrizioneCaso,
   eAnnoAvs,
@@ -74,6 +75,27 @@ describe("contributi AVS/AI/IPG 2026", () => {
     }
   });
 
+  it("il reddito si arrotonda ai 100 franchi inferiori (art. 8 cpv. 1 LAVS)", () => {
+    expect(arrotondaRedditoAvs(60_499)).toBe(60_400);
+    expect(arrotondaRedditoAvs(60_400)).toBe(60_400);
+    expect(arrotondaRedditoAvs(60_399.999999)).toBe(60_400);
+    expect(arrotondaRedditoAvs(99.99)).toBe(0);
+    expect(arrotondaRedditoAvs(-5)).toBe(0);
+
+    const s = stimaContributi(60_499, 2026);
+    expect(s.redditoAvs).toBe(60_400);
+    expect(s.avsAiIpg).toBe(5629.88); // 60'400 × 9,321%
+    expect(s.speseAmministrative).toBe(112.6);
+    expect(s.assegniFamiliari).toBe(513.4);
+    expect(s.assegnoIntegrativo).toBe(90.6);
+    expect(s.totale).toBe(6346.48);
+    expect(s.tassoEffettivo).toBeCloseTo(6346.48 / 60_400, 10);
+
+    expect(stimaContributi(17_699, 2026).avsAiIpg).toBe(966.94); // 17'600 × 5,494%
+    expect(stimaContributi(60_599, 2026)).toMatchObject({ caso: "massimo", redditoAvs: 60_500, avsAiIpg: 6050 });
+    expect(stimaContributi(52_964, 2026).redditoAvs).toBe(52_900);
+  });
+
   it("gli assegni familiari si fermano al guadagno massimo di CHF 148'200", () => {
     const s = stimaContributi(200_000, 2026);
     expect(s.assegniFamiliari).toBe(1259.7); // 0,85% di 148'200
@@ -94,6 +116,21 @@ describe("attività accessoria", () => {
     const s = stimaContributi(5_000, 2026, "accessoria");
     expect(s.caso).toBe("tassoMinimoAccessoria");
     expect(s.avsAiIpg).toBe(268.55); // 5'000 × 5,371%
+    expect(descrizioneCaso(s)).toContain("5,371%");
+    expect(descrizioneCaso(s)).toContain("puoi chiedere");
+  });
+
+  it("il tasso più basso si chiede solo se costa meno del contributo minimo", () => {
+    // 9'800 × 5,371% = 526.36 < 530: conviene il tasso.
+    expect(stimaContributi(9_800, 2026, "accessoria")).toMatchObject({ caso: "tassoMinimoAccessoria", avsAiIpg: 526.36 });
+    // 10'099 → 10'000 × 5,371% = 537.10 > 530: si paga il minimo.
+    const s = stimaContributi(10_099, 2026, "accessoria");
+    expect(s).toMatchObject({ caso: "minimo", tasso: null, avsAiIpg: 530, speseAmministrative: 10.6 });
+    expect(descrizioneCaso(s)).toContain("costerebbe di più");
+    // 2027: 10'250 → 10'200 × 5,371% = 547.84 > 541.
+    expect(stimaContributi(10_250, 2027, "accessoria")).toMatchObject({ caso: "minimo", avsAiIpg: 541 });
+    // Nel caso principale la frase sull'attività accessoria non c'è.
+    expect(descrizioneCaso(stimaContributi(5_000, 2026))).not.toContain("accessoria");
   });
 
   it("dal limite inferiore in su vale la tavola normale", () => {

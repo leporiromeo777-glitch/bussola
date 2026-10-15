@@ -182,7 +182,9 @@ export function CalcolatoreTariffa() {
                   <>
                     Nel {dati.anno}, senza cassa pensione, al massimo il{" "}
                     {percentuale(datiStrumenti.quotaMassimaPilastro3a.valore)} del reddito da attività lucrativa e non
-                    più di {importo(limiti3a.senzaCassaPensione, 0)}. <FonteLink fonte={pilastro3a[dati.anno].fonte} />
+                    più di {importo(limiti3a.senzaCassaPensione, 0)}. Con una cassa pensione (per esempio quella del
+                    datore di lavoro) al massimo {importo(limiti3a.conCassaPensione, 0)}.{" "}
+                    <FonteLink fonte={pilastro3a[dati.anno].fonte} />
                   </>
                 }
               />

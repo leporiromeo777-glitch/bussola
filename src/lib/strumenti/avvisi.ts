@@ -3,11 +3,11 @@
  * con la fonte: non dicono all'utente cosa fare nel suo caso.
  */
 import { datiStrumenti, fonti, percentuale, pilastro3a, regole, type Fonte } from "@/data/svizzera";
-import type { AnnoAvs } from "./avs";
+import type { AnnoAvs, SituazioneAvs } from "./avs";
 import { importo } from "./numeri";
 
 export type Avviso = {
-  id: "soglia-iva-registro" | "pilastro-3a-massimo" | "pilastro-3a-20" | "perdita";
+  id: "soglia-iva-registro" | "pilastro-3a-massimo" | "pilastro-3a-20" | "pilastro-3a-cassa-pensione" | "perdita";
   livello: "info" | "attenzione";
   titolo: string;
   testo: string;
@@ -36,8 +36,17 @@ export function avvisoSoglie(fatturatoAnnuo: number, contesto: "tariffa" | "budg
   };
 }
 
-/** Pilastro 3a: confronto con l'importo massimo deducibile senza cassa pensione. */
-export function avvisiPilastro3a(versamento: number, redditoAttivita: number, anno: AnnoAvs): Avviso[] {
+/**
+ * Pilastro 3a: confronto con l'importo massimo deducibile senza cassa
+ * pensione e, per chi lavora anche come dipendente (attività accessoria), con
+ * quello con cassa pensione.
+ */
+export function avvisiPilastro3a(
+  versamento: number,
+  redditoAttivita: number,
+  anno: AnnoAvs,
+  situazione: SituazioneAvs = "principale",
+): Avviso[] {
   if (versamento <= 0) return [];
   const limiti = pilastro3a[anno];
   const massimo = limiti.valore.senzaCassaPensione;
@@ -59,6 +68,19 @@ export function avvisiPilastro3a(versamento: number, redditoAttivita: number, an
         `Senza cassa pensione il versamento deducibile è al massimo il ${percentuale(datiStrumenti.quotaMassimaPilastro3a.valore)} del reddito da attività lucrativa. ` +
         "Con questi numeri potresti superarlo: da verificare con il tuo istituto 3a o con un fiduciario.",
       fonti: [fonti.opp3, limiti.fonte],
+    });
+  }
+  // Chi è anche dipendente spesso ha la cassa pensione del datore di lavoro: allora vale il massimo più basso.
+  const conCassa = limiti.valore.conCassaPensione;
+  if (situazione === "accessoria" && versamento > conCassa && versamento <= massimo) {
+    avvisi.push({
+      id: "pilastro-3a-cassa-pensione",
+      livello: "info",
+      titolo: `Pilastro 3a: con una cassa pensione il massimo è ${importo(conCassa, 0)}`,
+      testo:
+        `Se come dipendente sei affiliato a una cassa pensione (LPP), nel ${anno} puoi versare e dedurre nel 3a al massimo ${importo(conCassa, 0)} in tutto, anche se hai un'attività indipendente. ` +
+        `Il limite di ${importo(massimo, 0)} vale solo senza cassa pensione.`,
+      fonti: [limiti.fonte, fonti.opp3],
     });
   }
   return avvisi;

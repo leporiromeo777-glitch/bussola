@@ -7,6 +7,13 @@
  *
  * Metodo: si scorrono i tratti dal più basso; nel primo tratto in cui
  * l'obiettivo è raggiungibile si cerca il punto con la bisezione.
+ *
+ * Con `blocco` (per es. 100, perché il reddito AVS si arrotonda ai 100
+ * franchi inferiori) dentro un tratto f è a dente di sega: cresce dentro ogni
+ * blocco e cala un po' all'inizio del blocco dopo, ma il massimo di ogni
+ * blocco cresce da un blocco all'altro. Prima si cerca con la bisezione il
+ * primo blocco in cui l'obiettivo è raggiungibile, poi il punto dentro il
+ * blocco.
  */
 
 import { arrotonda } from "./numeri";
@@ -18,13 +25,19 @@ export type OpzioniRisolutore = {
   da?: number;
   /** Oltre questo valore si rinuncia (obiettivo irraggiungibile). */
   massimo?: number;
+  /**
+   * Larghezza dei gradini di f dentro un tratto (in franchi): f cresce dentro
+   * ogni blocco [k × blocco, (k + 1) × blocco) e il suo massimo cresce da un
+   * blocco al successivo.
+   */
+  blocco?: number;
 };
 
 export function minimoPerObiettivo(
   f: (x: number) => number,
   obiettivo: number,
   puntiDiSalto: readonly number[],
-  { tolleranza = 0.001, da = 0, massimo = 1e9 }: OpzioniRisolutore = {},
+  { tolleranza = 0.001, da = 0, massimo = 1e9, blocco }: OpzioniRisolutore = {},
 ): number | null {
   const punti = [...new Set([da, ...puntiDiSalto.filter((p) => p > da && p < massimo), massimo])].sort((a, b) => a - b);
 
@@ -38,7 +51,22 @@ export function minimoPerObiettivo(
 
     let basso = inizio;
     let alto = quasiFine;
-    // f(basso) < obiettivo <= f(alto): bisezione fino alla tolleranza.
+    if (blocco && blocco > 0) {
+      // Ultimo centesimo del blocco k dentro il tratto: lì f ha il massimo del blocco.
+      const fineBlocco = (k: number) => arrotonda(Math.min(fine, (k + 1) * blocco) - 0.01, 2);
+      // Primo blocco con f(fineBlocco) >= obiettivo: il predicato è monotono.
+      let kBasso = Math.floor(inizio / blocco);
+      let kAlto = Math.ceil(fine / blocco) - 1;
+      while (kBasso < kAlto) {
+        const k = Math.floor((kBasso + kAlto) / 2);
+        if (f(fineBlocco(k)) >= obiettivo) kAlto = k;
+        else kBasso = k + 1;
+      }
+      basso = Math.max(inizio, kAlto * blocco);
+      alto = fineBlocco(kAlto);
+      if (f(basso) >= obiettivo) return basso;
+    }
+    // f(basso) < obiettivo <= f(alto), f crescente in mezzo: bisezione fino alla tolleranza.
     for (let passo = 0; passo < 200 && alto - basso > tolleranza; passo++) {
       const medio = (basso + alto) / 2;
       if (f(medio) >= obiettivo) alto = medio;

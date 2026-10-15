@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { fonti, fontiStrumenti, regole, tasseRegistroCommercio } from "@/data/svizzera";
+import { fonti, fontiStrumenti, regole, regolePercorso, tasseRegistroCommercio } from "@/data/svizzera";
 import { CHIAVI_ARCHIVIO } from "@/lib/strumenti/archivio";
 import {
   calcolaBudget,
+  costoIscrizioneRegistro,
   datiBudgetIniziali,
   MESI,
   mesiDaInizio,
@@ -17,7 +18,7 @@ import {
   type RisultatoBudget,
 } from "@/lib/strumenti/budget";
 import { dataIsoLocale } from "@/lib/strumenti/documenti";
-import { importo } from "@/lib/strumenti/numeri";
+import { importo, numeroBreve } from "@/lib/strumenti/numeri";
 import { NotaDatiLocali, PulsanteStampa } from "../dati-locali";
 import { DettaglioContributi } from "../dettaglio-contributi";
 import { IconaCestino, IconaPiu } from "../icone";
@@ -124,13 +125,17 @@ export function BudgetAnno() {
           <Casella
             id="iscrizione-registro"
             className="mt-6"
-            etichetta={`Mi iscrivo al registro di commercio (${importo(tasseRegistroCommercio.valore.stimaTitolareConFirma, 0)} nel primo mese)`}
+            etichetta={`Mi iscrivo al registro di commercio (${importo(costoIscrizioneRegistro(), 0)} nel primo mese)`}
             selezionata={dati.iscrizioneRegistro}
             onCambia={(v) => imposta("iscrizioneRegistro", v)}
             aiuto={
               <>
-                Facoltativa sotto {importo(regole.sogliaRegistroCommercio.valore, 0)} di cifra d&apos;affari annua. {tasseRegistroCommercio.nota}{" "}
-                <FonteLink fonte={tasseRegistroCommercio.fonte} />
+                Facoltativa sotto {importo(regole.sogliaRegistroCommercio.valore, 0)} di cifra d&apos;affari annua.{" "}
+                {importo(tasseRegistroCommercio.valore.stimaTitolareConFirma, 0)} di tasse per il titolare con firma
+                individuale (<FonteLink fonte={tasseRegistroCommercio.fonte} />) +{" "}
+                {importo(regolePercorso.autenticazioneFirmaRcTicino.valore, 0)} per l&apos;autenticazione della firma (
+                <FonteLink fonte={regolePercorso.autenticazioneFirmaRcTicino.fonte} />
+                ). {regolePercorso.autenticazioneFirmaRcTicino.nota}
               </>
             }
           />
@@ -337,7 +342,11 @@ function Risultati({ r }: { r: RisultatoBudget }) {
           valore={importo(r.totali.risultato, 0)}
           negativo={r.totali.risultato < 0}
         />
-        <Riquadro etichetta="Mese di pareggio" nota="Da qui il saldo cumulato resta positivo" valore={pareggio} />
+        <Riquadro
+          etichetta="Mese di pareggio"
+          nota={r.mesePareggio === null ? "A fine anno il saldo cumulato è ancora sotto zero" : "Da qui il saldo cumulato resta positivo"}
+          valore={pareggio}
+        />
         <Riquadro
           etichetta="Saldo dopo 12 mesi"
           nota={r.fabbisognoMassimo > 0 && r.meseFabbisogno !== null ? `Punto più basso: ${importo(-r.fabbisognoMassimo, 0)} a ${nomeMese(r.mesi[r.meseFabbisogno])}` : "Mai sotto zero"}
@@ -450,7 +459,7 @@ function Risultati({ r }: { r: RisultatoBudget }) {
             </li>
             {r.riservaPercento !== null ? (
               <li>
-                Riserva imposte: {r.riservaPercento}% del risultato dopo i contributi = {importo(r.riservaImposte, 0)},
+                Riserva imposte: {numeroBreve(r.riservaPercento, 2)}% del risultato dopo i contributi = {importo(r.riservaImposte, 0)},
                 percentuale scelta da te.
               </li>
             ) : (

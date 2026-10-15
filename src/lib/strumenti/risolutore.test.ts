@@ -44,3 +44,33 @@ describe("minimoInCentesimi", () => {
     expect(minimoInCentesimi(conSalto, 95, [100])).toBe(95);
   });
 });
+
+describe("con blocchi (reddito arrotondato ai 100 franchi)", () => {
+  // Come il netto della tariffa: x meno l'11,2% di x arrotondato ai 100 inferiori.
+  // Dentro ogni blocco cresce, all'inizio del blocco dopo cala di 11.20.
+  const denteDiSega = (x: number) => Math.round((x - 0.112 * Math.floor(x / 100) * 100) * 100) / 100;
+
+  it("trova il primo blocco in cui l'obiettivo è raggiungibile", () => {
+    for (let obiettivo = 50; obiettivo < 20_000; obiettivo += 37.37) {
+      const x = minimoInCentesimi(denteDiSega, obiettivo, [], { blocco: 100, massimo: 1e6 })!;
+      expect(denteDiSega(x)).toBeGreaterThanOrEqual(obiettivo);
+      expect(denteDiSega(Math.round(x * 100 - 1) / 100)).toBeLessThan(obiettivo);
+      for (let k = 0; (k + 1) * 100 <= x; k++) expect(denteDiSega(k * 100 + 99.99)).toBeLessThan(obiettivo);
+    }
+  });
+
+  it("a cavallo di un blocco: l'inizio del blocco se basta", () => {
+    // denteDiSega(199.99) = 188.79, denteDiSega(200) = 177.6: obiettivo 188.79 → 199.99.
+    expect(minimoInCentesimi(denteDiSega, 188.79, [], { blocco: 100 })).toBe(199.99);
+    // Obiettivo 188.80: nel blocco 100-199 non basta; nel blocco dopo serve 211.20.
+    expect(minimoInCentesimi(denteDiSega, 188.8, [], { blocco: 100 })).toBe(211.2);
+  });
+
+  it("rispetta i punti di salto e `da`", () => {
+    const conSaltoEBlocchi = (x: number) => (x < 1_000 ? denteDiSega(x) : denteDiSega(x) - 50);
+    const x = minimoInCentesimi(conSaltoEBlocchi, 870, [1_000], { blocco: 100 })!;
+    expect(conSaltoEBlocchi(x)).toBeGreaterThanOrEqual(870);
+    for (let k = 0; (k + 1) * 100 <= x; k++) expect(conSaltoEBlocchi(k * 100 + 99.99)).toBeLessThan(870);
+    expect(minimoPerObiettivo(denteDiSega, 10, [], { blocco: 100, da: 250 })).toBe(250);
+  });
+});

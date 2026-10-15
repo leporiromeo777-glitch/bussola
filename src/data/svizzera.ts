@@ -588,6 +588,11 @@ export const ufficiPercorso = {
 
 /** Fonti usate solo dagli strumenti in /strumenti. */
 export const fontiStrumenti = {
+  lavs8: {
+    titolo: "Legge sull'AVS (LAVS), art. 8: contributi degli indipendenti",
+    url: `${LAVS}#art_8`,
+    ente: "Confederazione (Fedlex)",
+  },
   oavs21: {
     titolo: "Ordinanza sull'AVS (OAVS), art. 21: tavola scalare dei contributi",
     url: "https://www.fedlex.admin.ch/eli/cc/63/1185_1183_1185/it#art_21",
@@ -633,6 +638,11 @@ export const datiStrumenti = {
     148_200,
     fonti.iasAliquote2025,
     "Il contributo per gli assegni familiari si calcola solo fino al guadagno massimo assicurato LAINF (LAFam art. 16 cpv. 4). Valore del foglio IAS 2025.",
+  ),
+  arrotondamentoRedditoAvs: dato(
+    100,
+    fontiStrumenti.lavs8,
+    "Per il calcolo del contributo il reddito è arrotondato al multiplo di 100 franchi immediatamente inferiore (art. 8 cpv. 1 LAVS).",
   ),
   limiteAttivitaAccessoria: dato(
     2_500,

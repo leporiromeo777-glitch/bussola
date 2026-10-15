@@ -13,7 +13,7 @@
  * contributi AVS si stimano sui 12 mesi come se fossero un anno civile.
  */
 import { z } from "zod";
-import { fonti, regole, tasseRegistroCommercio } from "@/data/svizzera";
+import { fonti, regole, regolePercorso, tasseRegistroCommercio } from "@/data/svizzera";
 import {
   anniDisponibili,
   eAnnoAvs,
@@ -50,7 +50,7 @@ export type DatiBudget = {
   situazione: SituazioneAvs;
   /** Ricavi previsti per ciascuno dei 12 mesi. */
   ricavi: string[];
-  /** Se l'utente sceglie di iscriversi al registro di commercio (tassa nel primo mese). */
+  /** Se l'utente sceglie di iscriversi al registro di commercio (tasse e autenticazione della firma nel primo mese). */
   iscrizioneRegistro: boolean;
   costiAvvio: CostoAvvio[];
   /** Costi fissi al mese. */
@@ -205,7 +205,7 @@ export function calcolaBudget(dati: DatiBudget): EsitoBudget {
   const riservaPercento =
     riservaTesto === "" ? null : leggi("riservaImpostePercento", riservaTesto, 80, "Scrivi una percentuale da 0 a 80, o lascia vuoto.");
   const fissiMensili = arrotonda(dati.costiFissi.reduce((s, c) => s + leggi(`costiFissi.${c.id}`, c.importo), 0));
-  const tassaRegistro = dati.iscrizioneRegistro ? tasseRegistroCommercio.valore.stimaTitolareConFirma : 0;
+  const tassaRegistro = dati.iscrizioneRegistro ? costoIscrizioneRegistro() : 0;
   const avvioPerMese = Array.from({ length: 12 }, () => 0);
   for (const c of dati.costiAvvio) {
     const mese = Math.min(11, Math.max(0, Math.trunc(c.mese)));
@@ -315,6 +315,15 @@ export function calcolaBudget(dati: DatiBudget): EsitoBudget {
       vuoto,
     },
   };
+}
+
+/**
+ * Costo dell'iscrizione al registro di commercio per una ditta individuale:
+ * tasse federali del titolare con firma individuale più l'autenticazione
+ * della firma allo sportello dell'Ufficio RC ticinese.
+ */
+export function costoIscrizioneRegistro(): number {
+  return tasseRegistroCommercio.valore.stimaTitolareConFirma + regolePercorso.autenticazioneFirmaRcTicino.valore;
 }
 
 /** Il nome del mese per esteso: "febbraio 2027". */

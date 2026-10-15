@@ -79,7 +79,7 @@ describe("importa da tariffa e budget", () => {
     const { risultato } = calcolaBudget(dati);
     const costi = testoCostiDaBudget(risultato, dati);
     expect(costi).toContain("Costi fissi CHF 700 al mese (locali, software)");
-    expect(costi).toContain("Costi di avvio CHF 1'620 (computer, iscrizione al registro di commercio)");
+    expect(costi).toContain("Costi di avvio CHF 1'640 (computer, iscrizione al registro di commercio)");
     expect(costi).toContain("10% dei ricavi");
     const ricavi = testoRicaviDaBudget(risultato);
     expect(ricavi).toContain("nov 2026 – ott 2027");

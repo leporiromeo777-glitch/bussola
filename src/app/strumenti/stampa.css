@@ -49,7 +49,12 @@
     margin: 14mm 12mm;
   }
 
-  /* Preventivo e fattura: margini propri del foglio, sezione pagamento in fondo. */
+  /*
+   * Preventivo e fattura: margini propri del foglio (il corpo li ripete su ogni
+   * pagina). Prima di stampare il foglio prende un'altezza di N pagine A4, così
+   * la sezione pagamento della QR-fattura sta in fondo all'ultima
+   * (anteprima-documento.tsx e src/lib/strumenti/impaginazione.ts).
+   */
   @page foglio {
     size: A4;
     margin: 0;

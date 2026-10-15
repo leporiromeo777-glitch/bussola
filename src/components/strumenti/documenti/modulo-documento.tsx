@@ -204,7 +204,7 @@ export function ModuloDocumento({ doc, onCambia, onEmittente }: Props) {
 
       <Gruppo
         legenda="Voci"
-        descrizione={e.ivaIscritto ? "Prezzi unitari senza IVA. Per i decimali usa il punto o la virgola." : "Prezzi unitari. Per i decimali usa il punto o la virgola."}
+        descrizione={`${e.ivaIscritto ? "Prezzi unitari senza IVA." : "Prezzi unitari."} Per i decimali usa il punto o la virgola (12.50 o 12,50); 1.500 vale 1'500.`}
       >
         <ul className="space-y-4">
           {doc.righe.map((r, i) => {

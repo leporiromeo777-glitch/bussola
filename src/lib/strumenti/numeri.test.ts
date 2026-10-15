@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  articoloNumero,
   arrotonda,
   arrotonda5Centesimi,
   arrotondaPerEccesso,
@@ -30,6 +31,21 @@ describe("leggiNumero", () => {
     ["−250", -250],
     ["  42  ", 42],
     ["0", 0],
+    // Migliaia all'italiana con un solo punto.
+    ["1.500", 1500],
+    ["60.000", 60_000],
+    ["-2.000", -2000],
+    ["CHF 2.000", 2000],
+    // Decimali veri: restano decimali.
+    ["0.125", 0.125],
+    ["1.50", 1.5],
+    ["12.5", 12.5],
+    ["1500.50", 1500.5],
+    ["1500,50", 1500.5],
+    ["1'500", 1500],
+    ["1 500", 1500],
+    ["1\u00a0500", 1500],
+    ["1\u202f500", 1500],
   ])("legge %s come %s", (testo, atteso) => {
     expect(leggiNumero(testo)).toBe(atteso);
   });
@@ -107,4 +123,18 @@ describe("numeroBreve", () => {
     expect(numeroBreve(15.2, 2)).toBe("15,2");
     expect(numeroBreve(100, 2)).toBe("100");
   });
+});
+
+describe("articoloNumero", () => {
+  it.each([
+    ["8,3%", "l'"],
+    ["11,2%", "l'"],
+    ["1,5%", "l'"],
+    ["80%", "l'"],
+    ["0,5%", "lo "],
+    ["10%", "il "],
+    ["9,4%", "il "],
+    ["18%", "il "],
+    ["111%", "il "],
+  ])("%s → %s", (testo, atteso) => expect(articoloNumero(testo)).toBe(atteso));
 });
