@@ -216,17 +216,18 @@ export const PASSI = [
   {
     id: "statuto-suva",
     fase: "aprire l'attività",
-    titolo: "Edilizia o trasporti: prima lo statuto dalla Suva",
+    titolo: "Edilizia o trasporti: la Suva verifica il tuo statuto",
     descrizione:
-      "Nell'edilizia e nei trasporti (per esempio imbianchini, muratori, tassisti) lo statuto di indipendente lo rilascia prima la Suva. Solo dopo si fa la domanda alla cassa AVS.",
+      "Anche nell'edilizia e nei trasporti (per esempio imbianchini, muratori, tassisti) la domanda di riconoscimento si presenta alla cassa AVS. La cassa la inoltra alla Suva, che decide d'accordo con la cassa se sei indipendente, dipendente o entrambe le cose.",
     cosaFare: [
-      "Chiedi alla Suva la decisione sul tuo statuto di indipendente.",
-      "Con la decisione della Suva in mano, presenta la domanda di riconoscimento alla cassa AVS (passo seguente).",
+      "Presenta la domanda alla cassa AVS come tutti (passo seguente): non serve un passaggio separato alla Suva.",
+      "Se lavori in subappalto o a cottimo per un'altra impresa, di regola sei considerato dipendente di quell'impresa.",
+      "Prepara le prove della tua indipendenza: più committenti, offerte e fatture a tuo nome, investimenti, rischio economico a tuo carico.",
     ],
-    link: { etichetta: "Portale PMI: ditta individuale", url: fontiPercorso.pmiDittaIndividualeLanciarsi.url },
-    fonti: [fontiPercorso.pmiDittaIndividualeLanciarsi],
+    link: { etichetta: "Suva: indipendente o dipendente?", url: fontiPercorso.suvaAccertamento.url },
+    fonti: [fontiPercorso.suvaAccertamento, fonti.avsPromemoria202],
     verificatoIl: VERIFICATO_IL,
-    domandaChat: "Lavoro nell'edilizia: come ottengo lo statuto di indipendente dalla Suva?",
+    domandaChat: "Lavoro nell'edilizia: chi decide se sono indipendente?",
   },
   {
     id: "riconoscimento-avs",

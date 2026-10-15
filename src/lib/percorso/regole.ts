@@ -258,8 +258,8 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
       stato: "da_fare",
       perche:
         r.attivita === "trasporti"
-          ? "Lavori nei trasporti: in questo settore lo statuto di indipendente lo rilascia prima la Suva."
-          : "Hai indicato artigianato o edilizia: se lavori nell'edilizia (per esempio come muratore o imbianchino), lo statuto lo rilascia prima la Suva. Per altri mestieri artigianali, da verificare con la cassa AVS.",
+          ? "Lavori nei trasporti: la cassa AVS inoltra la tua domanda alla Suva, che decide insieme alla cassa."
+          : "Hai indicato artigianato o edilizia: se lavori nell'edilizia (per esempio come muratore o imbianchino), la cassa AVS inoltra la tua domanda alla Suva, che decide insieme alla cassa.",
     };
   },
 
@@ -279,7 +279,7 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
           : "Lavorare per molti clienti è uno dei criteri che la cassa guarda.";
     const note = [notaCassaAvs(r)];
     if (edileOTrasporti(r))
-      note.push("Nell'edilizia e nei trasporti, prima della domanda serve lo statuto rilasciato dalla Suva.");
+      note.push("Nell'edilizia e nei trasporti la cassa inoltra la domanda alla Suva, che decide insieme alla cassa.");
     if (haLavoroDipendente(r)) note.push(notaAttivitaAccessoria());
     return { stato: "da_fare", perche: `${tempo} ${clienti}`, note };
   },
@@ -584,12 +584,12 @@ function calcolaAvvisi(r: Risposte): Avviso[] {
 
   if (edileOTrasporti(r) && !conSoci(r)) {
     avvisi.push({
-      id: "suva-prima",
+      id: "suva-statuto",
       livello: "importante",
-      titolo: "Edilizia e trasporti: prima la Suva, poi l'AVS",
+      titolo: "Edilizia e trasporti: decide anche la Suva",
       testo:
-        "Nell'edilizia e nei trasporti lo statuto di indipendente lo rilascia prima la Suva; solo dopo si fa la domanda alla cassa AVS.",
-      fonti: [fontiPercorso.pmiDittaIndividualeLanciarsi],
+        "Nell'edilizia e nei trasporti la cassa AVS inoltra la domanda alla Suva, che decide insieme alla cassa. Chi lavora in subappalto o a cottimo per un'altra impresa è di regola considerato dipendente.",
+      fonti: [fontiPercorso.suvaAccertamento],
     });
   }
 

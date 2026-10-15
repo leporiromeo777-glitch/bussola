@@ -393,6 +393,11 @@ export const fontiPercorso = {
   lamal1a: { titolo: "Legge sull'assicurazione malattie (LAMal), art. 1a", url: `${LAMAL}#art_1_a`, ente: FEDLEX },
   lamal8: { titolo: "Legge sull'assicurazione malattie (LAMal), art. 8", url: `${LAMAL}#art_8`, ente: FEDLEX },
   lamal67: { titolo: "Legge sull'assicurazione malattie (LAMal), art. 67", url: `${LAMAL}#art_67`, ente: FEDLEX },
+  suvaAccertamento: {
+    titolo: "Accertamento: indipendente o dipendente?",
+    url: "https://www.suva.ch/it-ch/assicurazione/assicurazione-contro-gli-infortuni/accertamento-indipendente-dipendente",
+    ente: "Suva",
+  },
   suvaImprenditori: {
     titolo: "Assicurazione per imprenditori (lavoratori indipendenti)",
     url: "https://www.suva.ch/it-ch/assicurazione/assicurazione-contro-gli-infortuni/assicurazione-per-imprenditori-per-lavoratori-indipendenti",

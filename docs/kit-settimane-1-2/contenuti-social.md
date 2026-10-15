@@ -501,7 +501,7 @@ Come funziona:
 → La domanda si presenta online su selbststaendig-erwerbend.ch/it, raggiungibile anche da indipendente.ch. Il sito consiglia di farla nei primissimi mesi di attività.
 → Allegati utili: offerte e fatture ai clienti, contratti, prove del capitale investito, pubblicità, contratti di locazione o leasing, prove dei pagamenti ricevuti.
 → In Ticino la cassa cantonale è l'Istituto delle assicurazioni sociali (IAS) a Bellinzona, e in ogni Comune c'è un'agenzia AVS. Nel Grigioni la cassa cantonale è a Coira.
-→ In edilizia e trasporti lo statuto di indipendente lo rilascia prima la Suva, poi si fa domanda all'AVS.
+→ In edilizia e trasporti la domanda va comunque alla cassa AVS: la cassa la inoltra alla Suva, che decide insieme a lei. Chi lavora in subappalto o a cottimo è di regola considerato dipendente.
 
 E se hai tra 18 e 30 anni, i contributi ti riguardano già: si pagano dal 1° gennaio dell'anno dopo il 17° compleanno.
 
@@ -534,7 +534,7 @@ Se ha 20 minuti, può scegliere un orario qui: [link calendario]. Oppure mi lasc
 - Domanda online, primi mesi, allegati: [selbststaendig-erwerbend.ch](https://selbststaendig-erwerbend.ch/it/presentare-una-domanda)
 - Casse cantonali (IAS Bellinzona, n. 21; Coira, n. 18): [ahv-iv.ch](https://www.ahv-iv.ch/it/Contatti/Casse-cantonali-di-compensazione)
 - Agenzie AVS comunali: [DL AVS, RL 851.100, artt. 3 e 6](https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/359)
-- Edilizia e trasporti, prima la Suva: [Portale PMI](https://www.kmu.admin.ch/it/ditta-individuale-per-lanciarsi-da-soli)
+- Edilizia e trasporti, la cassa AVS inoltra alla Suva; subappalto e cottimo: [Suva, accertamento indipendente o dipendente](https://www.suva.ch/it-ch/assicurazione/assicurazione-contro-gli-infortuni/accertamento-indipendente-dipendente)
 
 **Hashtag:** #Ticino #Bellinzona #Grigioni #AVS #indipendenti · LinkedIn: #Ticino #fiduciari #PMI
 
@@ -964,7 +964,7 @@ Tutte dalle schede verificate il 15.10.2026. Prima di pubblicare, riapri il link
 | [art. 945 CO](https://www.fedlex.admin.ch/eli/cc/27/317_321_377/it#art_945) | Cognome nel nome della ditta individuale | 26.10 |
 | [art. 954a CO](https://www.fedlex.admin.ch/eli/cc/27/317_321_377/it#art_954_a) | Ditta iscritta sulle fatture | 26.10 |
 | [Portale PMI, Ditta individuale](https://www.kmu.admin.ch/it/forma-giuridica-ditta-individuale) | Nessun capitale minimo, responsabilità personale, cifre d'affari sommate, eccezioni, registro IDI | 20.10, 26.10, 31.10 |
-| [Portale PMI, Per lanciarsi da soli](https://www.kmu.admin.ch/it/ditta-individuale-per-lanciarsi-da-soli) | Edilizia e trasporti: prima la Suva | 27.10 |
+| [Suva, accertamento indipendente o dipendente](https://www.suva.ch/it-ch/assicurazione/assicurazione-contro-gli-infortuni/accertamento-indipendente-dipendente) | Edilizia e trasporti: la cassa AVS inoltra alla Suva | 27.10 |
 | [RC Ticino, iscrizione](https://www4.ti.ch/di/dg/rf/sportello/formulari-rc/di-iscrizione) | Esempio «Caseificio di Rossi G.», cognome come nel documento | 26.10 |
 | [art. 10 LIVA](https://www.fedlex.admin.ch/eli/cc/2009/615/it#art_10) | Soglia IVA di CHF 100'000 | 23.10, 31.10 |
 | [art. 11 LIVA](https://www.fedlex.admin.ch/eli/cc/2009/615/it#art_11) | IVA volontaria | 23.10 |

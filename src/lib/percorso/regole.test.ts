@@ -126,12 +126,12 @@ describe("regole: autorizzazioni di settore", () => {
     expect(stato({}, "autorizzazione-sanitaria")).toBe("non_serve");
   });
 
-  it("edilizia e trasporti: prima lo statuto Suva, con avviso", () => {
+  it("edilizia e trasporti: la Suva verifica lo statuto, con avviso", () => {
     for (const attivita of ["artigianato_edilizia", "trasporti"] as const) {
       const percorso = calcolaPercorso(risposte({ attivita }));
       expect(passo(percorso, "statuto-suva").stato).toBe("da_fare");
-      expect(idAvvisi(percorso)).toContain("suva-prima");
-      // Lo statuto Suva viene prima della domanda AVS.
+      expect(idAvvisi(percorso)).toContain("suva-statuto");
+      // La preparazione per la Suva viene prima della domanda AVS.
       const ids = percorso.passi.map((p) => p.passo.id);
       expect(ids.indexOf("statuto-suva")).toBeLessThan(ids.indexOf("riconoscimento-avs"));
     }
@@ -484,7 +484,7 @@ describe("persone tipo", () => {
     const percorso = calcolaPercorso(
       risposte({ attivita: "artigianato_edilizia", clienti: "uno", fatturato: "da_60k_a_100k" }),
     );
-    expect(idAvvisi(percorso).slice(0, 2)).toEqual(["un-solo-cliente", "suva-prima"]);
+    expect(idAvvisi(percorso).slice(0, 2)).toEqual(["un-solo-cliente", "suva-statuto"]);
     expect(passo(percorso, "statuto-suva").stato).toBe("da_fare");
     expect(passo(percorso, "soglie-annuali").stato).toBe("da_fare");
     expect(testoCompleto(percorso, "riconoscimento-avs")).toMatch(/Suva/);
