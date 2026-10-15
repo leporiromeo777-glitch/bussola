@@ -19,9 +19,11 @@ const netto = (utile: number, anno: 2026 | 2027 = 2026, situazione: "principale"
 describe("calcolaTariffa", () => {
   it("valori di esempio: CHF 48'000 netti, 45 settimane da 25 ore", () => {
     const r = ok(dati());
-    // Nella fascia 50'500–53'000 (8,209%): netto = U × (1 − 0,08209 × 1,02 − 0,0085 − 0,0015).
-    const fattore = 1 - 0.08209 * 1.02 - 0.0085 - 0.0015;
-    expect(r.utilePrimaDeiContributi).toBeCloseTo(48_000 / fattore, 1);
+    // Nella fascia 50'500–53'000 (8,209%), sul reddito arrotondato ai 100 franchi inferiori:
+    // U = 48'000 + R × (0,08209 × 1,02 + 0,0085 + 0,0015), con R = 52'900.
+    expect(r.contributi.redditoAvs).toBe(52_900);
+    expect(r.utilePrimaDeiContributi).toBeCloseTo(48_000 + 52_900 * (0.08209 * 1.02 + 0.0085 + 0.0015), 1);
+    expect(r.utilePrimaDeiContributi).toBe(arrotonda(48_000 + r.contributi.totale));
     expect(r.contributi.fascia).toMatchObject({ da: 50_500, a: 53_000 });
     expect(netto(r.utilePrimaDeiContributi)).toBeGreaterThanOrEqual(48_000);
     expect(r.settimaneLavorative).toBe(45);
@@ -53,10 +55,34 @@ describe("calcolaTariffa", () => {
     },
   );
 
+  // Con il reddito AVS arrotondato ai 100 franchi inferiori il netto cala un po' a ogni
+  // multiplo di 100: l'utile trovato deve restare il più piccolo, blocco per blocco.
+  const obiettivi = [
+    ...Array.from({ length: 120 }, (_, i) => 9_000 + i * 75.25),
+    ...Array.from({ length: 40 }, (_, i) => 47_000 + i * 333.33),
+    120_000.5,
+  ];
+  it.each([
+    ["principale", 2026],
+    ["accessoria", 2026],
+    ["principale", 2027],
+  ] as const)("utile minimo con l'arrotondamento ai 100 franchi (%s, %i)", (situazione, anno) => {
+    for (const obiettivo of obiettivi) {
+      const r = ok(dati({ anno, situazione, redditoDesiderato: String(obiettivo) }));
+      const u = r.utilePrimaDeiContributi;
+      const f = (x: number) => netto(x, anno, situazione);
+      expect(f(u)).toBeGreaterThanOrEqual(obiettivo);
+      expect(f(arrotonda(u - 0.01))).toBeLessThan(obiettivo);
+      // Dentro ogni blocco di 100 il netto più alto è all'ultimo centesimo.
+      for (let k = 0; (k + 1) * 100 <= u; k++) expect(f(k * 100 + 99.99)).toBeLessThan(obiettivo);
+    }
+  });
+
   it("reddito zero: serve comunque coprire il contributo minimo", () => {
     const r = ok(dati({ redditoDesiderato: "0" }));
-    // U − 530 − 10.60 − 1% di U = 0  →  U = 540.60 / 0,99
-    expect(r.utilePrimaDeiContributi).toBeCloseTo(540.6 / 0.99, 1);
+    // U − 530 − 10.60 − 1% di R = 0, con R = U arrotondato ai 100 inferiori (500)  →  U = 545.60
+    expect(r.utilePrimaDeiContributi).toBe(545.6);
+    expect(r.contributi.redditoAvs).toBe(500);
     expect(r.contributi.caso).toBe("minimo");
   });
 

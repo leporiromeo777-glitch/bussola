@@ -82,7 +82,7 @@ export const tavoleScalari: Record<AnnoAvs, TavolaScalare> = {
     nota:
       "Testo provvisorio del Consiglio federale (2.10.2026), in vigore dal 1.1.2027: fa stato la versione pubblicata su Fedlex. " +
       "La somma AVS + AI + IPG per fascia è nostra. L'ordinanza fissa a CHF 10'200 il limite per il contributo minimo (art. 8 cpv. 2 LAVS): " +
-      "tra CHF 10'200 e 10'300 qui contiamo il contributo minimo (differenza di pochi franchi).",
+      "siccome il reddito si arrotonda ai 100 franchi inferiori (art. 8 cpv. 1 LAVS), vale per un reddito sotto CHF 10'300.",
     fasce: [
       fascia2027(10_300, 17_700, 4.35, 0.752, 0.269),
       fascia2027(17_700, 24_000, 4.45, 0.769, 0.275),

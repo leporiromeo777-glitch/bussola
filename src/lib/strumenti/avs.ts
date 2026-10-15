@@ -13,6 +13,9 @@
  * alta, cioè prudente. Non togliamo l'interesse sul capitale proprio investito
  * (punto 7), che riduce il reddito: anche questo rende la stima prudente.
  *
+ * Il reddito si arrotonda al multiplo di 100 franchi immediatamente
+ * inferiore (art. 8 cpv. 1 LAVS): 60'499 conta come 60'400.
+ *
  * È una stima indicativa: l'importo vero lo decide la cassa di compensazione.
  */
 import { anniTavola, parametriAnno, tavoleScalari, type AnnoAvs, type FasciaScalare } from "@/data/avs-tavola-scalare";
@@ -43,7 +46,7 @@ export type CasoAvs =
 export type StimaContributi = {
   anno: AnnoAvs;
   situazione: SituazioneAvs;
-  /** Reddito su cui si calcolano i contributi (mai sotto zero). */
+  /** Reddito su cui si calcolano i contributi: utile arrotondato ai 100 franchi inferiori, mai sotto zero. */
   redditoAvs: number;
   caso: CasoAvs;
   /** Tasso AVS/AI/IPG applicato (frazione), null se si paga il contributo minimo fisso o niente. */
@@ -60,21 +63,34 @@ export type StimaContributi = {
   tassoEffettivo: number | null;
 };
 
+/** Reddito AVS: arrotondato al multiplo di 100 franchi immediatamente inferiore, mai sotto zero (art. 8 cpv. 1 LAVS). */
+export function arrotondaRedditoAvs(utile: number): number {
+  const passo = datiStrumenti.arrotondamentoRedditoAvs.valore;
+  // Prima al centesimo, così 60'399.999999 (errore di virgola mobile) conta come 60'400.
+  return Math.floor(arrotonda(Math.max(0, utile), 2) / passo) * passo;
+}
+
 /** Trova la fascia della tavola scalare per un reddito, o null se fuori dalla tavola. */
 export function fasciaPerReddito(reddito: number, anno: AnnoAvs): FasciaScalare | null {
   return tavoleScalari[anno].fasce.find((f) => f.da <= reddito && reddito < f.a) ?? null;
 }
 
-/** Solo AVS/AI/IPG, senza supplementi cantonali. */
+/**
+ * Solo AVS/AI/IPG, senza supplementi cantonali. `utile` è il reddito prima
+ * dell'arrotondamento: qui si arrotonda ai 100 franchi inferiori.
+ */
 export function contributoAvsAiIpg(
-  redditoAvs: number,
+  utile: number,
   anno: AnnoAvs,
   situazione: SituazioneAvs = "principale",
 ): Pick<StimaContributi, "caso" | "tasso" | "fascia" | "avsAiIpg"> {
   const p = parametriAnno(anno).valore;
-  const reddito = Math.max(0, redditoAvs);
+  const lordo = Math.max(0, utile);
+  const reddito = arrotondaRedditoAvs(lordo);
 
-  if (situazione === "accessoria" && reddito <= datiStrumenti.limiteAttivitaAccessoria.valore) {
+  // Il limite di CHF 2'500 si confronta con l'utile non arrotondato: da 2'500.01
+  // contiamo i contributi (stima prudente, e il salto resta in puntiDiSalto).
+  if (situazione === "accessoria" && lordo <= datiStrumenti.limiteAttivitaAccessoria.valore) {
     return { caso: "suRichiesta", tasso: null, fascia: null, avsAiIpg: 0 };
   }
   if (reddito >= p.limiteSuperioreScala) {
@@ -111,8 +127,9 @@ export function stimaContributi(
   anno: AnnoAvs,
   situazione: SituazioneAvs = "principale",
 ): StimaContributi {
-  const redditoAvs = arrotonda(Math.max(0, utilePrimaDeiContributi));
-  const base = contributoAvsAiIpg(redditoAvs, anno, situazione);
+  const utile = Math.max(0, utilePrimaDeiContributi);
+  const redditoAvs = arrotondaRedditoAvs(utile);
+  const base = contributoAvsAiIpg(utile, anno, situazione);
 
   // Se l'AVS non viene riscossa (accessoria fino a CHF 2'500), non contiamo
   // nemmeno i supplementi: se chiedi di pagare, valgono le regole normali.
@@ -139,9 +156,10 @@ export function stimaContributi(
 }
 
 /**
- * Punti in cui il totale dei contributi salta (inizio di ogni fascia, limiti,
- * tetto degli assegni familiari): tra due punti il calcolo è continuo e
- * cresce con il reddito. Servono al risolutore della tariffa.
+ * Punti in cui il totale dei contributi salta di più (inizio di ogni fascia,
+ * limiti, tetto degli assegni familiari). Tra due punti i contributi crescono
+ * a gradini di 100 franchi (il reddito si arrotonda ai 100 franchi inferiori),
+ * di meno di CHF 100 per gradino. Servono al risolutore della tariffa.
  */
 export function puntiDiSalto(anno: AnnoAvs, situazione: SituazioneAvs = "principale"): number[] {
   const p = parametriAnno(anno).valore;

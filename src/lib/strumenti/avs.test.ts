@@ -3,6 +3,7 @@ import { tavoleScalari } from "@/data/avs-tavola-scalare";
 import { avsIndipendenti } from "@/data/svizzera";
 import {
   annoPredefinito,
+  arrotondaRedditoAvs,
   contributoAvsAiIpg,
   descrizioneCaso,
   eAnnoAvs,
@@ -72,6 +73,27 @@ describe("contributi AVS/AI/IPG 2026", () => {
       expect(r.fascia).toEqual(f);
       expect(r.avsAiIpg).toBe(arrotonda((f.da * f.tassoPercento) / 100, 2));
     }
+  });
+
+  it("il reddito si arrotonda ai 100 franchi inferiori (art. 8 cpv. 1 LAVS)", () => {
+    expect(arrotondaRedditoAvs(60_499)).toBe(60_400);
+    expect(arrotondaRedditoAvs(60_400)).toBe(60_400);
+    expect(arrotondaRedditoAvs(60_399.999999)).toBe(60_400);
+    expect(arrotondaRedditoAvs(99.99)).toBe(0);
+    expect(arrotondaRedditoAvs(-5)).toBe(0);
+
+    const s = stimaContributi(60_499, 2026);
+    expect(s.redditoAvs).toBe(60_400);
+    expect(s.avsAiIpg).toBe(5629.88); // 60'400 × 9,321%
+    expect(s.speseAmministrative).toBe(112.6);
+    expect(s.assegniFamiliari).toBe(513.4);
+    expect(s.assegnoIntegrativo).toBe(90.6);
+    expect(s.totale).toBe(6346.48);
+    expect(s.tassoEffettivo).toBeCloseTo(6346.48 / 60_400, 10);
+
+    expect(stimaContributi(17_699, 2026).avsAiIpg).toBe(966.94); // 17'600 × 5,494%
+    expect(stimaContributi(60_599, 2026)).toMatchObject({ caso: "massimo", redditoAvs: 60_500, avsAiIpg: 6050 });
+    expect(stimaContributi(52_964, 2026).redditoAvs).toBe(52_900);
   });
 
   it("gli assegni familiari si fermano al guadagno massimo di CHF 148'200", () => {

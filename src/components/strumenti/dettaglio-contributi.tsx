@@ -1,7 +1,7 @@
 import { tavoleScalari } from "@/data/avs-tavola-scalare";
-import { fonti, fontiStrumenti, percentuale, supplementiTicino, uffici } from "@/data/svizzera";
+import { datiStrumenti, fonti, fontiStrumenti, percentuale, supplementiTicino, uffici } from "@/data/svizzera";
 import { descrizioneCaso, type StimaContributi } from "@/lib/strumenti/avs";
-import { importo } from "@/lib/strumenti/numeri";
+import { importo, numeroSvizzero } from "@/lib/strumenti/numeri";
 import { EtichettaStima, FonteLink, Fonti, RigaValore } from "./ui";
 
 /** Dettaglio dei contributi sociali stimati, con le fonti di ogni percentuale. */
@@ -28,7 +28,7 @@ export function DettaglioContributi({ stima, titolo }: { stima: StimaContributi;
       <dl className="mt-3 divide-y divide-border text-sm">
         <RigaValore
           etichetta="Reddito su cui si calcolano"
-          nota="Utile dell'attività prima dei contributi sociali"
+          nota="Utile dell'attività prima dei contributi sociali, arrotondato ai 100 franchi inferiori"
           valore={importo(stima.redditoAvs, 0)}
         />
         <RigaValore
@@ -63,7 +63,9 @@ export function DettaglioContributi({ stima, titolo }: { stima: StimaContributi;
             La cassa di compensazione calcola i contributi sul reddito netto dell&apos;attività stabilito dalla
             tassazione, al quale riaggiunge i contributi AVS/AI/IPG dedotti. Per questo partiamo dall&apos;utile
             prima dei contributi sociali. Non togliamo l&apos;interesse sul capitale proprio investito, che la cassa
-            deduce: la stima è quindi un po&apos; prudente.
+            deduce: la stima è quindi un po&apos; prudente. Per legge il reddito si arrotonda ai{" "}
+            {numeroSvizzero(datiStrumenti.arrotondamentoRedditoAvs.valore)} franchi inferiori (
+            <FonteLink fonte={datiStrumenti.arrotondamentoRedditoAvs.fonte} />).
           </p>
           <p>
             Durante l&apos;anno paghi acconti trimestrali calcolati dalla cassa sul reddito che prevedi; i contributi
@@ -86,6 +88,7 @@ export function DettaglioContributi({ stima, titolo }: { stima: StimaContributi;
         fonti={[
           tavola.fonte,
           fonti.avsPromemoria202,
+          datiStrumenti.arrotondamentoRedditoAvs.fonte,
           supplementiTicino.speseAmministrative.fonte,
           supplementiTicino.assegniFamiliari.fonte,
           supplementiTicino.assegnoIntegrativo.fonte,

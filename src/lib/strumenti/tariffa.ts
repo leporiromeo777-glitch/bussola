@@ -16,6 +16,7 @@
  * il calcolatore ufficiale dell'AFC).
  */
 import { z } from "zod";
+import { datiStrumenti } from "@/data/svizzera";
 import {
   annoPredefinito,
   puntiDiSalto,
@@ -222,6 +223,8 @@ export function calcolaTariffa(dati: DatiTariffa): EsitoTariffa {
   const netto = (utile: number) => arrotonda(utile - stimaContributi(utile, dati.anno, dati.situazione).totale);
   const utilePrimaDeiContributi = minimoInCentesimi(netto, utileDopoContributi, puntiDiSalto(dati.anno, dati.situazione), {
     massimo: 100_000_000,
+    // Il reddito AVS si arrotonda ai 100 franchi inferiori: il netto è a dente di sega.
+    blocco: datiStrumenti.arrotondamentoRedditoAvs.valore,
   });
   if (utilePrimaDeiContributi === null) {
     return { ok: false, errori: { redditoDesiderato: "Importo troppo alto per questo calcolo." } };
