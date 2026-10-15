@@ -316,3 +316,64 @@ describe("vincoli sulle scritture dell'utente", () => {
     ).rejects.toThrow(/domande_chat_fonti_massimo/);
   });
 });
+
+describe("pulizia dei dati scaduti (pulisci_dati e pg_cron)", () => {
+  const PULIZIA = "55555555-5555-5555-5555-555555555555";
+
+  beforeAll(async () => {
+    await db.exec(`insert into auth.users (id, email) values ('${PULIZIA}', 'pulizia@example.ch')`);
+  });
+
+  it("la migrazione pianifica il job ogni giorno (pg_cron non c'è in PGlite)", () => {
+    const sql = readFileSync(new URL("20261016000004_pulizia_dati.sql", CARTELLA), "utf8");
+    expect(sql).toMatch(/^create extension if not exists pg_cron with schema pg_catalog;$/m);
+    expect(sql).toMatch(/^select cron\.schedule\('pulizia-dati', '17 3 \* \* \*', \$\$select public\.pulisci_dati\(\)\$\$\);$/m);
+  });
+
+  it("cancella le domande alla chat più vecchie di 12 mesi e tiene le altre", async () => {
+    await db.query(
+      `insert into public.domande_chat (user_id, domanda, creato_il) values
+         ($1, 'vecchia', now() - interval '12 months 1 day'),
+         ($1, 'recente', now() - interval '11 months')`,
+      [PULIZIA],
+    );
+    await db.exec("select public.pulisci_dati()");
+    const r = await db.query<{ domanda: string }>(
+      "select domanda from public.domande_chat where user_id = $1 and domanda in ('vecchia', 'recente')",
+      [PULIZIA],
+    );
+    expect(r.rows).toEqual([{ domanda: "recente" }]);
+  });
+
+  it("cancella solo le iscrizioni non confermate 30 giorni dopo l'email di conferma", async () => {
+    await db.exec(`
+      insert into public.lista_attesa (email, consenso_email, confermato_il, conferma_inviata_il, creato_il) values
+        ('scaduta@example.ch', true, null, now() - interval '31 days', now() - interval '40 days'),
+        ('in-attesa@example.ch', true, null, now() - interval '29 days', now() - interval '40 days'),
+        ('confermata@example.ch', true, now() - interval '35 days', now() - interval '36 days', now() - interval '40 days'),
+        ('senza-email@example.ch', true, null, null, now() - interval '400 days');
+    `);
+    await db.exec("select public.pulisci_dati()");
+    const r = await db.query<{ email: string }>("select email from public.lista_attesa order by email");
+    expect(r.rows.map((x) => x.email)).toEqual([
+      "confermata@example.ch",
+      "in-attesa@example.ch",
+      "senza-email@example.ch",
+    ]);
+  });
+
+  it("cancella i contatori del limite più vecchi di un giorno", async () => {
+    await db.exec(`
+      insert into public.limiti_richieste (chiave, creato_il) values
+        ('pulizia:vecchia', now() - interval '25 hours'), ('pulizia:recente', now() - interval '2 hours');
+    `);
+    await db.exec("select public.pulisci_dati()");
+    const r = await db.query<{ chiave: string }>("select chiave from public.limiti_richieste where chiave like 'pulizia:%'");
+    expect(r.rows).toEqual([{ chiave: "pulizia:recente" }]);
+  });
+
+  it("gli utenti non possono lanciarla", async () => {
+    await expect(comeUtente(() => db.exec("select public.pulisci_dati()"))).rejects.toThrow(/permission denied/);
+    await expect(come("anon", "", () => db.exec("select public.pulisci_dati()"))).rejects.toThrow(/permission denied/);
+  });
+});

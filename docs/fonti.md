@@ -204,6 +204,25 @@ mesi forse non serve: valuta se toglierla.
 
 **Privacy:** le domande sono scritte dagli utenti e possono contenere dati
 personali. Leggile solo per migliorare le fonti, non copiarle altrove e non
-collegarle alle persone. Valuta di cancellare periodicamente quelle vecchie
-(per esempio oltre 12 mesi), tenendo conto che servono anche per la quota
-mensile del piano gratuito.
+collegarle alle persone.
+
+Le domande più vecchie di 12 mesi si cancellano da sole, come promette
+l'informativa: ogni notte alle 03:17 (UTC) il job `pulizia-dati` di pg_cron
+lancia `public.pulisci_dati()` (migrazione
+`supabase/migrations/20261016000004_pulizia_dati.sql`). La stessa funzione
+cancella le iscrizioni alla lista d'attesa non confermate 30 giorni dopo
+l'ultima email di conferma e i contatori del limite per connessione. La quota
+del piano gratuito guarda solo il mese corrente, quindi non ne risente.
+Le query sopra vedono quindi al massimo gli ultimi 12 mesi.
+
+Per controllare che il job giri:
+
+```sql
+select jobname, schedule, command from cron.job where jobname = 'pulizia-dati';
+select status, return_message, start_time
+from cron.job_run_details
+order by start_time desc
+limit 5;
+```
+
+Per lanciarla a mano (per esempio dopo un ripristino): `select public.pulisci_dati();`.
