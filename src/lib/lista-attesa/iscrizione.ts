@@ -1,3 +1,4 @@
+import { datiTitolareIncompleti } from "@/lib/sito";
 import { componiEmailConferma, type Mittente } from "./email";
 import type { DatiIscrizione } from "./validazione";
 
@@ -121,6 +122,10 @@ export async function registraIscrizione(
 ): Promise<EsitoIscrizione> {
   const { archivio, inviaEmail, mittente, richiestaConsentita, ora = new Date() } = dipendenze;
   if (!archivio) return { tipo: "demo" };
+  // Senza nome, indirizzo ed email del titolare non si raccolgono dati e non
+  // parte nessuna email: il mittente deve essere identificabile (LCSl art. 3
+  // cpv. 1 lett. o) e l'informativa deve dire chi tratta i dati.
+  if (datiTitolareIncompleti(mittente.titolare)) return { tipo: "demo" };
   if (richiestaConsentita && !(await richiestaConsentita())) return { tipo: "troppe_richieste" };
 
   let inserimento: EsitoInserimento;

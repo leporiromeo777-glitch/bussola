@@ -98,7 +98,9 @@ iscrizioni vengono salvate lo stesso.
 Prima di pubblicare compila `NEXT_PUBLIC_SITO_URL`,
 `NEXT_PUBLIC_TITOLARE_NOME`, `NEXT_PUBLIC_TITOLARE_INDIRIZZO` e
 `NEXT_PUBLIC_TITOLARE_EMAIL`: servono per l'impressum (LCSl), l'informativa
-privacy (LPD) e per attivare TWINT su Stripe.
+privacy (LPD) e per attivare TWINT su Stripe. Finché uno di questi tre dati
+manca (o è vuoto), la lista d'attesa non salva iscrizioni e non manda email:
+il mittente deve essere identificabile.
 
 ## Pubblicare
 

@@ -218,6 +218,20 @@ describe("registraIscrizione", () => {
     expect(messaggio.html).not.toContain("Giulia Spam");
   });
 
+  it("con i dati del titolare ancora segnaposto non salva e non manda email", async () => {
+    for (const titolare of [
+      { nome: "[Nome e cognome del titolare]", indirizzo: "[Via e numero, NPA Località]", email: "[email di contatto]" },
+      { ...mittente.titolare, indirizzo: "" },
+    ]) {
+      const { archivio, righe } = archivioFinto();
+      const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
+      const esito = await registraIscrizione(dati, { archivio, inviaEmail: invia, mittente: { ...mittente, titolare } });
+      expect(esito).toEqual({ tipo: "demo" });
+      expect(righe).toEqual([]);
+      expect(invia).not.toHaveBeenCalled();
+    }
+  });
+
   it("oltre il limite per connessione non salva e non manda email", async () => {
     const { archivio, righe } = archivioFinto();
     const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
