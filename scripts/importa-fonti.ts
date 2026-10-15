@@ -6,13 +6,16 @@
  *   npm run fonti:importa -- --solo <id>  una fonte sola
  *   npm run fonti:importa -- --prova      scarica e divide, senza scrivere nel database
  *
+ * Le fonti con "verificato_da" ancora "import automatico - ..." si salvano
+ * con attiva = false: la chat usa solo fonti ricontrollate a mano.
+ *
  * Servono NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SECRET_KEY in .env.local
  * (tranne che con --prova). Istruzioni complete in docs/fonti.md.
  */
 import { readFileSync } from "node:fs";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { extractText, getDocumentProxy } from "unpdf";
-import { leggiElenco, type FonteElenco } from "../src/lib/fonti/elenco";
+import { leggiElenco, statoImport, type FonteElenco } from "../src/lib/fonti/elenco";
 import { estraiTestoHtml } from "../src/lib/fonti/estrai-html";
 import { pagineInBlocchi } from "../src/lib/fonti/estrai-pdf";
 import { dividiInFrammenti, type Frammento } from "../src/lib/fonti/frammenti";
@@ -27,6 +30,7 @@ type Opzioni = { solo: string | null; prova: boolean; aiuto: boolean };
 type Esito =
   | { id: string; stato: "importata"; frammenti: number; caratteri: number; avviso?: string }
   | { id: string; stato: "disattivata" }
+  | { id: string; stato: "da_ricontrollare" }
   | { id: string; stato: "errore"; motivo: string };
 type Scaricato = { urlFinale: string; pdf: boolean; dati: ArrayBuffer; charset: string | null };
 
@@ -121,10 +125,18 @@ async function salvaFonte(supabase: SupabaseClient, fonte: FonteElenco, framment
   }
 }
 
+const MESSAGGIO_DA_RICONTROLLARE = "non ancora ricontrollata a mano: metti il tuo nome in verificato_da";
+
 async function importaFonte(fonte: FonteElenco, supabase: SupabaseClient | null, prova: boolean): Promise<Esito> {
-  if (!fonte.attiva) {
+  const stato = statoImport(fonte);
+  if (stato === "disattivata") {
     if (supabase) await salvaFonte(supabase, fonte, null);
     return { id: fonte.id, stato: "disattivata" };
+  }
+  // Con --prova la si scarica comunque, così si possono controllare i frammenti prima di firmarla.
+  if (stato === "da_ricontrollare" && !prova) {
+    if (supabase) await salvaFonte(supabase, { ...fonte, attiva: false }, null);
+    return { id: fonte.id, stato: "da_ricontrollare" };
   }
   const scaricato = await scarica(fonte.url);
   const frammenti = await estraiFrammenti(scaricato);
@@ -143,10 +155,13 @@ async function importaFonte(fonte: FonteElenco, supabase: SupabaseClient | null,
   } else if (supabase) {
     await salvaFonte(supabase, fonte, frammenti);
   }
-  const avviso =
+  const avvisi = [
     scaricato.urlFinale !== fonte.url
       ? `reindirizzata a ${scaricato.urlFinale}: valuta di aggiornare l'URL in elenco.json`
-      : undefined;
+      : null,
+    stato === "da_ricontrollare" ? `${MESSAGGIO_DA_RICONTROLLARE} (finché non lo fai, l'import la tiene fuori dalla chat)` : null,
+  ].filter((a) => a !== null);
+  const avviso = avvisi.length ? avvisi.join("\n    ! ") : undefined;
   return { id: fonte.id, stato: "importata", frammenti: frammenti.length, caratteri, avviso };
 }
 
@@ -218,7 +233,13 @@ async function main() {
     try {
       const esito = await importaFonte(fonte, supabase, opzioni.prova);
       esiti.push(esito);
-      console.log(esito.stato === "importata" ? `ok, ${esito.frammenti} frammenti` : "disattivata");
+      console.log(
+        esito.stato === "importata"
+          ? `ok, ${esito.frammenti} frammenti`
+          : esito.stato === "disattivata"
+            ? "disattivata"
+            : "non ancora ricontrollata a mano",
+      );
     } catch (errore) {
       const motivo = descriviErrore(errore);
       esiti.push({ id: fonte.id, stato: "errore", motivo });
@@ -233,6 +254,8 @@ async function main() {
       if (esito.avviso) console.log(`    ! ${esito.avviso}`);
     } else if (esito.stato === "disattivata") {
       console.log(`  – ${esito.id}: disattivata (attiva = false), non scaricata`);
+    } else if (esito.stato === "da_ricontrollare") {
+      console.log(`  – ${esito.id}: ${MESSAGGIO_DA_RICONTROLLARE} (salvata con attiva = false, non scaricata)`);
     } else {
       console.log(`  ✗ ${esito.id}: ${esito.motivo}`);
     }

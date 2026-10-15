@@ -21,6 +21,10 @@ Come funziona, in breve:
 > `"verificato_da": "import automatico - da ricontrollare a mano"`.
 > **Prima della beta vanno aperte e ricontrollate una per una** (vedi
 > "Controllo mensile"), poi si mette il proprio nome in `verificato_da`.
+> Finché `verificato_da` comincia con "import automatico", `npm run
+> fonti:importa` salva la fonte con `attiva = false` e senza scaricarla:
+> la chat non la usa e il riepilogo la segna come "non ancora ricontrollata
+> a mano".
 >
 > Revisione del 15.10.2026: `pmi-ditta-individuale-lanciarsi` è disattivata
 > (`"attiva": false`) perché dice che si chiede prima lo statuto alla Suva e
@@ -68,7 +72,7 @@ Aggiungi una voce in `supabase/fonti/elenco.json`:
 | `cantone` | `TI`, `GR` oppure `null` per le fonti federali. |
 | `argomenti` | Parole chiave libere, utili per orientarsi. |
 | `verificato_il` | Data (AAAA-MM-GG) in cui **tu** hai aperto e letto la pagina. La chat la mostra accanto a ogni fonte. |
-| `verificato_da` | Chi l'ha controllata. |
+| `verificato_da` | Nome di chi l'ha controllata. Con il segnaposto "import automatico - da ricontrollare a mano" la fonte resta fuori dalla chat. |
 | `attiva` | Facoltativo. `false` toglie la fonte dalla chat senza cancellarla. |
 
 Poi prova l'estrazione senza toccare il database:
@@ -78,7 +82,9 @@ npm run fonti:importa -- --prova --solo ti-rc-iscrizione-ditta-individuale
 ```
 
 Guarda i frammenti stampati: devono contenere il testo della pagina, non menu
-o banner. Se va bene, importa davvero (sezione seguente).
+o banner. La prova funziona anche con il segnaposto in `verificato_da`, così
+puoi controllare i frammenti prima di firmare la fonte con il tuo nome. Se va
+bene, importa davvero (sezione seguente).
 
 ## Eseguire l'import
 
@@ -98,7 +104,8 @@ npm run fonti:importa -- --solo <id>          # una fonte sola
 npm run fonti:importa -- --prova              # solo scarica e divide, senza database
 ```
 
-Per ogni fonte lo script:
+Per ogni fonte lo script (le fonti con `"attiva": false` o con il segnaposto in
+`verificato_da` le salva solo con `attiva = false`, senza scaricarle):
 
 1. scarica la pagina (con un User-Agent riconoscibile, seguendo i
    reindirizzamenti, al massimo 30 secondi);
