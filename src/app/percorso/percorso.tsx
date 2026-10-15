@@ -380,7 +380,11 @@ function ConfermaSalvataggio({
         {sostituisce ? " Le risposte salvate prima nell'account verranno sostituite." : ""}
       </p>
       <p className="mt-2 text-sm text-muted">
-        Se non riconosci questo indirizzo email, scegli «No» ed esci dall&apos;account.
+        Se non riconosci questo indirizzo email, scegli «No» ed{" "}
+        <Link href="/account" className={classeLink}>
+          esci dall&apos;account
+        </Link>
+        .
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
         <button type="button" onClick={onSalva} disabled={inCorso} className={`${classePulsantePrincipale} text-sm`}>
