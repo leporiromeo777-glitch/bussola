@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FASI, PASSI, type IdPasso } from "@/data/passi";
-import { fonti, fontiPercorso } from "@/data/svizzera";
+import { avsIndipendenti, chf, fonti, fontiPercorso } from "@/data/svizzera";
 import { avanzamento, calcolaPercorso, prossimoPasso, VERSIONE_REGOLE, type Percorso, type StatoPasso } from "./regole";
 import { VERSIONE_RISPOSTE, type Risposte } from "./risposte";
 
@@ -212,6 +212,17 @@ describe("regole: AVS", () => {
     expect(testo).toContain("CHF 2'500");
     expect(testo).toContain("5,371%");
     expect(testoCompleto(calcolaPercorso(risposte()), "riconoscimento-avs")).not.toContain("CHF 2'500");
+  });
+
+  it("tasso più basso solo sotto il limite inferiore della tavola scalare (Promemoria 2.02, punto 6)", () => {
+    for (const impiego of ["parziale", "pieno"] as const) {
+      const note = passo(calcolaPercorso(risposte({ impiego })), "riconoscimento-avs").note;
+      const nota = note.find((n) => n.includes("5,371%"));
+      expect(nota).toContain(`inferiore a ${chf(avsIndipendenti[2026].valore.limiteInferioreScala)}`);
+      expect(nota).toContain(`${chf(avsIndipendenti[2027].valore.limiteInferioreScala)} dal 2027`);
+      expect(nota).toContain("CHF 10'100");
+      expect(nota).toMatch(/Sopra questo limite vale la tavola scalare/);
+    }
   });
 
   it("già avviata da più di 3 mesi: avviso di presentare subito la domanda", () => {
