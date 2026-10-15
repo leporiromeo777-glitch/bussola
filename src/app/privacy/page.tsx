@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Avviso, PaginaLegale } from "@/components/landing/pagina-legale";
 import { DatiTitolare, EmailTitolare } from "@/components/landing/titolare";
+import { SCAMBI_PRECEDENTI_MASSIMI } from "@/lib/chat/limiti";
 import { sito } from "@/lib/sito";
 
 export const metadata: Metadata = {
@@ -214,8 +215,9 @@ export default function PaginaPrivacy() {
             <strong>Hosting del sito</strong>: {hosting}.
           </li>
           <li>
-            <strong>Anthropic, PBC (USA)</strong>: genera le risposte della chat. Riceve solo la tua domanda e i testi
-            delle fonti pubbliche trovate per rispondere, non la tua email né altri dati dell&apos;account.
+            <strong>Anthropic, PBC (USA)</strong>: genera le risposte della chat. Riceve la tua domanda, al massimo
+            le {SCAMBI_PRECEDENTI_MASSIMI} domande e risposte precedenti della stessa conversazione e i testi delle
+            fonti pubbliche trovate per rispondere; non riceve la tua email né altri dati dell&apos;account.
           </li>
           <li>
             <strong>Resend (USA)</strong>: invia le email della lista d&apos;attesa (conferma e aggiornamenti).
