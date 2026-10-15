@@ -259,3 +259,314 @@ export function dataSvizzera(iso: string): string {
   const [a, m, g] = iso.slice(0, 10).split("-");
   return `${g}.${m}.${a}`;
 }
+
+// ---------------------------------------------------------------------------
+// Percorso guidato (questionario e checklist): fonti, dati e uffici in più.
+// Ricerca del 15.10.2026; Zefix, uffici RC ed EasyGov ricontrollati online
+// lo stesso giorno.
+// ---------------------------------------------------------------------------
+
+const LT_TICINO = "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/580";
+const OIVA = "https://www.fedlex.admin.ch/eli/cc/2009/828/it";
+const LAVS = "https://www.fedlex.admin.ch/eli/cc/63/837_843_843/it";
+const OAVS = "https://www.fedlex.admin.ch/eli/cc/63/1185_1183_1185/it";
+const LAMAL = "https://www.fedlex.admin.ch/eli/cc/1995/1328_1328_1328/it";
+const PMI = "Portale PMI (SECO)";
+const FEDLEX = "Confederazione (Fedlex)";
+const IAS = "Istituto delle assicurazioni sociali (IAS), Ticino";
+const DC = "Cantone Ticino, Divisione delle contribuzioni";
+const RACCOLTA_TI = "Cantone Ticino, Raccolta delle leggi";
+
+export const fontiPercorso = {
+  // Forma giuridica, nome e registro di commercio
+  co777: { titolo: "Codice delle obbligazioni, art. 777", url: `${CO}#art_777`, ente: FEDLEX },
+  co777c: { titolo: "Codice delle obbligazioni, art. 777c", url: `${CO}#art_777_c`, ente: FEDLEX },
+  co950: { titolo: "Codice delle obbligazioni, art. 950", url: `${CO}#art_950`, ente: FEDLEX },
+  co954a: { titolo: "Codice delle obbligazioni, art. 954a", url: `${CO}#art_954_a`, ente: FEDLEX },
+  zefix: {
+    titolo: "Zefix: ricerca della ditta (Indice centrale delle ditte)",
+    url: "https://www.zefix.admin.ch/it/search/entity/welcome",
+    ente: "Ufficio federale del registro di commercio (UFRC)",
+  },
+  zefixUffici: {
+    titolo: "Uffici del registro di commercio svizzeri",
+    url: "https://www.zefix.admin.ch/it/hra",
+    ente: "Ufficio federale del registro di commercio (UFRC)",
+  },
+  easygovDittaIndividuale: {
+    titolo: "Costituire una ditta individuale con EasyGov",
+    url: "https://ditta-individuale.easygov.swiss/",
+    ente: "EasyGov (SECO)",
+  },
+  pmiEasyGov: {
+    titolo: "EasyGov riduce l'onere amministrativo delle imprese",
+    url: "https://www.kmu.admin.ch/it/easygov-riduce-lonere-amministrativo-delle-imprese",
+    ente: PMI,
+  },
+  rcTicinoTasseCantonali: {
+    titolo: "Registro di commercio: tasse cantonali",
+    url: "https://www4.ti.ch/di/dg/rf/sportello/tasse-cantonali",
+    ente: "Cantone Ticino, Ufficio del registro di commercio",
+  },
+  pmiMettersiInProprio: {
+    titolo: "Mettersi in proprio: istruzioni",
+    url: "https://www.kmu.admin.ch/it/mettersi-in-proprio-istruzioni",
+    ente: PMI,
+  },
+  pmiDittaIndividualeLanciarsi: {
+    titolo: "Ditta individuale: per lanciarsi da soli",
+    url: "https://www.kmu.admin.ch/it/ditta-individuale-per-lanciarsi-da-soli",
+    ente: PMI,
+  },
+  pmiSagl: {
+    titolo: "Forma giuridica: la società a garanzia limitata (Sagl)",
+    url: "https://www.kmu.admin.ch/it/forma-giuridica-societa-a-garanzia-limitata-sagl",
+    ente: PMI,
+  },
+
+  // Autorizzazioni e permessi
+  sefriProfessioniRegolamentate: {
+    titolo: "Note informative sulle professioni regolamentate",
+    url: "https://www.sbfi.admin.ch/it/note-informative-professioni-regolamentate",
+    ente: "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+  },
+  poliziaAutorizzazioni: {
+    titolo: "Polizia cantonale: servizi online e autorizzazioni",
+    url: "https://www4.ti.ch/index.php?id=117316",
+    ente: "Polizia cantonale ticinese",
+  },
+  lear: {
+    titolo: "Legge sugli esercizi alberghieri e sulla ristorazione (LEAR), art. 5",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/792",
+    ente: RACCOLTA_TI,
+  },
+  lan: {
+    titolo: "Legge sull'apertura dei negozi (LAN)",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/688",
+    ente: RACCOLTA_TI,
+  },
+  sanitaLiberoEsercizio: {
+    titolo: "Procedure per le autorizzazioni di libero esercizio",
+    url: "https://www4.ti.ch/dss/dsp/us/sportello/procedure-per-le-autorizzazioni-di-libero-esercizio",
+    ente: "Cantone Ticino, Ufficio di sanità",
+  },
+  umIndipendentiUeAels: {
+    titolo: "Avvertenze per cittadini UE/AELS indipendenti",
+    url: "https://www4.ti.ch/fileadmin/DI/DI_DI/SEZPOP/documentazione/avvertenze/2017/G_Avvertenze_Cittadini_UE-AELS_indipendenti.pdf",
+    ente: "Cantone Ticino, Ufficio della migrazione",
+  },
+
+  // AVS e assicurazioni
+  avsCosaSuccedeOra: {
+    titolo: "Cosa succede ora? (dopo la domanda di riconoscimento)",
+    url: "https://selbststaendig-erwerbend.ch/it/cosa-succede-ora",
+    ente: "Casse di compensazione AVS",
+  },
+  iasAffiliazione: {
+    titolo: "Affiliazione alla cassa di compensazione competente",
+    url: "https://www4.ti.ch/dss/ias/prestazioni-e-contributi/scheda/p/s/dettaglio/obbligo-contributivo-nelle-assicurazioni-sociali/affiliazione-alla-cassa-di-compensazione-competente-per-la-riscossione-dei-contributi",
+    ente: IAS,
+  },
+  iasAcconti: {
+    titolo: "Contributi personali d'acconto e obbligo di segnalare le variazioni",
+    url: "https://www4.ti.ch/dss/ias/prestazioni-e-contributi/scheda/p/s/dettaglio/contributi-personali-dacconto-e-obbligo-di-segnalare-variazioni-delle-basi-di-calcolo",
+    ente: IAS,
+  },
+  dlAvsTicino: {
+    titolo: "Legge di applicazione della LAVS (cassa cantonale e agenzie comunali), RL 851.100",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/359",
+    ente: RACCOLTA_TI,
+  },
+  lavs64: { titolo: "Legge sull'AVS (LAVS), art. 64", url: `${LAVS}#art_64`, ente: FEDLEX },
+  oavs41bis: { titolo: "Ordinanza sull'AVS (OAVS), art. 41bis", url: `${OAVS}#art_41_bis`, ente: FEDLEX },
+  oavs42: { titolo: "Ordinanza sull'AVS (OAVS), art. 42", url: `${OAVS}#art_42`, ente: FEDLEX },
+  pmiAssicurazioniSociali: {
+    titolo: "Il funzionamento delle assicurazioni sociali",
+    url: "https://www.kmu.admin.ch/it/il-funzionamento-delle-assicurazioni-sociali",
+    ente: PMI,
+  },
+  lainf4: {
+    titolo: "Legge sull'assicurazione contro gli infortuni (LAINF), art. 4",
+    url: "https://www.fedlex.admin.ch/eli/cc/1982/1676_1676_1676/it#art_4",
+    ente: FEDLEX,
+  },
+  lamal1a: { titolo: "Legge sull'assicurazione malattie (LAMal), art. 1a", url: `${LAMAL}#art_1_a`, ente: FEDLEX },
+  lamal8: { titolo: "Legge sull'assicurazione malattie (LAMal), art. 8", url: `${LAMAL}#art_8`, ente: FEDLEX },
+  lamal67: { titolo: "Legge sull'assicurazione malattie (LAMal), art. 67", url: `${LAMAL}#art_67`, ente: FEDLEX },
+  suvaImprenditori: {
+    titolo: "Assicurazione per imprenditori (lavoratori indipendenti)",
+    url: "https://www.suva.ch/it-ch/assicurazione/assicurazione-contro-gli-infortuni/assicurazione-per-imprenditori-per-lavoratori-indipendenti",
+    ente: "Suva",
+  },
+  pmiInfortuni: {
+    titolo: "Assicurazione contro gli infortuni professionali e non professionali",
+    url: "https://www.kmu.admin.ch/it/assicurazione-contro-gli-infortuni-professionali-e-assicurazione-contro-gli-infortuni-non-professionali",
+    ente: PMI,
+  },
+  pmiIndennitaGiornaliera: {
+    titolo: "Assicurazione d'indennità giornaliera per malattia",
+    url: "https://www.kmu.admin.ch/it/assicurazione-di-indennita-giornaliera-per-malattiaassicurazione-in-caso-di-incapacita-di-guadagno-risp-di-perdita-di-guadagno",
+    ente: PMI,
+  },
+  pmiDisoccupazione: {
+    titolo: "Assicurazione contro la disoccupazione (AD)",
+    url: "https://www.kmu.admin.ch/it/assicurazione-contro-la-disoccupazione-ad",
+    ente: PMI,
+  },
+  lpp4: {
+    titolo: "Legge sulla previdenza professionale (LPP), art. 4",
+    url: "https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/it#art_4",
+    ente: FEDLEX,
+  },
+
+  // IVA e fatture
+  liva11: { titolo: "Legge sull'IVA, art. 11", url: `${LIVA}#art_11`, ente: FEDLEX },
+  liva26: { titolo: "Legge sull'IVA, art. 26", url: `${LIVA}#art_26`, ente: FEDLEX },
+  oiva78: { titolo: "Ordinanza sull'IVA (OIVA), art. 78", url: `${OIVA}#art_78`, ente: FEDLEX },
+  oiva76a: { titolo: "Ordinanza sull'IVA (OIVA), art. 76a", url: `${OIVA}#art_76_a`, ente: FEDLEX },
+  afcIdi: {
+    titolo: "Numero d'identificazione delle imprese (IDI)",
+    url: "https://www.estv.admin.ch/it/numero-identificazione-delle-imprese-idi",
+    ente: "Amministrazione federale delle contribuzioni (AFC)",
+  },
+  lcsl3: {
+    titolo: "Legge contro la concorrenza sleale (LCSl), art. 3",
+    url: "https://www.fedlex.admin.ch/eli/cc/1988/223_223_223/it#art_3",
+    ente: FEDLEX,
+  },
+
+  // Imposte e contabilità
+  pmiImposteDitta: {
+    titolo: "La non imposizione fiscale di alcune società",
+    url: "https://www.kmu.admin.ch/it/la-non-imposizione-fiscale-di-alcune-societa",
+    ente: PMI,
+  },
+  lifd125: {
+    titolo: "Legge sull'imposta federale diretta (LIFD), art. 125",
+    url: "https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/it#art_125",
+    ente: FEDLEX,
+  },
+  leggeTributariaTicino: { titolo: "Legge tributaria del Cantone Ticino (LT)", url: LT_TICINO, ente: RACCOLTA_TI },
+  istruzioniPf2025: {
+    titolo: "Istruzioni per la dichiarazione d'imposta delle persone fisiche 2025",
+    url: "https://www4.ti.ch/fileadmin/DFE/DC/DOC-IPF/2025/Istruzioni/Istruzioni_PF_2025.pdf",
+    ente: DC,
+  },
+  modulo10: {
+    titolo: "Modulo 10: questionario per indipendenti senza contabilità (2025)",
+    url: "https://www4.ti.ch/fileadmin/DFE/DC/DOC-IPF/2025/Moduli_principali/PF_VS_0608-2025_Mod10_A4.pdf",
+    ente: DC,
+  },
+  dcModuliPf: {
+    titolo: "Moduli della dichiarazione d'imposta delle persone fisiche",
+    url: "https://www4.ti.ch/dfe/dc/dichiarazione/moduli/moduli-pf-attuale",
+    ente: DC,
+  },
+  dcEtax: {
+    titolo: "Dichiarazione elettronica (eTax PF)",
+    url: "https://www4.ti.ch/dfe/dc/dichiarazione/dichiarazione-elettronica",
+    ente: DC,
+  },
+  dcRichiestaAcconto: {
+    titolo: "Acconti e rateazioni: richiesta d'acconto",
+    url: "https://www4.ti.ch/dfe/dc/pagamenti/acconti-e-rateazioni/richiesta-acconto",
+    ente: DC,
+  },
+  dcAccontoCantonale: {
+    titolo: "Richiesta d'acconto dell'imposta cantonale",
+    url: "https://www4.ti.ch/dfe/dc/pagamenti/richiesta-acconto-imposta-cantonale",
+    ente: DC,
+  },
+  decretoRiscossione2026: {
+    titolo: "Decreto esecutivo sulla riscossione e sugli interessi 2026",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/861",
+    ente: RACCOLTA_TI,
+  },
+  dcIfdProvvisorio: {
+    titolo: "Calcolo provvisorio dell'imposta federale diretta",
+    url: "https://www4.ti.ch/dfe/dc/pagamenti/calcolo-provvisorio-imposta-federale-diretta",
+    ente: DC,
+  },
+
+  // Dove chiedere aiuto
+  fondounimpresa: {
+    titolo: "Fondounimpresa: accompagnamento alla microimprenditorialità",
+    url: "https://www.ifc.ti.ch/consulenze/fondounimpresa/accompagnamento/accompagnamento-alla-microimprenditorialita",
+    ente: "Istituto della formazione continua (IFC), Ticino",
+  },
+  fondounimpresaBreve: {
+    titolo: "Fondounimpresa: accompagnamento breve",
+    url: "https://www.ifc.ti.ch/consulenze/fondounimpresa/accompagnamento/accompagnamento-breve",
+    ente: "Istituto della formazione continua (IFC), Ticino",
+  },
+  portaleImpresaServizi: {
+    titolo: "Portale impresa: panoramica dei servizi",
+    url: "https://www4.ti.ch/dfe/de/portale-impresa/portale-impresa/guida-ai-servizi/panoramica-dei-servizi",
+    ente: "Cantone Ticino, Divisione dell'economia",
+  },
+  autoritaFiduciari: {
+    titolo: "Autorità di vigilanza sull'esercizio delle professioni di fiduciario",
+    url: "https://www4.ti.ch/di/dg/fiduciari/ufficio",
+    ente: "Cantone Ticino",
+  },
+} as const satisfies Record<string, Fonte>;
+
+/** Regole e importi usati dal percorso guidato. */
+export const regolePercorso = {
+  mesiPerIvaDaSubito: dato(12, fonti.liva14, "Se all'avvio è presumibile superare la soglia IVA entro 12 mesi, si è assoggettati da subito."),
+  termineMetodoIvaGiorni: dato(60, fontiPercorso.oiva78, "Giorni dalla comunicazione del numero IVA per chiedere l'aliquota saldo (art. 78 OIVA) o il rendiconto annuale (art. 76a OIVA)."),
+  attivitaAccessoriaAvs: dato(2_500, fonti.avsPromemoria202, "Reddito annuo da attività indipendente accessoria fino al quale i contributi si pagano solo su richiesta."),
+  accontiAvs: dato(
+    { giorno: 10, mesi: [1, 4, 7, 10] },
+    fonti.avsPromemoria202,
+    "Acconti trimestrali entro il 10° giorno dalla fine di ogni trimestre.",
+  ),
+  sogliaAccontiAvs: dato(0.75, fontiPercorso.oavs41bis, "Se gli acconti sono inferiori al 75% dei contributi definitivi, gli interessi di mora decorrono dal 1° gennaio del secondo anno dopo l'anno di contribuzione."),
+  interesseMoraAvs: dato(0.05, fontiPercorso.oavs42),
+  variazioneRedditoIas: dato(0.25, fontiPercorso.iasAcconti, "Variazione del reddito, in più o in meno, da segnalare alla cassa."),
+  termineConguaglioAvsGiorni: dato(30, fonti.avsPromemoria202),
+  conservazioneDocumentiAnni: dato(10, fonti.co958f),
+  autenticazioneFirmaRcTicino: dato(20, fontiPercorso.rcTicinoTasseCantonali, "Allo sportello dell'Ufficio RC; dal notaio al massimo CHF 30."),
+  ifdRataUnicaTicino: dato({ giorno: 31, mese: 3 }, fontiPercorso.dcIfdProvvisorio, "Termine di pagamento della rata unica del calcolo provvisorio IFD."),
+  /** Termini di pagamento degli acconti dell'imposta cantonale, per anno. Il decreto 2027 esce di solito a novembre. */
+  accontiCantonaliTicino: {
+    2026: dato(
+      ["2026-05-31", "2026-07-31", "2026-09-30"],
+      fontiPercorso.dcAccontoCantonale,
+      "Scadenze 1.5, 1.7 e 1.9; si paga entro 30 giorni (decreto esecutivo del 19.11.2025).",
+    ),
+  } as Partial<Record<number, Dato<string[]>>>,
+  termineDichiarazioneTicino2025: dato("2026-04-30", fontiPercorso.istruzioniPf2025, "Il termine vale per la dichiarazione 2025; quello della dichiarazione 2026 non è ancora pubblicato."),
+  fondounimpresa: dato(
+    { oreMassime: 15, anniMassimi: 2 },
+    fontiPercorso.fondounimpresa,
+    "Per cittadini svizzeri o stranieri con permesso B o C residenti in Ticino o nella Regione Moesa. Non comprende contabilità, corrispondenza e dichiarazione d'imposta. Il costo non è indicato.",
+  ),
+} as const;
+
+/** Uffici e servizi citati nel percorso guidato. */
+export const ufficiPercorso = {
+  esazioneCondoniTicino: dato(
+    {
+      nome: "Ufficio esazione e condoni",
+      indirizzo: "Viale S. Franscini 6, Bellinzona",
+      telefono: "+41 91 814 40 21",
+      email: "dfe-dc.uec@ti.ch",
+    },
+    fontiPercorso.dcRichiestaAcconto,
+  ),
+  iasContributiPersonali: dato(
+    {
+      nome: "IAS, Servizio contributi personali",
+      email: "personali@ias.ti.ch",
+      telefono: "+41 91 821 92 04",
+      telefonoAffiliazioni: "+41 91 821 92 88",
+    },
+    fontiPercorso.iasAcconti,
+  ),
+  fondounimpresa: dato(
+    { nome: "Fondounimpresa", luogo: "Camorino", telefono: "+41 91 814 16 71", email: "fondounimpresa@edu.ti.ch" },
+    fontiPercorso.portaleImpresaServizi,
+    "Indirizzo da confermare: il Portale impresa indica Ala Munda 35, il sito IFC Ala Munda 41.",
+  ),
+} as const;

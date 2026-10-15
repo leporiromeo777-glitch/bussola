@@ -4,6 +4,7 @@ import { sito } from "@/lib/sito";
 const PAGINE: { percorso: string; frequenza: "weekly" | "monthly" | "yearly"; priorita: number }[] = [
   { percorso: "/", frequenza: "weekly", priorita: 1 },
   { percorso: "/questionario", frequenza: "monthly", priorita: 0.8 },
+  { percorso: "/percorso", frequenza: "monthly", priorita: 0.6 },
   { percorso: "/chat", frequenza: "monthly", priorita: 0.7 },
   { percorso: "/strumenti", frequenza: "monthly", priorita: 0.7 },
   { percorso: "/privacy", frequenza: "yearly", priorita: 0.3 },
