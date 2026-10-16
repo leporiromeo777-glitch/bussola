@@ -377,3 +377,38 @@ describe("pulizia dei dati scaduti (pulisci_dati e pg_cron)", () => {
     await expect(come("anon", "", () => db.exec("select public.pulisci_dati()"))).rejects.toThrow(/permission denied/);
   });
 });
+
+describe("eliminazione dell'account (src/lib/account/eliminazione.ts)", () => {
+  const ELIMINATO = "66666666-6666-6666-6666-666666666666";
+
+  it("ogni tabella che punta ad auth.users si svuota con l'utente (on delete cascade)", async () => {
+    const r = await db.query<{ tabella: string; cancellazione: string }>(`
+      select c.conrelid::regclass::text as tabella, c.confdeltype as cancellazione
+        from pg_constraint c
+       where c.contype = 'f' and c.confrelid = 'auth.users'::regclass
+       order by 1`);
+    expect(r.rows.map((x) => x.tabella)).toEqual(["domande_chat", "passi_completati", "profili", "questionari"]);
+    // 'c' = cascade: eliminaAccount cancella solo l'utente da Supabase Auth.
+    expect(r.rows.every((x) => x.cancellazione === "c")).toBe(true);
+  });
+
+  it("cancellando l'utente da auth.users non resta nessuna sua riga", async () => {
+    await db.exec(`insert into auth.users (id, email) values ('${ELIMINATO}', 'eliminato@example.ch')`);
+    await db.query("insert into public.questionari (user_id, risposte, versione_regole) values ($1, '{}', 'prova')", [
+      ELIMINATO,
+    ]);
+    await db.query("insert into public.passi_completati (user_id, passo_id) values ($1, $2)", [ELIMINATO, ID_PASSI[0]]);
+    await db.query("insert into public.domande_chat (user_id, domanda) values ($1, 'Devo iscrivermi all''IVA?')", [
+      ELIMINATO,
+    ]);
+    await db.query("delete from auth.users where id = $1", [ELIMINATO]);
+    const r = await db.query<{ righe: number }>(
+      `select (select count(*) from public.profili where id = $1)
+            + (select count(*) from public.questionari where user_id = $1)
+            + (select count(*) from public.passi_completati where user_id = $1)
+            + (select count(*) from public.domande_chat where user_id = $1) as righe`,
+      [ELIMINATO],
+    );
+    expect(Number(r.rows[0]?.righe)).toBe(0);
+  });
+});

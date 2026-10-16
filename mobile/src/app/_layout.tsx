@@ -1,0 +1,35 @@
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "react-native";
+import { configuraNotifiche } from "~/lib/notifiche";
+import { useColori } from "~/lib/tema";
+
+configuraNotifiche();
+
+export default function Radice() {
+  const c = useColori();
+  const scuro = useColorScheme() === "dark";
+  return (
+    <>
+      <StatusBar style={scuro ? "light" : "dark"} />
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: c.sfondo },
+          headerTintColor: c.marchio,
+          headerTitleStyle: { color: c.testo, fontWeight: "600" },
+          headerShadowVisible: false,
+          headerBackButtonDisplayMode: "minimal",
+          contentStyle: { backgroundColor: c.sfondo },
+        }}
+      >
+        <Stack.Screen name="(schede)" options={{ headerShown: false }} />
+        <Stack.Screen name="questionario" options={{ title: "Questionario", presentation: "fullScreenModal" }} />
+        <Stack.Screen name="passo/[id]" options={{ title: "" }} />
+        <Stack.Screen name="strumenti/tariffa" options={{ title: "Tariffa oraria" }} />
+        <Stack.Screen name="strumenti/contributi" options={{ title: "Contributi AVS" }} />
+        <Stack.Screen name="accedi" options={{ title: "Accedi", presentation: "modal" }} />
+        <Stack.Screen name="guardaroba" options={{ title: "Vesti Bleo" }} />
+      </Stack>
+    </>
+  );
+}

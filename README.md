@@ -93,6 +93,17 @@ npm run build
      iscrizioni alla lista d'attesa (`LIMITI_RICHIESTE` in
      `src/lib/limiti/richieste.ts`, tabella `limiti_richieste` con
      un'impronta dell'IP, mai l'IP in chiaro). Serve `SUPABASE_SECRET_KEY`.
+7. App per telefono (`mobile/`): accede con il **codice a 6 cifre** ricevuto
+   per email (`signInWithOtp` + `verifyOtp` di supabase-js). Nel template
+   "Magic Link" aggiungi quindi anche il codice `{{ .Token }}`, **lasciando il
+   link** com'è (il sito continua a usare il link), per esempio
+   `<p>Oppure scrivi questo codice nell'app: <strong>{{ .Token }}</strong></p>`.
+   L'app chiama le API del sito (`POST /api/chat`, `GET /api/quota`,
+   `DELETE /api/account`) mandando l'access token della sua sessione Supabase
+   in `Authorization: Bearer <access_token>` invece dei cookie; la RLS vale
+   come sul sito. `DELETE /api/account` (e "Elimina account" in `/account`)
+   cancella l'utente con `SUPABASE_SECRET_KEY`; i suoi dati si cancellano a
+   cascata.
 
 ### Fonti della chat
 
@@ -157,6 +168,12 @@ senza pagine dinamiche. Per le build automatiche a ogni push collega il
 repository in *Project configuration > Build & deploy > Continuous
 deployment*.
 
+## App per iPhone e Android
+
+In [`mobile/`](mobile/) c'è l'app Expo, con le stesse regole e gli stessi
+dati del sito. Come provarla e pubblicarla su App Store e Google Play:
+[`mobile/README.md`](mobile/README.md).
+
 ## Struttura
 
 ```
@@ -166,6 +183,7 @@ src/lib/            logica pura con i test accanto (*.test.ts)
 src/data/           dati ufficiali con fonte e data di controllo
 supabase/           migrazioni, test dello schema, elenco delle fonti
 scripts/            import delle fonti
+mobile/             app per iPhone e Android (Expo)
 docs/               piano, ricerca, kit settimane 1-2, guida alle fonti
 ```
 

@@ -42,6 +42,11 @@ ditta individuale, poi la Sagl). Il piano completo è in `docs/piano.md`.
 - Logica pura (regole del percorso, calcoli) in `src/lib/` con test Vitest
   accanto (`*.test.ts`).
 
+## App
+- `mobile/` è l'app Expo: riusa `src/lib` e `src/data`, che quindi devono
+  restare senza dipendenze dal browser o da Next.js. Regole in
+  `mobile/AGENTS.md`.
+
 ## Comandi
 - `npm run typecheck` (genera i tipi delle route e lancia tsc)
 - `npm test` (Vitest)

@@ -1,0 +1,140 @@
+import { router } from "expo-router";
+import { useState } from "react";
+import { Alert, View } from "react-native";
+import { MascotteSvg } from "~/components/mascotte-svg";
+import { NotaInformazione, Pulsante, RigaMenu, Schermata, Scheda, Separatore, Testo } from "~/components/ui";
+import { eliminaAccount } from "~/lib/api";
+import { apriSito } from "~/lib/apri";
+import { VERSIONE_APP } from "~/lib/config";
+import { cancellaPromemoria } from "~/lib/notifiche";
+import { useSessione } from "~/lib/sessione";
+import { cancellaDatiLocali, useVestito } from "~/lib/stato";
+import { supabase } from "~/lib/supabase";
+import { SPAZIO, useColori } from "~/lib/tema";
+
+export default function Profilo() {
+  const vestito = useVestito();
+  return (
+    <Schermata>
+      <Scheda style={{ alignItems: "center" }}>
+        <MascotteSvg vestito={vestito} larghezza={170} />
+        <Pulsante titolo="Vesti Bleo" variante="secondario" icona="shirt-outline" onPress={() => router.push("/guardaroba")} />
+      </Scheda>
+
+      <Account />
+
+      <Testo variante="sottotitolo">Informazioni</Testo>
+      <Scheda>
+        <RigaMenu titolo="Informativa sulla privacy" icona="lock-closed-outline" esterno onPress={() => void apriSito("/privacy")} />
+        <Separatore />
+        <RigaMenu titolo="Impressum" icona="business-outline" esterno onPress={() => void apriSito("/impressum")} />
+        <Separatore />
+        <RigaMenu
+          titolo="Cosa Bleo non è"
+          sottotitolo="Informazioni generali, non consulenza"
+          icona="information-circle-outline"
+          esterno
+          onPress={() => void apriSito("/#cosa-non-e")}
+        />
+      </Scheda>
+
+      <DatiSulTelefono />
+      <NotaInformazione />
+      <Testo variante="piccolo" attenuato style={{ textAlign: "center" }}>
+        Bleo (si dice «Blìo») · versione {VERSIONE_APP}
+      </Testo>
+    </Schermata>
+  );
+}
+
+function Account() {
+  const c = useColori();
+  const { pronta, sessione } = useSessione();
+  const [attesa, setAttesa] = useState(false);
+
+  if (!supabase()) {
+    return (
+      <Scheda>
+        <Testo variante="sottotitolo">Account</Testo>
+        <Testo attenuato>
+          In questa versione di prova non serve un account: tutto resta su questo telefono.
+        </Testo>
+      </Scheda>
+    );
+  }
+  if (!pronta) return null;
+
+  function confermaEliminazione() {
+    Alert.alert(
+      "Eliminare l'account?",
+      "Cancelliamo per sempre il tuo account con il questionario, i passi fatti e le domande alla chat. Non si può tornare indietro.",
+      [
+        { text: "Annulla", style: "cancel" },
+        {
+          text: "Sì, elimina tutto",
+          style: "destructive",
+          onPress: async () => {
+            setAttesa(true);
+            const esito = await eliminaAccount();
+            setAttesa(false);
+            Alert.alert(esito.ok ? "Account eliminato" : "Non è stato possibile", esito.ok ? "Il tuo account non esiste più." : esito.messaggio);
+          },
+        },
+      ],
+    );
+  }
+
+  return (
+    <Scheda>
+      <Testo variante="sottotitolo">Account</Testo>
+      {sessione ? (
+        <View style={{ gap: SPAZIO.m }}>
+          <Testo attenuato>Hai fatto l&apos;accesso come {sessione.user.email}.</Testo>
+          <Pulsante
+            titolo="Esci"
+            variante="secondario"
+            onPress={() => void supabase()?.auth.signOut({ scope: "local" })}
+          />
+          <Pulsante titolo="Elimina account" variante="testo" caricamento={attesa} onPress={confermaEliminazione} />
+          <Testo variante="piccolo" colore={c.attenuato}>
+            Eliminando l&apos;account cancelli i dati salvati su Bleo. I dati su questo telefono li cancelli qui sotto.
+          </Testo>
+        </View>
+      ) : (
+        <View style={{ gap: SPAZIO.m }}>
+          <Testo attenuato>Con l&apos;accesso puoi fare domande alla chat. Ti basta l&apos;email: niente password.</Testo>
+          <Pulsante titolo="Accedi" onPress={() => router.push("/accedi")} />
+        </View>
+      )}
+    </Scheda>
+  );
+}
+
+function DatiSulTelefono() {
+  function conferma() {
+    Alert.alert(
+      "Cancellare i dati da questo telefono?",
+      "Togliamo risposte al questionario, passi fatti, vestito di Bleo e promemoria. Il tuo account, se ce l'hai, resta.",
+      [
+        { text: "Annulla", style: "cancel" },
+        {
+          text: "Cancella",
+          style: "destructive",
+          onPress: async () => {
+            await cancellaPromemoria().catch(() => {});
+            cancellaDatiLocali();
+          },
+        },
+      ],
+    );
+  }
+  return (
+    <Scheda>
+      <Testo variante="sottotitolo">Dati su questo telefono</Testo>
+      <Testo attenuato>
+        Risposte, passi fatti e calcoli degli strumenti restano solo su questo telefono, finché non li cancelli.
+      </Testo>
+      <Pulsante titolo="Cancella i dati da questo telefono" variante="secondario" onPress={conferma} />
+    </Scheda>
+  );
+}

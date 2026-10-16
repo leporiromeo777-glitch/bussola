@@ -5,7 +5,7 @@ import { DOMANDE_GRATIS_AL_MESE, calcolaQuota, quotaPubblica } from "@/lib/chat/
 import { leggiRichiesta } from "@/lib/chat/richiesta";
 import { creaClientAnthropic, dipendenzeChat, leggiQuota, prenotaDomanda, registraErrore } from "@/lib/chat/server";
 import { supabaseConfigured } from "@/lib/supabase/env";
-import { createClient, getUser } from "@/lib/supabase/server";
+import { utenteDaRichiesta } from "@/lib/supabase/richiesta";
 
 // Le risposte arrivano in streaming; con il ragionamento di Claude possono servire decine di secondi.
 export const maxDuration = 60;
@@ -18,15 +18,20 @@ function json(status: number, corpo: Record<string, unknown>) {
  * POST /api/chat — { domanda, cronologia? } → NDJSON:
  *   {"t":"testo","d":"..."} mentre la risposta si scrive,
  *   poi {"t":"fine","risposta":[...],"fonti":[...]} oppure {"t":"errore","messaggio":"..."}.
+ * Accesso con la sessione del sito (cookie) oppure, dall'app, con
+ * `Authorization: Bearer <access_token>`: stesse risposte in entrambi i casi.
  */
 export async function POST(request: Request) {
   const anthropic = creaClientAnthropic();
   if (!supabaseConfigured() || !anthropic) return json(503, { messaggio: MESSAGGI.modalitaDemo });
 
-  const user = await getUser();
-  if (!user) return json(401, { messaggio: MESSAGGI.nonCollegato });
-  const supabase = await createClient();
-  if (!supabase) return json(503, { messaggio: MESSAGGI.modalitaDemo });
+  const utente = await utenteDaRichiesta(request);
+  if (!utente.ok) {
+    return utente.motivo === "non_configurato"
+      ? json(503, { messaggio: MESSAGGI.modalitaDemo })
+      : json(401, { messaggio: MESSAGGI.nonCollegato });
+  }
+  const { supabase, user } = utente;
 
   if (!request.headers.get("content-type")?.includes("application/json")) {
     return json(415, { messaggio: MESSAGGI.richiestaNonValida });

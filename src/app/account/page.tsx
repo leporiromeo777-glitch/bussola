@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient, getUser } from "@/lib/supabase/server";
+import { EliminaAccount } from "./elimina-account";
 import { PulsanteEsci } from "./pulsante-esci";
 
 export const metadata: Metadata = { title: "Il tuo account" };
@@ -24,6 +25,7 @@ export default async function PaginaAccount() {
         <dd className="capitalize">{profilo?.piano ?? "gratis"}</dd>
       </dl>
       <PulsanteEsci />
+      <EliminaAccount />
     </div>
   );
 }

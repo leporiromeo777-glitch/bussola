@@ -1,0 +1,62 @@
+{
+  "expo": {
+    "name": "Bleo",
+    "slug": "bleo",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "bleo",
+    "userInterfaceStyle": "automatic",
+    "description": "Bleo ti accompagna ad aprire la tua ditta individuale in Ticino e nel Grigioni italiano: percorso personale, scadenze e risposte con la fonte ufficiale.",
+    "ios": {
+      "bundleIdentifier": "ch.bleo.app",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "ch.bleo.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#E3F0F1",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-sqlite",
+      "expo-web-browser",
+      "expo-image",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "backgroundColor": "#FBFAF7",
+          "dark": { "image": "./assets/splash-icon.png", "backgroundColor": "#111417" }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#0F5E6B"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "sitoUrl": "https://bussola-ticino.netlify.app"
+    }
+  }
+}
