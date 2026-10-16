@@ -2,16 +2,18 @@ import { Sezione } from "./sezione";
 
 type Valore = "si" | "no" | "dipende";
 
-const COLONNE = ["Bleo", "Cercare da solo", "Chatbot generico", "Fiduciario"] as const;
+const COLONNE = ["Bleo", "Cercare da solo", "Chatbot generico"] as const;
 
-// Confronto onesto (come la tabella di tryholo.ai, ma senza nomi di altri
-// prodotti): anche dove Bleo non arriva, e cioè la consulenza personale.
-const RIGHE: { voce: string; valori: [Valore, Valore, Valore, Valore] }[] = [
-  { voce: "I passi nell'ordine giusto per la tua situazione", valori: ["si", "no", "dipende", "si"] },
-  { voce: "Il link alla fonte ufficiale per ogni informazione", valori: ["si", "dipende", "dipende", "dipende"] },
-  { voce: "Regole del Ticino e del Grigioni italiano", valori: ["si", "dipende", "dipende", "si"] },
-  { voce: "Ti dice quando non sa la risposta", valori: ["si", "no", "dipende", "si"] },
-  { voce: "Consulenza personale e dichiarazione d'imposta", valori: ["no", "no", "no", "si"] },
+// Confronto con quello che fa chi parte da solo (come la tabella di
+// tryholo.ai, ma senza nomi di altri prodotti). Il fiduciario non è un
+// concorrente: è a chi Bleo ti manda per i casi personali (vedi «Cosa Bleo
+// non è»), e il suo costo non ha una fonte ufficiale da citare.
+const RIGHE: { voce: string; valori: [Valore, Valore, Valore] }[] = [
+  { voce: "I passi nell'ordine giusto per la tua situazione", valori: ["si", "no", "dipende"] },
+  { voce: "Il link alla fonte ufficiale per ogni informazione", valori: ["si", "dipende", "dipende"] },
+  { voce: "Regole del Ticino e del Grigioni italiano", valori: ["si", "dipende", "dipende"] },
+  { voce: "Ti dice quando non sa la risposta", valori: ["si", "no", "dipende"] },
+  { voce: "Ti dice quando ti serve un fiduciario", valori: ["si", "no", "dipende"] },
 ];
 
 const TESTI: Record<Valore, string> = { si: "Sì", no: "No", dipende: "Dipende" };
@@ -41,13 +43,13 @@ export function Confronto() {
       titolo="Perché non basta cercare su internet"
       introduzione={
         <p>
-          Bleo non sostituisce il fiduciario: ti fa arrivare preparato e ti dice quando ti serve. Per tutto il resto ti
-          risparmia ore di ricerche.
+          Bleo ti risparmia ore di ricerche. E quando il tuo caso è particolare ti dice che è il momento di sentire un
+          fiduciario, così ci arrivi preparato.
         </p>
       }
     >
       <div className="relative overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
-        <table className="w-full min-w-[640px] text-left">
+        <table className="w-full min-w-[520px] text-left">
           <caption className="sr-only">Confronto tra Bleo e le alternative</caption>
           <thead>
             <tr className="border-b border-border">
@@ -83,7 +85,7 @@ export function Confronto() {
         </table>
       </div>
       <p className="mt-4 text-center text-sm text-muted">
-        «Dipende»: dal sito che trovi, dal chatbot che usi o da come lavora il fiduciario.
+        «Dipende»: dal sito che trovi o dal chatbot che usi.
       </p>
     </Sezione>
   );
