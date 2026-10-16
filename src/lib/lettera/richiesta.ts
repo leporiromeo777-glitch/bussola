@@ -28,8 +28,9 @@ export const PAGINE_MASSIME_PDF = 10;
 /** Dimensione massima del corpo JSON della richiesta, in caratteri. */
 export const CORPO_MASSIMO = 5_000_000;
 
-/** «3,5 MB» in formato svizzero. */
+/** «3,5 MB» in formato svizzero; sotto 1 MB in kB («320 kB»). */
 export function formatoMegabyte(byte: number): string {
+  if (byte < 1_000_000) return `${Math.max(1, Math.round(byte / 1_000))} kB`;
   const mb = Math.round((byte / 1_000_000) * 10) / 10;
   return `${String(mb).replace(".", ",")} MB`;
 }
@@ -41,6 +42,7 @@ export const MESSAGGI_LETTERA = {
   tipoNonValido: "Questo tipo di file non va bene: usa una foto (JPG, PNG o WebP) oppure un PDF.",
   fileNonCorrisponde: "Il file non sembra una foto o un PDF valido. Prova a scattare di nuovo la foto.",
   fileVuoto: "Il file è vuoto. Prova a scattare di nuovo la foto.",
+  fileGrande: "Il file è troppo pesante. Fotografa solo le pagine che ti servono.",
   immagineGrande: `La foto è troppo pesante: al massimo ${formatoMegabyte(PESO_MASSIMO_IMMAGINE)}.`,
   pdfGrande: `Il PDF è troppo pesante: al massimo ${formatoMegabyte(PESO_MASSIMO_PDF)}. Fotografa solo le pagine che ti servono.`,
   pdfLungo: `Il PDF ha troppe pagine: al massimo ${PAGINE_MASSIME_PDF}. Fotografa solo le pagine importanti.`,

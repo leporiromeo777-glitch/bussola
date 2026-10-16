@@ -159,7 +159,8 @@ type Ambiente = Record<string, string | undefined>;
  * - account: client Supabase (src/lib/supabase/env.ts);
  * - chat: Supabase e una chiave di Anthropic nostra (chiaveAnthropic, come
  *   la pagina /chat);
- * - racconto («Racconta a Bleo» nel questionario): chiave di Anthropic nostra e
+ * - racconto («Racconta a Bleo» nel questionario e gli strumenti con l'AI:
+ *   nome della ditta, testi pronti, lettere): chiave di Anthropic nostra e
  *   chiave segreta di Supabase (serve per il limite di richieste per IP);
  * - email: chiave Resend e mittente (src/lib/lista-attesa/resend.ts);
  * - protezione dei moduli: chiave segreta di Supabase (src/lib/limiti/server.ts);

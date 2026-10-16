@@ -300,6 +300,19 @@ export const fontiPercorso = {
   co777c: { titolo: "Codice delle obbligazioni, art. 777c", url: `${CO}#art_777_c`, ente: FEDLEX },
   co950: { titolo: "Codice delle obbligazioni, art. 950", url: `${CO}#art_950`, ente: FEDLEX },
   co954a: { titolo: "Codice delle obbligazioni, art. 954a", url: `${CO}#art_954_a`, ente: FEDLEX },
+  // Artt. 944 e 946 CO e pagine dell'IPI: testi ricontrollati il 16.10.2026 (strumento «Nome della ditta»).
+  co944: { titolo: "Codice delle obbligazioni, art. 944", url: `${CO}#art_944`, ente: FEDLEX },
+  co946: { titolo: "Codice delle obbligazioni, art. 946", url: `${CO}#art_946`, ente: FEDLEX },
+  ipiRicercaMarchi: {
+    titolo: "Marchi: prima di tutto la ricerca",
+    url: "https://www.ige.ch/it/proprieta-intellettuale/una-guida-per-creativi-e-innovatori/marchi/prima-di-tutto-la-ricerca",
+    ente: "Istituto federale della proprietà intellettuale (IPI)",
+  },
+  swissregMarchi: {
+    titolo: "Swissreg: ricerca dei marchi",
+    url: "https://www.swissreg.ch/database-client/search/query/trademarks/?lang=it",
+    ente: "Istituto federale della proprietà intellettuale (IPI)",
+  },
   zefix: {
     titolo: "Zefix: ricerca della ditta (Indice centrale delle ditte)",
     url: "https://www.zefix.admin.ch/it/search/entity/welcome",

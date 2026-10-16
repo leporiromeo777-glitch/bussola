@@ -119,3 +119,24 @@ export const IconaCroce = (p: Props) => (
     <path d="M6 6l12 12M18 6 6 18" />
   </Icona>
 );
+
+export const IconaFotocamera = (p: Props) => (
+  <Icona {...p}>
+    <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2h6l1.5 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z" />
+    <circle cx="12" cy="13" r="3.5" />
+  </Icona>
+);
+
+export const IconaPenna = (p: Props) => (
+  <Icona {...p}>
+    <path d="M15.5 4.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+    <path d="M13.5 6.5l3 3" />
+  </Icona>
+);
+
+export const IconaEtichetta = (p: Props) => (
+  <Icona {...p}>
+    <path d="M3.5 12.1V5a1.5 1.5 0 0 1 1.5-1.5h7.1a1.5 1.5 0 0 1 1.06.44l7.4 7.4a1.5 1.5 0 0 1 0 2.12l-7.1 7.1a1.5 1.5 0 0 1-2.12 0l-7.4-7.4a1.5 1.5 0 0 1-.44-1.06Z" />
+    <circle cx="8.5" cy="8.5" r="1.25" />
+  </Icona>
+);

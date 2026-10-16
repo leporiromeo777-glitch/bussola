@@ -1,14 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ComponentType } from "react";
-import { IconaCalendario, IconaDispositivo, IconaFattura, IconaFreccia, IconaOrologio, IconaPagina } from "@/components/strumenti/icone";
+import {
+  IconaCalendario,
+  IconaDispositivo,
+  IconaEtichetta,
+  IconaFattura,
+  IconaFotocamera,
+  IconaFreccia,
+  IconaOrologio,
+  IconaPagina,
+  IconaPenna,
+} from "@/components/strumenti/icone";
 import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import { NotaNonConsulenza } from "@/components/strumenti/intestazione";
 
 export const metadata: Metadata = {
   title: "Strumenti",
   description:
-    "Tariffa oraria, budget del primo anno, business plan di una pagina, preventivo e fattura con QR-fattura: strumenti da compilare per chi apre una ditta individuale in Ticino.",
+    "Tariffa oraria, budget del primo anno, business plan, preventivo e fattura con QR-fattura, nome della ditta, testi pronti e lettere spiegate: strumenti per chi apre una ditta individuale in Ticino.",
 };
 
 type Strumento = {
@@ -16,6 +26,8 @@ type Strumento = {
   testo: string;
   Icona: ComponentType<{ className?: string }>;
   link: { href: string; etichetta: string }[];
+  /** Usa l'intelligenza artificiale: quello che scrivi viene inviato per la risposta. */
+  ai?: true;
 };
 
 const STRUMENTI: Strumento[] = [
@@ -48,6 +60,30 @@ const STRUMENTI: Strumento[] = [
       { href: "/strumenti/fattura", etichetta: "Nuova fattura" },
     ],
   },
+  {
+    titolo: "Nome della ditta",
+    testo:
+      "Idee per il nome della tua ditta individuale con il tuo cognome, come vuole la legge, e un primo controllo dei nomi simili nel registro di commercio.",
+    Icona: IconaEtichetta,
+    link: [{ href: "/strumenti/nome", etichetta: "Trova un nome" }],
+    ai: true,
+  },
+  {
+    titolo: "Testi pronti",
+    testo:
+      "Bleo ti scrive la bio per Instagram, la prima email a un cliente, l'introduzione di un preventivo o la tua attività in breve.",
+    Icona: IconaPenna,
+    link: [{ href: "/strumenti/testi", etichetta: "Scrivi i testi" }],
+    ai: true,
+  },
+  {
+    titolo: "Fotografa la lettera",
+    testo:
+      "Hai ricevuto una lettera da un ufficio? Fotografala: Bleo ti spiega in parole semplici cos'è, cosa ti chiedono e entro quando.",
+    Icona: IconaFotocamera,
+    link: [{ href: "/strumenti/lettera", etichetta: "Fotografa una lettera" }],
+    ai: true,
+  },
 ];
 
 export default function PaginaStrumenti() {
@@ -72,17 +108,23 @@ export default function PaginaStrumenti() {
         <span>
           <strong className="font-semibold">I tuoi dati restano su questo dispositivo.</strong> Gli strumenti salvano
           quello che scrivi solo nel tuo browser: Bleo non lo riceve. Se cambi dispositivo o cancelli i dati del
-          browser, li perdi.
+          browser, li perdi. Fanno eccezione gli strumenti segnati «con l&apos;AI»: per risponderti, quello che scrivi
+          o fotografi viene inviato all&apos;intelligenza artificiale, senza salvarlo.
         </span>
       </p>
 
       <ul className="mt-10 grid gap-4 sm:grid-cols-2">
-        {STRUMENTI.map(({ titolo, testo, Icona, link }) => (
+        {STRUMENTI.map(({ titolo, testo, Icona, link, ai }) => (
           <li key={titolo} className="flex flex-col rounded-xl border border-border bg-card p-6">
             <span className="flex size-10 items-center justify-center rounded-lg bg-brand-soft text-brand">
               <Icona className="size-5" />
             </span>
-            <h2 className="mt-5 text-lg font-semibold">{titolo}</h2>
+            <h2 className="mt-5 flex flex-wrap items-center gap-2 text-lg font-semibold">
+              {titolo}
+              {ai ? (
+                <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand">con l&apos;AI</span>
+              ) : null}
+            </h2>
             <p className="mt-2 flex-1 text-sm text-muted">{testo}</p>
             <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
               {link.map((l) => (

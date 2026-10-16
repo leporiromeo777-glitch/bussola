@@ -197,6 +197,47 @@ export default async function PaginaPrivacy() {
           </li>
         </ul>
 
+        <h3>
+          Strumenti con l&apos;AI: nome della ditta, testi pronti, lettere
+          <NonAttivo attivo={attivi.racconto} testo="non ancora attivi" />
+        </h3>
+        <ul>
+          <li>
+            <strong>Nome della ditta:</strong> se chiedi delle proposte, il tuo cognome, il nome (se lo scrivi), cosa
+            fai, le parole che ti piacciono e lo stile scelto vengono inviati al fornitore di intelligenza artificiale
+            (vedi sotto), solo per proporre i nomi.
+          </li>
+          <li>
+            <strong>Testi pronti:</strong> quello che scrivi (cosa fai e, se li indichi, il nome della ditta, dove
+            lavori e chi sono i tuoi clienti), con il tipo di testo, il tono e la lingua scelti, viene inviato al
+            fornitore di intelligenza artificiale solo per scrivere i testi.
+          </li>
+          <li>
+            <strong>Fotografa la lettera:</strong> la foto o il PDF della lettera che scegli tu (per esempio dalla
+            cassa AVS, dalle contribuzioni o dal Comune), con tutto quello che c&apos;è scritto, anche il tuo nome e
+            indirizzo, viene inviato al fornitore di intelligenza artificiale per spiegarti cos&apos;è, cosa ti
+            chiedono, entro quando e cosa fare. Prima dell&apos;invio la foto viene rimpicciolita nel tuo browser. Ti
+            consigliamo di coprire il numero AVS e le coordinate bancarie: per capire la lettera non servono.
+          </li>
+          <li>
+            <strong>Cosa salviamo:</strong> niente. Né quello che scrivi o fotografi né le risposte: restano nella
+            pagina finché non la chiudi. Per limitare gli abusi contiamo le richieste per connessione, con
+            un&apos;impronta dell&apos;indirizzo IP e mai l&apos;IP in chiaro. Non scrivere dati personali che non
+            servono, come telefono o numero AVS.
+          </li>
+        </ul>
+
+        <h3>Controllo del nome nel registro di commercio</h3>
+        <ul>
+          <li>
+            Nello strumento «Nome della ditta», i nomi proposti e il nome che scrivi in «Hai già un nome in mente?»
+            vengono inviati dal nostro server a Zefix, l&apos;indice centrale delle ditte gestito dall&apos;Ufficio
+            federale del registro di commercio, per cercare le ditte con nomi simili. Il nome della ditta di solito
+            contiene il tuo cognome. Non salviamo questi dati; per il limite di richieste contiamo solo
+            un&apos;impronta dell&apos;indirizzo IP.
+          </li>
+        </ul>
+
         <h3>Dettatura a voce</h3>
         <ul>
           <li>
@@ -291,7 +332,7 @@ export default async function PaginaPrivacy() {
               <>
                 {" "}
                 Su Netlify gira anche il server del sito, {hosting.server}: riceve i dati che mandi con i moduli
-                (lista d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat) e li passa
+                (lista d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, strumenti con l&apos;AI) e li passa
                 al database.
               </>
             ) : null}
@@ -300,11 +341,13 @@ export default async function PaginaPrivacy() {
           <li>
             <strong>Anthropic Ireland, Limited (Irlanda), con Anthropic, PBC (USA)</strong>
             <NonAttivo attivo={attivi.chat || attivi.racconto} testo="non ancora attivo: la chat è spenta" />: genera
-            le risposte della chat e deduce le risposte del questionario da «Racconta a Bleo». Per la chat riceve la
+            le risposte della chat, deduce le risposte del questionario da «Racconta a Bleo», propone i nomi della
+            ditta, scrive i testi pronti e spiega le lettere di «Fotografa la lettera». Per la chat riceve la
             tua domanda, al massimo le {SCAMBI_PRECEDENTI_MASSIMI} domande e risposte precedenti
             della stessa conversazione e i testi delle fonti pubbliche trovate per rispondere; non riceve la tua
-            email né altri dati dell&apos;account; per «Racconta a Bleo» riceve solo la descrizione che scrivi. Questi dati sono conservati negli Stati Uniti e cancellati da
-            Anthropic entro 30 giorni.
+            email né altri dati dell&apos;account. Per gli altri strumenti riceve solo quello che scrivi lì, e per
+            «Fotografa la lettera» solo la foto o il PDF che scegli. Questi dati sono conservati negli Stati Uniti e
+            cancellati da Anthropic entro 30 giorni.
             <GaranziaUsa testo={GARANZIE_USA.anthropic} />
           </li>
           <li>

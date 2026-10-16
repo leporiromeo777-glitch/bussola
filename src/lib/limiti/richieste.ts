@@ -20,6 +20,8 @@ export const LIMITI_RICHIESTE = {
   testi: { massimo: 10, finestraSecondi: 60 * 60 },
   /** «Nome della ditta»: proposte di nomi. */
   nomeDitta: { massimo: 10, finestraSecondi: 60 * 60 },
+  /** «Hai già un nome in mente?»: solo una ricerca su Zefix, senza Claude. */
+  zefix: { massimo: 30, finestraSecondi: 60 * 60 },
 } as const satisfies Record<string, RegolaLimite>;
 
 export type AmbitoLimite = keyof typeof LIMITI_RICHIESTE;
