@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { datiTitolareIncompleti, valoreSegnaposto } from "./sito";
+import { datiTitolareIncompleti, indirizzoMancante, valoreSegnaposto } from "./sito";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -19,11 +19,20 @@ describe("valoreSegnaposto", () => {
 describe("datiTitolareIncompleti", () => {
   const completo = { nome: "Maria Esempio", indirizzo: "Via Esempio 1, 6900 Lugano", email: "ciao@example.ch" };
 
-  it("è false solo se nome, indirizzo ed email sono tutti compilati", () => {
+  it("è false se nome ed email sono compilati, anche senza indirizzo", () => {
     expect(datiTitolareIncompleti(completo)).toBe(false);
+    expect(datiTitolareIncompleti({ ...completo, indirizzo: "" })).toBe(false);
     expect(datiTitolareIncompleti({ ...completo, nome: "[Nome e cognome del titolare]" })).toBe(true);
-    expect(datiTitolareIncompleti({ ...completo, indirizzo: "" })).toBe(true);
     expect(datiTitolareIncompleti({ ...completo, email: " " })).toBe(true);
+  });
+});
+
+describe("indirizzoMancante", () => {
+  it("è true finché l'indirizzo è vuoto o un segnaposto", () => {
+    const completo = { nome: "Maria Esempio", indirizzo: "Via Esempio 1, 6900 Lugano", email: "ciao@example.ch" };
+    expect(indirizzoMancante(completo)).toBe(false);
+    expect(indirizzoMancante({ ...completo, indirizzo: "[Via e numero, NPA Località]" })).toBe(true);
+    expect(indirizzoMancante({ ...completo, indirizzo: " " })).toBe(true);
   });
 });
 
@@ -33,7 +42,7 @@ describe("sito.titolare dalle variabili d'ambiente", () => {
     vi.stubEnv("NEXT_PUBLIC_TITOLARE_INDIRIZZO", "  ");
     vi.stubEnv("NEXT_PUBLIC_TITOLARE_EMAIL", "");
     vi.stubEnv("NEXT_PUBLIC_SITO_URL", "");
-    const { sito, titolareIncompleto } = await import("./sito");
+    const { sito, titolareIncompleto, indirizzoTitolareMancante } = await import("./sito");
     // Nome ed email del titolare sono predefiniti nel codice; l'indirizzo manca ancora.
     expect(sito.titolare).toEqual({
       nome: "Romeo Lepori",
@@ -41,7 +50,8 @@ describe("sito.titolare dalle variabili d'ambiente", () => {
       email: "romeolepori@gmail.com",
     });
     expect(sito.url).toBe("http://localhost:3000");
-    expect(titolareIncompleto).toBe(true);
+    expect(titolareIncompleto).toBe(false);
+    expect(indirizzoTitolareMancante).toBe(true);
   });
 
   it("con i dati compilati il titolare è completo", async () => {

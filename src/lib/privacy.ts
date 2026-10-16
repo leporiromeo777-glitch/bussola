@@ -107,12 +107,13 @@ export type InformativaPrivacy = {
 export function informativaDa(config: {
   regioneDati: string | undefined;
   hosting: string | undefined;
-  titolare: Readonly<Record<string, string>>;
+  titolare: Readonly<{ nome: string; email: string; indirizzo?: string }>;
 }): InformativaPrivacy {
   const luogoDati = luogoDatabase(config.regioneDati);
   const hosting = fornitoreHosting(config.hosting);
   const parti: [string, string][] = [
-    ["dati del titolare", Object.values(config.titolare).join(" ")],
+    // L'indirizzo postale è facoltativo finché non si vende online (vedi indirizzoMancante in sito.ts).
+    ["dati del titolare", [config.titolare.nome, config.titolare.email].join(" ")],
     ["luogo del database (NEXT_PUBLIC_SUPABASE_REGIONE_DATI)", luogoDati],
     ["fornitore di hosting", hosting.nome],
     ["durata dei dati tecnici", DURATA_DATI_TECNICI],

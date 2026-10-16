@@ -27,9 +27,22 @@ export function valoreSegnaposto(valore: string): boolean {
   return pulito === "" || /^\[.*\]$/.test(pulito);
 }
 
-/** true se almeno un dato del titolare (nome, indirizzo, email) è ancora da completare. */
+/**
+ * true se manca il nome o l'email del titolare. Bastano questi due dati per
+ * la lista d'attesa: la LPD (art. 19) chiede identità e dati di contatto di
+ * chi raccoglie i dati.
+ */
 export function datiTitolareIncompleti(titolare: Titolare): boolean {
-  return [titolare.nome, titolare.indirizzo, titolare.email].some(valoreSegnaposto);
+  return [titolare.nome, titolare.email].some(valoreSegnaposto);
+}
+
+/**
+ * true se manca l'indirizzo postale. Diventa obbligatorio prima di vendere
+ * online (LCSl art. 3 cpv. 1 lett. s: identità e indirizzo di contatto) e per
+ * attivare TWINT su Stripe: i pagamenti non vanno attivati finché è true.
+ */
+export function indirizzoMancante(titolare: Titolare): boolean {
+  return valoreSegnaposto(titolare.indirizzo);
 }
 
 /**
@@ -38,6 +51,9 @@ export function datiTitolareIncompleti(titolare: Titolare): boolean {
  * chi siamo (LCSl art. 3 cpv. 1 lett. o e s).
  */
 export const titolareIncompleto = datiTitolareIncompleti(sito.titolare);
+
+/** true finché l'indirizzo postale del titolare non è indicato (vedi indirizzoMancante). */
+export const indirizzoTitolareMancante = indirizzoMancante(sito.titolare);
 
 /** Voci principali di navigazione dell'app. */
 export const navigazione = [

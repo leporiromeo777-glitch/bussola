@@ -286,7 +286,7 @@ describe("registraIscrizione", () => {
   it("con i dati del titolare ancora segnaposto non salva e non manda email", async () => {
     for (const titolare of [
       { nome: "[Nome e cognome del titolare]", indirizzo: "[Via e numero, NPA Località]", email: "[email di contatto]" },
-      { ...mittente.titolare, indirizzo: "" },
+      { ...mittente.titolare, email: "" },
     ]) {
       const { archivio, righe } = archivioFinto();
       const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
@@ -295,6 +295,19 @@ describe("registraIscrizione", () => {
       expect(righe).toEqual([]);
       expect(invia).not.toHaveBeenCalled();
     }
+  });
+
+  it("senza indirizzo postale (facoltativo finché non si vende) salva e manda l'email", async () => {
+    const { archivio, righe } = archivioFinto();
+    const invia = vi.fn<InviaEmail>().mockResolvedValue(true);
+    const titolare = { ...mittente.titolare, indirizzo: "[Via e numero, NPA Località]" };
+    const esito = await registra(dati, { archivio, inviaEmail: invia, mittente: { ...mittente, titolare } });
+    expect(esito.tipo).not.toBe("demo");
+    expect(righe).toHaveLength(1);
+    expect(invia).toHaveBeenCalledTimes(1);
+    const messaggio = invia.mock.calls[0]![0];
+    expect(messaggio.testo).not.toContain("[Via e numero");
+    expect(messaggio.html).not.toContain("[Via e numero");
   });
 
   it("oltre il limite per connessione non salva e non manda email", async () => {

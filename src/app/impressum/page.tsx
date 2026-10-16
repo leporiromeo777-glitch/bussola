@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Avviso, PaginaLegale } from "@/components/landing/pagina-legale";
 import { DatiTitolare, titolareIncompleto } from "@/components/landing/titolare";
+import { indirizzoTitolareMancante } from "@/lib/sito";
 import { sito } from "@/lib/sito";
 
 export const metadata: Metadata = {
@@ -15,11 +16,13 @@ export default function PaginaImpressum() {
     <PaginaLegale
       titolo="Impressum"
       prima={
-        titolareIncompleto ? (
+        titolareIncompleto || indirizzoTitolareMancante ? (
           <Avviso>
             <p className="mt-0! font-semibold">Ditta individuale in costituzione.</p>
             <p className="mt-1!">
-              I dati del titolare tra parentesi quadre saranno completati prima del lancio.
+              {titolareIncompleto
+                ? "I dati del titolare tra parentesi quadre saranno completati prima del lancio."
+                : "L'indirizzo postale sarà pubblicato qui prima di offrire servizi a pagamento. Nel frattempo puoi scriverci via email."}
             </p>
           </Avviso>
         ) : null

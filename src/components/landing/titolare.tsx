@@ -10,8 +10,12 @@ export function DatiTitolare() {
     <address className="mt-3 not-italic">
       {nome}
       <br />
-      {indirizzo}
-      <br />
+      {valoreSegnaposto(indirizzo) ? null : (
+        <>
+          {indirizzo}
+          <br />
+        </>
+      )}
       {valoreSegnaposto(email) ? email : <a href={`mailto:${email}`}>{email}</a>}
     </address>
   );

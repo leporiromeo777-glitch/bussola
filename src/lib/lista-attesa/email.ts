@@ -1,3 +1,5 @@
+import { valoreSegnaposto } from "@/lib/sito";
+
 /** Chi scrive: dati del sito e del titolare (LCSl art. 3 cpv. 1 lett. o e s). */
 export type Mittente = {
   nomeSito: string;
@@ -67,7 +69,9 @@ export function componiEmailConferma({ token, mittente }: { token: string; mitte
     nomeSito,
     "",
     "--",
-    `${nomeSito} · ${titolare.nome} · ${titolare.indirizzo} · ${titolare.email}`,
+    [nomeSito, titolare.nome, valoreSegnaposto(titolare.indirizzo) ? null : titolare.indirizzo, titolare.email]
+      .filter(Boolean)
+      .join(" · "),
     `Ricevi questa email perché questo indirizzo è stato inserito nella lista d'attesa su ${host}.`,
     `Per toglierti dalla lista: ${disiscrizione}`,
   ].join("\n");
@@ -87,7 +91,7 @@ export function componiEmailConferma({ token, mittente }: { token: string; mitte
 <p style="margin:0 0 24px;">Se non hai chiesto tu l'iscrizione, ignora questa email: senza conferma non ti scriveremo più.</p>
 <p style="margin:0 0 32px;">A presto,<br>${e(nomeSito)}</p>
 <hr style="border:none;border-top:1px solid #e4e1da;margin:0 0 16px;">
-<p style="margin:0 0 8px;font-size:13px;color:#5d6470;">${e(nomeSito)} · ${e(titolare.nome)} · ${e(titolare.indirizzo)} · <a href="mailto:${e(titolare.email)}" style="color:#5d6470;">${e(titolare.email)}</a></p>
+<p style="margin:0 0 8px;font-size:13px;color:#5d6470;">${e(nomeSito)} · ${e(titolare.nome)} · ${valoreSegnaposto(titolare.indirizzo) ? "" : `${e(titolare.indirizzo)} · `}<a href="mailto:${e(titolare.email)}" style="color:#5d6470;">${e(titolare.email)}</a></p>
 <p style="margin:0;font-size:13px;color:#5d6470;">Ricevi questa email perché questo indirizzo è stato inserito nella lista d'attesa su ${e(host)}. <a href="${e(disiscrizione)}" style="color:#5d6470;">Toglimi dalla lista</a>.</p>
 </div>
 </body>
