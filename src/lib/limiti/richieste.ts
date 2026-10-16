@@ -14,6 +14,12 @@ export const LIMITI_RICHIESTE = {
   accesso: { massimo: 10, finestraSecondi: 60 * 60 },
   /** «Raccontami la tua idea» nel questionario: costa una chiamata a Claude e di solito basta una prova. */
   racconto: { massimo: 5, finestraSecondi: 60 * 60 },
+  /** «Fotografa la lettera»: un'immagine costa più di un testo. */
+  lettera: { massimo: 5, finestraSecondi: 60 * 60 },
+  /** «Testi pronti»: si provano più versioni. */
+  testi: { massimo: 10, finestraSecondi: 60 * 60 },
+  /** «Nome della ditta»: proposte di nomi. */
+  nomeDitta: { massimo: 10, finestraSecondi: 60 * 60 },
 } as const satisfies Record<string, RegolaLimite>;
 
 export type AmbitoLimite = keyof typeof LIMITI_RICHIESTE;

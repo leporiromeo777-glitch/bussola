@@ -17,6 +17,27 @@ export function scegliModelloRacconto(variabile: string | undefined): string {
 }
 
 /**
+ * Modelli delle altre funzioni con l'AI, ognuno con la sua variabile
+ * (vuota = predefinito): leggere una lettera fotografata chiede un modello
+ * che veda bene le immagini; testi e nomi bastano a un modello economico.
+ */
+export const MODELLI_FUNZIONI = {
+  lettera: { variabile: "ANTHROPIC_MODEL_LETTERA", predefinito: "claude-sonnet-5-5" },
+  testi: { variabile: "ANTHROPIC_MODEL_TESTI", predefinito: "claude-haiku-5-5" },
+  nomeDitta: { variabile: "ANTHROPIC_MODEL_NOME", predefinito: "claude-haiku-5-5" },
+} as const;
+
+export type FunzioneAi = keyof typeof MODELLI_FUNZIONI;
+
+export function scegliModelloFunzione(
+  funzione: FunzioneAi,
+  ambiente: Record<string, string | undefined> = process.env,
+): string {
+  const { variabile, predefinito } = MODELLI_FUNZIONI[funzione];
+  return ambiente[variabile]?.trim() || predefinito;
+}
+
+/**
  * Modelli che accettano `fallbacks: "default"` (beta server-side-fallback-2026-07-01):
  * se i filtri di sicurezza rifiutano una richiesta, il server la riprova su
  * un altro modello. Per gli altri modelli il parametro non si manda.

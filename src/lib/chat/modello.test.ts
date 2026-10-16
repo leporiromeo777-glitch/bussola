@@ -3,6 +3,7 @@ import {
   MODELLO_PREDEFINITO,
   MODELLO_RACCONTO_PREDEFINITO,
   scegliModello,
+  scegliModelloFunzione,
   scegliModelloRacconto,
   supportaFallback,
 } from "./modello";
@@ -43,5 +44,14 @@ describe("supportaFallback", () => {
     for (const modello of ["claude-haiku-5-5", "claude-sonnet-5", "claude-opus-4-8", "claude-opus-50"]) {
       expect(supportaFallback(modello)).toBe(false);
     }
+  });
+});
+
+describe("scegliModelloFunzione", () => {
+  it("usa il predefinito di ogni funzione, o la sua variabile se impostata", () => {
+    expect(scegliModelloFunzione("lettera", {})).toBe("claude-sonnet-5-5");
+    expect(scegliModelloFunzione("testi", {})).toBe("claude-haiku-5-5");
+    expect(scegliModelloFunzione("nomeDitta", { ANTHROPIC_MODEL_NOME: "  " })).toBe("claude-haiku-5-5");
+    expect(scegliModelloFunzione("lettera", { ANTHROPIC_MODEL_LETTERA: "claude-opus-5-5" })).toBe("claude-opus-5-5");
   });
 });
