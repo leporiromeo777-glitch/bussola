@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 import { navigazione, sito } from "@/lib/sito";
@@ -40,8 +41,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 px-4 py-1 sm:flex-nowrap sm:py-2">
             <Link
               href="/"
-              className="mr-auto inline-flex min-h-10 items-center text-lg font-semibold tracking-tight text-brand"
+              className="mr-auto inline-flex min-h-10 items-center gap-2 text-lg font-semibold tracking-tight text-brand"
             >
+              <Image src="/mascotte/bussolina.webp" alt="" width={540} height={720} className="h-8 w-auto" priority />
               {sito.nome}
             </Link>
             <nav
