@@ -1,0 +1,9 @@
+# Netlify: build di Next.js con il runtime ufficiale (@netlify/plugin-nextjs,
+# installato in automatico). Le variabili d'ambiente si impostano nel pannello
+# di Netlify, non qui: questo file è pubblico.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
