@@ -1,9 +1,14 @@
-# Netlify: build di Next.js con il runtime ufficiale (@netlify/plugin-nextjs,
-# installato in automatico). Le variabili d'ambiente si impostano nel pannello
-# di Netlify, non qui: questo file è pubblico.
+# Netlify: build di Next.js con il runtime ufficiale (OpenNext,
+# @netlify/plugin-nextjs). Dichiarato qui perché un sito creato via API non lo
+# aggiunge da solo; senza versione, Netlify usa sempre l'ultima.
+# Le variabili d'ambiente si impostano nel pannello di Netlify, non qui:
+# questo file è pubblico.
 [build]
   command = "npm run build"
   publish = ".next"
 
 [build.environment]
   NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
