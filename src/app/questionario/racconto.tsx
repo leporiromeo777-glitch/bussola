@@ -82,7 +82,7 @@ export function Racconto({ onContinua, onDomande }: { onContinua: () => void; on
             </h2>
             <p className="mt-2 text-muted">
               {capite.length === 0
-                ? "Non ho capito abbastanza dalla descrizione: rispondi alle domande, ci vogliono pochi minuti."
+                ? "Non ho capito abbastanza. Riscrivi aggiungendo che lavoro vuoi fare, in che città o Cantone, se da solo o con altri e se hai già un impiego. Oppure rispondi alle domande: ci vogliono pochi minuti."
                 : mancanti === 0
                   ? "Ho tutte le risposte. Controllale nell'ultima domanda e vedi il tuo percorso."
                   : `Ho dedotto ${capite.length} risposte: ti chiedo solo le ${mancanti} che mancano. Puoi sempre correggerle tornando indietro.`}
