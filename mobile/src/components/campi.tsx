@@ -134,3 +134,63 @@ export function RigaValore({ etichetta, valore, forte }: { etichetta: string; va
     </View>
   );
 }
+
+/** Campo di testo con etichetta, aiuto ed errore. */
+export function CampoTesto({
+  etichetta,
+  valore,
+  onCambia,
+  aiuto,
+  errore,
+  segnaposto,
+  tastiera = "default",
+  righe = 1,
+}: {
+  etichetta: string;
+  valore: string;
+  onCambia: (v: string) => void;
+  aiuto?: string;
+  errore?: string;
+  segnaposto?: string;
+  tastiera?: "default" | "numbers-and-punctuation" | "decimal-pad";
+  righe?: number;
+}) {
+  const c = useColori();
+  return (
+    <View style={{ gap: SPAZIO.xs }}>
+      <Testo variante="forte">{etichetta}</Testo>
+      <TextInput
+        value={valore}
+        onChangeText={onCambia}
+        keyboardType={tastiera}
+        placeholder={segnaposto}
+        placeholderTextColor={c.attenuato}
+        accessibilityLabel={etichetta}
+        accessibilityHint={aiuto}
+        multiline={righe > 1}
+        numberOfLines={righe}
+        style={{
+          fontSize: 17,
+          paddingVertical: 12,
+          paddingHorizontal: SPAZIO.m,
+          color: c.testo,
+          borderWidth: 1.5,
+          borderColor: errore ? c.pericolo : c.bordo,
+          borderRadius: RAGGIO.m,
+          backgroundColor: c.scheda,
+          minHeight: righe > 1 ? 24 * righe + 24 : undefined,
+          textAlignVertical: righe > 1 ? "top" : "center",
+        }}
+      />
+      {errore ? (
+        <Testo variante="piccolo" colore={c.pericolo}>
+          {errore}
+        </Testo>
+      ) : aiuto ? (
+        <Testo variante="piccolo" attenuato>
+          {aiuto}
+        </Testo>
+      ) : null}
+    </View>
+  );
+}

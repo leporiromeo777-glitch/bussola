@@ -67,7 +67,7 @@ function Account() {
   function confermaEliminazione() {
     Alert.alert(
       "Eliminare l'account?",
-      "Cancelliamo per sempre il tuo account con il questionario, i passi fatti e le domande alla chat. Non si può tornare indietro.",
+      "Cancelliamo per sempre il tuo account con il questionario, i passi fatti, le domande alla chat, i tuoi conti e le ricevute salvate. Se ti servono, prima scaricali per il fiduciario dalla pagina Conti. Non si può tornare indietro.",
       [
         { text: "Annulla", style: "cancel" },
         {
@@ -97,12 +97,14 @@ function Account() {
           />
           <Pulsante titolo="Elimina account" variante="testo" caricamento={attesa} onPress={confermaEliminazione} />
           <Testo variante="piccolo" colore={c.attenuato}>
-            Eliminando l&apos;account cancelli i dati salvati su Bleo. I dati su questo telefono li cancelli qui sotto.
+            Eliminando l&apos;account cancelli i dati salvati su Bleo, compresi i tuoi conti e le foto delle ricevute. Se
+            ti servono, prima scaricali per il fiduciario dalla pagina Conti. I dati su questo telefono li cancelli qui
+            sotto.
           </Testo>
         </View>
       ) : (
         <View style={{ gap: SPAZIO.m }}>
-          <Testo attenuato>Con l&apos;accesso puoi fare domande alla chat. Ti basta l&apos;email: niente password.</Testo>
+          <Testo attenuato>Con l&apos;accesso puoi fare domande alla chat e tenere i tuoi conti. Ti basta l&apos;email: niente password.</Testo>
           <Pulsante titolo="Accedi" onPress={() => router.push("/accedi")} />
         </View>
       )}

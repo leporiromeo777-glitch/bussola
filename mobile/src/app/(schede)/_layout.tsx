@@ -1,7 +1,10 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
+import { useEffect } from "react";
 import type { ColorValue } from "react-native";
 import type { NomeIcona } from "~/components/ui";
+import { aggiornaContatore, impostaDaConfermare, useDaConfermare } from "~/lib/conti";
+import { useSessione } from "~/lib/sessione";
 import { useColori } from "~/lib/tema";
 
 function icona(nome: NomeIcona, nomeAttivo: NomeIcona) {
@@ -13,6 +16,15 @@ function icona(nome: NomeIcona, nomeAttivo: NomeIcona) {
 
 export default function Schede() {
   const c = useColori();
+  const { sessione } = useSessione();
+  const daConfermare = useDaConfermare();
+  const utente = sessione?.user.id ?? null;
+
+  // Il pallino su «Conti»: quante voci aspettano la conferma (solo con l'accesso).
+  useEffect(() => {
+    if (utente) void aggiornaContatore();
+    else impostaDaConfermare(null);
+  }, [utente]);
   return (
     <Tabs
       screenOptions={{
@@ -35,8 +47,15 @@ export default function Schede() {
         options={{ title: "Chiedi a Bleo", tabBarIcon: icona("chatbubbles-outline", "chatbubbles") }}
       />
       <Tabs.Screen
-        name="strumenti"
-        options={{ title: "Strumenti", tabBarIcon: icona("calculator-outline", "calculator") }}
+        name="conti"
+        options={{
+          title: "I tuoi conti",
+          tabBarLabel: "Conti",
+          tabBarIcon: icona("wallet-outline", "wallet"),
+          tabBarBadge: daConfermare ? daConfermare : undefined,
+          tabBarBadgeStyle: { backgroundColor: c.accento, color: c.sulMarchio },
+          tabBarAccessibilityLabel: daConfermare ? `Conti, ${daConfermare} da confermare` : undefined,
+        }}
       />
       <Tabs.Screen name="profilo" options={{ title: "Profilo", tabBarIcon: icona("person-circle-outline", "person-circle") }} />
     </Tabs>

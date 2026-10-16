@@ -36,6 +36,14 @@
       "expo-image",
       "expo-font",
       [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Bleo usa la fotocamera per fotografare le tue ricevute e leggerne importo e data.",
+          "photosPermission": "Bleo apre le tue foto per caricare le ricevute che scegli.",
+          "microphonePermission": false
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/splash-icon.png",

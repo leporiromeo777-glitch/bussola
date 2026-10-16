@@ -25,6 +25,7 @@ export default function Radice() {
         <Stack.Screen name="(schede)" options={{ headerShown: false }} />
         <Stack.Screen name="questionario" options={{ title: "Questionario", presentation: "fullScreenModal" }} />
         <Stack.Screen name="passo/[id]" options={{ title: "" }} />
+        <Stack.Screen name="strumenti/index" options={{ title: "Calcoli e strumenti" }} />
         <Stack.Screen name="strumenti/tariffa" options={{ title: "Tariffa oraria" }} />
         <Stack.Screen name="strumenti/contributi" options={{ title: "Contributi AVS" }} />
         <Stack.Screen name="accedi" options={{ title: "Accedi", presentation: "modal" }} />

@@ -11,12 +11,16 @@ Cosa c'è:
   **promemoria sul telefono** una settimana prima di ogni scadenza.
 - **Chiedi a Bleo**: la chat con le fonti, con accesso tramite codice via email.
   Nella versione di prova mostra "La chat arriva presto".
-- **Strumenti**: tariffa oraria e contributi AVS; budget, business plan,
-  preventivo e fattura QR si aprono sul sito.
+- **Conti** (con l'accesso): fotografi una ricevuta o carichi un PDF, Bleo la
+  legge e la mette «da confermare»; riepilogo dell'anno, fatture emesse da
+  incassare, indirizzo email personale per inoltrare le fatture. In fondo,
+  **Calcoli e strumenti**: tariffa oraria e contributi AVS; budget, business
+  plan, preventivo e fattura QR si aprono sul sito.
 - **Profilo**: vesti Bleo, account (esci, elimina account), privacy,
   impressum, cancella i dati dal telefono.
 
-I dati (risposte, passi fatti, calcoli) restano sul telefono.
+I dati (risposte, passi fatti, calcoli) restano sul telefono; i conti e le
+ricevute stanno nell'account sul sito.
 
 ## Provarla sul tuo telefono
 

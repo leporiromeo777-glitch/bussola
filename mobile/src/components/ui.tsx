@@ -29,11 +29,21 @@ export function tocco(): void {
 }
 
 /** Contenitore di una schermata che scorre. */
-export function Schermata({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+export function Schermata({
+  children,
+  style,
+  refreshControl,
+}: {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  /** Per «tira giù per aggiornare». */
+  refreshControl?: ComponentProps<typeof ScrollView>["refreshControl"];
+}) {
   const c = useColori();
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: c.sfondo }}
+      refreshControl={refreshControl}
       contentContainerStyle={[{ padding: SPAZIO.l, paddingBottom: SPAZIO.xxl * 2, gap: SPAZIO.l }, style]}
       keyboardShouldPersistTaps="handled"
     >

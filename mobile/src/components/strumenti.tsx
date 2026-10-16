@@ -1,19 +1,13 @@
 import { router } from "expo-router";
 import { View } from "react-native";
-import { ImmagineMascotte } from "~/components/mascotte";
-import { RigaMenu, Schermata, Scheda, Separatore, Testo } from "~/components/ui";
 import { apriSito } from "~/lib/apri";
 import { SPAZIO } from "~/lib/tema";
+import { RigaMenu, Scheda, Separatore, Testo } from "./ui";
 
-export default function Strumenti() {
+/** Calcoli nell'app (tariffa oraria, contributi AVS) e strumenti che si aprono sul sito. */
+export function ElencoStrumenti() {
   return (
-    <Schermata>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: SPAZIO.m }}>
-        <ImmagineMascotte nome="scrivania" larghezza={96} />
-        <Testo attenuato style={{ flex: 1 }}>
-          Calcoli veloci con i numeri ufficiali. I dati restano su questo telefono.
-        </Testo>
-      </View>
+    <View style={{ gap: SPAZIO.s }}>
       <Scheda>
         <RigaMenu
           titolo="Tariffa oraria"
@@ -29,7 +23,9 @@ export default function Strumenti() {
           onPress={() => router.push("/strumenti/contributi")}
         />
       </Scheda>
-      <Testo variante="sottotitolo">Sul sito</Testo>
+      <Testo variante="etichetta" attenuato style={{ marginTop: SPAZIO.s }}>
+        SUL SITO
+      </Testo>
       <Scheda>
         <RigaMenu
           titolo="Budget dei primi 12 mesi"
@@ -54,6 +50,6 @@ export default function Strumenti() {
           onPress={() => void apriSito("/strumenti/fattura")}
         />
       </Scheda>
-    </Schermata>
+    </View>
   );
 }

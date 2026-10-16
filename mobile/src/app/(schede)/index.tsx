@@ -6,7 +6,17 @@ import { dataSvizzera } from "@/data/svizzera";
 import { annoScadenzario, eventiDaScadenze } from "@/lib/percorso/calendario";
 import { avanzamento, prossimoPasso } from "@/lib/percorso/regole";
 import { ImmagineMascotte } from "~/components/mascotte";
-import { BarraProgresso, NotaInformazione, Pulsante, Schermata, Scheda, Testo } from "~/components/ui";
+import {
+  BarraProgresso,
+  NotaInformazione,
+  Pulsante,
+  RigaMenu,
+  Schermata,
+  Scheda,
+  Separatore,
+  Testo,
+} from "~/components/ui";
+import { useDaConfermare } from "~/lib/conti";
 import { oggiLocale, usePassiFatti, usePercorso } from "~/lib/stato";
 import { SPAZIO, useColori } from "~/lib/tema";
 
@@ -71,9 +81,37 @@ export default function Inizio() {
           </>
         )}
 
+        <ContiEStrumenti />
         <NotaInformazione />
       </Schermata>
     </SafeAreaView>
+  );
+}
+
+function ContiEStrumenti() {
+  const daConfermare = useDaConfermare();
+  return (
+    <Scheda>
+      <RigaMenu
+        titolo="I tuoi conti"
+        sottotitolo={
+          daConfermare
+            ? daConfermare === 1
+              ? "1 voce da confermare"
+              : `${daConfermare} voci da confermare`
+            : "Ricevute, entrate e uscite in ordine"
+        }
+        icona="wallet-outline"
+        onPress={() => router.push("/conti")}
+      />
+      <Separatore />
+      <RigaMenu
+        titolo="Calcoli e strumenti"
+        sottotitolo="Tariffa oraria, contributi AVS, fattura con codice QR"
+        icona="calculator-outline"
+        onPress={() => router.push("/strumenti")}
+      />
+    </Scheda>
   );
 }
 
