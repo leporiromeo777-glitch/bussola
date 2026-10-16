@@ -257,7 +257,9 @@ grant execute on function public.chiudi_domanda(bigint, text[], boolean) to auth
 -- Annullare una prenotazione (errore vero del modello o della ricerca) lo fa
 -- solo il server con la chiave segreta: una funzione per l'utente
 -- servirebbe ad azzerarsi la quota.
-drop policy "domande: inserimento proprio" on public.domande_chat;
+-- (alter invece di drop: stesso effetto, la policy non ammette più nessuna
+-- riga; così la migrazione passa anche dove i drop chiedono una conferma.)
+alter policy "domande: inserimento proprio" on public.domande_chat with check (false);
 
 -- ===========================================================================
 -- 20261016000001_limite_richieste.sql
