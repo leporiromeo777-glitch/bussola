@@ -28,16 +28,17 @@ describe("datiTitolareIncompleti", () => {
 });
 
 describe("sito.titolare dalle variabili d'ambiente", () => {
-  it("una variabile vuota (come in .env.example) fa scattare il segnaposto", async () => {
+  it("una variabile vuota (come in .env.example) usa i valori predefiniti", async () => {
     vi.stubEnv("NEXT_PUBLIC_TITOLARE_NOME", "");
     vi.stubEnv("NEXT_PUBLIC_TITOLARE_INDIRIZZO", "  ");
     vi.stubEnv("NEXT_PUBLIC_TITOLARE_EMAIL", "");
     vi.stubEnv("NEXT_PUBLIC_SITO_URL", "");
     const { sito, titolareIncompleto } = await import("./sito");
+    // Nome ed email del titolare sono predefiniti nel codice; l'indirizzo manca ancora.
     expect(sito.titolare).toEqual({
-      nome: "[Nome e cognome del titolare]",
+      nome: "Romeo Lepori",
       indirizzo: "[Via e numero, NPA Località]",
-      email: "[email di contatto]",
+      email: "romeolepori@gmail.com",
     });
     expect(sito.url).toBe("http://localhost:3000");
     expect(titolareIncompleto).toBe(true);
