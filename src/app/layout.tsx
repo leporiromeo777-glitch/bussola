@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
+import { LinkAccesso } from "@/components/link-accesso";
 import { navigazione, sito } from "@/lib/sito";
 import { supabaseConfigured } from "@/lib/supabase/env";
 import "./globals.css";
@@ -62,14 +63,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   {voce.etichetta}
                 </Link>
               ))}
-              {accessoAttivo ? (
-                <Link
-                  href="/accedi"
-                  className="inline-flex min-h-10 shrink-0 items-center whitespace-nowrap rounded-full px-3 font-medium text-muted hover:text-foreground"
-                >
-                  Accedi
-                </Link>
-              ) : null}
+              {accessoAttivo ? <LinkAccesso /> : null}
             </nav>
             <Link
               href="/questionario"

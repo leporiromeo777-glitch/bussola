@@ -305,7 +305,7 @@ export function Percorso({
                   {TITOLI_FASI[fase]}
                   {daFareFase.length > 0 ? (
                     <span className="text-sm font-medium text-muted">
-                      {fattiFase} di {daFareFase.length} da fare
+                      {fattiFase} di {daFareFase.length} fatti
                     </span>
                   ) : null}
                 </h2>
