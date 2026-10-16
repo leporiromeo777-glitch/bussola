@@ -75,6 +75,53 @@ export function dateScadenza(
   }
 }
 
+/**
+ * Date fisse di una scadenza (per esempio i termini degli acconti cantonali,
+ * fissati ogni anno da un decreto) viste da oggi:
+ * - "pubblicate": l'ultimo anno disponibile ha ancora date future; quelle già
+ *   passate sono segnate;
+ * - "da-pubblicare": tutte le date dell'ultimo anno disponibile sono passate.
+ *   Non sono più scadenze: si mostrano solo come esempio e si dice che quelle
+ *   dell'anno seguente non sono ancora uscite.
+ */
+export type DateFisse =
+  | { stato: "pubblicate"; anno: number; date: { data: string; etichetta: string; passata: boolean }[] }
+  | { stato: "da-pubblicare"; anno: number; annoProssimo: number; date: { data: string; etichetta: string }[] };
+
+export function dateFisseDaOggi(
+  date: readonly { data: string; etichetta: string }[],
+  oggi: string,
+): DateFisse | null {
+  const valide = date.filter((d) => dataIsoValida(d.data)).sort((a, b) => a.data.localeCompare(b.data));
+  const ultima = valide.at(-1);
+  if (!ultima || !dataIsoValida(oggi)) return null;
+  const anno = Number(ultima.data.slice(0, 4));
+  const dellAnno = valide.filter((d) => Number(d.data.slice(0, 4)) === anno);
+  // Una data è passata dal giorno dopo: il giorno stesso si può ancora pagare.
+  const passata = (data: string) => data < oggi;
+  if (dellAnno.every((d) => passata(d.data))) {
+    return {
+      stato: "da-pubblicare",
+      anno,
+      annoProssimo: Math.max(anno + 1, Number(oggi.slice(0, 4))),
+      date: dellAnno.map(({ data, etichetta }) => ({ data, etichetta })),
+    };
+  }
+  return { stato: "pubblicate", anno, date: dellAnno.map((d) => ({ ...d, passata: passata(d.data) })) };
+}
+
+/** Le date fisse in una frase, per il riquadro delle scadenze. */
+export function testoDateFisse(date: DateFisse): string {
+  if (date.stato === "da-pubblicare") {
+    return (
+      `Le date del ${date.annoProssimo} non sono ancora pubblicate: di solito escono a fine anno. ` +
+      `Come esempio, i termini del ${date.anno}, già passati: ${date.date.map((d) => dataSvizzera(d.data)).join(", ")}.`
+    );
+  }
+  const elenco = date.date.map((d) => `${dataSvizzera(d.data)}${d.passata ? " (già passato)" : ""}`).join(", ");
+  return `Termini di pagamento ${date.anno}: ${elenco}.`;
+}
+
 /** Gli eventi del calendario, in ordine di data. */
 export function eventiDaScadenze(
   scadenze: readonly Scadenza[],

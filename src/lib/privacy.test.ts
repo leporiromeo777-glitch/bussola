@@ -6,6 +6,8 @@ import {
   GARANZIE_USA,
   informativaDa,
   luogoDatabase,
+  SERVER_NETLIFY,
+  trattamentiAttivi,
 } from "./privacy";
 
 const titolareCompleto = { nome: "Maria Rossi", indirizzo: "Via Nassa 1, 6900 Lugano", email: "ciao@esempio.ch" };
@@ -38,8 +40,14 @@ describe("contieneSegnaposto", () => {
 
 describe("fornitoreHosting", () => {
   it("nomina il fornitore e la sua garanzia per gli USA", () => {
-    expect(fornitoreHosting("vercel")).toEqual({ nome: "Vercel Inc. (USA)", garanzia: GARANZIE_USA.vercel });
+    expect(fornitoreHosting("vercel")).toEqual({ nome: "Vercel Inc. (USA)", garanzia: GARANZIE_USA.vercel, server: null });
     expect(fornitoreHosting("netlify").nome).toBe("Netlify, Inc. (USA)");
+  });
+
+  it("su Netlify dice che il server gira negli Stati Uniti (Ohio)", () => {
+    expect(fornitoreHosting("netlify").server).toBe(SERVER_NETLIFY);
+    expect(SERVER_NETLIFY).toBe("negli Stati Uniti (Ohio)");
+    expect(fornitoreHosting(undefined).server).toBeNull();
   });
 
   it("senza fornitore lascia la parte da completare", () => {
@@ -80,5 +88,51 @@ describe("informativaDa", () => {
         "fornitore di hosting",
       ]),
     );
+  });
+});
+
+describe("trattamentiAttivi", () => {
+  const supabase = { NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_x" };
+
+  it("senza variabili non c'è niente di attivo", () => {
+    expect(trattamentiAttivi({})).toEqual({
+      account: false,
+      chat: false,
+      email: false,
+      protezioneModuli: false,
+      verificaAntiRobot: false,
+      statistiche: false,
+    });
+  });
+
+  it("la chat è attiva solo con Supabase e una chiave di Anthropic nostra", () => {
+    expect(trattamentiAttivi({ ...supabase }).chat).toBe(false);
+    expect(trattamentiAttivi({ ANTHROPIC_API_KEY: "sk-ant-x" }).chat).toBe(false);
+    expect(trattamentiAttivi({ ...supabase, ANTHROPIC_API_KEY: "sk-ant-x" }).chat).toBe(true);
+    // Chiave messa da Netlify AI Gateway: la chat resta spenta.
+    expect(
+      trattamentiAttivi({ ...supabase, ANTHROPIC_API_KEY: "gw", NETLIFY_AI_GATEWAY_KEY: "gw" }).chat,
+    ).toBe(false);
+    expect(
+      trattamentiAttivi({ ...supabase, ANTHROPIC_API_KEY: "sk-ant-x", ANTHROPIC_BASE_URL: "https://gateway.example" }).chat,
+    ).toBe(false);
+  });
+
+  it("le email partono solo con chiave Resend e mittente", () => {
+    expect(trattamentiAttivi({ RESEND_API_KEY: "re_x" }).email).toBe(false);
+    expect(trattamentiAttivi({ RESEND_API_KEY: "re_x", EMAIL_MITTENTE: "Bussola <ciao@esempio.ch>" }).email).toBe(true);
+    expect(trattamentiAttivi({ RESEND_API_KEY: " ", EMAIL_MITTENTE: "x" }).email).toBe(false);
+  });
+
+  it("la protezione dei moduli richiede la chiave segreta di Supabase", () => {
+    expect(trattamentiAttivi({ ...supabase }).protezioneModuli).toBe(false);
+    expect(trattamentiAttivi({ ...supabase, SUPABASE_SECRET_KEY: "sb_secret_x" }).protezioneModuli).toBe(true);
+    expect(trattamentiAttivi({ ...supabase }).account).toBe(true);
+  });
+
+  it("Turnstile e Plausible dipendono dalle loro chiavi pubbliche", () => {
+    const attivi = trattamentiAttivi({ NEXT_PUBLIC_TURNSTILE_SITE_KEY: "0x", NEXT_PUBLIC_PLAUSIBLE_DOMAIN: "bussola.ch" });
+    expect(attivi.verificaAntiRobot).toBe(true);
+    expect(attivi.statistiche).toBe(true);
   });
 });

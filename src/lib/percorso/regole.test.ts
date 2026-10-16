@@ -120,10 +120,16 @@ describe("regole: autorizzazioni di settore", () => {
     expect(avviso?.testo).toMatch(/eccezioni/);
   });
 
-  it("ristorazione fuori dal Ticino: LEAR solo da verificare", () => {
-    expect(stato({ attivita: "ristorazione_alimentari", cantone: "GR" }, "autorizzazione-esercizio-pubblico")).toBe(
-      "facoltativo",
-    );
+  it("ristorazione fuori dal Ticino: l'autorizzazione serve lo stesso, con la procedura del proprio Cantone", () => {
+    for (const cantone of ["GR", "altro"] as const) {
+      const p = passo(
+        calcolaPercorso(risposte({ attivita: "ristorazione_alimentari", cantone })),
+        "autorizzazione-esercizio-pubblico",
+      );
+      expect(p.stato).toBe("da_fare");
+      expect(p.perche).toMatch(/autorizzazione cantonale/);
+      expect(p.note.join(" ")).toMatch(/è ticinese.*ufficio cantonale/);
+    }
   });
 
   it("le altre attività non hanno l'autorizzazione LEAR", () => {
@@ -165,8 +171,12 @@ describe("regole: autorizzazioni di settore", () => {
     expect(idAvvisi(percorso)).toContain("autorizzazione-sanitaria");
   });
 
-  it("salute fuori dal Ticino: autorizzazione da verificare con il Cantone", () => {
-    expect(stato({ attivita: "salute_benessere", cantone: "altro" }, "autorizzazione-sanitaria")).toBe("facoltativo");
+  it("salute fuori dal Ticino: autorizzazione da fare, con la procedura del proprio Cantone", () => {
+    for (const cantone of ["GR", "altro"] as const) {
+      const p = passo(calcolaPercorso(risposte({ attivita: "salute_benessere", cantone })), "autorizzazione-sanitaria");
+      expect(p.stato).toBe("da_fare");
+      expect(p.note.join(" ")).toMatch(/è ticinese.*autorità sanitaria cantonale/);
+    }
     expect(stato({}, "autorizzazione-sanitaria")).toBe("non_serve");
   });
 
@@ -426,11 +436,20 @@ describe("regole: contabilità e imposte", () => {
     expect(testoCompleto(percorso, "dichiarazione-imposte")).toMatch(/da verificare/);
   });
 
-  it("Ticino: scadenze IFD 31.3, acconti cantonali con date 2026 e dichiarazione", () => {
+  it("Ticino: scadenze IFD 31.3, acconti cantonali con le date 2026 nel calendario e dichiarazione", () => {
     const percorso = calcolaPercorso(risposte());
     expect(idScadenze(percorso)).toEqual(["acconti-avs", "ifd", "acconti-cantonali", "dichiarazione"]);
     const cantonali = percorso.scadenze.find((s) => s.id === "acconti-cantonali");
-    expect(cantonali?.quando).toContain("31.05.2026, 31.07.2026, 30.09.2026");
+    // Le date non sono nel testo (il riquadro le confronta con oggi), ma nel calendario.
+    expect(cantonali?.quando).not.toMatch(/\d{2}\.\d{2}\.\d{4}/);
+    expect(cantonali?.calendario).toEqual({
+      tipo: "fisse",
+      date: [
+        { data: "2026-05-31", etichetta: "1ª rata" },
+        { data: "2026-07-31", etichetta: "2ª rata" },
+        { data: "2026-09-30", etichetta: "3ª rata" },
+      ],
+    });
     expect(percorso.scadenze.find((s) => s.id === "ifd")?.calendario).toEqual({
       tipo: "annuale",
       date: [{ giorno: 31, mese: 3, etichetta: "rata unica" }],
@@ -481,6 +500,39 @@ describe("regole: soci, permessi, vendita online, locali, aiuto", () => {
     expect(stato({ permesso: "altro" }, "permesso-lavoro")).toBe("da_fare");
     expect(stato({}, "permesso-lavoro")).toBe("non_serve");
     expect(idAvvisi(calcolaPercorso(risposte()))).not.toContain("permesso");
+  });
+
+  it("permesso da verificare: prima di iniziare se non hai ancora iniziato", () => {
+    const avviso = calcolaPercorso(risposte({ permesso: "b" })).avvisi.find((a) => a.id === "permesso");
+    expect(avviso?.titolo).toBe("Prima di iniziare, verifica il tuo permesso");
+    expect(avviso?.testo).toBe(
+      "Verifica con l'Ufficio della migrazione che il tuo permesso B ti consenta di lavorare come indipendente.",
+    );
+  });
+
+  it("permesso da verificare quando hai già iniziato: subito, e con un professionista", () => {
+    for (const avviata of ["meno_3_mesi", "oltre_3_mesi"] as const) {
+      for (const permesso of ["g", "b", "altro"] as const) {
+        const percorso = calcolaPercorso(risposte({ permesso, avviata }));
+        const avviso = percorso.avvisi.find((a) => a.id === "permesso");
+        expect(avviso?.titolo).toBe("Hai già iniziato: verifica subito il tuo permesso");
+        expect(avviso?.testo).toMatch(/subito/);
+        expect(avviso?.testo).not.toMatch(/prima di iniziare/i);
+        expect(avviso?.testo).toMatch(/caso complesso: fatti aiutare da un professionista/);
+        const p = passo(percorso, "permesso-lavoro");
+        expect(p.stato).toBe("da_fare");
+        expect(p.perche).toMatch(/hai già iniziato/i);
+        expect(p.perche).not.toMatch(/prima di iniziare/);
+      }
+    }
+    const g = calcolaPercorso(risposte({ permesso: "g", avviata: "meno_3_mesi" })).avvisi.find((a) => a.id === "permesso");
+    expect(g?.testo).toContain("rivolgiti subito all'Ufficio della migrazione.");
+    const fuori = calcolaPercorso(risposte({ permesso: "altro", avviata: "meno_3_mesi", cantone: "GR" })).avvisi.find(
+      (a) => a.id === "permesso",
+    );
+    expect(fuori?.testo).toContain("con l'ufficio della migrazione del tuo Cantone");
+    // Con la cittadinanza svizzera o il permesso C nessun avviso, anche se hai già iniziato.
+    expect(idAvvisi(calcolaPercorso(risposte({ avviata: "meno_3_mesi" })))).not.toContain("permesso");
   });
 
   it("vendita online ai privati: dati sul sito (LCSl art. 3 cpv. 1 lett. s)", () => {

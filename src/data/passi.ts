@@ -399,7 +399,7 @@ export const PASSI = [
     fase: "primi mesi",
     titolo: "Prepara fatture corrette",
     descrizione:
-      "Se non sei iscritto all'IVA non puoi indicare l'IVA in fattura: se lo fai, la devi comunque all'AFC (art. 27 LIVA). Per farti pagare si usa la QR-fattura, che dal 1° ottobre 2022 ha sostituito le vecchie polizze di versamento.",
+      "Se non sei iscritto all'IVA non puoi indicare l'IVA in fattura: se lo fai, la devi comunque all'AFC (art. 27 LIVA). Per farti pagare si usa la QR-fattura, che dal 01.10.2022 ha sostituito le vecchie polizze di versamento.",
     cosaFare: [
       "Non iscritto all'IVA: niente IVA in fattura, né aliquota né importo.",
       "Iscritto all'IVA: in fattura servono il tuo nome e luogo con il numero IVA (formato CHE-123.456.789 IVA), nome e luogo del cliente, la data o il periodo della prestazione, cosa hai fatto, l'importo, l'aliquota e l'importo dell'IVA.",

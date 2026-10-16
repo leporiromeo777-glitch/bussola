@@ -64,7 +64,7 @@ export function GestioneDocumenti({ tipo, idIniziale }: { tipo: TipoDocumento; i
   const [annuncio, setAnnuncio] = useState("");
 
   const nomi = NOMI_TIPO[tipo];
-  const titoloElenco = tipo === "fattura" ? "Le tue fatture" : "I tuoi preventivi";
+  const titoloElenco = nomi.elenco;
   const elenco = useMemo(
     () => (documenti ?? []).filter((d) => d.tipo === tipo).sort((a, b) => b.aggiornatoIl.localeCompare(a.aggiornatoIl)),
     [documenti, tipo],
@@ -85,7 +85,7 @@ export function GestioneDocumenti({ tipo, idIniziale }: { tipo: TipoDocumento; i
     const nuovo = nuovoDocumento(tipo, profilo, documenti, contesto());
     aggiornaDocumenti((lista) => [...lista, nuovo]);
     apri(nuovo.id);
-    setAnnuncio(`Creato ${nomi.singolare.toLowerCase()} ${nuovo.numero}.`);
+    setAnnuncio(`${nomi.singolare} ${nuovo.numero} ${nomi.creato}.`);
   };
 
   const duplica = (origine: Documento) => {
@@ -100,7 +100,7 @@ export function GestioneDocumenti({ tipo, idIniziale }: { tipo: TipoDocumento; i
     aggiornaDocumenti((lista) => lista.filter((d) => d.id !== id));
     if (selezionato === id) apri(null);
     setDaEliminare(null);
-    setAnnuncio(`${eliminato ? eliminato.numero : "Documento"} eliminato.`);
+    setAnnuncio(eliminato ? `${NOMI_TIPO[eliminato.tipo].singolare} ${eliminato.numero} ${NOMI_TIPO[eliminato.tipo].eliminato}.` : "Documento eliminato.");
   };
 
   const inFattura = (preventivo: Documento) => {
@@ -136,12 +136,12 @@ export function GestioneDocumenti({ tipo, idIniziale }: { tipo: TipoDocumento; i
           </h2>
           <button type="button" className={classePulsantePrincipale} onClick={crea}>
             <IconaPiu className="size-4" />
-            {tipo === "fattura" ? "Nuova fattura" : "Nuovo preventivo"}
+            {nomi.nuovo}
           </button>
         </div>
         {elenco.length === 0 ? (
           <p className="mt-3 rounded-xl border border-border bg-card p-4 text-muted">
-            Non hai ancora {tipo === "fattura" ? "fatture" : "preventivi"} su questo dispositivo.{" "}
+            Non hai ancora {nomi.plurale} su questo dispositivo.{" "}
             {tipo === "fattura" ? (
               <>
                 Puoi partire da zero o da un <Link href="/strumenti/preventivo" className={classeLink}>preventivo</Link>.
@@ -167,7 +167,7 @@ export function GestioneDocumenti({ tipo, idIniziale }: { tipo: TipoDocumento; i
                   </button>
                   <div className="flex shrink-0 flex-wrap gap-2">
                     <button type="button" className={classePulsantePiccolo} onClick={() => apri(d.id)}>
-                      {attivo ? "Aperto" : "Apri"}
+                      {attivo ? NOMI_TIPO[d.tipo].aperto : "Apri"}
                       <span className="sr-only"> {d.numero}</span>
                     </button>
                     <button type="button" className={classePulsantePiccolo} onClick={() => duplica(d)}>
@@ -199,7 +199,7 @@ export function GestioneDocumenti({ tipo, idIniziale }: { tipo: TipoDocumento; i
 
       {docAltroTipo ? (
         <p className="rounded-xl border border-border bg-card p-4 print:hidden">
-          Questo documento è un {NOMI_TIPO[docAltroTipo.tipo].singolare.toLowerCase()}:{" "}
+          Questo documento è {NOMI_TIPO[docAltroTipo.tipo].conUn}:{" "}
           <Link href={`/strumenti/${docAltroTipo.tipo}?doc=${encodeURIComponent(docAltroTipo.id)}`} className={classeLink}>
             aprilo nella pagina giusta
           </Link>

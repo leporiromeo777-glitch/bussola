@@ -94,7 +94,7 @@ function InvitoAccesso({ domanda }: { domanda: string }) {
     <div className="mt-8 rounded-2xl border border-border bg-card p-5">
       <h2 className="font-semibold">Accedi per fare le tue domande</h2>
       <p className="mt-2 text-muted">
-        Con il piano gratuito hai {DOMANDE_GRATIS_AL_MESE} domande al mese. Niente password: ricevi un link via email.
+        Durante la prova hai {DOMANDE_GRATIS_AL_MESE} domande al mese. Niente password: ricevi un link via email.
       </p>
       <Link
         href={`/accedi?next=${encodeURIComponent(destinazione)}`}

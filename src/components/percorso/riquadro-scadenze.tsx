@@ -1,19 +1,37 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, useSyncExternalStore } from "react";
 import { dataSvizzera } from "@/data/svizzera";
 import {
   dataIsoValida,
+  dateFisseDaOggi,
   dateScadenza,
   eventiDaScadenze,
   generaIcs,
   nomiCalendario,
   prefissoDate,
+  testoDateFisse,
 } from "@/lib/percorso/calendario";
 import type { Scadenza } from "@/lib/percorso/regole";
 import { ElencoFonti } from "./elenco-fonti";
 import { IconaCalendario } from "./icone";
 import { classePulsantePrincipale } from "./stili";
+
+const nessunaIscrizione = () => () => {};
+
+function oggiLocale(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/**
+ * Data di oggi (AAAA-MM-GG) nel browser. Sul server e durante l'idratazione
+ * vale il 1° gennaio dell'anno del calendario: stessa pagina sul server e nel
+ * browser, poi si aggiorna con la data vera.
+ */
+function useOggi(anno: number): string {
+  return useSyncExternalStore(nessunaIscrizione, oggiLocale, () => `${anno}-01-01`);
+}
 
 /** "Scadenze da ricordare" con il file .ics da scaricare, creato nel browser. */
 export function RiquadroScadenze({
@@ -29,6 +47,7 @@ export function RiquadroScadenze({
   const idInizio = useId();
   const [inizio, setInizio] = useState("");
   const [annuncio, setAnnuncio] = useState("");
+  const oggi = useOggi(anno);
   const conInizio = scadenze.some((s) => s.calendario.tipo === "dopo-inizio");
   const inizioValido = dataIsoValida(inizio) ? inizio : undefined;
 
@@ -69,11 +88,15 @@ export function RiquadroScadenze({
       <ul className="mt-4 space-y-4">
         {scadenze.map((s) => {
           const date = dateScadenza(s, anno, inizioValido);
+          // Date fisse (decreto annuale): confrontate con oggi, così i termini passati non sembrano futuri.
+          const fisse = s.calendario.tipo === "fisse" ? dateFisseDaOggi(s.calendario.date, oggi) : null;
           return (
             <li key={s.id} className="border-t border-border pt-3 first:border-t-0 first:pt-0">
               <p className="font-medium">{s.titolo}</p>
               <p className="text-sm">{s.quando}</p>
-              {date.length > 0 ? (
+              {fisse ? (
+                <p className="mt-1 text-sm text-muted">{testoDateFisse(fisse)}</p>
+              ) : s.calendario.tipo !== "fisse" && date.length > 0 ? (
                 <p className="mt-1 text-sm text-muted">
                   {prefissoDate(s, anno)}
                   {date.map((d) => dataSvizzera(d.data)).join(" · ")}

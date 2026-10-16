@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { emittenteVuoto, nuovoDocumento, type Documento } from "./documenti";
-import { sezionePagamentoSvg, svgScalabile } from "./qr-svg";
+import { conLineaDiTaglio, sezionePagamentoSvg, svgScalabile } from "./qr-svg";
 
 function fattura(modifiche: Partial<Documento> = {}): Documento {
   const base = nuovoDocumento(
@@ -42,6 +42,22 @@ describe("svgScalabile", () => {
   });
 });
 
+describe("conLineaDiTaglio", () => {
+  it("aggiunge in cima la linea tratteggiata di 210 mm con le forbici, sopra il resto del disegno", () => {
+    const fuori = conLineaDiTaglio('<svg xmlns="x" width="210mm" height="105mm"><rect width="100%"/><svg><path/></svg></svg>');
+    expect(fuori).toMatch(/^<svg xmlns="x" width="210mm" height="105mm" overflow="visible">/);
+    expect(fuori).toContain('<line data-linea-taglio="" x1="0" y1="0.5" x2="793.701" y2="0.5" stroke-width="1" stroke="black" stroke-dasharray="3" />');
+    expect(fuori).toMatch(/<g data-forbici="" transform="translate\(387\.350 6\.000\) rotate\(-90\)"><path d="M8\.55299/);
+    // Linea e forbici dopo lo sfondo bianco e dentro l'SVG principale.
+    expect(fuori.indexOf("data-linea-taglio")).toBeGreaterThan(fuori.indexOf("<rect"));
+    expect(fuori.endsWith("</g></svg>")).toBe(true);
+    expect(fuori.indexOf("<svg><path/></svg>")).toBeLessThan(fuori.indexOf("data-linea-taglio"));
+  });
+  it("lascia stare un testo che non è un SVG", () => {
+    expect(conLineaDiTaglio("<div></div>")).toBe("<div></div>");
+  });
+});
+
 describe("sezionePagamentoSvg", () => {
   it("crea la sezione pagamento in italiano con importo, IBAN e riferimento RF", () => {
     const esito = sezionePagamentoSvg(fattura());
@@ -54,6 +70,16 @@ describe("sezionePagamentoSvg", () => {
     expect(esito.svg).toContain("CH58 0079 1123 0008 8901 2");
     expect(esito.svg).toMatch(/RF\d\d F202 6001/);
     expect(esito.svg).toContain("Bar Centrale");
+  });
+
+  it("ha la linea di taglio orizzontale con le forbici, oltre a quella verticale", () => {
+    const esito = sezionePagamentoSvg(fattura());
+    expect(esito.ok).toBe(true);
+    if (!esito.ok) return;
+    expect(esito.svg).toContain("data-linea-taglio");
+    expect(esito.svg).toContain("data-forbici");
+    expect(esito.svg).toMatch(/^<svg[^>]*overflow="visible"[^>]*viewBox="0 0 793\.701 396\.850"/);
+    expect(esito.svg.match(/stroke-dasharray/g)).toHaveLength(2);
   });
 
   it("con un QR-IBAN usa il riferimento QR", () => {

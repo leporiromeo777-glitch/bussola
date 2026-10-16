@@ -152,11 +152,11 @@ export const regole = {
   capitaleMinimoSa: dato(100_000, fonti.co621),
 } as const;
 
-/** Aliquote IVA in vigore dal 1.1.2024. */
+/** Aliquote IVA in vigore dal 01.01.2024. */
 export const aliquoteIva = dato(
   { normale: 0.081, ridotta: 0.026, alloggio: 0.038 },
   fonti.afcAliquote,
-  "Il 29.11.2026 si vota un aumento dell'aliquota normale all'8,5% e di quella per l'alloggio al 4%, non prima del 2028. L'aliquota per l'alloggio vale per legge fino al 31.12.2027; il Parlamento l'ha prorogata al 31.12.2031 (termine di referendum 21.1.2027). Dopo il numero IVA si scrive IVA, MWST o TVA, non VAT.",
+  "Il 29.11.2026 si vota un aumento dell'aliquota normale all'8,5% e di quella per l'alloggio al 4%, non prima del 2028. L'aliquota per l'alloggio vale per legge fino al 31.12.2027; il Parlamento l'ha prorogata al 31.12.2031 (termine di referendum 21.01.2027). Dopo il numero IVA si scrive IVA, MWST o TVA, non VAT.",
 );
 
 /** Tasse federali per la prima iscrizione di una ditta individuale nel registro di commercio. */
@@ -188,7 +188,7 @@ export const avsIndipendenti: Record<2026 | 2027, Dato<ParametriAvs>> = {
   2027: dato(
     { anno: 2027, tassoMassimo: 0.1, tassoMinimoScala: 0.05371, limiteInferioreScala: 10_300, limiteSuperioreScala: 61_500, contributoMinimo: 541 },
     fonti.ufasImporti2027,
-    "Valori decisi dal Consiglio federale il 2.10.2026, in vigore dal 1.1.2027.",
+    "Valori decisi dal Consiglio federale il 02.10.2026, in vigore dal 01.01.2027.",
   ),
 };
 
@@ -197,6 +197,21 @@ export const supplementiTicino = {
   speseAmministrative: dato(0.02, fonti.iasAliquote2025, "Percentuale dei contributi AVS/AI/IPG. Valore 2025, ultimo foglio pubblicato dall'IAS."),
   assegniFamiliari: dato(0.0085, fonti.iasAf2026, "Cassa cantonale AF, 2026. Le casse professionali possono avere aliquote diverse."),
   assegnoIntegrativo: dato(0.0015, fonti.lafTicino73),
+} as const;
+
+/**
+ * Anno a cui vale ogni supplemento IAS usato nelle stime: l'ultimo pubblicato.
+ * Spese amministrative e tetto degli assegni familiari (CHF 148'200, «fino a
+ * CHF 148'200.00 di reddito annuo») vengono dal foglio IAS 2025 dei contributi
+ * personali, l'aliquota AF dalle informazioni periodiche AF 2026 (0,85% per
+ * le persone di condizione indipendente). Ricontrollato il 16.10.2026: il
+ * foglio 2026 dei contributi personali non è ancora pubblicato
+ * (Aliquote_contributive_2026_personali.pdf allo stesso indirizzo: 404).
+ */
+export const anniSupplementiTicino = {
+  speseAmministrative: 2025,
+  assegniFamiliari: 2026,
+  guadagnoMassimoAssegniFamiliari: 2025,
 } as const;
 
 /** Pilastro 3a: importo massimo deducibile. */

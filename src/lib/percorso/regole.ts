@@ -25,7 +25,7 @@ import {
 import type { Risposte } from "./risposte";
 
 /** Versione delle regole salvata con le risposte (colonna questionari.versione_regole). */
-export const VERSIONE_REGOLE = "2026-10-15";
+export const VERSIONE_REGOLE = "2026-10-16";
 
 export type StatoPasso = "da_fare" | "facoltativo" | "non_serve";
 
@@ -169,9 +169,12 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
             "Hai indicato ristorazione, bar o alimentari: se apri un esercizio pubblico, in Ticino ti serve l'autorizzazione prima di aprire.",
         }
       : {
-          stato: "facoltativo",
+          stato: "da_fare",
           perche:
-            "La LEAR è una legge ticinese: nel tuo Cantone valgono regole cantonali, da verificare con gli uffici del Cantone prima di aprire.",
+            "Hai indicato ristorazione, bar o alimentari: se apri un esercizio pubblico, anche fuori dal Ticino di regola ti serve un'autorizzazione cantonale prima di aprire.",
+          note: [
+            "La procedura descritta qui (legge LEAR) è ticinese. Nel tuo Cantone chiedi all'ufficio cantonale competente quale autorizzazione serve e come chiederla.",
+          ],
         };
   },
 
@@ -206,12 +209,28 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
             "Hai indicato salute, cura o benessere: se la tua è un'attività sanitaria sotto la tua responsabilità, in Ticino serve un'autorizzazione.",
         }
       : {
-          stato: "facoltativo",
-          perche: "Questa procedura è ticinese: nel tuo Cantone verifica con l'autorità sanitaria cantonale.",
+          stato: "da_fare",
+          perche:
+            "Hai indicato salute, cura o benessere: se la tua è un'attività sanitaria sotto la tua responsabilità, di regola serve un'autorizzazione anche fuori dal Ticino.",
+          note: [
+            "La procedura descritta qui è ticinese. Nel tuo Cantone chiedi all'autorità sanitaria cantonale se la tua attività ha bisogno di un'autorizzazione e come chiederla.",
+          ],
         };
   },
 
   "permesso-lavoro": (r) => {
+    if (giaAvviata(r) && r.permesso !== "svizzero_c") {
+      return {
+        stato: "da_fare",
+        perche:
+          r.permesso === "g"
+            ? "Sei frontaliere e hai già iniziato: se non hai ancora il permesso G per l'attività indipendente, chiedilo subito all'ufficio della migrazione."
+            : r.permesso === "b"
+              ? "Hai un permesso B e hai già iniziato: verifica subito con l'ufficio della migrazione che ti consenta di lavorare come indipendente."
+              : "Hai già iniziato: verifica subito con l'ufficio della migrazione del tuo Cantone se e come puoi lavorare in proprio.",
+        note: ["È un caso complesso: fatti aiutare da un professionista, per esempio un avvocato che si occupa di permessi."],
+      };
+    }
     switch (r.permesso) {
       case "g":
         return {
@@ -616,18 +635,36 @@ function calcolaAvvisi(r: Risposte): Avviso[] {
   }
 
   if (r.permesso !== "svizzero_c") {
-    avvisi.push({
-      id: "permesso",
-      livello: "importante",
-      titolo: "Prima di iniziare, verifica il tuo permesso",
-      testo:
-        r.permesso === "g"
-          ? "I frontalieri che vogliono mettersi in proprio chiedono il permesso G per l'attività indipendente: di regola, prima di iniziare."
-          : r.permesso === "b"
-            ? "Verifica con l'ufficio della migrazione che il tuo permesso B ti consenta di lavorare come indipendente."
-            : "Verifica con l'ufficio della migrazione del tuo Cantone se e come puoi lavorare in proprio.",
-      fonti: [fontiPercorso.pmiMettersiInProprio, fontiPercorso.umIndipendentiUeAels],
-    });
+    const ufficio = inTicino(r) ? "l'Ufficio della migrazione" : "l'ufficio della migrazione del tuo Cantone";
+    const allUfficio = inTicino(r) ? "all'Ufficio della migrazione" : "all'ufficio della migrazione del tuo Cantone";
+    avvisi.push(
+      giaAvviata(r)
+        ? {
+            id: "permesso",
+            livello: "importante",
+            titolo: "Hai già iniziato: verifica subito il tuo permesso",
+            testo:
+              (r.permesso === "g"
+                ? `Per lavorare in proprio i frontalieri hanno bisogno del permesso G per l'attività indipendente. Se non l'hai ancora, rivolgiti subito ${allUfficio}.`
+                : r.permesso === "b"
+                  ? `Verifica subito con ${ufficio} che il tuo permesso B ti consenta di lavorare come indipendente.`
+                  : `Verifica subito con ${ufficio} se e come puoi lavorare in proprio.`) +
+              " È un caso complesso: fatti aiutare da un professionista, per esempio un avvocato che si occupa di permessi.",
+            fonti: [fontiPercorso.pmiMettersiInProprio, fontiPercorso.umIndipendentiUeAels],
+          }
+        : {
+            id: "permesso",
+            livello: "importante",
+            titolo: "Prima di iniziare, verifica il tuo permesso",
+            testo:
+              r.permesso === "g"
+                ? "I frontalieri che vogliono mettersi in proprio chiedono il permesso G per l'attività indipendente: di regola, prima di iniziare."
+                : r.permesso === "b"
+                  ? `Verifica con ${ufficio} che il tuo permesso B ti consenta di lavorare come indipendente.`
+                  : `Verifica con ${ufficio} se e come puoi lavorare in proprio.`,
+            fonti: [fontiPercorso.pmiMettersiInProprio, fontiPercorso.umIndipendentiUeAels],
+          },
+    );
   }
 
   if (r.avviata === "oltre_3_mesi" && !conSoci(r)) {
@@ -721,14 +758,22 @@ function calcolaScadenze(r: Risposte): Scadenza[] {
     id: "acconti-cantonali",
     titolo: "Acconti dell'imposta cantonale",
     titoloEvento: "Acconto dell'imposta cantonale",
-    quando: acconti
-      ? `3 rate più un conguaglio. Termini di pagamento ${ultimoAnno}: ${acconti.valore.map(dataSvizzera).join(", ")}`
-      : "3 rate più un conguaglio",
-    dettaglio: `Le date degli anni seguenti le fissa ogni anno un decreto cantonale. Il primo anno le richieste non arrivano da sole: chiedi le polizze per pagamenti volontari.`,
+    // Niente date qui: il riquadro delle scadenze le mostra confrontandole con
+    // la data di oggi (dateFisseDaOggi in calendario.ts), così i termini già
+    // passati non sembrano scadenze future.
+    quando: "3 rate più un conguaglio, alle date fissate ogni anno da un decreto cantonale",
+    dettaglio:
+      "Il primo anno le richieste di acconto non arrivano da sole: chiedi le polizze per pagamenti volontari.",
     fonti: acconti ? [acconti.fonte, fontiPercorso.istruzioniPf2025] : [fontiPercorso.istruzioniPf2025],
     calendario: {
       tipo: "fisse",
-      date: (acconti?.valore ?? []).map((data, i) => ({ data, etichetta: `${i + 1}ª rata` })),
+      // Le date di tutti gli anni pubblicati: dateScadenza sceglie quelle dell'anno.
+      date: anniAcconti.flatMap((anno) =>
+        (regolePercorso.accontiCantonaliTicino[anno]?.valore ?? []).map((data, i) => ({
+          data,
+          etichetta: `${i + 1}ª rata`,
+        })),
+      ),
     },
   });
 

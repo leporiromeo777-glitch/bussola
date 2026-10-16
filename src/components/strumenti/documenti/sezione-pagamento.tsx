@@ -6,7 +6,10 @@ import { sezionePagamentoSvg } from "@/lib/strumenti/qr-svg";
 
 /**
  * La sezione pagamento in fondo alla fattura (210 × 105 mm in stampa), oppure
- * l'elenco di cosa manca, che non si stampa.
+ * l'elenco di cosa manca, che non si stampa. L'SVG contiene già la linea
+ * tratteggiata con le forbici sopra la sezione (conLineaDiTaglio in
+ * src/lib/strumenti/qr-svg.ts), che le linee guida SIX chiedono per la
+ * QR-fattura su carta normale o in PDF: si vede anche in stampa.
  */
 export function SezionePagamento({ doc }: { doc: Documento }) {
   const esito = useMemo(() => sezionePagamentoSvg(doc), [doc]);

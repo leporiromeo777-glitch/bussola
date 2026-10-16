@@ -9,8 +9,8 @@
  *   letta dal PDF ufficiale il 15.10.2026. Il tasso AVS da solo è nell'art. 21
  *   OAVS (4,35% … 7,55%), quello AI nell'OAI e quello IPG nell'OIPG.
  * - 2027: fasce e tassi dal testo provvisorio delle ordinanze del Consiglio
- *   federale del 2.10.2026 (OAVS art. 21, OAI art. 1bis, OIPG art. 36), in
- *   vigore dal 1.1.2027. La somma delle tre parti è nostra; i tassi per fascia
+ *   federale del 02.10.2026 (OAVS art. 21, OAI art. 1bis, OIPG art. 36), in
+ *   vigore dal 01.01.2027. La somma delle tre parti è nostra; i tassi per fascia
  *   restano quelli del 2026, cambiano solo i limiti delle fasce. Quando esce il
  *   promemoria 2.02 del 2027 va confrontato con questa tabella.
  *
@@ -80,7 +80,7 @@ export const tavoleScalari: Record<AnnoAvs, TavolaScalare> = {
     fonte: fontiStrumenti.adeguamentiAvs2027,
     verificatoIl: "2026-10-15",
     nota:
-      "Testo provvisorio del Consiglio federale (2.10.2026), in vigore dal 1.1.2027: fa stato la versione pubblicata su Fedlex. " +
+      "Testo provvisorio del Consiglio federale (02.10.2026), in vigore dal 01.01.2027: fa stato la versione pubblicata su Fedlex. " +
       "La somma AVS + AI + IPG per fascia è nostra. L'ordinanza fissa a CHF 10'200 il limite per il contributo minimo (art. 8 cpv. 2 LAVS): " +
       "siccome il reddito si arrotonda ai 100 franchi inferiori (art. 8 cpv. 1 LAVS), vale per un reddito sotto CHF 10'300.",
     fasce: [

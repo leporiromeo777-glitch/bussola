@@ -150,13 +150,13 @@ export function ModuloDocumento({ doc, onCambia, onEmittente }: Props) {
         />
       </Gruppo>
 
-      <Gruppo legenda={`Dati del ${tipo.singolare.toLowerCase()}`}>
+      <Gruppo legenda={`Dati ${tipo.conDel}`}>
         <div className="grid gap-4 sm:grid-cols-3">
           <CampoTesto id="doc-numero" etichetta="Numero" valore={doc.numero} onCambia={(v) => imposta("numero", v)} maxLength={40} obbligatorio />
           <CampoTesto id="doc-data" etichetta="Data" tipo="date" valore={doc.data} onCambia={(v) => imposta("data", v)} />
           <CampoTesto
             id="doc-scadenza"
-            etichetta={doc.tipo === "fattura" ? "Da pagare entro il" : "Valido fino al"}
+            etichetta={tipo.scadenza}
             tipo="date"
             valore={doc.scadenza}
             onCambia={(v) => imposta("scadenza", v)}

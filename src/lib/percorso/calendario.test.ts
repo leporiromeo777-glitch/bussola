@@ -3,6 +3,7 @@ import {
   aggiungiGiorni,
   annoScadenzario,
   dataIsoValida,
+  dateFisseDaOggi,
   dateScadenza,
   eventiDaScadenze,
   generaIcs,
@@ -10,6 +11,7 @@ import {
   piegaRiga,
   prefissoDate,
   proteggiTesto,
+  testoDateFisse,
   type EventoCalendario,
 } from "./calendario";
 import { calcolaPercorso, type Scadenza } from "./regole";
@@ -88,6 +90,60 @@ describe("date delle scadenze", () => {
       "2026-09-30",
     ]);
     expect(dateScadenza(trova("acconti-cantonali"), 2027)).toEqual([]);
+  });
+
+  it("acconti cantonali: se tutte le date dell'ultimo anno sono passate, non sono più scadenze", () => {
+    const cantonali = trova("acconti-cantonali");
+    if (cantonali.calendario.tipo !== "fisse") throw new Error("date fisse attese");
+    const date = cantonali.calendario.date;
+
+    const ottobre = dateFisseDaOggi(date, "2026-10-16");
+    expect(ottobre).toEqual({
+      stato: "da-pubblicare",
+      anno: 2026,
+      annoProssimo: 2027,
+      date: [
+        { data: "2026-05-31", etichetta: "1ª rata" },
+        { data: "2026-07-31", etichetta: "2ª rata" },
+        { data: "2026-09-30", etichetta: "3ª rata" },
+      ],
+    });
+    if (!ottobre) return;
+    expect(testoDateFisse(ottobre)).toBe(
+      "Le date del 2027 non sono ancora pubblicate: di solito escono a fine anno. Come esempio, i termini del 2026, già passati: 31.05.2026, 31.07.2026, 30.09.2026.",
+    );
+
+    // L'anno dopo si parla dell'anno in corso, non di quello passato.
+    const marzo2027 = dateFisseDaOggi(date, "2027-03-01");
+    expect(marzo2027?.stato === "da-pubblicare" && marzo2027.annoProssimo).toBe(2027);
+  });
+
+  it("acconti cantonali: le date future restano scadenze, quelle passate sono segnate", () => {
+    const cantonali = trova("acconti-cantonali");
+    if (cantonali.calendario.tipo !== "fisse") throw new Error("date fisse attese");
+    const giugno = dateFisseDaOggi(cantonali.calendario.date, "2026-06-15");
+    expect(giugno?.stato).toBe("pubblicate");
+    if (!giugno) return;
+    expect(testoDateFisse(giugno)).toBe(
+      "Termini di pagamento 2026: 31.05.2026 (già passato), 31.07.2026, 30.09.2026.",
+    );
+    // Il giorno stesso del termine non è ancora passato.
+    expect(dateFisseDaOggi(cantonali.calendario.date, "2026-09-30")?.stato).toBe("pubblicate");
+    expect(dateFisseDaOggi(cantonali.calendario.date, "2026-10-01")?.stato).toBe("da-pubblicare");
+  });
+
+  it("date fisse: con un anno nuovo pubblicato usa quello, senza date non dice niente", () => {
+    const date = [
+      { data: "2026-05-31", etichetta: "1ª rata" },
+      { data: "2027-05-31", etichetta: "1ª rata" },
+    ];
+    expect(dateFisseDaOggi(date, "2026-11-20")).toEqual({
+      stato: "pubblicate",
+      anno: 2027,
+      date: [{ data: "2027-05-31", etichetta: "1ª rata", passata: false }],
+    });
+    expect(dateFisseDaOggi([], "2026-11-20")).toBeNull();
+    expect(dateFisseDaOggi(date, "20.11.2026")).toBeNull();
   });
 
   it("annuncio IVA: 30 giorni dalla data di inizio indicata, niente senza data valida", () => {

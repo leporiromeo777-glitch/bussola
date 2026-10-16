@@ -28,3 +28,15 @@ describe("dati ufficiali", () => {
     expect(avsIndipendenti[2026].valore.contributoMinimo).toBe(530);
   });
 });
+
+describe("date nei testi", () => {
+  it("i dati, i passi e la tavola scalare scrivono le date come gg.mm.aaaa", async () => {
+    const svizzera = await import("./svizzera");
+    const { PASSI } = await import("./passi");
+    const { tavoleScalari } = await import("./avs-tavola-scalare");
+    const testo = JSON.stringify([svizzera, PASSI, tavoleScalari]);
+    // Niente «1.1.2027» o «2.10.2026»: giorno e mese con due cifre.
+    expect(testo.match(/(?<![\d.])\d{1,2}\.\d{1,2}\.\d{4}/g)?.filter((d) => !/^\d{2}\.\d{2}\.\d{4}$/.test(d)) ?? []).toEqual([]);
+    expect(testo).toContain("dal 01.10.2022");
+  });
+});

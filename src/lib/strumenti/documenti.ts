@@ -78,9 +78,61 @@ export type Documento = {
   aggiornatoIl: string;
 };
 
-export const NOMI_TIPO: Record<TipoDocumento, { singolare: string; prefisso: string; scadenza: string }> = {
-  preventivo: { singolare: "Preventivo", prefisso: "P", scadenza: "Valido fino al" },
-  fattura: { singolare: "Fattura", prefisso: "F", scadenza: "Da pagare entro il" },
+/**
+ * Nomi del tipo di documento con articoli e accordi già pronti: «preventivo»
+ * è maschile, «fattura» femminile. Usarli sempre, invece di comporre «del »
+ * + nome, evita errori come «Dati del fattura».
+ */
+export type NomiTipo = {
+  singolare: string;
+  /** Il nome in minuscolo, dentro una frase. */
+  minuscolo: string;
+  plurale: string;
+  /** «un preventivo», «una fattura». */
+  conUn: string;
+  /** «del preventivo», «della fattura». */
+  conDel: string;
+  /** Pulsante per crearne uno: «Nuovo preventivo», «Nuova fattura». */
+  nuovo: string;
+  /** Titolo dell'elenco: «I tuoi preventivi», «Le tue fatture». */
+  elenco: string;
+  /** Participi accordati: «creato», «Aperto», «eliminato» (o «-a» al femminile). */
+  creato: string;
+  aperto: string;
+  eliminato: string;
+  prefisso: string;
+  scadenza: string;
+};
+
+export const NOMI_TIPO: Record<TipoDocumento, NomiTipo> = {
+  preventivo: {
+    singolare: "Preventivo",
+    minuscolo: "preventivo",
+    plurale: "preventivi",
+    conUn: "un preventivo",
+    conDel: "del preventivo",
+    nuovo: "Nuovo preventivo",
+    elenco: "I tuoi preventivi",
+    creato: "creato",
+    aperto: "Aperto",
+    eliminato: "eliminato",
+    prefisso: "P",
+    scadenza: "Valido fino al",
+  },
+  fattura: {
+    singolare: "Fattura",
+    minuscolo: "fattura",
+    plurale: "fatture",
+    conUn: "una fattura",
+    conDel: "della fattura",
+    nuovo: "Nuova fattura",
+    elenco: "Le tue fatture",
+    creato: "creata",
+    aperto: "Aperta",
+    eliminato: "eliminata",
+    prefisso: "F",
+    scadenza: "Da pagare entro il",
+  },
 };
 
 /** Giorni predefiniti per la scadenza o la validità: si possono cambiare. */

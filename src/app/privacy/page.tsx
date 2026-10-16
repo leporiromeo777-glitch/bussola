@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
 import { Avviso, PaginaLegale } from "@/components/landing/pagina-legale";
 import { DatiTitolare, EmailTitolare } from "@/components/landing/titolare";
 import { SCAMBI_PRECEDENTI_MASSIMI } from "@/lib/chat/limiti";
 import { dataSvizzera } from "@/data/svizzera";
-import { ELENCO_DPF, GARANZIE_USA, informativaPrivacy, OPDA } from "@/lib/privacy";
+import { ELENCO_DPF, GARANZIE_USA, informativaPrivacy, OPDA, trattamentiAttivi } from "@/lib/privacy";
+import { listaAttesaAttiva } from "@/lib/lista-attesa/stato";
 import { sito } from "@/lib/sito";
 
 export const metadata: Metadata = {
@@ -13,25 +15,39 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const AGGIORNATO = { iso: "2026-10-15", testo: "15.10.2026" };
-
-const statisticheAttive = Boolean(process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN);
-const verificaAntiRobotAttiva = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+const AGGIORNATO = { iso: "2026-10-16", testo: "16.10.2026" };
 
 // Regione del database, hosting, garanzie per gli USA e durata dei log:
 // src/lib/privacy.ts. Le parti tra parentesi quadre sono da completare.
-const { luogoDati, hosting, durataDatiTecnici } = informativaPrivacy;
+const { luogoDati, hosting, durataDatiTecnici, incompleta } = informativaPrivacy;
 
 const LPD = "https://www.fedlex.admin.ch/eli/cc/2022/491/it";
 const LCSL = "https://www.fedlex.admin.ch/eli/cc/1988/223_223_223/it";
 const IFPDT = "https://www.edoeb.admin.ch/it";
+
+/** Accanto a un trattamento descritto ma non ancora acceso. */
+function NonAttivo({ attivo, testo = "non ancora attivo" }: { attivo: boolean; testo?: string }) {
+  if (attivo) return null;
+  return <span className="font-normal text-muted"> ({testo})</span>;
+}
 
 /** Garanzia per i dati comunicati negli Stati Uniti (LPD art. 19 cpv. 4). */
 function GaranziaUsa({ testo }: { testo: string }) {
   return <> Garanzia per i dati comunicati fuori dalla Svizzera e dall&apos;UE: {testo}.</>;
 }
 
-export default function PaginaPrivacy() {
+export default async function PaginaPrivacy() {
+  // Al momento della richiesta: quali servizi sono attivi dipende dalle
+  // variabili d'ambiente del server, non da quelle della build.
+  await connection();
+  const attivi = trattamentiAttivi({
+    ...process.env,
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    NEXT_PUBLIC_PLAUSIBLE_DOMAIN: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN,
+  });
+
   return (
     <PaginaLegale
       titolo="Informativa sulla privacy"
@@ -40,7 +56,8 @@ export default function PaginaPrivacy() {
         <Avviso>
           <p className="mt-0! font-semibold">Bozza: da far rivedere da un giurista prima del lancio.</p>
           <p className="mt-1!">
-            Questo testo descrive come funziona oggi {sito.nome}. Le parti tra parentesi quadre vanno completate.
+            Questo testo descrive come funziona oggi {sito.nome}.
+            {incompleta ? " Le parti tra parentesi quadre vanno completate." : null}
           </p>
         </Avviso>
       }
@@ -53,6 +70,13 @@ export default function PaginaPrivacy() {
           <li>Raccogliamo solo i dati che servono a farti usare {sito.nome} e a scriverti, se ce lo chiedi.</li>
           <li>Non vendiamo i tuoi dati e non li usiamo per pubblicità.</li>
           <li>Il database è su server {luogoDati}.</li>
+          {hosting.server ? (
+            <li>
+              Il sito e il suo server girano su Netlify {hosting.server}: i dati che mandi con i moduli (lista
+              d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat) passano da lì prima
+              di arrivare al database.
+            </li>
+          ) : null}
           <li>
             Puoi chiedere in ogni momento di vedere, correggere o cancellare i tuoi dati scrivendo a <EmailTitolare />.
           </li>
@@ -78,7 +102,10 @@ export default function PaginaPrivacy() {
       <section aria-labelledby="dati">
         <h2 id="dati">2. Quali dati raccogliamo e perché</h2>
 
-        <h3>Lista d&apos;attesa</h3>
+        <h3>
+          Lista d&apos;attesa
+          <NonAttivo attivo={listaAttesaAttiva()} testo="non ancora attiva: per ora non salviamo le iscrizioni" />
+        </h3>
         <ul>
           <li>
             <strong>Dati:</strong> la tua email (obbligatoria); se vuoi, il nome, il Cantone e a che punto sei con la
@@ -92,7 +119,10 @@ export default function PaginaPrivacy() {
           </li>
         </ul>
 
-        <h3>Account</h3>
+        <h3>
+          Account
+          <NonAttivo attivo={attivi.account} />
+        </h3>
         <ul>
           <li>
             <strong>Dati:</strong> la tua email, il piano scelto e le date di accesso.
@@ -131,14 +161,17 @@ export default function PaginaPrivacy() {
           </li>
         </ul>
 
-        <h3>Domande alla chat</h3>
+        <h3>
+          Domande alla chat
+          <NonAttivo attivo={attivi.chat} testo="non ancora attiva" />
+        </h3>
         <ul>
           <li>
             <strong>Dati:</strong> il testo delle domande, le fonti citate nella risposta e se la risposta è stata
             trovata.
           </li>
           <li>
-            <strong>Perché:</strong> per risponderti, contare le domande del piano gratuito e capire quali fonti
+            <strong>Perché:</strong> per risponderti, contare le domande del mese e capire quali fonti
             ufficiali mancano. Ti chiediamo di non scrivere nella chat dati personali che non servono (per esempio il
             numero AVS o dati sulla salute).
           </li>
@@ -155,7 +188,8 @@ export default function PaginaPrivacy() {
             registrati automaticamente dal fornitore di hosting e dal database.
           </li>
           <li>
-            <strong>Protezione dei moduli:</strong> per limitare gli abusi dei moduli di iscrizione e di accesso
+            <strong>Protezione dei moduli</strong>
+            <NonAttivo attivo={attivi.protezioneModuli} testo="non ancora attiva" />: per limitare gli abusi dei moduli di iscrizione e di accesso
             conserviamo per al massimo un giorno un&apos;impronta cifrata del tuo indirizzo IP, mai l&apos;indirizzo in
             chiaro.
           </li>
@@ -227,10 +261,19 @@ export default function PaginaPrivacy() {
           </li>
           <li>
             <strong>Hosting del sito</strong>: {hosting.nome}.
+            {hosting.server ? (
+              <>
+                {" "}
+                Su Netlify gira anche il server del sito, {hosting.server}: riceve i dati che mandi con i moduli
+                (lista d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat) e li passa
+                al database.
+              </>
+            ) : null}
             {hosting.garanzia ? <GaranziaUsa testo={hosting.garanzia} /> : null}
           </li>
           <li>
-            <strong>Anthropic Ireland, Limited (Irlanda), con Anthropic, PBC (USA)</strong>: genera le risposte
+            <strong>Anthropic Ireland, Limited (Irlanda), con Anthropic, PBC (USA)</strong>
+            <NonAttivo attivo={attivi.chat} testo="non ancora attivo: la chat è spenta" />: genera le risposte
             della chat. Riceve la tua domanda, al massimo le {SCAMBI_PRECEDENTI_MASSIMI} domande e risposte precedenti
             della stessa conversazione e i testi delle fonti pubbliche trovate per rispondere; non riceve la tua
             email né altri dati dell&apos;account. Questi dati sono conservati negli Stati Uniti e cancellati da
@@ -238,19 +281,20 @@ export default function PaginaPrivacy() {
             <GaranziaUsa testo={GARANZIE_USA.anthropic} />
           </li>
           <li>
-            <strong>Resend (Plus Five Five, Inc., USA)</strong>: invia le email della lista d&apos;attesa (conferma e
+            <strong>Resend (Plus Five Five, Inc., USA)</strong>
+            <NonAttivo attivo={attivi.email} testo="non ancora attivo: per ora non inviamo email" />: invia le email della lista d&apos;attesa (conferma e
             aggiornamenti). Riceve il tuo indirizzo email e il testo dell&apos;email, e conserva i dati degli invii
             negli Stati Uniti per 30 giorni.
             <GaranziaUsa testo={GARANZIE_USA.resend} />
           </li>
-          {verificaAntiRobotAttiva ? (
+          {attivi.verificaAntiRobot ? (
             <li>
               <strong>Cloudflare, Inc. (USA)</strong>: verifica anti-robot (Turnstile) nella pagina di accesso.
               Riceve dati tecnici del browser e l&apos;indirizzo IP. Garanzia per il trasferimento:{" "}
               [da confermare prima del lancio].
             </li>
           ) : null}
-          {statisticheAttive ? (
+          {attivi.statistiche ? (
             <li>
               <strong>Plausible Insights OÜ (Estonia, UE)</strong>: statistiche di visita senza cookie e senza
               profili personali.
@@ -304,7 +348,7 @@ export default function PaginaPrivacy() {
           tengono collegato. Non usiamo cookie di profilazione né di pubblicità.
         </p>
         <p>
-          {statisticheAttive
+          {attivi.statistiche
             ? "Per contare le visite usiamo Plausible, che non usa cookie e non crea profili delle persone."
             : "Per ora non usiamo strumenti di statistica. Se li attiveremo, saranno senza cookie e lo scriveremo qui."}
         </p>

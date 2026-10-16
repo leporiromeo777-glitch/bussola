@@ -10,6 +10,7 @@ import {
   elementiObbligatoriIva,
   emittenteVuoto,
   erroriPagamento,
+  NOMI_TIPO,
   normalizzaNumeroIva,
   nuovoDocumento,
   pagamentoDaDocumento,
@@ -305,5 +306,36 @@ describe("schemaElencoDocumenti", () => {
     expect(elenco[1].valuta).toBe("CHF");
     expect(elenco[1].righe).toEqual([]);
     expect(schemaElencoDocumenti.parse("non un elenco")).toEqual([]);
+  });
+});
+
+describe("NOMI_TIPO", () => {
+  it("accorda «fattura» al femminile e «preventivo» al maschile", () => {
+    expect(`Dati ${NOMI_TIPO.fattura.conDel}`).toBe("Dati della fattura");
+    expect(`Dati ${NOMI_TIPO.preventivo.conDel}`).toBe("Dati del preventivo");
+    expect(NOMI_TIPO.fattura.conUn).toBe("una fattura");
+    expect(NOMI_TIPO.preventivo.conUn).toBe("un preventivo");
+    expect([NOMI_TIPO.fattura.nuovo, NOMI_TIPO.fattura.creato, NOMI_TIPO.fattura.aperto, NOMI_TIPO.fattura.eliminato]).toEqual([
+      "Nuova fattura",
+      "creata",
+      "Aperta",
+      "eliminata",
+    ]);
+    expect([NOMI_TIPO.preventivo.nuovo, NOMI_TIPO.preventivo.creato, NOMI_TIPO.preventivo.aperto, NOMI_TIPO.preventivo.eliminato]).toEqual([
+      "Nuovo preventivo",
+      "creato",
+      "Aperto",
+      "eliminato",
+    ]);
+    expect(NOMI_TIPO.fattura.elenco).toBe("Le tue fatture");
+    expect(NOMI_TIPO.preventivo.plurale).toBe("preventivi");
+  });
+
+  it("le forme minuscole corrispondono al nome", () => {
+    for (const nomi of Object.values(NOMI_TIPO)) {
+      expect(nomi.minuscolo).toBe(nomi.singolare.toLowerCase());
+      expect(nomi.conUn.endsWith(nomi.minuscolo)).toBe(true);
+      expect(nomi.conDel.endsWith(nomi.minuscolo)).toBe(true);
+    }
   });
 });

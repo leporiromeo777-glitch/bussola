@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Niente intestazione «X-Powered-By: Next.js»: non serve e rivela la tecnologia usata.
+  poweredByHeader: false,
   env: {
     // Fornitore di hosting per l'informativa sulla privacy (src/lib/privacy.ts),
     // fissato durante la build: VERCEL e NETLIFY non sempre esistono quando il

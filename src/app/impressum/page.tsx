@@ -18,7 +18,7 @@ export default function PaginaImpressum() {
       prima={
         titolareIncompleto || indirizzoTitolareMancante ? (
           <Avviso>
-            <p className="mt-0! font-semibold">Ditta individuale in costituzione.</p>
+            <p className="mt-0! font-semibold">Nessuna ditta iscritta per ora: {sito.nome} è in fase di prova.</p>
             <p className="mt-1!">
               {titolareIncompleto
                 ? "I dati del titolare tra parentesi quadre saranno completati prima del lancio."

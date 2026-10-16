@@ -1,4 +1,5 @@
 import { formattaData } from "./formato";
+import { DOMANDE_GRATIS_AL_MESE } from "./quota";
 import type { QuotaPubblica } from "./tipi";
 
 /** A chi rivolgersi quando Bussola non ha una fonte verificata. */
@@ -29,7 +30,10 @@ export const MESSAGGI = {
   rispostaInterrotta: "La risposta si è interrotta a metà. Riprova.",
 } as const;
 
-/** Messaggio per la quota gratuita esaurita. */
+/**
+ * Messaggio per la quota gratuita esaurita. Non rimanda a un piano a
+ * pagamento: durante la prova non esiste ancora.
+ */
 export function messaggioQuotaEsaurita(quota: Pick<QuotaPubblica, "limite" | "rinnovo_il">): string {
-  return `Hai già usato le ${quota.limite ?? 10} domande gratuite di questo mese. Ricominciano il ${formattaData(quota.rinnovo_il)}. Con un piano a pagamento le domande sono illimitate.`;
+  return `Hai già usato le ${quota.limite ?? DOMANDE_GRATIS_AL_MESE} domande di questo mese. Durante la prova di Bussola ci sono ${DOMANDE_GRATIS_AL_MESE} domande al mese per ogni persona: ricominciano il ${formattaData(quota.rinnovo_il)}.`;
 }

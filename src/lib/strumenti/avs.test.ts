@@ -8,6 +8,7 @@ import {
   descrizioneCaso,
   eAnnoAvs,
   fasciaPerReddito,
+  notaAnniSupplementi,
   puntiDiSalto,
   stimaContributi,
 } from "./avs";
@@ -183,5 +184,25 @@ describe("utilità", () => {
     expect(descrizioneCaso(stimaContributi(5_000, 2026))).toContain("CHF 10'100");
     expect(descrizioneCaso(stimaContributi(5_000, 2026))).toContain("CHF 530");
     expect(descrizioneCaso(stimaContributi(80_000, 2026))).toContain("CHF 60'500");
+  });
+});
+
+describe("anni dei supplementi IAS", () => {
+  it("dice da quali anni vengono spese amministrative, assegni familiari e tetto AF", () => {
+    expect(notaAnniSupplementi(2027)).toBe(
+      "Per i supplementi usiamo gli ultimi valori pubblicati dall'IAS, non quelli del 2027: " +
+        "spese amministrative 2% (valore 2025), assegni familiari 0,85% (valore 2026), " +
+        "calcolati solo sui primi CHF 148'200 di reddito (limite 2025), " +
+        "e assegno integrativo AFI 0,15% (fissato dalla legge cantonale sugli assegni di famiglia). " +
+        "Se per il 2027 cambiano, cambia anche la stima.",
+    );
+    expect(notaAnniSupplementi(2026)).toContain("non quelli del 2026");
+  });
+
+  it("gli assegni familiari si fermano al tetto di CHF 148'200", () => {
+    const sopra = stimaContributi(200_000, 2027);
+    const tetto = stimaContributi(148_200, 2027);
+    expect(sopra.assegniFamiliari).toBe(tetto.assegniFamiliari);
+    expect(sopra.assegniFamiliari).toBe(1259.7);
   });
 });

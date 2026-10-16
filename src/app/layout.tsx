@@ -31,26 +31,41 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Vai al contenuto
         </a>
+        {/*
+          Su telefono: prima riga con il nome e «Accedi», seconda riga con il
+          menu (scorre di lato se non ci sta). Da sm in su tutto su una riga.
+          Ogni link è alto almeno 40 px, per toccarlo bene con il dito.
+        */}
         <header className="border-b border-border bg-card/80 backdrop-blur">
-          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-            <Link href="/" className="text-lg font-semibold tracking-tight text-brand">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 px-4 py-1 sm:flex-nowrap sm:py-2">
+            <Link
+              href="/"
+              className="mr-auto inline-flex min-h-10 items-center text-lg font-semibold tracking-tight text-brand"
+            >
               {sito.nome}
             </Link>
-            <nav aria-label="Principale" className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+            <nav
+              aria-label="Principale"
+              className="order-last -mx-2 flex w-[calc(100%+1rem)] items-center overflow-x-auto text-sm sm:order-none sm:mx-0 sm:w-auto sm:gap-x-1 sm:overflow-visible"
+            >
               {navigazione.map((voce) => (
-                <Link key={voce.href} href={voce.href} className="text-muted hover:text-foreground">
+                <Link
+                  key={voce.href}
+                  href={voce.href}
+                  className="inline-flex min-h-10 shrink-0 items-center whitespace-nowrap rounded-md px-2 text-muted hover:text-foreground"
+                >
                   {voce.etichetta}
                 </Link>
               ))}
-              {accessoAttivo ? (
-                <Link
-                  href="/accedi"
-                  className="rounded-full border border-border px-3 py-1 text-foreground hover:border-brand"
-                >
-                  Accedi
-                </Link>
-              ) : null}
             </nav>
+            {accessoAttivo ? (
+              <Link
+                href="/accedi"
+                className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-border px-4 text-sm text-foreground hover:border-brand"
+              >
+                Accedi
+              </Link>
+            ) : null}
           </div>
         </header>
         <main id="contenuto" className="flex-1">

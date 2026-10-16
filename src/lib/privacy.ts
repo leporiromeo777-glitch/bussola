@@ -1,3 +1,4 @@
+import { chiaveAnthropic } from "@/lib/chat/chiave";
 import { sito } from "@/lib/sito";
 
 /**
@@ -72,7 +73,22 @@ export const GARANZIE_USA = {
   resend: CLAUSOLE_TIPO,
 } as const;
 
-export type Fornitore = { nome: string; garanzia: string | null };
+/*
+ * Su Netlify il server di Next.js (le funzioni) gira di default nella regione
+ * us-east-2 di AWS, in Ohio (Stati Uniti): da lì passano i dati che arrivano
+ * dai moduli. Verificato il 16.10.2026 su
+ * https://docs.netlify.com/build/functions/configuration/ (regione predefinita
+ * «cmh», Ohio). Se nelle impostazioni del sito si sceglie un'altra regione,
+ * aggiorna questo testo.
+ */
+export const SERVER_NETLIFY = "negli Stati Uniti (Ohio)";
+
+export type Fornitore = {
+  nome: string;
+  garanzia: string | null;
+  /** Dove gira il server che riceve i dati dei moduli, se lo sappiamo. */
+  server: string | null;
+};
 
 /**
  * Fornitore di hosting, da BUSSOLA_HOSTING: next.config.ts lo fissa durante
@@ -81,13 +97,14 @@ export type Fornitore = { nome: string; garanzia: string | null };
 export function fornitoreHosting(hosting: string | undefined): Fornitore {
   switch (hosting) {
     case "vercel":
-      return { nome: "Vercel Inc. (USA)", garanzia: GARANZIE_USA.vercel };
+      return { nome: "Vercel Inc. (USA)", garanzia: GARANZIE_USA.vercel, server: null };
     case "netlify":
-      return { nome: "Netlify, Inc. (USA)", garanzia: GARANZIE_USA.netlify };
+      return { nome: "Netlify, Inc. (USA)", garanzia: GARANZIE_USA.netlify, server: SERVER_NETLIFY };
     default:
       return {
         nome: "Netlify, Inc. oppure Vercel Inc. (USA), secondo il fornitore scelto [da indicare prima del lancio]",
         garanzia: null,
+        server: null,
       };
   }
 }
@@ -130,6 +147,42 @@ export function informativaDa(config: {
   ];
   const daCompletare = parti.filter(([, testo]) => contieneSegnaposto(testo)).map(([nome]) => nome);
   return { luogoDati, hosting, durataDatiTecnici: DURATA_DATI_TECNICI, daCompletare, incompleta: daCompletare.length > 0 };
+}
+
+type Ambiente = Record<string, string | undefined>;
+
+/**
+ * Quali trattamenti sono davvero attivi con queste variabili d'ambiente:
+ * l'informativa descrive anche quelli previsti, ma li segna «non ancora
+ * attivi» finché manca la configurazione. Le condizioni sono le stesse del
+ * codice che fa il trattamento:
+ * - account: client Supabase (src/lib/supabase/env.ts);
+ * - chat: Supabase e una chiave di Anthropic nostra (chiaveAnthropic, come
+ *   la pagina /chat);
+ * - email: chiave Resend e mittente (src/lib/lista-attesa/resend.ts);
+ * - protezione dei moduli: chiave segreta di Supabase (src/lib/limiti/server.ts);
+ * - verifica anti-robot (Turnstile) e statistiche (Plausible): chiavi pubbliche.
+ */
+export type TrattamentiAttivi = {
+  account: boolean;
+  chat: boolean;
+  email: boolean;
+  protezioneModuli: boolean;
+  verificaAntiRobot: boolean;
+  statistiche: boolean;
+};
+
+export function trattamentiAttivi(env: Ambiente): TrattamentiAttivi {
+  const impostata = (nome: string) => Boolean(env[nome]?.trim());
+  const supabase = impostata("NEXT_PUBLIC_SUPABASE_URL") && impostata("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
+  return {
+    account: supabase,
+    chat: supabase && chiaveAnthropic(env) !== null,
+    email: impostata("RESEND_API_KEY") && impostata("EMAIL_MITTENTE"),
+    protezioneModuli: impostata("NEXT_PUBLIC_SUPABASE_URL") && impostata("SUPABASE_SECRET_KEY"),
+    verificaAntiRobot: impostata("NEXT_PUBLIC_TURNSTILE_SITE_KEY"),
+    statistiche: impostata("NEXT_PUBLIC_PLAUSIBLE_DOMAIN"),
+  };
 }
 
 /** L'informativa di questo sito, con le variabili fissate durante la build. */

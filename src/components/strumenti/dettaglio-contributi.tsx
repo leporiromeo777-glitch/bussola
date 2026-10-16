@@ -1,6 +1,6 @@
 import { tavoleScalari } from "@/data/avs-tavola-scalare";
 import { datiStrumenti, fonti, fontiStrumenti, percentuale, supplementiTicino, uffici } from "@/data/svizzera";
-import { descrizioneCaso, type StimaContributi } from "@/lib/strumenti/avs";
+import { descrizioneCaso, notaAnniSupplementi, type StimaContributi } from "@/lib/strumenti/avs";
 import { articoloNumero, importo, numeroSvizzero } from "@/lib/strumenti/numeri";
 import { EtichettaStima, FonteLink, Fonti, RigaValore } from "./ui";
 
@@ -48,6 +48,11 @@ export function DettaglioContributi({ stima, titolo }: { stima: StimaContributi;
         />
         <RigaValore
           etichetta={`Assegni familiari (${percentuale(supplementiTicino.assegniFamiliari.valore, 2)} del reddito)`}
+          nota={
+            stima.redditoAvs > datiStrumenti.guadagnoMassimoAssegniFamiliari.valore
+              ? `Solo sui primi ${importo(datiStrumenti.guadagnoMassimoAssegniFamiliari.valore, 0)} di reddito`
+              : undefined
+          }
           valore={importo(stima.assegniFamiliari)}
         />
         <RigaValore
@@ -85,6 +90,7 @@ export function DettaglioContributi({ stima, titolo }: { stima: StimaContributi;
             Con una cassa professionale o nel Grigioni italiano ({uffici.cassaCompensazioneGrigioni.valore.nome}) le
             aliquote possono essere diverse: da verificare con la tua cassa.
           </p>
+          <p>{notaAnniSupplementi(stima.anno)}</p>
           <p>
             Per un controllo c&apos;è il <FonteLink fonte={fontiStrumenti.ufasContributi} /> dell&apos;UFAS.
           </p>

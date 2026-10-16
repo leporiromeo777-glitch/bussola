@@ -19,7 +19,7 @@
  * È una stima indicativa: l'importo vero lo decide la cassa di compensazione.
  */
 import { anniTavola, parametriAnno, tavoleScalari, type AnnoAvs, type FasciaScalare } from "@/data/avs-tavola-scalare";
-import { datiStrumenti, percentuale, supplementiTicino } from "@/data/svizzera";
+import { anniSupplementiTicino, datiStrumenti, percentuale, supplementiTicino } from "@/data/svizzera";
 import { arrotonda, importo } from "./numeri";
 
 export type { AnnoAvs };
@@ -196,6 +196,24 @@ export function annoPredefinito(oggiIso: string): AnnoAvs {
   const disponibili = [...anniTavola].sort((a, b) => a - b);
   if (eAnnoAvs(scelto)) return scelto;
   return scelto < disponibili[0] ? disponibili[0] : disponibili[disponibili.length - 1];
+}
+
+/**
+ * Da quali anni vengono i supplementi della cassa ticinese usati nella stima
+ * (per «Come lo calcoliamo»): spesso non sono ancora quelli dell'anno scelto.
+ */
+export function notaAnniSupplementi(anno: AnnoAvs): string {
+  const anni = anniSupplementiTicino;
+  const tetto = importo(datiStrumenti.guadagnoMassimoAssegniFamiliari.valore, 0);
+  const elenco =
+    `spese amministrative ${percentuale(supplementiTicino.speseAmministrative.valore)} (valore ${anni.speseAmministrative}), ` +
+    `assegni familiari ${percentuale(supplementiTicino.assegniFamiliari.valore, 2)} (valore ${anni.assegniFamiliari}), ` +
+    `calcolati solo sui primi ${tetto} di reddito (limite ${anni.guadagnoMassimoAssegniFamiliari}), ` +
+    `e assegno integrativo AFI ${percentuale(supplementiTicino.assegnoIntegrativo.valore, 2)} (fissato dalla legge cantonale sugli assegni di famiglia).`;
+  const diversi = Object.values(anni).some((a) => a !== anno);
+  return diversi
+    ? `Per i supplementi usiamo gli ultimi valori pubblicati dall'IAS, non quelli del ${anno}: ${elenco} Se per il ${anno} cambiano, cambia anche la stima.`
+    : `Per i supplementi usiamo i valori ${anno} dell'IAS: ${elenco}`;
 }
 
 /** Breve spiegazione del caso, per l'interfaccia. */
