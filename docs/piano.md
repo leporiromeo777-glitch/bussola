@@ -101,10 +101,16 @@ al mese, più semplice da spiegare).
 | Piano | Prezzo | Cosa include |
 |---|---|---|
 | Gratis | CHF 0 | Questionario, percorso completo, scadenze, 10 domande al mese |
-| Bleo Plus | CHF 9.90 al mese oppure CHF 89 all'anno | Chat fino a 100 domande al mese, promemoria delle scadenze, tutti gli strumenti, aggiornamenti sulle regole |
+| Bleo Plus | CHF 12.90 al mese oppure CHF 129 all'anno (stesso prezzo su sito e app) | Chat fino a 100 domande al mese, promemoria delle scadenze, tutti gli strumenti, aggiornamenti sulle regole |
 | Partner (B2B) | da CHF 2'000 all'anno | Licenza con il marchio dell'ente per scuole, Comuni, banche e incubatori |
 
-Perché così: CHF 9.90 è una soglia che un ventenne accetta senza pensarci; il
+Perché così (aggiornato il 16.10.2026, prima CHF 9.90/89): nell'app Apple e
+Google trattengono l'IVA svizzera (8,1%, inclusa nel prezzo) e la loro
+commissione (15% per i piccoli sviluppatori e per gli abbonamenti Google): da
+CHF 12.90 restano circa CHF 10.15 al mese (12.90 ÷ 1,081 × 0,85), da CHF 129
+circa CHF 101 all'anno. Sul sito, con Stripe (carte e TWINT), resta di più
+(circa CHF 12.40), ma teniamo lo stesso prezzo ovunque per semplicità. Il netto esatto si legge nelle tabelle dei prezzi di
+App Store Connect e Google Play. Resta un prezzo che un ventenne accetta; il
 piano annuale tiene le persone anche dopo l'apertura, quando contano scadenze
 e fatture (con il solo mensile molti disdirebbero dopo 2–3 mesi). Il tetto di
 100 domande va rivisto con i costi reali dell'API nella beta. Nelle app di

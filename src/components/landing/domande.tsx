@@ -13,7 +13,7 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
       <>
         Entrare nella lista d&apos;attesa è gratis e non ti impegna a nulla. Al lancio ci sarà un piano gratuito
         (questionario, percorso completo, scadenze e 10 domande al mese alla chat) e l&apos;abbonamento Bleo Plus a
-        CHF 9.90 al mese o CHF 89 all&apos;anno, che disdici quando vuoi. Sono prezzi previsti e possono ancora
+        CHF 12.90 al mese o CHF 129 all&apos;anno, che disdici quando vuoi. Sono prezzi previsti e possono ancora
         cambiare.
       </>
     ),

@@ -12,9 +12,9 @@ const PIANI = [
   },
   {
     nome: "Bleo Plus",
-    prezzo: "CHF 9.90",
+    prezzo: "CHF 12.90",
     nota: "al mese",
-    alternativa: "oppure CHF 89 all'anno: circa 3 mesi gratis",
+    alternativa: "oppure CHF 129 all'anno: circa 2 mesi gratis",
     incluso: [
       "Chat con le fonti ufficiali, fino a 100 domande al mese",
       "Promemoria delle scadenze",
