@@ -1,23 +1,24 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, View } from "react-native";
-import { MascotteSvg } from "~/components/mascotte-svg";
+import { datiLook } from "@/lib/mascotte/look";
+import { ImmagineMascotte } from "~/components/mascotte";
 import { NotaInformazione, Pulsante, RigaMenu, Schermata, Scheda, Separatore, Testo } from "~/components/ui";
 import { eliminaAccount } from "~/lib/api";
 import { apriSito } from "~/lib/apri";
 import { VERSIONE_APP } from "~/lib/config";
 import { cancellaPromemoria } from "~/lib/notifiche";
 import { useSessione } from "~/lib/sessione";
-import { cancellaDatiLocali, useVestito } from "~/lib/stato";
+import { cancellaDatiLocali, useLook } from "~/lib/stato";
 import { supabase } from "~/lib/supabase";
 import { SPAZIO, useColori } from "~/lib/tema";
 
 export default function Profilo() {
-  const vestito = useVestito();
+  const look = datiLook(useLook());
   return (
     <Schermata>
       <Scheda style={{ alignItems: "center" }}>
-        <MascotteSvg vestito={vestito} larghezza={170} />
+        <ImmagineMascotte nome={look.immagine} larghezza={150} />
         <Pulsante titolo="Vesti Bleo" variante="secondario" icona="shirt-outline" onPress={() => router.push("/guardaroba")} />
       </Scheda>
 
@@ -116,7 +117,7 @@ function DatiSulTelefono() {
   function conferma() {
     Alert.alert(
       "Cancellare i dati da questo telefono?",
-      "Togliamo risposte al questionario, passi fatti, vestito di Bleo e promemoria. Il tuo account, se ce l'hai, resta.",
+      "Togliamo risposte al questionario, passi fatti, look di Bleo e promemoria. Il tuo account, se ce l'hai, resta.",
       [
         { text: "Annulla", style: "cancel" },
         {

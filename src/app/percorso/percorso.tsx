@@ -360,7 +360,7 @@ export function Percorso({
           </section>
           <details className="group rounded-2xl border border-border bg-card print:hidden">
             <summary className="cursor-pointer list-none p-5 font-bold [&::-webkit-details-marker]:hidden">
-              Vesti Bleo <span className="font-normal text-muted">(cappello, occhiali, sciarpa)</span>
+              Vesti Bleo <span className="font-normal text-muted">(scegli il look)</span>
             </summary>
             <div className="px-2 pb-2">
               <Guardaroba />

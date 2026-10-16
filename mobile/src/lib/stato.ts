@@ -1,7 +1,7 @@
 /**
  * Lo stato salvato sul telefono, letto con le stesse chiavi e le stesse
  * funzioni del sito (src/lib/percorso, src/lib/mascotte): risposte al
- * questionario, passi fatti, bozza, vestito della mascotte, promemoria.
+ * questionario, passi fatti, bozza, look della mascotte, promemoria.
  */
 import { useMemo, useSyncExternalStore } from "react";
 import type { IdPasso } from "@/data/passi";
@@ -16,7 +16,8 @@ import {
 } from "@/lib/percorso/archivio";
 import { calcolaPercorso, type Percorso } from "@/lib/percorso/regole";
 import { VERSIONE_RISPOSTE, type Risposte } from "@/lib/percorso/risposte";
-import { analizzaVestito, CHIAVE_VESTITO, type Vestito } from "@/lib/mascotte/vestito";
+import { analizzaLook, CHIAVE_LOOK, type IdLook } from "@/lib/mascotte/look";
+import { CHIAVE_VESTITO } from "@/lib/mascotte/vestito";
 import { iscriviti, leggi, scrivi } from "./memoria";
 
 /** Promemoria delle scadenze attivi ("si") o no. */
@@ -72,13 +73,15 @@ export function cancellaBozza(): void {
   scrivi(CHIAVE_BOZZA, null);
 }
 
-export function useVestito(): Vestito {
-  const grezzo = useGrezzo(CHIAVE_VESTITO);
-  return useMemo(() => analizzaVestito(grezzo), [grezzo]);
+/** Il look di Bleo; chi aveva un vecchio vestito ritrova il look più simile. */
+export function useLook(): IdLook {
+  const grezzo = useGrezzo(CHIAVE_LOOK);
+  const vecchio = useGrezzo(CHIAVE_VESTITO);
+  return useMemo(() => analizzaLook(grezzo, vecchio), [grezzo, vecchio]);
 }
 
-export function salvaVestito(vestito: Vestito): void {
-  scrivi(CHIAVE_VESTITO, JSON.stringify(vestito));
+export function salvaLook(look: IdLook): void {
+  scrivi(CHIAVE_LOOK, look);
 }
 
 export function usePromemoriaAttivi(): boolean {
@@ -99,7 +102,7 @@ export function impostaSettimana(attiva: boolean): void {
 
 /** Cancella dal telefono tutto quello che Bleo ha salvato. */
 export function cancellaDatiLocali(): void {
-  for (const chiave of [CHIAVE_RISPOSTE, CHIAVE_PASSI_FATTI, CHIAVE_BOZZA, CHIAVE_VESTITO, CHIAVE_PROMEMORIA, CHIAVE_SETTIMANA]) {
+  for (const chiave of [CHIAVE_RISPOSTE, CHIAVE_PASSI_FATTI, CHIAVE_BOZZA, CHIAVE_VESTITO, CHIAVE_LOOK, CHIAVE_PROMEMORIA, CHIAVE_SETTIMANA]) {
     scrivi(chiave, null);
   }
 }
