@@ -51,7 +51,7 @@ export default function Accedi() {
     const client = supabase();
     if (!client) return;
     const pulito = codice.replace(/\D/g, "");
-    if (pulito.length < 6) return setErrore("Il codice ha 6 cifre.");
+    if (pulito.length < 6) return setErrore("Scrivi tutte le cifre del codice che hai ricevuto.");
     setErrore("");
     setAttesa(true);
     const { error } = await client.auth.verifyOtp({ email: email.trim().toLowerCase(), token: pulito, type: "email" });
@@ -69,7 +69,7 @@ export default function Accedi() {
         {fase === "email" ? (
           <>
             <Testo variante="titolo">Accedi a Bleo</Testo>
-            <Testo attenuato>Ti mando un codice di 6 cifre via email. Niente password.</Testo>
+            <Testo attenuato>Ti mando un codice via email. Niente password.</Testo>
             <TextInput
               value={email}
               onChangeText={setEmail}
@@ -95,7 +95,7 @@ export default function Accedi() {
             <TextInput
               value={codice}
               onChangeText={setCodice}
-              placeholder="123456"
+              placeholder="12345678"
               placeholderTextColor={c.attenuato}
               keyboardType="number-pad"
               autoComplete="one-time-code"

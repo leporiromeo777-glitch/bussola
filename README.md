@@ -94,7 +94,7 @@ npm run build
      iscrizioni alla lista d'attesa (`LIMITI_RICHIESTE` in
      `src/lib/limiti/richieste.ts`, tabella `limiti_richieste` con
      un'impronta dell'IP, mai l'IP in chiaro). Serve `SUPABASE_SECRET_KEY`.
-7. App per telefono (`mobile/`): accede con il **codice a 6 cifre** ricevuto
+7. App per telefono (`mobile/`): accede con il **codice numerico** ricevuto
    per email (`signInWithOtp` + `verifyOtp` di supabase-js). Nel template
    "Magic Link" aggiungi quindi anche il codice `{{ .Token }}`, **lasciando il
    link** com'è (il sito continua a usare il link), per esempio
