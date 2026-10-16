@@ -53,6 +53,14 @@ export function RiquadroScadenze({
 
   if (scadenze.length === 0) return null;
 
+  // La prima scadenza con data da oggi in poi (anche dell'anno in corso), in evidenza in cima.
+  const prossima = [
+    ...eventiDaScadenze(scadenze, { anno: anno - 1 }),
+    ...eventiDaScadenze(scadenze, { anno }),
+  ]
+    .filter((e) => e.data >= oggi)
+    .sort((a, b) => a.data.localeCompare(b.data))[0];
+
   function scarica() {
     const eventi = eventiDaScadenze(scadenze, { anno, inizioAttivita: inizioValido });
     const { nomeCalendario, nomeFile } = nomiCalendario(eventi, anno);
@@ -85,6 +93,15 @@ export function RiquadroScadenze({
         <IconaCalendario className="size-5 text-brand" />
         Scadenze da ricordare
       </h2>
+      {prossima ? (
+        <p className="mt-4 rounded-xl bg-brand-soft p-3 text-sm">
+          <span className="block text-xs font-semibold uppercase tracking-wide text-brand">Prossima scadenza</span>
+          <span className="mt-1 block text-lg font-extrabold" style={{ fontFamily: "var(--font-titoli)" }}>
+            {dataSvizzera(prossima.data)}
+          </span>
+          <span className="block">{prossima.titolo}</span>
+        </p>
+      ) : null}
       <ul className="mt-4 space-y-4">
         {scadenze.map((s) => {
           const date = dateScadenza(s, anno, inizioValido);

@@ -39,9 +39,9 @@ export function SchedaPasso({
   return (
     <li
       id={`passo-${passo.id}`}
-      className={`scroll-mt-24 rounded-xl border bg-card p-4 sm:p-5 ${
+      className={`scroll-mt-24 rounded-2xl border bg-card p-4 transition-colors sm:p-5 ${
         prossimo ? "border-brand ring-1 ring-brand" : "border-border"
-      }`}
+      } ${fatto ? "bg-card/60" : ""}`}
     >
       <div className="flex items-start gap-3">
         <input
@@ -49,48 +49,56 @@ export function SchedaPasso({
           id={idCasella}
           checked={fatto}
           onChange={(e) => onCambia(e.target.checked)}
-          aria-describedby={idPerche}
-          className="mt-1 size-5 shrink-0 cursor-pointer accent-brand"
+          aria-label={`Fatto: ${passo.titolo}`}
+          aria-describedby={fatto ? undefined : idPerche}
+          className="mt-1 size-6 shrink-0 cursor-pointer rounded accent-brand"
         />
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 className="font-semibold break-after-avoid">
-              <label htmlFor={idCasella} className={`cursor-pointer ${fatto ? "text-muted line-through" : ""}`}>
-                <span className="sr-only">Fatto: </span>
-                {passo.titolo}
-              </label>
-            </h3>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                stato === "da_fare" ? "bg-brand-soft text-brand" : "border border-border text-muted"
-              }`}
+          <h3 className="break-after-avoid">
+            <button
+              type="button"
+              aria-expanded={aperto}
+              aria-controls={idDettagli}
+              onClick={() => setAperto((a) => !a)}
+              className="group flex w-full items-start justify-between gap-3 text-left"
             >
-              {ETICHETTE_STATO[stato]}
-            </span>
-            {prossimo ? (
-              <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-medium text-foreground">
-                Prossimo passo
+              <span className="min-w-0">
+                <span className={`font-semibold ${fatto ? "text-muted line-through" : "group-hover:text-brand"}`}>
+                  {passo.titolo}
+                </span>
+                <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                  {fatto ? (
+                    <span className="rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">Fatto</span>
+                  ) : (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        stato === "da_fare" ? "bg-brand-soft text-brand" : "border border-border text-muted"
+                      }`}
+                    >
+                      {ETICHETTE_STATO[stato]}
+                    </span>
+                  )}
+                  {prossimo ? (
+                    <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-medium text-foreground">
+                      Prossimo passo
+                    </span>
+                  ) : null}
+                </span>
               </span>
-            ) : null}
-          </div>
-          <p id={idPerche} className="mt-1 text-sm text-muted">
-            <span className="sr-only">Perché per te: </span>
-            {perche}
-          </p>
-
-          <button
-            type="button"
-            aria-expanded={aperto}
-            aria-controls={idDettagli}
-            onClick={() => setAperto((a) => !a)}
-            className="mt-2 inline-flex items-center gap-1 rounded text-sm font-medium text-brand hover:text-brand-strong print:hidden"
-          >
-            {aperto ? "Nascondi i dettagli" : "Cosa fare"}
-            <span className="sr-only">: {passo.titolo}</span>
-            <IconaFrecciaGiu
-              className={`size-4 transition-transform motion-reduce:transition-none ${aperto ? "rotate-180" : ""}`}
-            />
-          </button>
+              <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-sm font-medium text-brand print:hidden">
+                <span className="hidden sm:inline">{aperto ? "Chiudi" : "Dettagli"}</span>
+                <IconaFrecciaGiu
+                  className={`size-5 transition-transform motion-reduce:transition-none ${aperto ? "rotate-180" : ""}`}
+                />
+              </span>
+            </button>
+          </h3>
+          {fatto && !aperto ? null : (
+            <p id={idPerche} className="mt-2 text-sm text-muted">
+              <span className="sr-only">Perché per te: </span>
+              {perche}
+            </p>
+          )}
 
           <div id={idDettagli} className={aperto ? "mt-4 space-y-4" : "hidden print:mt-4 print:block print:space-y-4"}>
             <p>{passo.descrizione}</p>

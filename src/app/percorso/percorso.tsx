@@ -7,7 +7,9 @@ import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import { BarraProgresso } from "@/components/percorso/barra-progresso";
 import { ElencoAvvisi } from "@/components/percorso/elenco-avvisi";
 import { IconaRicomincia, IconaStampa } from "@/components/percorso/icone";
+import { FasiPercorso } from "@/components/percorso/fasi-percorso";
 import { NotaInformazione } from "@/components/percorso/nota-informazione";
+import { ProssimoPasso, type UltimoFatto } from "@/components/percorso/prossimo-passo";
 import { RiquadroScadenze } from "@/components/percorso/riquadro-scadenze";
 import { SchedaPasso } from "@/components/percorso/scheda-passo";
 import { classeLink, classePulsantePrincipale, classePulsanteSecondario } from "@/components/percorso/stili";
@@ -94,6 +96,7 @@ export function Percorso({
   const insiemeFatti = useMemo(() => new Set<string>(fatti), [fatti]);
 
   const [annuncio, setAnnuncio] = useState("");
+  const [ultimoFatto, setUltimoFatto] = useState<UltimoFatto>(null);
   const [avvisoSalvataggio, setAvvisoSalvataggio] = useState<string | null>(null);
   const sincronizzato = useRef(false);
 
@@ -185,31 +188,55 @@ export function Percorso({
   const prossimo = prossimoPasso(percorso, insiemeFatti);
   const pertinenti = percorso.passi.filter((p) => p.stato !== "non_serve");
   const nonServono = percorso.passi.filter((p) => p.stato === "non_serve");
+  const daFare = percorso.passi.filter((p) => p.stato === "da_fare");
+  const numeroProssimo = prossimo ? daFare.findIndex((p) => p.passo.id === prossimo.passo.id) + 1 : 0;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
-      <header className="max-w-3xl">
-        <p className="text-sm font-semibold text-brand">Il tuo percorso</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-          {risposte.soci === "con_soci"
-            ? "I passi per partire con i tuoi soci"
-            : "Dalla tua idea alla ditta individuale aperta"}
-        </h1>
-        <p className="mt-3 text-muted">
-          I passi qui sotto sono in ordine. Spunta quelli fatti:{" "}
-          {conAccount ? "li salviamo nel tuo account." : "restano in questo browser."}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-3 print:hidden">
-          <Link href="/questionario" className={`${classePulsanteSecondario} text-sm`}>
+      <header className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <MascotteVestita className="h-20 w-auto shrink-0 print:hidden" />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-brand">Il tuo percorso</p>
+            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-balance sm:text-3xl">
+              {risposte.soci === "con_soci"
+                ? "I passi per partire con i tuoi soci"
+                : "Dalla tua idea alla ditta individuale aperta"}
+            </h1>
+          </div>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2 print:hidden">
+          <Link href="/questionario" className={`${classePulsanteSecondario} px-4 py-2 text-sm`}>
             <IconaRicomincia className="size-4" />
             Rifai il questionario
           </Link>
-          <button type="button" onClick={() => window.print()} className={`${classePulsanteSecondario} text-sm`}>
+          <button type="button" onClick={() => window.print()} className={`${classePulsanteSecondario} px-4 py-2 text-sm`}>
             <IconaStampa className="size-4" />
             Stampa
           </button>
         </div>
       </header>
+
+      <div className="mt-6">
+        <BarraProgresso
+          valore={numeroFatti}
+          massimo={totale}
+          etichetta="Passi fatti"
+          testo={`${numeroFatti} di ${totale}`}
+        />
+        <p className="mt-2 text-sm text-muted">
+          {conAccount ? "Salviamo i passi fatti nel tuo account." : "I passi fatti restano in questo browser."}
+          {!account.collegato && accessoDisponibile ? (
+            <>
+              {" "}
+              <Link href="/accedi?next=/percorso" className={`${classeLink} print:hidden`}>
+                Accedi per ritrovarli su tutti i tuoi dispositivi
+              </Link>
+              .
+            </>
+          ) : null}
+        </p>
+      </div>
 
       {inAttesaDelSi ? (
         <ConfermaSalvataggio
@@ -225,46 +252,6 @@ export function Percorso({
           Fatto: il percorso è salvato nel tuo account{account.email ? ` ${account.email}` : ""}.
         </p>
       ) : null}
-
-      <div className="mt-6 max-w-3xl space-y-4">
-        <NotaInformazione />
-        <RiepilogoRisposte risposte={risposte} />
-      </div>
-
-      <div className="mt-6 flex max-w-3xl items-center gap-4 rounded-xl border border-border bg-card p-4 sm:p-5">
-        <MascotteVestita className="h-24 w-auto shrink-0 print:hidden" />
-        <div className="min-w-0 flex-1">
-        <BarraProgresso
-          valore={numeroFatti}
-          massimo={totale}
-          etichetta="Passi da fare completati"
-          testo={`${numeroFatti} di ${totale}`}
-        />
-        <p className="mt-3 text-sm">
-          {prossimo ? (
-            <>
-              Prossimo passo:{" "}
-              <a href={`#passo-${prossimo.passo.id}`} className={classeLink}>
-                {prossimo.passo.titolo}
-              </a>
-            </>
-          ) : (
-            "Hai completato tutti i passi da fare. Restano le scadenze di ogni anno."
-          )}
-        </p>
-        </div>
-      </div>
-
-      {!account.collegato && accessoDisponibile ? (
-        <p className="mt-4 max-w-3xl text-sm text-muted print:hidden">
-          Il percorso è salvato solo in questo browser.{" "}
-          <Link href="/accedi?next=/percorso" className={classeLink}>
-            Accedi per ritrovarlo su tutti i tuoi dispositivi
-          </Link>
-          .
-        </p>
-      ) : null}
-
       {avvisoSalvataggio ? (
         <p role="alert" className="mt-4 max-w-3xl rounded-lg border border-border bg-card p-3 text-sm text-danger">
           {avvisoSalvataggio}
@@ -274,18 +261,52 @@ export function Percorso({
         {annuncio}
       </p>
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] print:block">
+      <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] print:block">
         <div className="space-y-10">
+          <ProssimoPasso
+            voce={prossimo}
+            numero={numeroProssimo}
+            totale={totale}
+            ultimoFatto={ultimoFatto}
+            onFatto={() => {
+              if (!prossimo) return;
+              cambia(prossimo.passo.id as IdPasso, prossimo.passo.titolo, true);
+              setUltimoFatto({ id: prossimo.passo.id, titolo: prossimo.passo.titolo });
+            }}
+            onAnnulla={() => {
+              if (!ultimoFatto) return;
+              cambia(ultimoFatto.id as IdPasso, ultimoFatto.titolo, false);
+              setUltimoFatto(null);
+            }}
+          />
+          <NotaInformazione compatta />
+
+          <div className="space-y-4">
+            <h2 className="text-xl font-extrabold tracking-tight">Tutti i tuoi passi</h2>
+            <FasiPercorso passi={pertinenti} fatti={insiemeFatti} faseAttuale={prossimo?.passo.fase} />
+          </div>
+
           <ElencoAvvisi avvisi={percorso.avvisi} verificatoIl={VERIFICATO_IL} />
 
           {FASI.map((fase) => {
             const passi = pertinenti.filter((p) => p.passo.fase === fase);
             if (passi.length === 0) return null;
             const idTitolo = `fase-${FASI.indexOf(fase)}`;
+            // Come nelle fasi in alto: contano solo i passi da fare, non i facoltativi.
+            const daFareFase = passi.filter((p) => p.stato === "da_fare");
+            const fattiFase = daFareFase.filter((p) => insiemeFatti.has(p.passo.id)).length;
             return (
-              <section key={fase} aria-labelledby={idTitolo}>
-                <h2 id={idTitolo} className="text-xl font-semibold tracking-tight break-after-avoid">
+              <section key={fase} aria-labelledby={idTitolo} className="scroll-mt-24">
+                <h2
+                  id={idTitolo}
+                  className="flex scroll-mt-24 items-baseline justify-between gap-3 text-xl font-extrabold tracking-tight break-after-avoid"
+                >
                   {TITOLI_FASI[fase]}
+                  {daFareFase.length > 0 ? (
+                    <span className="text-sm font-medium text-muted">
+                      {fattiFase} di {daFareFase.length} da fare
+                    </span>
+                  ) : null}
                 </h2>
                 <ol className="mt-4 space-y-3">
                   {passi.map((voce) => (
@@ -303,7 +324,7 @@ export function Percorso({
           })}
 
           {nonServono.length > 0 ? (
-            <details className="rounded-xl border border-border bg-card p-4 print:hidden">
+            <details className="rounded-2xl border border-border bg-card p-4 print:hidden">
               <summary className="cursor-pointer font-medium">
                 Passi che per ora non ti riguardano ({nonServono.length})
               </summary>
@@ -317,12 +338,14 @@ export function Percorso({
               </ul>
             </details>
           ) : null}
+
+          <RiepilogoRisposte risposte={risposte} />
         </div>
 
-        <aside className="space-y-6 print:mt-10 lg:sticky lg:top-6 lg:self-start" aria-label="Scadenze e aiuto">
+        <aside className="space-y-6 print:mt-10 lg:sticky lg:top-24 lg:self-start" aria-label="Scadenze e aiuto">
           <RiquadroScadenze scadenze={percorso.scadenze} anno={annoScadenze} verificatoIl={VERIFICATO_IL} />
-          <section aria-labelledby="titolo-aiuto" className="rounded-xl border border-border bg-card p-5 print:hidden">
-            <h2 id="titolo-aiuto" className="text-lg font-semibold">
+          <section aria-labelledby="titolo-aiuto" className="rounded-2xl border border-border bg-card p-5 print:hidden">
+            <h2 id="titolo-aiuto" className="text-lg font-bold">
               Hai un dubbio?
             </h2>
             <p className="mt-2 text-sm text-muted">
@@ -333,7 +356,14 @@ export function Percorso({
               Chiedi a Bleo
             </Link>
           </section>
-          <Guardaroba />
+          <details className="group rounded-2xl border border-border bg-card print:hidden">
+            <summary className="cursor-pointer list-none p-5 font-bold [&::-webkit-details-marker]:hidden">
+              Vesti Bleo <span className="font-normal text-muted">(cappello, occhiali, sciarpa)</span>
+            </summary>
+            <div className="px-2 pb-2">
+              <Guardaroba />
+            </div>
+          </details>
         </aside>
       </div>
 
