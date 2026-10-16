@@ -38,7 +38,7 @@ function senzaPrefisso(datiUrl: string): string {
 }
 
 async function comprimi(uri: string, larghezza: number, altezza: number, lato: number, qualita: number) {
-  const contesto = ImageManipulator.manipulate(uri, { maxWidth: lato, maxHeight: lato });
+  const contesto = ImageManipulator.manipulate(uri);
   try {
     if (Math.max(larghezza, altezza) > lato) {
       contesto.resize(larghezza >= altezza ? { width: lato } : { height: lato });

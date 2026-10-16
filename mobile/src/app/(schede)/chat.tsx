@@ -9,7 +9,6 @@ import {
   Text,
   TextInput,
   View,
-  type ScrollViewInstance,
 } from "react-native";
 import { chiediABleo } from "@/lib/chat/cliente";
 import { LUNGHEZZA_MASSIMA_DOMANDA, LUNGHEZZA_MINIMA_DOMANDA, SCAMBI_PRECEDENTI_MASSIMI } from "@/lib/chat/limiti";
@@ -80,7 +79,7 @@ function Conversazione({ domandaIniziale }: { domandaIniziale?: string }) {
   const [testo, setTesto] = useState(domandaIniziale ?? "");
   const [messaggi, setMessaggi] = useState<Messaggio[]>([]);
   const [inCorso, setInCorso] = useState(false);
-  const scorri = useRef<ScrollViewInstance>(null);
+  const scorri = useRef<ScrollView>(null);
   const annulla = useRef<AbortController | null>(null);
   const prossimoId = useRef(1);
 
