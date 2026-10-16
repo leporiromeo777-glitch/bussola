@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { PulsanteDettatura } from "@/components/dettatura";
 import { chiediABleo, type EventoFine } from "@/lib/chat/cliente";
 import { LUNGHEZZA_MASSIMA_DOMANDA, LUNGHEZZA_MINIMA_DOMANDA, SCAMBI_PRECEDENTI_MASSIMI } from "@/lib/chat/limiti";
 import { testoSemplice } from "@/lib/chat/testo-risposta";
 import type { QuotaPubblica, ScambioPrecedente } from "@/lib/chat/tipi";
+import { aggiungiDettato } from "@/lib/dettatura/testo";
 import { ElencoFonti, TestoRisposta } from "./risposta";
 import { TestoQuota } from "./testo-quota";
 
@@ -185,6 +187,10 @@ export function Chat({
           className="mt-1 block w-full resize-y rounded-lg border border-border bg-background px-3 py-2 disabled:opacity-60"
         />
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+          <PulsanteDettatura
+            onTesto={(dettato) => setBozza((b) => aggiungiDettato(b, dettato, LUNGHEZZA_MASSIMA_DOMANDA))}
+            disabilitato={inCorso || quotaEsaurita}
+          />
           <p id="aiuto-domanda" className="text-xs text-muted">
             Invio per mandare, Maiusc+Invio per andare a capo.
           </p>

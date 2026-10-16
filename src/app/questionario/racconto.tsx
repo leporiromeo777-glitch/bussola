@@ -1,9 +1,11 @@
 "use client";
 
 import { useId, useState, type FormEvent } from "react";
+import { PulsanteDettatura } from "@/components/dettatura";
 import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import { IconaFreccia, IconaSpunta } from "@/components/landing/icone";
 import { classePulsantePrincipale, classeLink } from "@/components/percorso/stili";
+import { aggiungiDettato } from "@/lib/dettatura/testo";
 import { salvaBozza, type Bozza } from "@/lib/percorso/bozza";
 import { DOMANDE, etichettaRisposta } from "@/lib/percorso/domande";
 import type { IdDomanda } from "@/lib/percorso/risposte";
@@ -129,8 +131,8 @@ export function Racconto({ onContinua, onDomande }: { onContinua: () => void; on
         Racconta a Bleo cosa vuoi fare
       </label>
       <p id={`${id}-aiuto`} className="mt-2 text-muted">
-        Con parole tue: che lavoro, dove, se da solo o con altri, se hai già un impiego. Bleo capisce le risposte e ti
-        chiede solo quello che manca.
+        Con parole tue, scritte o a voce: che lavoro, dove, se da solo o con altri, se hai già un impiego. Bleo
+        capisce le risposte e ti chiede solo quello che manca.
       </p>
       <textarea
         id={`${id}-testo`}
@@ -142,6 +144,9 @@ export function Racconto({ onContinua, onDomande }: { onContinua: () => void; on
         placeholder={ESEMPI[0]}
         className="mt-4 block w-full rounded-2xl border border-border bg-background p-4 text-base"
       />
+      <div className="mt-3">
+        <PulsanteDettatura onTesto={(dettato) => setTesto((t) => aggiungiDettato(t, dettato, 1000))} disabilitato={inCorso} />
+      </div>
       <div className="mt-3 flex flex-wrap gap-2">
         {ESEMPI.slice(1).map((e) => (
           <button

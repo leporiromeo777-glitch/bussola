@@ -197,6 +197,16 @@ export default async function PaginaPrivacy() {
           </li>
         </ul>
 
+        <h3>Dettatura a voce</h3>
+        <ul>
+          <li>
+            Se usi il pulsante «Dillo a voce», la voce viene trasformata in testo dal tuo browser, con il suo servizio
+            di riconoscimento vocale (per esempio quello di Google in Chrome o di Apple in Safari), secondo le regole di
+            quel fornitore. Bleo non riceve né salva l&apos;audio: riceve solo il testo, come se l&apos;avessi
+            scritto.
+          </li>
+        </ul>
+
         <h3>Dati tecnici</h3>
         <ul>
           <li>
