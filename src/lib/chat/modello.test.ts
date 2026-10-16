@@ -54,4 +54,9 @@ describe("scegliModelloFunzione", () => {
     expect(scegliModelloFunzione("nomeDitta", { ANTHROPIC_MODEL_NOME: "  " })).toBe("claude-haiku-5-5");
     expect(scegliModelloFunzione("lettera", { ANTHROPIC_MODEL_LETTERA: "claude-opus-5-5" })).toBe("claude-opus-5-5");
   });
+
+  it("le ricevute di «I tuoi conti» usano il modello economico di «Racconta a Bleo»", () => {
+    expect(scegliModelloFunzione("ricevuta", {})).toBe(MODELLO_RACCONTO_PREDEFINITO);
+    expect(scegliModelloFunzione("ricevuta", { ANTHROPIC_MODEL_RICEVUTE: " claude-sonnet-5-5 " })).toBe("claude-sonnet-5-5");
+  });
 });

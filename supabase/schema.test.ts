@@ -3,6 +3,8 @@ import { PGlite } from "@electric-sql/pglite";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ID_PASSI } from "../src/data/passi";
 import { DOMANDE_GRATIS_AL_MESE } from "../src/lib/chat/quota";
+import { LETTURE_AL_GIORNO } from "../src/lib/conti/limiti";
+import { CATEGORIE } from "../src/lib/conti/tipi";
 import { VERSIONE_REGOLE } from "../src/lib/percorso/regole";
 import {
   ATTIVITA,
@@ -20,7 +22,7 @@ import {
 } from "../src/lib/percorso/risposte";
 
 // Esegue tutte le migrazioni, in ordine, su un Postgres in memoria con lo
-// stretto necessario di Supabase (schema auth, ruoli). pgvector e pg_cron non
+// stretto necessario di Supabase (schema auth, ruoli, tabelle dello Storage). pgvector e pg_cron non
 // ci sono in PGlite: la colonna embedding diventa real[] e le righe di
 // pg_cron (estensione e pianificazione) si tolgono solo per il test.
 const CARTELLA = new URL("./migrations/", import.meta.url);
@@ -49,6 +51,18 @@ beforeAll(async () => {
     create table auth.users (id uuid primary key default gen_random_uuid(), email text);
     create function auth.uid() returns uuid language sql stable as
       $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+    create schema storage;
+    create table storage.buckets (
+      id text primary key, name text not null, public boolean default false,
+      file_size_limit bigint, allowed_mime_types text[]
+    );
+    create table storage.objects (
+      id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets (id), name text, owner uuid
+    );
+    alter table storage.objects enable row level security;
+    -- Come in Supabase: le cartelle del percorso, senza il nome del file.
+    create function storage.foldername(name text) returns text[] language sql immutable as
+      $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
   `);
   for (const nome of MIGRAZIONI) {
     await db.exec(perPglite(readFileSync(new URL(nome, CARTELLA), "utf8")));
@@ -64,6 +78,8 @@ beforeAll(async () => {
       ('iva', 1, 'Obbligo', 'È assoggettato all''IVA chi realizza una cifra d''affari annua di almeno 100 000 franchi.');
     grant usage on schema public to anon, authenticated;
     grant select, insert, update, delete on all tables in schema public to anon, authenticated;
+    grant usage on schema storage to anon, authenticated;
+    grant select, insert, update, delete on all tables in schema storage to anon, authenticated;
   `);
 });
 
@@ -387,7 +403,18 @@ describe("eliminazione dell'account (src/lib/account/eliminazione.ts)", () => {
         from pg_constraint c
        where c.contype = 'f' and c.confrelid = 'auth.users'::regclass
        order by 1`);
-    expect(r.rows.map((x) => x.tabella)).toEqual(["domande_chat", "passi_completati", "profili", "questionari"]);
+    expect(r.rows.map((x) => x.tabella)).toEqual([
+      "conti_caselle",
+      "conti_documenti",
+      "conti_email",
+      "conti_fatture",
+      "conti_letture",
+      "conti_movimenti",
+      "domande_chat",
+      "passi_completati",
+      "profili",
+      "questionari",
+    ]);
     // 'c' = cascade: eliminaAccount cancella solo l'utente da Supabase Auth.
     expect(r.rows.every((x) => x.cancellazione === "c")).toBe(true);
   });
@@ -408,6 +435,206 @@ describe("eliminazione dell'account (src/lib/account/eliminazione.ts)", () => {
             + (select count(*) from public.passi_completati where user_id = $1)
             + (select count(*) from public.domande_chat where user_id = $1) as righe`,
       [ELIMINATO],
+    );
+    expect(Number(r.rows[0]?.righe)).toBe(0);
+  });
+});
+
+describe("«I tuoi conti»", () => {
+  const CONTI = "77777777-7777-7777-7777-777777777777";
+  const INTRUSO = "88888888-8888-8888-8888-888888888888";
+
+  beforeAll(async () => {
+    await db.exec(`insert into auth.users (id, email) values ('${CONTI}', 'conti@example.ch'), ('${INTRUSO}', 'intruso@example.ch')`);
+  });
+
+  const movimento = (utente: string, campi: Record<string, string | number | null> = {}) => {
+    const riga = {
+      user_id: utente,
+      tipo: "uscita",
+      data: "2026-10-16",
+      importo_centesimi: 4850,
+      descrizione: "Carta per stampante",
+      categoria: "materiale",
+      stato: "confermato",
+      origine: "manuale",
+      ...campi,
+    };
+    const colonne = Object.keys(riga);
+    return db.query<{ id: string }>(
+      `insert into public.conti_movimenti (${colonne.join(", ")}) values (${colonne.map((_, i) => `$${i + 1}`).join(", ")}) returning id`,
+      Object.values(riga),
+    );
+  };
+
+  it("le categorie nel database sono quelle di src/lib/conti/tipi.ts", () => {
+    const sql = readFileSync(new URL("20261017000000_conti.sql", CARTELLA), "utf8");
+    const elenco = /categoria in \(([^)]*)\)\),/.exec(sql)?.[1] ?? "";
+    const nelDatabase = [...elenco.matchAll(/'([a-z_]+)'/g)].map((m) => m[1]);
+    expect(nelDatabase).toEqual(CATEGORIE.map((c) => c.id));
+    const entrate = /\(tipo = 'entrata'\) = \(categoria in \(([^)]*)\)\)/.exec(sql)?.[1] ?? "";
+    expect([...entrate.matchAll(/'([a-z_]+)'/g)].map((m) => m[1])).toEqual(
+      CATEGORIE.filter((c) => c.tipo === "entrata").map((c) => c.id),
+    );
+  });
+
+  it("ognuno vede e cambia solo i propri movimenti", async () => {
+    await comeUtente(() => movimento(CONTI), CONTI);
+    const proprie = await comeUtente(
+      () => db.query<{ n: number }>("select count(*)::int as n from public.conti_movimenti"),
+      CONTI,
+    );
+    expect(proprie.rows[0]?.n).toBe(1);
+    const altrui = await comeUtente(
+      () => db.query<{ n: number }>("select count(*)::int as n from public.conti_movimenti"),
+      INTRUSO,
+    );
+    expect(altrui.rows[0]?.n).toBe(0);
+    await expect(comeUtente(() => movimento(CONTI), INTRUSO)).rejects.toThrow(/row-level security/);
+    const aggiornate = await comeUtente(
+      () => db.query("update public.conti_movimenti set descrizione = 'rubato'"),
+      INTRUSO,
+    );
+    expect(aggiornate.affectedRows).toBe(0);
+  });
+
+  it("rifiuta importi negativi, stati e categorie sconosciute, categoria del tipo sbagliato", async () => {
+    await expect(movimento(CONTI, { importo_centesimi: -1 })).rejects.toThrow(/check/);
+    await expect(movimento(CONTI, { stato: "approvato" })).rejects.toThrow(/check/);
+    await expect(movimento(CONTI, { categoria: "vacanze" })).rejects.toThrow(/check/);
+    await expect(movimento(CONTI, { tipo: "entrata", categoria: "materiale" })).rejects.toThrow(
+      /conti_movimenti_categoria_tipo/,
+    );
+    await expect(movimento(CONTI, { origine: "fattura" })).rejects.toThrow(/conti_movimenti_fattura_origine/);
+  });
+
+  it("una fattura pagata crea una sola entrata confermata, che sparisce se non è più pagata", async () => {
+    const entrate = (id: string) =>
+      db.query<{ data: string; importo_centesimi: string; stato: string; categoria: string; origine: string }>(
+        "select data::text as data, importo_centesimi::text, stato, categoria, origine from public.conti_movimenti where fattura_id = $1",
+        [id],
+      );
+    const fattura = await comeUtente(
+      () =>
+        db.query<{ id: string }>(
+          `insert into public.conti_fatture (user_id, numero, cliente, data, scadenza, importo_centesimi)
+           values ($1, 'F-2026-001', 'Rossi SA', '2026-10-01', '2026-10-31', 120000) returning id`,
+          [CONTI],
+        ),
+      CONTI,
+    );
+    const id = fattura.rows[0]!.id;
+    expect((await entrate(id)).rows).toEqual([]);
+
+    for (let i = 0; i < 2; i++) {
+      await comeUtente(() => db.query("update public.conti_fatture set pagata_il = '2026-10-20' where id = $1", [id]), CONTI);
+    }
+    expect((await entrate(id)).rows).toEqual([
+      { data: "2026-10-20", importo_centesimi: "120000", stato: "confermato", categoria: "vendite", origine: "fattura" },
+    ]);
+
+    // Importo corretto dopo: l'entrata segue la fattura.
+    await comeUtente(() => db.query("update public.conti_fatture set importo_centesimi = 125000 where id = $1", [id]), CONTI);
+    expect((await entrate(id)).rows[0]?.importo_centesimi).toBe("125000");
+
+    await comeUtente(() => db.query("update public.conti_fatture set pagata_il = null where id = $1", [id]), CONTI);
+    expect((await entrate(id)).rows).toEqual([]);
+
+    // Un numero solo per utente.
+    await expect(
+      db.query(
+        "insert into public.conti_fatture (user_id, numero, cliente, data, importo_centesimi) values ($1, 'F-2026-001', 'Altro', '2026-10-02', 1)",
+        [CONTI],
+      ),
+    ).rejects.toThrow(/unique|duplicate/);
+  });
+
+  it("la casella si legge ma non si scrive dall'utente; il token ha la forma giusta", async () => {
+    await db.query("insert into public.conti_caselle (user_id, token) values ($1, $2)", [CONTI, "abcdefghijklmnopqrstuvwxyz"]);
+    const letta = await comeUtente(() => db.query<{ token: string }>("select token from public.conti_caselle"), CONTI);
+    expect(letta.rows).toEqual([{ token: "abcdefghijklmnopqrstuvwxyz" }]);
+    const altrui = await comeUtente(() => db.query("select token from public.conti_caselle"), INTRUSO);
+    expect(altrui.rows).toEqual([]);
+    const cambiate = await comeUtente(
+      () => db.query("update public.conti_caselle set token = 'aaaaaaaaaaaaaaaaaaaaaaaaaa'"),
+      CONTI,
+    );
+    expect(cambiate.affectedRows).toBe(0);
+    await expect(
+      db.query("insert into public.conti_caselle (user_id, token) values ($1, 'corto')", [INTRUSO]),
+    ).rejects.toThrow(/check/);
+    await expect(
+      db.query("update public.conti_caselle set conferma_link = 'javascript:alert(1)' where user_id = $1", [CONTI]),
+    ).rejects.toThrow(/check/);
+  });
+
+  it("al massimo LETTURE_AL_GIORNO letture al giorno per utente, contate dal database", async () => {
+    const prenota = () =>
+      db.query<{ ok: boolean }>("select public.prenota_lettura_conti() as ok").then((r) => r.rows[0]?.ok);
+    const esiti = await comeUtente(() => Promise.all(Array.from({ length: LETTURE_AL_GIORNO + 2 }, prenota)), INTRUSO);
+    expect(esiti.filter(Boolean)).toHaveLength(LETTURE_AL_GIORNO);
+    // Un utente non può consumare le letture di un altro: conta sempre per sé.
+    const perAltri = await comeUtente(
+      () => db.query<{ ok: boolean }>("select public.prenota_lettura_conti($1) as ok", [CONTI]).then((r) => r.rows[0]?.ok),
+      INTRUSO,
+    );
+    expect(perAltri).toBe(false);
+    // Il server (senza utente nel token) indica l'utente.
+    const server = await db.query<{ ok: boolean }>("select public.prenota_lettura_conti($1) as ok", [CONTI]);
+    expect(server.rows[0]?.ok).toBe(true);
+    await expect(come("anon", "", () => prenota())).rejects.toThrow(/permission denied/);
+  });
+
+  it("il percorso del documento deve stare nella cartella dell'utente", async () => {
+    await expect(
+      db.query(
+        "insert into public.conti_documenti (user_id, percorso, tipo, byte, origine) values ($1, $2, 'image/jpeg', 10, 'foto')",
+        [CONTI, `${INTRUSO}/11111111-2222-3333-4444-555555555555.jpg`],
+      ),
+    ).rejects.toThrow(/conti_documenti_percorso_utente/);
+    await db.query(
+      "insert into public.conti_documenti (user_id, percorso, tipo, byte, origine) values ($1, $2, 'image/jpeg', 10, 'foto')",
+      [CONTI, `${CONTI}/11111111-2222-3333-4444-555555555555.jpg`],
+    );
+  });
+
+  it("nello Storage ognuno vede e carica solo nella sua cartella del bucket ricevute", async () => {
+    const r = await db.query<{ public: boolean; file_size_limit: string }>(
+      "select public, file_size_limit::text from storage.buckets where id = 'ricevute'",
+    );
+    expect(r.rows).toEqual([{ public: false, file_size_limit: "3500000" }]);
+    await comeUtente(
+      () => db.query("insert into storage.objects (bucket_id, name) values ('ricevute', $1)", [`${CONTI}/a.jpg`]),
+      CONTI,
+    );
+    await expect(
+      comeUtente(
+        () => db.query("insert into storage.objects (bucket_id, name) values ('ricevute', $1)", [`${CONTI}/b.jpg`]),
+        INTRUSO,
+      ),
+    ).rejects.toThrow(/row-level security/);
+    const visti = await comeUtente(() => db.query("select name from storage.objects"), INTRUSO);
+    expect(visti.rows).toEqual([]);
+  });
+
+  it("la pulizia cancella i contatori delle letture vecchi", async () => {
+    await db.query("insert into public.conti_letture (user_id, creato_il) values ($1, now() - interval '3 days')", [CONTI]);
+    await db.exec("select public.pulisci_dati()");
+    const r = await db.query<{ n: number }>(
+      "select count(*)::int as n from public.conti_letture where creato_il < now() - interval '2 days'",
+    );
+    expect(r.rows[0]?.n).toBe(0);
+  });
+
+  it("cancellando l'utente spariscono tutti i suoi conti", async () => {
+    await db.query("delete from auth.users where id = $1", [CONTI]);
+    const r = await db.query<{ righe: number }>(
+      `select (select count(*) from public.conti_movimenti where user_id = $1)
+            + (select count(*) from public.conti_fatture where user_id = $1)
+            + (select count(*) from public.conti_documenti where user_id = $1)
+            + (select count(*) from public.conti_caselle where user_id = $1)
+            + (select count(*) from public.conti_letture where user_id = $1) as righe`,
+      [CONTI],
     );
     expect(Number(r.rows[0]?.righe)).toBe(0);
   });

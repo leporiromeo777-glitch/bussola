@@ -16,6 +16,8 @@ export const LIMITI_RICHIESTE = {
   racconto: { massimo: 5, finestraSecondi: 60 * 60 },
   /** «Fotografa la lettera»: un'immagine costa più di un testo. */
   lettera: { massimo: 5, finestraSecondi: 60 * 60 },
+  /** «I tuoi conti»: ricevute fotografate (con accesso; c'è anche il limite al giorno per utente). */
+  ricevute: { massimo: 30, finestraSecondi: 60 * 60 },
   /** «Testi pronti»: si provano più versioni. */
   testi: { massimo: 10, finestraSecondi: 60 * 60 },
   /** «Nome della ditta»: proposte di nomi. */

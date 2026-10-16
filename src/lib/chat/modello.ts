@@ -20,11 +20,14 @@ export function scegliModelloRacconto(variabile: string | undefined): string {
  * Modelli delle altre funzioni con l'AI, ognuno con la sua variabile
  * (vuota = predefinito): leggere una lettera fotografata chiede un modello
  * che veda bene le immagini; testi e nomi bastano a un modello economico.
+ * Le ricevute di «I tuoi conti» arrivano anche da sole, con le email
+ * inoltrate: conta il costo, quindi lo stesso modello di «Racconta a Bleo».
  */
 export const MODELLI_FUNZIONI = {
   lettera: { variabile: "ANTHROPIC_MODEL_LETTERA", predefinito: "claude-sonnet-5-5" },
   testi: { variabile: "ANTHROPIC_MODEL_TESTI", predefinito: "claude-haiku-5-5" },
   nomeDitta: { variabile: "ANTHROPIC_MODEL_NOME", predefinito: "claude-haiku-5-5" },
+  ricevuta: { variabile: "ANTHROPIC_MODEL_RICEVUTE", predefinito: MODELLO_RACCONTO_PREDEFINITO },
 } as const;
 
 export type FunzioneAi = keyof typeof MODELLI_FUNZIONI;
