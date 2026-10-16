@@ -24,18 +24,6 @@ const IMMAGINI = {
 
 export type NomeImmagine = keyof typeof IMMAGINI;
 
-export const OUTFIT: NomeImmagine[] = [
-  "outfit-cappellino-nero",
-  "outfit-cappellino-beige",
-  "outfit-pescatore-verde",
-  "outfit-berretto-ruggine",
-  "outfit-occhiali-sole",
-  "outfit-occhiali-tondi",
-  "outfit-occhiali-vista",
-  "outfit-sciarpa-verde",
-  "outfit-inverno",
-];
-
 /**
  * Un'immagine della mascotte. Decorativa per default (alt vuoto): quasi sempre
  * accompagna un testo che dice già tutto. Con `descrivi` usa il testo alternativo.

@@ -14,6 +14,9 @@ Bleo è un mentore AI per chi apre un'attività in Svizzera italiana (prima la
 ditta individuale, poi la Sagl). Il piano completo è in `docs/piano.md`.
 
 ## Regole sul contenuto (non negoziabili)
+- Il nome si scrive **Bleo** e si dice «Blìo» (IPA /ˈbli.o/). Per una voce
+  sintetica usare `<phoneme alphabet="ipa" ph="ˈbli.o">Bleo</phoneme>` (SSML)
+  e mai il maiuscolo BLEO, che alcuni motori leggono lettera per lettera.
 - Testi dell'interfaccia e documenti in italiano semplice, per un ventenne alla
   prima esperienza. Formato svizzero: `CHF 20'000`, date `19.10.2026`.
 - Ogni cifra, soglia, scadenza o nome di ufficio mostrato all'utente viene da

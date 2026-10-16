@@ -7,6 +7,8 @@ export const sito = {
   nome: "Bleo",
   /** Nome della mascotte: è lo stesso dell'attività. */
   mascotte: "Bleo",
+  /** Come si dice il nome: si scrive Bleo, si legge «Blìo» (IPA /ˈbli.o/). */
+  pronuncia: "Blìo",
   slogan: "Dall'idea alla prima fattura, passo per passo.",
   descrizione:
     "Il mentore che accompagna chi apre un'attività in Svizzera italiana: percorso personale, risposte con la fonte ufficiale, documenti pronti.",
