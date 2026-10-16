@@ -11,7 +11,8 @@ const nessunaIscrizione = () => () => {};
 
 /**
  * Prima schermata del questionario: «Racconta a Bleo» (se disponibile) oppure
- * le 10 domande. Chi ha già iniziato o ha già risposto va dritto alle domande.
+ * le 10 domande. Chi ha già iniziato o ha già risposto va dritto alle domande,
+ * ma può sempre tornare al racconto.
  */
 export function InizioQuestionario({
   account,
@@ -39,5 +40,12 @@ export function InizioQuestionario({
       />
     );
   }
-  return <Questionario key={giro} account={account} daRacconto={giro > 0} />;
+  return (
+    <Questionario
+      key={giro}
+      account={account}
+      daRacconto={giro > 0}
+      onRacconta={raccontoDisponibile ? () => setScelta("racconto") : undefined}
+    />
+  );
 }

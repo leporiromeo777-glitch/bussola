@@ -55,7 +55,16 @@ function voceAttuale(): Partial<VoceCronologia> | null {
 }
 
 /** Il questionario: una domanda per schermata, con avanzamento, "Indietro" e il perché di ogni domanda. */
-export function Questionario({ account, daRacconto = false }: { account: DatiAccount; daRacconto?: boolean }) {
+export function Questionario({
+  account,
+  daRacconto = false,
+  onRacconta,
+}: {
+  account: DatiAccount;
+  daRacconto?: boolean;
+  /** Torna a «Racconta a Bleo» (solo se è disponibile). */
+  onRacconta?: () => void;
+}) {
   const router = useRouter();
   const idBase = useId();
   const locali = useRisposteLocali();
@@ -198,6 +207,18 @@ export function Questionario({ account, daRacconto = false }: { account: DatiAcc
       ) : precedenti && bozza === null && indice === 0 ? (
         <p className="mt-4 rounded-lg bg-brand-soft p-3 text-sm">
           Abbiamo ripreso le tue risposte precedenti: cambia solo quello che serve.
+          {onRacconta ? (
+            <>
+              {" "}
+              <button
+                type="button"
+                onClick={onRacconta}
+                className="font-semibold text-brand underline underline-offset-2 hover:text-brand-strong"
+              >
+                Oppure racconta di nuovo la tua idea a Bleo
+              </button>
+            </>
+          ) : null}
         </p>
       ) : null}
 
