@@ -1,19 +1,26 @@
 import { IconaFreccia, IconaSpunta } from "./icone";
 import { Sezione, classePulsantePrincipale } from "./sezione";
 
-// Prezzi del piano (docs/piano.md): ipotesi da verificare nelle interviste.
+// Prezzi del piano (docs/piano.md): ipotesi da verificare nella beta.
 const PIANI = [
   {
     nome: "Gratis",
     prezzo: "CHF 0",
     nota: null,
-    incluso: ["Questionario", "Checklist di base", "10 domande al mese alla chat"],
+    alternativa: null,
+    incluso: ["Questionario e percorso completo", "Scadenze da ricordare", "10 domande al mese alla chat"],
   },
   {
-    nome: "Avvio",
-    prezzo: "CHF 49",
-    nota: "una tantum",
-    incluso: ["Percorso completo", "Chat illimitata per 3 mesi", "Tutti i generatori di documenti"],
+    nome: "Bleo Plus",
+    prezzo: "CHF 9.90",
+    nota: "al mese",
+    alternativa: "oppure CHF 89 all'anno: circa 3 mesi gratis",
+    incluso: [
+      "Chat con le fonti ufficiali, fino a 100 domande al mese",
+      "Promemoria delle scadenze",
+      "Tutti gli strumenti: preventivi, fatture QR, budget, business plan",
+      "Aggiornamenti quando cambiano le regole",
+    ],
   },
 ];
 
@@ -35,7 +42,7 @@ export function Prezzi() {
           <article
             key={piano.nome}
             aria-labelledby={`piano-${piano.nome}`}
-            className="flex flex-col rounded-xl border border-border bg-card p-6 sm:p-8"
+            className={`flex flex-col rounded-2xl p-6 sm:p-8 ${piano.alternativa ? "bordo-sfumato shadow-lg shadow-brand/10" : "border border-border bg-card"}`}
           >
             <div className="flex items-center justify-between gap-3">
               <h3 id={`piano-${piano.nome}`} className="text-lg font-semibold">
@@ -47,6 +54,7 @@ export function Prezzi() {
               <span className="text-4xl font-semibold tracking-tight">{piano.prezzo}</span>
               {piano.nota ? <span className="ml-2 text-muted">{piano.nota}</span> : null}
             </p>
+            {piano.alternativa ? <p className="mt-1 text-sm font-medium text-brand">{piano.alternativa}</p> : null}
             <ul className="mt-6 space-y-2">
               {piano.incluso.map((voce) => (
                 <li key={voce} className="flex gap-2">

@@ -93,16 +93,28 @@ cosa fare e in che ordine, e ti porta da loro al momento giusto.
 
 ## Modello di business e prezzi
 
-Si guadagna con un pacchetto di avvio una tantum, un piccolo abbonamento dopo
-la fondazione e licenze per enti. I prezzi sono ipotesi da verificare nelle
-interviste.
+Si guadagna con un abbonamento (mensile o annuale) e con licenze per enti. I
+prezzi sono ipotesi da verificare nella beta (16.10.2026: scelto un solo
+abbonamento al posto di «Avvio» CHF 49 una tantum + «Accompagnamento» CHF 12
+al mese, più semplice da spiegare).
 
 | Piano | Prezzo | Cosa include |
 |---|---|---|
-| Gratis | CHF 0 | Questionario, checklist di base, 10 domande al mese |
-| Avvio | CHF 49 una tantum | Percorso completo, chat illimitata per 3 mesi, tutti i generatori |
-| Accompagnamento | CHF 12 al mese | Scadenzario, chat illimitata, aggiornamenti sulle regole, dopo la fondazione |
+| Gratis | CHF 0 | Questionario, percorso completo, scadenze, 10 domande al mese |
+| Bleo Plus | CHF 9.90 al mese oppure CHF 89 all'anno | Chat fino a 100 domande al mese, promemoria delle scadenze, tutti gli strumenti, aggiornamenti sulle regole |
 | Partner (B2B) | da CHF 2'000 all'anno | Licenza con il marchio dell'ente per scuole, Comuni, banche e incubatori |
+
+Perché così: CHF 9.90 è una soglia che un ventenne accetta senza pensarci; il
+piano annuale tiene le persone anche dopo l'apertura, quando contano scadenze
+e fatture (con il solo mensile molti disdirebbero dopo 2–3 mesi). Il tetto di
+100 domande va rivisto con i costi reali dell'API nella beta. Nelle app di
+Apple e Google gli abbonamenti venduti dentro l'app passano dai loro sistemi
+di pagamento, con una commissione: decidere prima di pubblicare l'app se
+vendere nell'app o solo sul sito.
+
+Da fare con Stripe: nel database i piani si chiamano ancora `gratis`,
+`avvio`, `accompagnamento` e `partner` (supabase/migrations); il piano
+«Bleo Plus» va collegato lì quando si attivano i pagamenti.
 
 Ricavo extra: segnalazioni a fiduciari e assicurazioni partner, con
 commissione sempre dichiarata all'utente.
