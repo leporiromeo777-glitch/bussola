@@ -38,8 +38,8 @@ export async function cancellaFileUtente(admin: SupabaseClient, userId: string):
  *
  * Prima i file di «I tuoi conti» nello Storage (ricevute, PDF, allegati
  * delle email), poi l'utente da Supabase Auth: tutte le tabelle con i suoi
- * dati (profili, questionari, passi_completati, domande_chat e le tabelle
- * conti_*) puntano ad auth.users con "on delete cascade" e si svuotano
+ * dati (profili, questionari, passi_completati, domande_chat, le chat
+ * salvate in chat_conversazioni e chat_messaggi e le tabelle conti_*) puntano ad auth.users con "on delete cascade" e si svuotano
  * insieme. Lo controlla supabase/schema.test.ts: una tabella nuova senza
  * cascade fa fallire il test.
  * La lista d'attesa è un'iscrizione separata (per email, senza account) e

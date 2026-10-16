@@ -156,7 +156,7 @@ function CampoTitolo({ titolo, onFine }: { titolo: string; onFine: (nuovo: strin
         }
       }}
       onBlur={() => chiudi(valore)}
-      className="block min-h-10 w-full rounded-xl border border-brand bg-card px-3 py-2 text-sm focus-visible:outline-none"
+      className="block min-h-10 w-full rounded-xl border border-brand bg-card px-3 py-2 text-sm focus-visible:outline-none!"
     />
   );
 }
@@ -237,7 +237,7 @@ function MenuChat({
         type="button"
         role="menuitem"
         onClick={onRinomina}
-        className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left text-sm hover:bg-brand-soft focus-visible:bg-brand-soft focus-visible:outline-none"
+        className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left text-sm hover:bg-brand-soft focus-visible:bg-brand-soft focus-visible:outline-none!"
       >
         <IconaMatita />
         Rinomina
@@ -246,7 +246,7 @@ function MenuChat({
         type="button"
         role="menuitem"
         onClick={onElimina}
-        className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left text-sm text-danger hover:bg-danger/10 focus-visible:bg-danger/10 focus-visible:outline-none"
+        className="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-left text-sm text-danger hover:bg-danger/10 focus-visible:bg-danger/10 focus-visible:outline-none!"
       >
         <IconaCestino />
         Elimina

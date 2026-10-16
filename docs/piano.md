@@ -77,6 +77,25 @@ individuale aperta e alla prima fattura, in italiano.
 conto dei clienti, app mobile, altre lingue. Arrivano dopo, solo se i clienti
 le chiedono.
 
+### «Chiedi a Bleo» con le chat salvate (ottobre 2026)
+
+La chat funziona come ChatGPT: a sinistra (in un cassetto su telefono) le
+chat salvate, raggruppate per data, con «Nuova chat», «Rinomina» ed
+«Elimina»; al centro la conversazione con le fonti; ogni chat ha il suo
+indirizzo (`/chat?c=<id>`).
+
+- **Tabelle** `chat_conversazioni` e `chat_messaggi` (migrazione
+  `20261018000000_chat_conversazioni.sql`): domande e risposte con fonti, solo
+  dell'utente (RLS). Una chat senza nuove domande da 12 mesi si cancella nella
+  pulizia notturna, come le domande in `domande_chat`; tutto si cancella con
+  l'account.
+- **API** per sito e app con lo stesso contratto (tipi in
+  `src/lib/chat/conversazioni.ts`): `POST /api/chat` accetta
+  `conversazioneId` e manda per primo l'evento `conversazione`;
+  `GET /api/chat/conversazioni`, `GET`/`PATCH`/`DELETE
+  /api/chat/conversazioni/[id]`. Il contesto per Claude (gli ultimi 3
+  scambi) lo prende il server dai messaggi salvati. La quota non cambia.
+
 ### «I tuoi conti» (fase 1, ottobre 2026)
 
 Pensato per **Bleo Plus**: dopo l'apertura il problema diventa tenere in

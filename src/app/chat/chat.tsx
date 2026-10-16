@@ -71,10 +71,13 @@ export function Chat({
   const quotaEsaurita = quota?.rimanenti === 0;
   const vuota = attiva === null && turni.length === 0 && caricamento.stato === "pronta";
 
+  // Uscendo si ferma tutto; se React rimonta il componente, la chat si riapre.
   useEffect(
     () => () => {
       interruzione.current?.abort();
       lettura.current?.abort();
+      idAttivo.current = null;
+      sessione.current += 1;
     },
     [],
   );
@@ -93,7 +96,7 @@ export function Chat({
   // Durante la risposta si scende con il testo, a meno che chi legge sia risalito.
   useLayoutEffect(() => {
     const el = scorrimento.current;
-    if (el && seguire.current) el.scrollTop = el.scrollHeight;
+    if (el && seguire.current && turni.length > 0) el.scrollTop = el.scrollHeight;
   }, [turni]);
 
   // Cassetto delle chat su telefono: finestra modale (Esc chiude, il resto è inerte).
@@ -166,7 +169,7 @@ export function Chat({
         signal: controllo.signal,
       });
     } catch {
-      if (s === sessione.current) setCaricamento({ stato: "errore", messaggio: MESSAGGI.rete });
+      if (s === sessione.current && !controllo.signal.aborted) setCaricamento({ stato: "errore", messaggio: MESSAGGI.rete });
       return;
     }
     const corpo = (await risposta.json().catch(() => null)) as (RispostaChat & { messaggio?: string }) | null;
@@ -420,8 +423,9 @@ export function Chat({
                   Prova a chiedere
                 </h3>
                 <ul className="grid gap-2 sm:grid-cols-2">
-                  {esempi.slice(0, 4).map((esempio) => (
-                    <li key={esempio} className="flex">
+                  {esempi.slice(0, 4).map((esempio, i) => (
+                    // Su telefono 3 esempi, per non allungare troppo la schermata.
+                    <li key={esempio} className={i === 3 ? "hidden sm:flex" : "flex"}>
                       <button
                         type="button"
                         onClick={() => void invia(esempio)}
@@ -436,9 +440,9 @@ export function Chat({
               </section>
               <p className="mt-6 max-w-xl text-center text-xs leading-relaxed text-muted">
                 Stai parlando con un&apos;intelligenza artificiale (Claude, di Anthropic), non con un fiduciario. Le
-                tue chat restano salvate nel tuo account per riaprirle: puoi eliminarle quando vuoi e si cancellano
-                da sole dopo 12 mesi senza nuove domande. Non le usiamo per addestrare modelli. Per il tuo caso
-                personale trovi un professionista nell&apos;
+                chat restano nel tuo account per riaprirle: puoi eliminarle quando vuoi e si cancellano da sole dopo
+                12 mesi senza nuove domande. Non le usiamo per addestrare modelli. Per il tuo caso trovi un
+                professionista nell&apos;
                 <a href={linkAlbo} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-foreground">
                   albo dei fiduciari autorizzati
                 </a>

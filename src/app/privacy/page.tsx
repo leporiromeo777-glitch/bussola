@@ -211,11 +211,13 @@ export default async function PaginaPrivacy() {
         <ul>
           <li>
             <strong>Dati:</strong> il testo delle domande, le fonti citate nella risposta e se la risposta è stata
-            trovata.
+            trovata. Nel tuo account salviamo anche le tue chat: le domande, le risposte di Bleo con le loro fonti e
+            il titolo di ogni chat.
           </li>
           <li>
             <strong>Perché:</strong> per risponderti, contare le domande del mese e capire quali fonti
-            ufficiali mancano. Ti chiediamo di non scrivere nella chat dati personali che non servono (per esempio il
+            ufficiali mancano. Le chat le salviamo perché tu possa riaprirle e continuarle; le vedi solo tu, e puoi
+            rinominarle o eliminarle una per una quando vuoi. Ti chiediamo di non scrivere nella chat dati personali che non servono (per esempio il
             numero AVS o dati sulla salute).
           </li>
           <li>
@@ -344,6 +346,11 @@ export default async function PaginaPrivacy() {
           <li>
             <strong>Domande alla chat:</strong> 12 mesi: le domande più vecchie vengono cancellate automaticamente
             ogni notte.
+          </li>
+          <li>
+            <strong>Chat salvate</strong> (domande e risposte con le fonti): finché non le elimini tu, al più tardi 12
+            mesi dopo l&apos;ultima domanda nella chat: ogni notte cancelliamo automaticamente le chat senza attività
+            da 12 mesi. Se elimini l&apos;account cancelliamo anche tutte le chat.
           </li>
           <li>
             <strong>I tuoi conti</strong> (voci, fatture, ricevute, allegati e dati delle email inoltrate): finché non

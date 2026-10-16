@@ -114,7 +114,7 @@ export function Compositore({
           aria-describedby="nota-chat"
           enterKeyHint="send"
           placeholder={bloccato ? "Hai usato le domande di questo mese" : "Chiedi a Bleo…"}
-          className={`block w-full resize-none bg-transparent leading-6 placeholder:text-muted focus-visible:outline-none disabled:cursor-not-allowed ${
+          className={`block w-full resize-none bg-transparent leading-6 placeholder:text-muted focus-visible:outline-none! disabled:cursor-not-allowed ${
             grande ? "min-h-14 px-1 py-1 text-base sm:text-lg" : "min-h-10 flex-1 py-2 text-base"
           }`}
         />
