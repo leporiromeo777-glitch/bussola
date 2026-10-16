@@ -181,6 +181,22 @@ export default async function PaginaPrivacy() {
           </li>
         </ul>
 
+        <h3>
+          «Racconta a Bleo» nel questionario
+          <NonAttivo attivo={attivi.racconto} testo="non ancora attivo" />
+        </h3>
+        <ul>
+          <li>
+            <strong>Dati:</strong> la descrizione della tua idea che scrivi tu, per esempio che lavoro vuoi fare e dove.
+          </li>
+          <li>
+            <strong>Perché:</strong> per dedurre le risposte del questionario e chiederti solo quelle che mancano. Non
+            salviamo il testo: lo riceve solo il fornitore di intelligenza artificiale (vedi sotto), e ti mostriamo le
+            risposte dedotte prima di usarle. Per limitare gli abusi contiamo le richieste per connessione, con
+            un&apos;impronta dell&apos;indirizzo IP e mai l&apos;IP in chiaro.
+          </li>
+        </ul>
+
         <h3>Dati tecnici</h3>
         <ul>
           <li>
@@ -273,10 +289,11 @@ export default async function PaginaPrivacy() {
           </li>
           <li>
             <strong>Anthropic Ireland, Limited (Irlanda), con Anthropic, PBC (USA)</strong>
-            <NonAttivo attivo={attivi.chat} testo="non ancora attivo: la chat è spenta" />: genera le risposte
-            della chat. Riceve la tua domanda, al massimo le {SCAMBI_PRECEDENTI_MASSIMI} domande e risposte precedenti
+            <NonAttivo attivo={attivi.chat || attivi.racconto} testo="non ancora attivo: la chat è spenta" />: genera
+            le risposte della chat e deduce le risposte del questionario da «Racconta a Bleo». Per la chat riceve la
+            tua domanda, al massimo le {SCAMBI_PRECEDENTI_MASSIMI} domande e risposte precedenti
             della stessa conversazione e i testi delle fonti pubbliche trovate per rispondere; non riceve la tua
-            email né altri dati dell&apos;account. Questi dati sono conservati negli Stati Uniti e cancellati da
+            email né altri dati dell&apos;account; per «Racconta a Bleo» riceve solo la descrizione che scrivi. Questi dati sono conservati negli Stati Uniti e cancellati da
             Anthropic entro 30 giorni.
             <GaranziaUsa testo={GARANZIE_USA.anthropic} />
           </li>

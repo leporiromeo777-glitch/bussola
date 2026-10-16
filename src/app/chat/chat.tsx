@@ -181,7 +181,7 @@ export function Chat({
           onKeyDown={tasti}
           disabled={inCorso || quotaEsaurita}
           aria-describedby="aiuto-domanda"
-          placeholder="Per esempio: devo iscrivermi al registro di commercio?"
+          placeholder="Per esempio: voglio aprire un bar a Bellinzona, da dove parto?"
           className="mt-1 block w-full resize-y rounded-lg border border-border bg-background px-3 py-2 disabled:opacity-60"
         />
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">

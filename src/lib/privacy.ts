@@ -159,6 +159,8 @@ type Ambiente = Record<string, string | undefined>;
  * - account: client Supabase (src/lib/supabase/env.ts);
  * - chat: Supabase e una chiave di Anthropic nostra (chiaveAnthropic, come
  *   la pagina /chat);
+ * - racconto («Racconta a Bleo» nel questionario): chiave di Anthropic nostra e
+ *   chiave segreta di Supabase (serve per il limite di richieste per IP);
  * - email: chiave Resend e mittente (src/lib/lista-attesa/resend.ts);
  * - protezione dei moduli: chiave segreta di Supabase (src/lib/limiti/server.ts);
  * - verifica anti-robot (Turnstile) e statistiche (Plausible): chiavi pubbliche.
@@ -166,6 +168,7 @@ type Ambiente = Record<string, string | undefined>;
 export type TrattamentiAttivi = {
   account: boolean;
   chat: boolean;
+  racconto: boolean;
   email: boolean;
   protezioneModuli: boolean;
   verificaAntiRobot: boolean;
@@ -178,6 +181,8 @@ export function trattamentiAttivi(env: Ambiente): TrattamentiAttivi {
   return {
     account: supabase,
     chat: supabase && chiaveAnthropic(env) !== null,
+    racconto:
+      chiaveAnthropic(env) !== null && impostata("NEXT_PUBLIC_SUPABASE_URL") && impostata("SUPABASE_SECRET_KEY"),
     email: impostata("RESEND_API_KEY") && impostata("EMAIL_MITTENTE"),
     protezioneModuli: impostata("NEXT_PUBLIC_SUPABASE_URL") && impostata("SUPABASE_SECRET_KEY"),
     verificaAntiRobot: impostata("NEXT_PUBLIC_TURNSTILE_SITE_KEY"),

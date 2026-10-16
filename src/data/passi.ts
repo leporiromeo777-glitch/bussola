@@ -73,13 +73,14 @@ export const PASSI = [
     descrizione:
       "È la forma più semplice per lavorare in proprio: nasce quando inizi l'attività, non serve capitale e il titolare è una sola persona. In cambio rispondi dei debiti con tutto il tuo patrimonio personale.",
     cosaFare: [
-      "Leggi la scheda ufficiale del Portale PMI sulla ditta individuale.",
-      "Tieni a mente che tu e la ditta siete la stessa persona: le imposte sul reddito della ditta le paghi tu, nella tua dichiarazione personale.",
+      "Ricorda le tre cose che contano: la ditta nasce quando inizi a lavorare, non serve capitale e il titolare sei solo tu.",
+      "Rispondi dei debiti della ditta con tutto il tuo patrimonio personale: se ti preoccupa, chiedi a un fiduciario se ti conviene un'altra forma.",
+      "Tu e la ditta siete la stessa persona: le imposte sul reddito della ditta le paghi tu, nella tua dichiarazione personale.",
     ],
     link: { etichetta: "Scheda del Portale PMI", url: fonti.pmiDittaIndividuale.url },
     fonti: [fonti.pmiDittaIndividuale, fontiPercorso.pmiImposteDitta],
     verificatoIl: VERIFICATO_IL,
-    tempoStimato: "10 minuti di lettura",
+    tempoStimato: "2 minuti",
     domandaChat: "Cos'è una ditta individuale e cosa rischio con il mio patrimonio personale?",
   },
   {
@@ -132,8 +133,8 @@ export const PASSI = [
     descrizione:
       "In Ticino un esercizio pubblico (per esempio un ristorante, un bar o un albergo) può essere aperto e gestito soltanto dopo aver ottenuto l'autorizzazione (LEAR, art. 5). Di regola serve anche un gerente con il diploma cantonale di esercente oppure, senza un certificato riconosciuto, con almeno tre anni di pratica come esercente in un altro Cantone (LEAR, art. 9); il regolamento prevede eccezioni.",
     cosaFare: [
-      "Leggi gli artt. 5 e 9 della LEAR.",
-      "Guarda la procedura per l'autorizzazione degli esercizi pubblici nell'elenco della Polizia cantonale.",
+      "Non aprire il locale prima di avere l'autorizzazione: senza, non puoi né aprirlo né gestirlo (LEAR, art. 5).",
+      "Chiedi l'autorizzazione con la procedura per gli esercizi pubblici della Polizia cantonale.",
       "Decidi chi farà da gerente. Nel regolamento (RLEAR) trovi le attività per cui il diploma di esercente non serve.",
     ],
     link: { etichetta: "Autorizzazioni della Polizia cantonale", url: fontiPercorso.poliziaAutorizzazioni.url },
@@ -187,8 +188,8 @@ export const PASSI = [
     descrizione:
       "Chi non ha la cittadinanza svizzera deve avere un permesso che consenta l'attività indipendente. I frontalieri che vogliono mettersi in proprio chiedono il permesso G; i cittadini UE/AELS, se la domanda è accolta, ricevono un permesso B valido cinque anni.",
     cosaFare: [
-      "Leggi la parte sugli stranieri nella guida «Mettersi in proprio» del Portale PMI.",
-      "In Ticino leggi le avvertenze dell'Ufficio della migrazione per gli indipendenti UE/AELS.",
+      "Se sei frontaliere, per lavorare in proprio ti serve il permesso G; se sei cittadino UE/AELS, chiedi il permesso B per indipendenti (se la domanda è accolta vale cinque anni).",
+      "In Ticino prepara la domanda seguendo le indicazioni dell'Ufficio della migrazione per gli indipendenti UE/AELS.",
       "Prima di iniziare, chiedi conferma all'ufficio della migrazione del tuo Cantone.",
     ],
     link: { etichetta: "Portale PMI: mettersi in proprio", url: fontiPercorso.pmiMettersiInProprio.url },

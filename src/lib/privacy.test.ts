@@ -98,11 +98,20 @@ describe("trattamentiAttivi", () => {
     expect(trattamentiAttivi({})).toEqual({
       account: false,
       chat: false,
+      racconto: false,
       email: false,
       protezioneModuli: false,
       verificaAntiRobot: false,
       statistiche: false,
     });
+  });
+
+  it("«Racconta a Bleo» è attivo solo con una chiave di Anthropic nostra e la chiave segreta di Supabase", () => {
+    const segreta = { NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", SUPABASE_SECRET_KEY: "sb_secret_x" };
+    expect(trattamentiAttivi({ ANTHROPIC_API_KEY: "sk-ant-x" }).racconto).toBe(false);
+    expect(trattamentiAttivi({ ...segreta }).racconto).toBe(false);
+    expect(trattamentiAttivi({ ...segreta, ANTHROPIC_API_KEY: "sk-ant-x" }).racconto).toBe(true);
+    expect(trattamentiAttivi({ ...segreta, ANTHROPIC_API_KEY: "gw", NETLIFY_AI_GATEWAY_KEY: "gw" }).racconto).toBe(false);
   });
 
   it("la chat è attiva solo con Supabase e una chiave di Anthropic nostra", () => {

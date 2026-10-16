@@ -40,8 +40,9 @@ export default async function PaginaChat({ searchParams }: PageProps<"/chat">) {
         <h1 className="text-2xl font-semibold sm:text-3xl">Chiedi a Bleo</h1>
       </div>
       <p className="mt-2 max-w-2xl text-muted">
-        Rispondo solo con le fonti ufficiali che abbiamo verificato e ti mostro sempre il link: è informazione
-        generale con fonti ufficiali, non consulenza.
+        Raccontami cosa vuoi fare, con parole tue: ti dico cosa fare e in che ordine, senza mandarti a leggere
+        articoli. Rispondo solo con le fonti ufficiali che abbiamo verificato e ti mostro sempre il link: è
+        informazione generale, non consulenza.
       </p>
       <p className="mt-2 max-w-2xl text-sm text-muted">
         Stai parlando con un&apos;intelligenza artificiale (Claude, di Anthropic), non con un fiduciario. Salviamo la
