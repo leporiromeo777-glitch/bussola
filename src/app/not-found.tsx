@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PaginaMessaggio } from "@/components/landing/pagina-messaggio";
+import { ImmagineMascotte } from "@/components/mascotte/immagine";
 
 export const metadata: Metadata = { title: "Pagina non trovata" };
 
@@ -14,6 +15,7 @@ const LINK = [
 export default function PaginaNonTrovata() {
   return (
     <PaginaMessaggio tono="info" titolo="Pagina non trovata" azioni={false}>
+      <ImmagineMascotte nome="pensa" sizes="160px" className="h-auto w-36" />
       <p>Il link che hai aperto non esiste o è cambiato. Puoi ripartire da qui:</p>
       <ul className="space-y-2">
         {LINK.map(({ href, etichetta }) => (

@@ -1,3 +1,5 @@
+import { ImmagineMascotte } from "@/components/mascotte/immagine";
+import { listaAttesaAttiva } from "@/lib/lista-attesa/stato";
 import { IconaSpunta } from "./icone";
 import { ModuloListaAttesa } from "./modulo-lista-attesa";
 import { Sezione } from "./sezione";
@@ -15,6 +17,7 @@ export function ListaAttesa() {
       sopratitolo="Lista d'attesa"
       titolo="Entra nella lista d'attesa"
       sfondo="brand"
+      illustrazione={<ImmagineMascotte nome="festa" sizes="176px" className="h-auto w-full" />}
       introduzione={
         <p>
           Ti scriviamo quando apre la beta chiusa. Chi è in lista ha la precedenza per entrare tra le prime persone a
@@ -32,6 +35,12 @@ export function ListaAttesa() {
           ))}
         </ul>
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
+          {listaAttesaAttiva() ? null : (
+            <p className="mb-6 rounded-lg border border-border bg-brand-soft p-3 text-sm">
+              <strong className="font-semibold">Le iscrizioni aprono a breve.</strong> In questa versione di prova il
+              modulo non salva ancora i dati: torna tra qualche giorno.
+            </p>
+          )}
           <ModuloListaAttesa />
         </div>
       </div>

@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { ImmagineMascotte } from "@/components/mascotte/immagine";
+import { listaAttesaAttiva } from "@/lib/lista-attesa/stato";
 import { EsempioPercorso } from "./esempio-percorso";
 import { IconaFreccia, IconaSpunta } from "./icone";
 import { classePulsantePrincipale, classePulsanteSecondario } from "./sezione";
@@ -9,13 +12,14 @@ const PROMESSE = [
 ];
 
 export function Hero() {
+  const listaAperta = listaAttesaAttiva();
   return (
-    <section aria-labelledby="hero-titolo">
+    <section aria-labelledby="hero-titolo" className="overflow-x-clip">
       <div className="mx-auto grid max-w-5xl items-center gap-12 px-4 pb-16 pt-12 sm:pb-24 sm:pt-20 md:grid-cols-[1.15fr_1fr]">
         <div>
           <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-sm text-muted">
-            <span aria-hidden="true" className="size-2 rounded-full bg-accent" />
-            Lista d&apos;attesa aperta
+            <span aria-hidden="true" className={`size-2 rounded-full ${listaAperta ? "bg-success" : "bg-accent"}`} />
+            {listaAperta ? "Lista d'attesa aperta" : "Versione di prova · lista d'attesa in arrivo"}
           </p>
           <h1
             id="hero-titolo"
@@ -39,17 +43,29 @@ export function Hero() {
             ))}
           </ul>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <a href="#lista-attesa" className={classePulsantePrincipale}>
-              Entra nella lista d&apos;attesa
+            <Link href="/questionario" className={classePulsantePrincipale}>
+              Prova il questionario
               <IconaFreccia className="size-4" />
-            </a>
-            <a href="#come-funziona" className={classePulsanteSecondario}>
-              Come funziona
+            </Link>
+            <a href="#lista-attesa" className={classePulsanteSecondario}>
+              Entra nella lista d&apos;attesa
             </a>
           </div>
           <p className="mt-6 text-sm text-muted">Per chi apre un&apos;attività in Ticino e nel Grigioni italiano.</p>
         </div>
-        <EsempioPercorso />
+        <div className="relative">
+          <div
+            aria-hidden="true"
+            className="absolute -inset-x-6 -top-10 bottom-6 -z-10 rounded-[3rem] bg-brand-soft/70 blur-2xl"
+          />
+          <ImmagineMascotte
+            nome="coppia"
+            priority
+            sizes="(min-width: 768px) 200px, 160px"
+            className="relative z-10 mx-auto -mb-6 h-auto w-40 drop-shadow-sm md:absolute md:-top-28 md:-right-6 md:mx-0 md:mb-0 md:w-48"
+          />
+          <EsempioPercorso />
+        </div>
       </div>
     </section>
   );

@@ -1,3 +1,4 @@
+import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { sito, valoreSegnaposto } from "@/lib/sito";
@@ -21,8 +22,9 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
     domanda: "Quando posso usarlo?",
     risposta: (
       <>
-        La beta chiusa è prevista per dicembre 2026, con 30–50 persone invitate dalla lista d&apos;attesa. Se entri in
-        lista ti scriviamo quando parte.
+        Il questionario, la checklist e gli strumenti li puoi già provare gratis, in versione di prova. La beta
+        chiusa con la chat e il percorso completo è prevista per dicembre 2026, con 30–50 persone invitate dalla
+        lista d&apos;attesa: se entri in lista ti scriviamo quando parte.
       </>
     ),
   },
@@ -41,7 +43,7 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
             prodotto con l&apos;aiuto dell&apos;intelligenza artificiale.
           </>
         )}{" "}
-        Ogni fonte ufficiale viene controllata una per una prima di essere usata e ricontrollata ogni mese. Indirizzo e contatti sono nell&apos;
+        Ogni fonte ufficiale viene scelta una per una e il suo contenuto controllato prima di essere usata; è previsto un nuovo controllo ogni mese. I contatti sono nell&apos;
         <Link href="/impressum" className={classeLink}>
           impressum
         </Link>
@@ -63,7 +65,7 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
     domanda: "Sostituisce il fiduciario?",
     risposta: (
       <>
-        No. Bussola ti dà informazioni generali con la fonte ufficiale e ti aiuta a preparare i documenti, ma non
+        No. Bussola ti dà informazioni generali con la fonte ufficiale e strumenti che compili tu (tariffa, budget, preventivo, fattura), ma non
         compila dichiarazioni d&apos;imposta e non tiene la contabilità per te. Quando il tuo caso è particolare te lo
         dice e ti consiglia di rivolgerti a un fiduciario autorizzato.
       </>
@@ -73,9 +75,9 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
     domanda: "Che dati raccogliete?",
     risposta: (
       <>
-        Per la lista d&apos;attesa solo la tua email e, se vuoi, nome, Cantone e situazione. Li usiamo per scriverti
-        quando apre la beta e per capire chi è interessato; non li vendiamo a nessuno. Tutti i dettagli sono
-        nell&apos;
+        Per la lista d&apos;attesa la tua email e, se vuoi, nome, Cantone e situazione, più il link da cui arrivi e
+        la data del consenso. Questionario e strumenti restano nel tuo browser, a meno che tu non acceda con un
+        account. Non vendiamo i dati a nessuno. Tutti i dettagli sono nell&apos;
         <Link href="/privacy" className={classeLink}>
           informativa sulla privacy
         </Link>
@@ -87,7 +89,12 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
 
 export function Domande() {
   return (
-    <Sezione id="domande" sopratitolo="Domande frequenti" titolo="Domande e risposte">
+    <Sezione
+      id="domande"
+      sopratitolo="Domande frequenti"
+      titolo="Domande e risposte"
+      illustrazione={<ImmagineMascotte nome="pensa" sizes="176px" className="h-auto w-full" />}
+    >
       <div className="divide-y divide-border rounded-xl border border-border bg-card">
         {DOMANDE.map(({ domanda, risposta }) => (
           <details key={domanda} className="group px-5 sm:px-6">

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { Compagno } from "@/components/landing/compagno";
 import { ComeFunziona } from "@/components/landing/come-funziona";
 import { CosaNonE } from "@/components/landing/cosa-non-e";
 import { Domande } from "@/components/landing/domande";
 import { Hero } from "@/components/landing/hero";
 import { ListaAttesa } from "@/components/landing/lista-attesa";
 import { Prezzi } from "@/components/landing/prezzi";
+import { PerChi } from "@/components/landing/per-chi";
 import { Problema } from "@/components/landing/problema";
 import { sito } from "@/lib/sito";
 
@@ -32,7 +34,9 @@ export default function PaginaIniziale() {
     <>
       <Hero />
       <Problema />
+      <PerChi />
       <ComeFunziona />
+      <Compagno />
       <CosaNonE />
       <Prezzi />
       <Domande />

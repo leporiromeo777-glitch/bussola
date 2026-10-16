@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ComponentType } from "react";
 import { IconaCalendario, IconaDispositivo, IconaFattura, IconaFreccia, IconaOrologio, IconaPagina } from "@/components/strumenti/icone";
+import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import { NotaNonConsulenza } from "@/components/strumenti/intestazione";
 
 export const metadata: Metadata = {
@@ -52,7 +53,8 @@ const STRUMENTI: Strumento[] = [
 export default function PaginaStrumenti() {
   return (
     <>
-      <header className="max-w-3xl">
+      <header className="flex max-w-4xl items-end justify-between gap-8">
+        <div className="max-w-3xl">
         <p className="text-sm font-semibold text-brand">Strumenti</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
           I conti e i documenti per partire
@@ -61,6 +63,8 @@ export default function PaginaStrumenti() {
           Sono strumenti che compili tu, con i tuoi numeri: ti mostrano le regole generali e le fonti ufficiali, ma non
           sono una consulenza. Puoi stampare tutto o salvarlo come PDF.
         </p>
+        </div>
+        <ImmagineMascotte nome="scrivania" priority sizes="160px" className="hidden h-auto w-40 shrink-0 sm:block" />
       </header>
 
       <p className="mt-6 flex max-w-3xl items-start gap-2 rounded-xl border border-border bg-brand-soft p-4 text-sm">

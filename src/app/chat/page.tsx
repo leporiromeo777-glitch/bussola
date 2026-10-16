@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
+import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import { fonti } from "@/data/svizzera";
 import { DOMANDE_GRATIS_AL_MESE, quotaPubblica } from "@/lib/chat/quota";
 import { anthropicConfigurato, leggiQuota } from "@/lib/chat/server";
@@ -34,7 +35,10 @@ export default async function PaginaChat({ searchParams }: PageProps<"/chat">) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-      <h1 className="text-2xl font-semibold sm:text-3xl">Chiedi a Bussola</h1>
+      <div className="flex items-center gap-4">
+        <ImmagineMascotte nome="pensa" priority sizes="96px" className="h-auto w-20 shrink-0" />
+        <h1 className="text-2xl font-semibold sm:text-3xl">Chiedi a Bussola</h1>
+      </div>
       <p className="mt-2 max-w-2xl text-muted">
         Rispondo solo con le fonti ufficiali che abbiamo verificato e ti mostro sempre il link: è informazione
         generale con fonti ufficiali, non consulenza.

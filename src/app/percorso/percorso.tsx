@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import { Guardaroba, MascotteVestita } from "@/components/mascotte/guardaroba";
+import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import { BarraProgresso } from "@/components/percorso/barra-progresso";
 import { ElencoAvvisi } from "@/components/percorso/elenco-avvisi";
 import { IconaRicomincia, IconaStampa } from "@/components/percorso/icone";
@@ -229,7 +231,9 @@ export function Percorso({
         <RiepilogoRisposte risposte={risposte} />
       </div>
 
-      <div className="mt-6 max-w-3xl rounded-xl border border-border bg-card p-4 sm:p-5">
+      <div className="mt-6 flex max-w-3xl items-center gap-4 rounded-xl border border-border bg-card p-4 sm:p-5">
+        <MascotteVestita className="h-24 w-auto shrink-0 print:hidden" />
+        <div className="min-w-0 flex-1">
         <BarraProgresso
           valore={numeroFatti}
           massimo={totale}
@@ -248,6 +252,7 @@ export function Percorso({
             "Hai completato tutti i passi da fare. Restano le scadenze di ogni anno."
           )}
         </p>
+        </div>
       </div>
 
       {!account.collegato && accessoDisponibile ? (
@@ -328,6 +333,7 @@ export function Percorso({
               Chiedi a Bussola
             </Link>
           </section>
+          <Guardaroba />
         </aside>
       </div>
 
@@ -440,6 +446,7 @@ function Caricamento() {
 function SenzaRisposte() {
   return (
     <div className="mx-auto max-w-xl px-4 py-16 sm:py-24">
+      <ImmagineMascotte nome="checklist" priority sizes="160px" className="mb-6 h-auto w-36" />
       <p className="text-sm font-semibold text-brand">Il tuo percorso</p>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
         Prima rispondi a 10 domande

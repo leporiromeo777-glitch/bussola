@@ -1,3 +1,4 @@
+import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import type { ComponentType } from "react";
 import { IconaChat, IconaChecklist, IconaDocumento, IconaQuestionario } from "./icone";
 import { Sezione } from "./sezione";
@@ -32,6 +33,7 @@ export function ComeFunziona() {
       sopratitolo="Come funziona"
       titolo="Dall'idea alla prima fattura, un passo alla volta"
       introduzione={<p>Bussola mette in fila quello che serve e ti porta al modulo giusto al momento giusto.</p>}
+      illustrazione={<ImmagineMascotte nome="checklist" sizes="176px" className="h-auto w-full" />}
     >
       <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {PASSI.map(({ titolo, testo, Icona }, i) => (
