@@ -1,12 +1,34 @@
 import { describe, expect, it } from "vitest";
-import { MODELLO_PREDEFINITO, scegliModello, supportaFallback } from "./modello";
+import {
+  MODELLO_PREDEFINITO,
+  MODELLO_RACCONTO_PREDEFINITO,
+  scegliModello,
+  scegliModelloRacconto,
+  supportaFallback,
+} from "./modello";
 
 describe("scegliModello", () => {
-  it("usa claude-opus-5-5 se la variabile manca o è vuota", () => {
-    expect(MODELLO_PREDEFINITO).toBe("claude-opus-5-5");
-    expect(scegliModello(undefined)).toBe("claude-opus-5-5");
-    expect(scegliModello("  ")).toBe("claude-opus-5-5");
+  it("usa claude-sonnet-5-5 se la variabile manca o è vuota", () => {
+    expect(MODELLO_PREDEFINITO).toBe("claude-sonnet-5-5");
+    expect(scegliModello(undefined)).toBe("claude-sonnet-5-5");
+    expect(scegliModello("  ")).toBe("claude-sonnet-5-5");
     expect(scegliModello(" claude-sonnet-5-5 ")).toBe("claude-sonnet-5-5");
+  });
+});
+
+describe("scegliModelloRacconto", () => {
+  it("usa claude-haiku-5-5 se la variabile manca o è vuota", () => {
+    expect(MODELLO_RACCONTO_PREDEFINITO).toBe("claude-haiku-5-5");
+    expect(scegliModelloRacconto(undefined)).toBe("claude-haiku-5-5");
+    expect(scegliModelloRacconto("  ")).toBe("claude-haiku-5-5");
+  });
+
+  it("usa il modello indicato, senza spazi", () => {
+    expect(scegliModelloRacconto(" claude-sonnet-5-5 ")).toBe("claude-sonnet-5-5");
+  });
+
+  it("non manda fallbacks con il modello predefinito: Haiku 5.5 non li accetta", () => {
+    expect(supportaFallback(MODELLO_RACCONTO_PREDEFINITO)).toBe(false);
   });
 });
 

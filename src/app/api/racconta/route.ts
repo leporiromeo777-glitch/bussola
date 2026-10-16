@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { dettagliErrore } from "@/lib/chat/errori";
-import { scegliModello, supportaFallback } from "@/lib/chat/modello";
+import { scegliModelloRacconto, supportaFallback } from "@/lib/chat/modello";
 import { creaClientAnthropic } from "@/lib/chat/server";
 import { controllaLimite } from "@/lib/limiti/server";
 import {
@@ -16,7 +16,8 @@ import {
 // Una sola chiamata a Claude, non in streaming: al massimo 2 tentativi da 20 secondi.
 export const maxDuration = 60;
 
-// La risposta è breve (un JSON); il resto lascia spazio al ragionamento, che su questo modello è sempre attivo.
+// La risposta è breve (un JSON); il resto lascia spazio al ragionamento, attivo di serie su Haiku 5.5
+// (con effort "low" pensa poco o niente). Niente temperature/top_p: Haiku 5.5 li rifiuta.
 const MAX_TOKENS = 8_000;
 const TEMPO_MASSIMO_MS = 20_000;
 
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
   if (limite === "non_disponibile") return json(503, { messaggio: MESSAGGI_RACCONTO.occupato });
   if (limite === "superato") return json(429, { messaggio: MESSAGGI_RACCONTO.troppeRichieste });
 
-  const modello = scegliModello(process.env.ANTHROPIC_MODEL);
+  const modello = scegliModelloRacconto(process.env.ANTHROPIC_MODEL_RACCONTO);
   try {
     const risposta = await anthropic.beta.messages.parse(
       {
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
         max_tokens: MAX_TOKENS,
         output_config: { effort: "low", format: FORMATO },
         // Se i filtri di sicurezza rifiutano la richiesta, il server riprova con il modello consigliato.
+        // Haiku 5.5 (il predefinito) non ha questo ripiego: per lui il parametro non si manda.
         ...(supportaFallback(modello)
           ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }
           : {}),

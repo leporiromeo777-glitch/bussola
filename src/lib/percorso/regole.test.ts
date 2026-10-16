@@ -112,7 +112,9 @@ describe("regole: autorizzazioni di settore", () => {
     expect(p.passo.descrizione).toContain("(LEAR, art. 9)");
     expect(p.passo.descrizione).toMatch(/Di regola serve anche un gerente/);
     expect(p.passo.descrizione).toMatch(/tre anni di pratica/);
-    expect(p.passo.cosaFare[0]).toBe("Leggi gli artt. 5 e 9 della LEAR.");
+    // Azioni concrete, non «leggi la legge»: la regola dell'art. 5 detta in una frase.
+    expect(p.passo.cosaFare[0]).toMatch(/^Non aprire il locale prima di avere l'autorizzazione.*\(LEAR, art\. 5\)\.$/);
+    expect(p.passo.cosaFare.some((c) => /^Leggi\b/.test(c))).toBe(false);
     expect(p.passo.fonti).toEqual(expect.arrayContaining([fontiPercorso.lear, fontiPercorso.rlear]));
     expect(fontiPercorso.lear.titolo).toContain("artt. 5 e 9");
     const avviso = percorso.avvisi.find((a) => a.id === "autorizzazione-ristorazione");

@@ -1,8 +1,19 @@
-export const MODELLO_PREDEFINITO = "claude-opus-5-5";
+export const MODELLO_PREDEFINITO = "claude-sonnet-5-5";
 
 /** Modello da ANTHROPIC_MODEL; una variabile vuota vale come non impostata. */
 export function scegliModello(variabile: string | undefined): string {
   return variabile?.trim() || MODELLO_PREDEFINITO;
+}
+
+/**
+ * Modello di «Raccontami la tua idea» (src/app/api/racconta): un compito di
+ * estrazione breve, per cui basta un modello veloce ed economico.
+ */
+export const MODELLO_RACCONTO_PREDEFINITO = "claude-haiku-5-5";
+
+/** Modello da ANTHROPIC_MODEL_RACCONTO; una variabile vuota vale come non impostata. */
+export function scegliModelloRacconto(variabile: string | undefined): string {
+  return variabile?.trim() || MODELLO_RACCONTO_PREDEFINITO;
 }
 
 /**

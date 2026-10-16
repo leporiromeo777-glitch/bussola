@@ -119,7 +119,7 @@ aperta e ricontrollata a mano, poi ogni mese. La procedura è in
 ### Claude (chat)
 
 Imposta `ANTHROPIC_API_KEY` (solo lato server). Il modello predefinito è
-`claude-opus-5-5`; si cambia con `ANTHROPIC_MODEL`. La chat passa a Claude i
+`claude-sonnet-5-5`; si cambia con `ANTHROPIC_MODEL`. La chat passa a Claude i
 frammenti delle fonti come documenti con citazioni, usa il fallback lato server
 in caso di rifiuto e risponde solo da quei documenti.
 

@@ -38,7 +38,8 @@ ditta individuale, poi la Sagl). Il piano completo è in `docs/piano.md`.
   Schema in `supabase/migrations/`. Se le variabili mancano i client
   restituiscono `null`: l'app deve restare usabile in modalità demo.
 - Claude API con `@anthropic-ai/sdk`; modello da `ANTHROPIC_MODEL`
-  (predefinito `claude-opus-5-5`).
+  (predefinito `claude-sonnet-5-5`; per «Racconta a Bleo» `ANTHROPIC_MODEL_RACCONTO`,
+  predefinito `claude-haiku-5-5`).
 - Logica pura (regole del percorso, calcoli) in `src/lib/` con test Vitest
   accanto (`*.test.ts`).
 

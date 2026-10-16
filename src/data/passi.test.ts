@@ -35,6 +35,12 @@ describe("catalogo dei passi", () => {
     }
   });
 
+  it("«cosa fare» sono azioni, non letture: nessun punto comincia con «Leggi»", () => {
+    for (const passo of PASSI) {
+      for (const c of passo.cosaFare) expect(c, passo.id).not.toMatch(/^Leggi\b/);
+    }
+  });
+
   it("il link principale di ogni passo è anche tra le sue fonti o viene da una fonte ufficiale", () => {
     const tutteLeFonti = new Set([...Object.values(fonti), ...Object.values(fontiPercorso)].map((f) => f.url));
     for (const p of PASSI) expect(tutteLeFonti.has(p.link.url)).toBe(true);
