@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
-import { Guardaroba, MascotteVestita } from "@/components/mascotte/guardaroba";
+import { Guardaroba } from "@/components/mascotte/guardaroba";
 import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import { BarraProgresso } from "@/components/percorso/barra-progresso";
 import { ElencoAvvisi } from "@/components/percorso/elenco-avvisi";
@@ -195,7 +195,7 @@ export function Percorso({
     <div className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
       <header className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <MascotteVestita className="h-20 w-auto shrink-0 print:hidden" />
+          <ImmagineMascotte nome="coppia" priority sizes="96px" className="h-auto w-20 shrink-0 print:hidden sm:w-24" />
           <div className="min-w-0">
             <p className="text-sm font-semibold text-brand">Il tuo percorso</p>
             <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-balance sm:text-3xl">
