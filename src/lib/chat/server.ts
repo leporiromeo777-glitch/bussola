@@ -2,6 +2,7 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { createClient } from "@/lib/supabase/server";
+import { chiaveAnthropic, URL_API_ANTHROPIC } from "./chiave";
 import { dettagliErrore, messaggioErrore } from "./errori";
 import type { DipendenzeChat } from "./flusso";
 import { FRAMMENTI_PER_DOMANDA, leggiFrammenti } from "./frammenti";
@@ -12,17 +13,18 @@ type ClientSupabase = NonNullable<Awaited<ReturnType<typeof createClient>>>;
 
 const MAX_TOKENS = 8_000;
 
-/** true se la chiave di Claude è impostata; senza, la chat è in modalità demo. */
+/** true se la nostra chiave di Claude è impostata; senza, la chat è in modalità demo. */
 export function anthropicConfigurato(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+  return chiaveAnthropic(process.env) !== null;
 }
 
-/** Client Claude; null se ANTHROPIC_API_KEY manca (modalità demo). */
+/** Client Claude; null senza la nostra chiave (modalità demo). */
 export function creaClientAnthropic(): Anthropic | null {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = chiaveAnthropic(process.env);
   if (!apiKey) return null;
+  // Sempre l'API di Anthropic, anche se l'ambiente indica un altro indirizzo.
   // Il tempo massimo vale fino all'inizio dello streaming; resta sotto maxDuration della route.
-  return new Anthropic({ apiKey, maxRetries: 2, timeout: 45_000 });
+  return new Anthropic({ apiKey, baseURL: URL_API_ANTHROPIC, maxRetries: 2, timeout: 45_000 });
 }
 
 export function registraErrore(contesto: string, errore: unknown) {
