@@ -62,7 +62,7 @@ export function Hero() {
             nome="coppia"
             priority
             sizes="(min-width: 768px) 200px, 160px"
-            className="relative z-10 mx-auto -mb-6 h-auto w-40 drop-shadow-sm md:absolute md:-top-28 md:-right-6 md:mx-0 md:mb-0 md:w-48"
+            className="relative z-10 mx-auto -mb-6 h-auto w-40 drop-shadow-sm md:absolute md:-top-40 md:-right-10 md:mx-0 md:mb-0 md:w-44"
           />
           <EsempioPercorso />
         </div>
