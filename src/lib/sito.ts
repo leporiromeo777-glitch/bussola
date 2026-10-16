@@ -11,10 +11,11 @@ export const sito = {
   // `||` e non `??`: una variabile vuota (come in .env.example) vale come mancante.
   url: process.env.NEXT_PUBLIC_SITO_URL?.trim() || "http://localhost:3000",
   titolare: {
-    // DA COMPLETARE prima della pubblicazione.
-    nome: process.env.NEXT_PUBLIC_TITOLARE_NOME?.trim() || "[Nome e cognome del titolare]",
+    // Le variabili d'ambiente, se impostate, hanno la precedenza.
+    nome: process.env.NEXT_PUBLIC_TITOLARE_NOME?.trim() || "Romeo Lepori",
+    // DA COMPLETARE prima della pubblicazione: indirizzo postale completo.
     indirizzo: process.env.NEXT_PUBLIC_TITOLARE_INDIRIZZO?.trim() || "[Via e numero, NPA Località]",
-    email: process.env.NEXT_PUBLIC_TITOLARE_EMAIL?.trim() || "[email di contatto]",
+    email: process.env.NEXT_PUBLIC_TITOLARE_EMAIL?.trim() || "romeolepori@gmail.com",
   },
 } as const;
 

@@ -1,0 +1,400 @@
+-- Bussola: tutte le migrazioni in ordine, per un progetto Supabase nuovo.
+-- File generato da scripts/genera-sql-completo.mjs: non modificarlo a mano,
+-- cambia le migrazioni in supabase/migrations/ e rigeneralo.
+
+-- ===========================================================================
+-- 20261015000000_schema_iniziale.sql
+-- ===========================================================================
+
+-- Bussola: schema iniziale.
+-- Da eseguire su un progetto Supabase in Svizzera (eu-central-2, Zurigo) o
+-- nell'UE (eu-central-1, Francoforte), dal SQL editor o con `supabase db push`.
+
+create extension if not exists vector with schema extensions;
+
+-- ---------------------------------------------------------------------------
+-- Lista d'attesa (landing page). Scrive solo il server con la chiave segreta.
+-- ---------------------------------------------------------------------------
+create table public.lista_attesa (
+  id uuid primary key default gen_random_uuid(),
+  email text not null,
+  nome text,
+  cantone text,
+  situazione text check (situazione in ('idea', 'in_apertura', 'aperta_da_poco', 'fiduciario', 'altro')),
+  consenso_email boolean not null default false,
+  token_conferma uuid not null default gen_random_uuid(),
+  confermato_il timestamptz,
+  provenienza text,
+  creato_il timestamptz not null default now(),
+  constraint lista_attesa_email_formato check (email ~* '^[^@\s]+@[^@\s]+\.[^@\s]+$')
+);
+create unique index lista_attesa_email_unica on public.lista_attesa (lower(email));
+alter table public.lista_attesa enable row level security;
+-- Nessuna policy: anon e utenti non leggono né scrivono; solo la chiave segreta.
+
+-- ---------------------------------------------------------------------------
+-- Profili utente (1:1 con auth.users) e piano.
+-- ---------------------------------------------------------------------------
+create table public.profili (
+  id uuid primary key references auth.users (id) on delete cascade,
+  piano text not null default 'gratis' check (piano in ('gratis', 'avvio', 'accompagnamento', 'partner')),
+  piano_scade_il timestamptz,
+  creato_il timestamptz not null default now()
+);
+alter table public.profili enable row level security;
+create policy "profilo: lettura propria" on public.profili
+  for select to authenticated using ((select auth.uid()) = id);
+-- Il piano lo cambia solo il server (pagamenti), quindi niente update per l'utente.
+
+create function public.crea_profilo() returns trigger
+language plpgsql security definer set search_path = '' as $$
+begin
+  insert into public.profili (id) values (new.id) on conflict do nothing;
+  return new;
+end;
+$$;
+create trigger crea_profilo_dopo_registrazione
+  after insert on auth.users
+  for each row execute function public.crea_profilo();
+
+-- ---------------------------------------------------------------------------
+-- Questionario e percorso. Le risposte sono salvate; il percorso si ricalcola
+-- dal codice (src/lib/percorso) così le regole aggiornate valgono per tutti.
+-- ---------------------------------------------------------------------------
+create table public.questionari (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  risposte jsonb not null,
+  versione_regole text not null,
+  aggiornato_il timestamptz not null default now()
+);
+alter table public.questionari enable row level security;
+create policy "questionario: proprio" on public.questionari
+  for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+create table public.passi_completati (
+  user_id uuid not null references auth.users (id) on delete cascade,
+  passo_id text not null,
+  completato_il timestamptz not null default now(),
+  primary key (user_id, passo_id)
+);
+alter table public.passi_completati enable row level security;
+create policy "passi: propri" on public.passi_completati
+  for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+-- ---------------------------------------------------------------------------
+-- Base di fonti ufficiali. Ogni fonte ha una data di controllo: va
+-- ricontrollata ogni mese (vedi docs/fonti.md).
+-- ---------------------------------------------------------------------------
+create table public.fonti (
+  id text primary key,                       -- es. 'ahv-2-02-indipendenti'
+  url text not null unique,
+  titolo text not null,
+  ente text not null,                        -- es. 'Centro d''informazione AVS/AI'
+  livello text not null check (livello in ('federale', 'cantonale', 'comunale', 'altro')),
+  cantone text,                              -- 'TI', 'GR' o null se federale
+  argomenti text[] not null default '{}',
+  lingua text not null default 'it',
+  verificato_il date not null,
+  verificato_da text not null,
+  attiva boolean not null default true,
+  aggiornato_il timestamptz not null default now()
+);
+
+create table public.frammenti_fonti (
+  id bigint generated always as identity primary key,
+  fonte_id text not null references public.fonti (id) on delete cascade,
+  posizione int not null,
+  titolo_sezione text,
+  testo text not null,
+  ricerca tsvector generated always as (
+    setweight(to_tsvector('italian', coalesce(titolo_sezione, '')), 'A') ||
+    setweight(to_tsvector('italian', testo), 'B')
+  ) stored,
+  embedding extensions.vector(1024),         -- per la ricerca semantica (fase successiva)
+  unique (fonte_id, posizione)
+);
+create index frammenti_fonti_ricerca on public.frammenti_fonti using gin (ricerca);
+
+alter table public.fonti enable row level security;
+alter table public.frammenti_fonti enable row level security;
+-- Le fonti sono informazioni pubbliche: chiunque può leggere quelle attive.
+create policy "fonti: lettura pubblica" on public.fonti
+  for select to anon, authenticated using (attiva);
+create policy "frammenti: lettura pubblica" on public.frammenti_fonti
+  for select to anon, authenticated
+  using (exists (select 1 from public.fonti f where f.id = fonte_id and f.attiva));
+
+-- Ricerca testuale in italiano sui frammenti delle fonti attive.
+create function public.cerca_frammenti(domanda text, quanti int default 8)
+returns table (
+  frammento_id bigint,
+  fonte_id text,
+  titolo text,
+  url text,
+  ente text,
+  verificato_il date,
+  titolo_sezione text,
+  testo text,
+  punteggio real
+)
+language sql stable set search_path = '' as $$
+  with q as (
+    -- wq: tutte le parole (AND); oq: almeno una parola (OR), dai lessemi già normalizzati.
+    select websearch_to_tsquery('italian', domanda) as wq,
+           nullif(array_to_string(array(
+             select quote_literal(lexeme) from unnest(to_tsvector('italian', domanda))
+           ), ' | '), '')::tsquery as oq
+  )
+  select fr.id, f.id, f.titolo, f.url, f.ente, f.verificato_il, fr.titolo_sezione, fr.testo,
+         greatest(ts_rank_cd(fr.ricerca, q.wq), ts_rank_cd(fr.ricerca, q.oq) * 0.5) as punteggio
+  from public.frammenti_fonti fr
+  join public.fonti f on f.id = fr.fonte_id and f.attiva
+  cross join q
+  where q.oq is not null and (fr.ricerca @@ q.wq or fr.ricerca @@ q.oq)
+  order by punteggio desc
+  limit least(greatest(quanti, 1), 20);
+$$;
+grant execute on function public.cerca_frammenti(text, int) to anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Domande alla chat: servono per la quota mensile del piano gratis e per
+-- capire quali fonti mancano ("ogni domanda arricchisce la base di fonti").
+-- Si salva la domanda, non dati personali aggiuntivi.
+-- ---------------------------------------------------------------------------
+create table public.domande_chat (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  domanda text not null,
+  fonti_citate text[] not null default '{}',
+  senza_risposta boolean not null default false,
+  creato_il timestamptz not null default now()
+);
+create index domande_chat_utente_mese on public.domande_chat (user_id, creato_il);
+alter table public.domande_chat enable row level security;
+create policy "domande: lettura propria" on public.domande_chat
+  for select to authenticated using ((select auth.uid()) = user_id);
+create policy "domande: inserimento proprio" on public.domande_chat
+  for insert to authenticated with check ((select auth.uid()) = user_id);
+
+-- ===========================================================================
+-- 20261016000000_quota_chat_atomica.sql
+-- ===========================================================================
+
+-- Bussola: quota della chat atomica (revisione SEC-01).
+--
+-- Prima la quota si controllava all'inizio e la domanda si registrava solo
+-- alla fine, dopo la risposta di Claude: richieste parallele o interrotte a
+-- metà non venivano contate. Ora la domanda si prenota (e quindi conta)
+-- prima di chiamare Claude, sotto un lock per utente, e l'utente non scrive
+-- più direttamente in domande_chat.
+
+-- Prenota una domanda per l'utente collegato. Restituisce l'id della riga,
+-- oppure null se la quota gratuita del mese è esaurita.
+create function public.prenota_domanda(p_domanda text) returns bigint
+language plpgsql security definer set search_path = '' as $$
+declare
+  v_uid uuid := auth.uid();
+  v_piano text;
+  v_scade timestamptz;
+  v_usate int;
+  v_id bigint;
+begin
+  if v_uid is null then
+    raise exception 'non autenticato' using errcode = '42501';
+  end if;
+  if p_domanda is null or char_length(p_domanda) not between 1 and 1000 then
+    raise exception 'domanda non valida' using errcode = '22023';
+  end if;
+
+  -- Un lock per utente fino alla fine della transazione: le richieste
+  -- parallele dello stesso utente passano una alla volta.
+  perform pg_advisory_xact_lock(hashtextextended('domande_chat:' || v_uid::text, 0));
+
+  -- Stessa regola di pianoEffettivo in src/lib/chat/quota.ts: "avvio" scaduto vale come "gratis".
+  select piano, piano_scade_il into v_piano, v_scade from public.profili where id = v_uid;
+  if coalesce(v_piano, 'gratis') = 'gratis'
+     or (v_piano = 'avvio' and v_scade is not null and v_scade <= now()) then
+    select count(*) into v_usate
+      from public.domande_chat
+     where user_id = v_uid
+       and creato_il >= (date_trunc('month', now() at time zone 'Europe/Zurich') at time zone 'Europe/Zurich');
+    -- 10 = DOMANDE_GRATIS_AL_MESE in src/lib/chat/quota.ts (lo verifica supabase/schema.test.ts).
+    if v_usate >= 10 then
+      return null;
+    end if;
+  end if;
+
+  insert into public.domande_chat (user_id, domanda) values (v_uid, p_domanda) returning id into v_id;
+  return v_id;
+end;
+$$;
+
+-- Completa la riga prenotata con l'esito della risposta. Tiene solo le fonti
+-- che esistono davvero (al massimo 20), così il registro non si può falsare.
+create function public.chiudi_domanda(p_id bigint, p_fonti text[], p_senza boolean) returns void
+language sql security definer set search_path = '' as $$
+  update public.domande_chat
+     set fonti_citate = array(
+           select t.fonte
+             from unnest(p_fonti[1:20]) with ordinality as t(fonte, n)
+            where exists (select 1 from public.fonti f where f.id = t.fonte)
+            order by t.n
+         ),
+         senza_risposta = coalesce(p_senza, false)
+   where id = p_id and user_id = auth.uid();
+$$;
+
+revoke execute on function public.prenota_domanda(text) from public, anon;
+revoke execute on function public.chiudi_domanda(bigint, text[], boolean) from public, anon;
+grant execute on function public.prenota_domanda(text) to authenticated;
+grant execute on function public.chiudi_domanda(bigint, text[], boolean) to authenticated;
+
+-- Niente più insert diretti dell'utente: solo prenota_domanda.
+-- Annullare una prenotazione (errore vero del modello o della ricerca) lo fa
+-- solo il server con la chiave segreta: una funzione per l'utente
+-- servirebbe ad azzerarsi la quota.
+drop policy "domande: inserimento proprio" on public.domande_chat;
+
+-- ===========================================================================
+-- 20261016000001_limite_richieste.sql
+-- ===========================================================================
+
+-- Bussola: limite di richieste per connessione (revisione SEC-04).
+--
+-- Le azioni pubbliche che mandano email (iscrizione alla lista d'attesa,
+-- link di accesso) partono dal nostro server: senza un limite uno script può
+-- far partire migliaia di email. Qui si contano le richieste per chiave
+-- (ambito + impronta HMAC dell'indirizzo IP, mai l'IP in chiaro) in una
+-- finestra di tempo. Le righe vecchie si cancellano subito per la stessa
+-- chiave e ogni giorno con public.pulisci_dati (migrazione successiva).
+
+create table public.limiti_richieste (
+  id bigint generated always as identity primary key,
+  chiave text not null check (char_length(chiave) between 1 and 200),
+  creato_il timestamptz not null default now()
+);
+create index limiti_richieste_chiave on public.limiti_richieste (chiave, creato_il);
+alter table public.limiti_richieste enable row level security;
+-- Nessuna policy: anon e utenti non leggono né scrivono; solo la chiave segreta.
+
+-- Conta una richiesta per la chiave. true = consentita (e registrata),
+-- false = limite raggiunto nella finestra.
+create function public.consuma_limite(p_chiave text, p_massimo int, p_finestra_secondi int) returns boolean
+language plpgsql security definer set search_path = '' as $$
+declare
+  v_da timestamptz := now() - make_interval(secs => greatest(p_finestra_secondi, 1));
+  v_usate int;
+begin
+  -- Le richieste con la stessa chiave passano una alla volta.
+  perform pg_advisory_xact_lock(hashtextextended('limiti_richieste:' || p_chiave, 0));
+  delete from public.limiti_richieste where chiave = p_chiave and creato_il < v_da;
+  select count(*) into v_usate from public.limiti_richieste where chiave = p_chiave;
+  if v_usate >= p_massimo then
+    return false;
+  end if;
+  insert into public.limiti_richieste (chiave) values (p_chiave);
+  return true;
+end;
+$$;
+
+revoke execute on function public.consuma_limite(text, int, int) from public, anon, authenticated;
+grant execute on function public.consuma_limite(text, int, int) to service_role;
+
+-- ===========================================================================
+-- 20261016000002_conferma_inviata.sql
+-- ===========================================================================
+
+-- Bussola: quando è partita l'ultima email di conferma (revisioni SEC-05 e F7).
+--
+-- Serve a rimandare il link a chi si iscrive di nuovo senza aver confermato
+-- (al massimo una volta ogni 24 ore) e a distinguere le iscrizioni a cui la
+-- conferma è stata spedita da quelle salvate senza email (invio non
+-- configurato): solo le prime, se non confermate, si cancellano dopo 30
+-- giorni (vedi la migrazione di pulizia dei dati).
+alter table public.lista_attesa add column conferma_inviata_il timestamptz;
+
+-- ===========================================================================
+-- 20261016000003_vincoli_scrittura_utente.sql
+-- ===========================================================================
+
+-- Bussola: vincoli sulle tabelle che l'utente può scrivere (revisione SEC-06).
+--
+-- Con la chiave publishable (pubblica) e il proprio JWT, un utente collegato
+-- può scrivere direttamente con PostgREST, senza passare dalle validazioni
+-- dell'app. Questi vincoli tengono le righe nella forma e nella dimensione
+-- che l'app usa davvero, così nessuno può riempire il database.
+-- domande_chat si scrive ormai solo con prenota_domanda e chiudi_domanda.
+
+alter table public.domande_chat
+  add constraint domande_chat_domanda_lunghezza check (char_length(domanda) between 1 and 1000),
+  add constraint domande_chat_fonti_massimo check (cardinality(fonti_citate) <= 20);
+
+-- Gli id dei passi in src/data/passi.ts: minuscole, cifre e trattini.
+alter table public.passi_completati
+  add constraint passi_completati_id_formato check (passo_id ~ '^[a-z0-9-]{1,64}$');
+
+-- Le risposte valide del questionario stanno sotto 1 KB.
+alter table public.questionari
+  add constraint questionari_risposte_oggetto check (jsonb_typeof(risposte) = 'object'),
+  add constraint questionari_risposte_dimensione check (octet_length(risposte::text) <= 4096),
+  add constraint questionari_versione_lunghezza check (char_length(versione_regole) <= 32);
+
+-- Al massimo 100 passi completati per utente (i passi reali sono poco più di 20).
+create function public.limita_passi() returns trigger
+language plpgsql set search_path = '' as $$
+begin
+  perform pg_advisory_xact_lock(hashtextextended('passi_completati:' || new.user_id::text, 0));
+  if (select count(*) from public.passi_completati where user_id = new.user_id) >= 100 then
+    raise exception 'troppi passi completati' using errcode = '54000';
+  end if;
+  return new;
+end;
+$$;
+create trigger limita_passi before insert on public.passi_completati
+  for each row execute function public.limita_passi();
+
+-- ===========================================================================
+-- 20261016000004_pulizia_dati.sql
+-- ===========================================================================
+
+-- Bussola: cancellazione automatica dei dati scaduti (revisioni SEC-10 e F14).
+--
+-- L'informativa privacy promette dei tempi di conservazione: qui un job
+-- giornaliero (pg_cron) li rispetta. La logica sta in public.pulisci_dati,
+-- così si può provare a mano e nei test:
+--   select public.pulisci_dati();
+-- Ultime esecuzioni del job:
+--   select * from cron.job_run_details order by start_time desc limit 5;
+
+create function public.pulisci_dati() returns void
+language plpgsql set search_path = '' as $$
+begin
+  -- Domande alla chat: 12 mesi. La quota guarda solo il mese corrente.
+  delete from public.domande_chat
+   where creato_il < now() - interval '12 months';
+
+  -- Iscrizioni mai confermate: 30 giorni dopo l'ultima email di conferma.
+  -- Solo quelle a cui la conferma è partita davvero: le iscrizioni salvate
+  -- quando l'invio delle email non era attivo (conferma_inviata_il null)
+  -- sono valide anche senza conferma e restano.
+  delete from public.lista_attesa
+   where confermato_il is null
+     and conferma_inviata_il is not null
+     and conferma_inviata_il < now() - interval '30 days';
+
+  -- Contatori del limite per connessione: servono per un'ora, si tengono al più un giorno.
+  delete from public.limiti_richieste
+   where creato_il < now() - interval '1 day';
+end;
+$$;
+
+-- La esegue solo il job (proprietario del database), non gli utenti.
+revoke execute on function public.pulisci_dati() from public, anon, authenticated;
+
+-- Ogni giorno alle 03:17 (UTC, l'ora del database su Supabase).
+create extension if not exists pg_cron with schema pg_catalog;
+select cron.schedule('pulizia-dati', '17 3 * * *', $$select public.pulisci_dati()$$);

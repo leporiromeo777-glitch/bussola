@@ -41,7 +41,7 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
             prodotto con l&apos;aiuto dell&apos;intelligenza artificiale.
           </>
         )}{" "}
-        Ogni fonte ufficiale viene controllata a mano prima di essere usata. Indirizzo e contatti sono nell&apos;
+        Ogni fonte ufficiale viene controllata una per una prima di essere usata e ricontrollata ogni mese. Indirizzo e contatti sono nell&apos;
         <Link href="/impressum" className={classeLink}>
           impressum
         </Link>
