@@ -26,8 +26,17 @@ import {
   Scheda,
   Testo,
 } from "~/components/ui";
-import { cancellaPromemoria, chiediPermesso, programmaPromemoria } from "~/lib/notifiche";
-import { impostaPromemoria, oggiLocale, segnaPasso, usePassiFatti, usePercorso, usePromemoriaAttivi } from "~/lib/stato";
+import { chiediPermesso, programmaNotifiche } from "~/lib/notifiche";
+import {
+  impostaPromemoria,
+  impostaSettimana,
+  oggiLocale,
+  segnaPasso,
+  usePassiFatti,
+  usePercorso,
+  usePromemoriaAttivi,
+  useSettimanaAttiva,
+} from "~/lib/stato";
 import { SPAZIO, useColori } from "~/lib/tema";
 
 export default function SchermataPercorso() {
@@ -70,7 +79,7 @@ export default function SchermataPercorso() {
       })}
 
       <NonServono percorso={percorso} />
-      <Scadenze percorso={percorso} />
+      <Scadenze percorso={percorso} fatti={fatti} />
       <RiepilogoRisposte risposte={risposte} />
       <Testo variante="piccolo" attenuato>
         Testi controllati sulle fonti ufficiali il {dataSvizzera(VERIFICATO_IL)}.
@@ -175,41 +184,44 @@ function NonServono({ percorso }: { percorso: Percorso }) {
   );
 }
 
-function Scadenze({ percorso }: { percorso: Percorso }) {
+function Scadenze({ percorso, fatti }: { percorso: Percorso; fatti: ReadonlySet<string> }) {
   const c = useColori();
   const attivi = usePromemoriaAttivi();
+  const settimana = useSettimanaAttiva();
   const [stato, setStato] = useState("");
   const anno = annoScadenzario(new Date());
   const oggi = oggiLocale();
 
-  // Con i promemoria attivi, ogni cambio del percorso li riprogramma.
+  // Ogni cambio del percorso o dei passi fatti riprogramma le notifiche scelte.
   useEffect(() => {
-    if (!attivi) return;
-    void programmaPromemoria(percorso.scadenze).catch(() => {});
-  }, [attivi, percorso.scadenze]);
+    if (!attivi && !settimana) return;
+    void programmaNotifiche({ percorso, fatti, scadenze: attivi, settimana }).catch(() => {});
+  }, [attivi, settimana, percorso, fatti]);
 
-  async function cambia(valore: boolean) {
-    if (!valore) {
-      impostaPromemoria(false);
-      await cancellaPromemoria();
-      setStato("Promemoria tolti.");
-      return;
-    }
-    const permesso = await chiediPermesso();
-    if (!permesso) {
+  async function cambia(tipo: "scadenze" | "settimana", valore: boolean) {
+    if (valore && !(await chiediPermesso())) {
       Alert.alert(
         "Notifiche spente",
         "Per ricevere i promemoria, attiva le notifiche di Bleo nelle impostazioni del telefono.",
       );
       return;
     }
-    impostaPromemoria(true);
-    const quanti = await programmaPromemoria(percorso.scadenze);
-    setStato(
-      quanti === 0
-        ? "Nessuna scadenza con data nei prossimi mesi: ti avviso quando ce ne saranno."
-        : `Ti avviso una settimana prima di ${quanti === 1 ? "1 scadenza" : `${quanti} scadenze`}.`,
-    );
+    const nuoviScadenze = tipo === "scadenze" ? valore : attivi;
+    const nuoviSettimana = tipo === "settimana" ? valore : settimana;
+    if (tipo === "scadenze") impostaPromemoria(valore);
+    else impostaSettimana(valore);
+    const quanti = await programmaNotifiche({ percorso, fatti, scadenze: nuoviScadenze, settimana: nuoviSettimana });
+    if (tipo === "settimana") {
+      setStato(valore ? "Ogni lunedì alle 9 ti mando cosa fare nella settimana." : "Riassunto del lunedì tolto.");
+    } else if (!valore) {
+      setStato("Promemoria delle scadenze tolti.");
+    } else {
+      setStato(
+        quanti === 0
+          ? "Nessuna scadenza con data nei prossimi mesi: ti avviso quando ce ne saranno."
+          : `Ti avviso una settimana prima di ${quanti === 1 ? "1 scadenza" : `${quanti} scadenze`}.`,
+      );
+    }
   }
 
   if (percorso.scadenze.length === 0) return null;
@@ -226,8 +238,23 @@ function Scadenze({ percorso }: { percorso: Percorso }) {
         </View>
         <Switch
           value={attivi}
-          onValueChange={(v) => void cambia(v)}
+          onValueChange={(v) => void cambia("scadenze", v)}
           accessibilityLabel="Promemoria delle scadenze"
+          trackColor={{ true: c.marchio }}
+        />
+      </Scheda>
+      <Scheda tenue style={{ flexDirection: "row", alignItems: "center", gap: SPAZIO.m }}>
+        <Ionicons name="calendar-outline" size={22} color={c.marchio} />
+        <View style={{ flex: 1 }}>
+          <Testo variante="forte">La tua settimana</Testo>
+          <Testo variante="piccolo" attenuato>
+            Ogni lunedì alle 9: il prossimo passo e le scadenze vicine.
+          </Testo>
+        </View>
+        <Switch
+          value={settimana}
+          onValueChange={(v) => void cambia("settimana", v)}
+          accessibilityLabel="Riassunto del lunedì"
           trackColor={{ true: c.marchio }}
         />
       </Scheda>

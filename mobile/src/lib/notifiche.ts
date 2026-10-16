@@ -7,7 +7,8 @@ import { AndroidImportance } from "expo-notifications";
 import { Platform } from "react-native";
 import { annoScadenzario, eventiDaScadenze } from "@/lib/percorso/calendario";
 import { pianificaPromemoria } from "@/lib/percorso/promemoria";
-import type { Scadenza } from "@/lib/percorso/regole";
+import type { Percorso, Scadenza } from "@/lib/percorso/regole";
+import { prossimiLunedi, riassuntoSettimana } from "@/lib/percorso/settimana";
 import { oggiLocale } from "./stato";
 
 const CANALE = "scadenze";
@@ -39,13 +40,43 @@ export async function chiediPermesso(): Promise<boolean> {
   return risposta.granted;
 }
 
+/** Quante notifiche del lunedì tenere programmate in anticipo. */
+const LUNEDI_IN_ANTICIPO = 4;
+
 /**
- * Cancella i promemoria vecchi e programma quelli delle scadenze di
- * quest'anno e del prossimo. Restituisce quanti ne ha programmati.
+ * Cancella tutte le notifiche programmate e rifà quelle scelte: i promemoria
+ * delle scadenze e il riassunto del lunedì alle 9. Restituisce quante
+ * scadenze ha programmato.
  */
-export async function programmaPromemoria(scadenze: readonly Scadenza[]): Promise<number> {
+export async function programmaNotifiche(opzioni: {
+  percorso: Percorso;
+  fatti: ReadonlySet<string>;
+  scadenze: boolean;
+  settimana: boolean;
+}): Promise<number> {
   if (Platform.OS === "web") return 0;
   await Notifications.cancelAllScheduledNotificationsAsync();
+  const quante = opzioni.scadenze ? await programmaPromemoria(opzioni.percorso.scadenze) : 0;
+  if (opzioni.settimana) {
+    for (const lunedi of prossimiLunedi(oggiLocale(), LUNEDI_IN_ANTICIPO)) {
+      const [a, m, g] = lunedi.split("-").map(Number);
+      const { testo } = riassuntoSettimana(opzioni.percorso, opzioni.fatti, lunedi);
+      await Notifications.scheduleNotificationAsync({
+        identifier: `settimana-${lunedi}`,
+        content: { title: "La tua settimana con Bleo", body: testo, data: { settimana: lunedi } },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: new Date(a, m - 1, g, 9, 0),
+          ...(Platform.OS === "android" ? { channelId: CANALE } : {}),
+        },
+      });
+    }
+  }
+  return quante;
+}
+
+/** Programma i promemoria delle scadenze (senza cancellare gli altri). Restituisce quanti. */
+async function programmaPromemoria(scadenze: readonly Scadenza[]): Promise<number> {
   const adesso = new Date();
   const anno = annoScadenzario(adesso);
   const eventi = [

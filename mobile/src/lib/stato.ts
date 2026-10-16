@@ -21,6 +21,8 @@ import { iscriviti, leggi, scrivi } from "./memoria";
 
 /** Promemoria delle scadenze attivi ("si") o no. */
 export const CHIAVE_PROMEMORIA = "bleo:app:promemoria";
+/** Riassunto del lunedì attivo ("si") o no. */
+export const CHIAVE_SETTIMANA = "bleo:app:settimana";
 
 function useGrezzo(chiave: string): string | null {
   return useSyncExternalStore(
@@ -87,9 +89,17 @@ export function impostaPromemoria(attivi: boolean): void {
   scrivi(CHIAVE_PROMEMORIA, attivi ? "si" : null);
 }
 
+export function useSettimanaAttiva(): boolean {
+  return useGrezzo(CHIAVE_SETTIMANA) === "si";
+}
+
+export function impostaSettimana(attiva: boolean): void {
+  scrivi(CHIAVE_SETTIMANA, attiva ? "si" : null);
+}
+
 /** Cancella dal telefono tutto quello che Bleo ha salvato. */
 export function cancellaDatiLocali(): void {
-  for (const chiave of [CHIAVE_RISPOSTE, CHIAVE_PASSI_FATTI, CHIAVE_BOZZA, CHIAVE_VESTITO, CHIAVE_PROMEMORIA]) {
+  for (const chiave of [CHIAVE_RISPOSTE, CHIAVE_PASSI_FATTI, CHIAVE_BOZZA, CHIAVE_VESTITO, CHIAVE_PROMEMORIA, CHIAVE_SETTIMANA]) {
     scrivi(chiave, null);
   }
 }
