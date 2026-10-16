@@ -35,19 +35,48 @@ const FOTO = [
 
 const classeCredito = "underline underline-offset-2 hover:text-foreground";
 
+// Esempi di attività (le categorie del questionario), sparsi come pillole.
+const ATTIVITA = [
+  { nome: "Grafica", ruota: -6 },
+  { nome: "Fotografia", ruota: 4 },
+  { nome: "Lezioni private", ruota: -3 },
+  { nome: "Imbianchino", ruota: 7 },
+  { nome: "Corriere", ruota: -8 },
+  { nome: "Negozio online", ruota: 3 },
+  { nome: "Bar e caffè", ruota: -4 },
+  { nome: "Personal trainer", ruota: 6 },
+  { nome: "Parrucchiera", ruota: -5 },
+  { nome: "Traduzioni", ruota: 5 },
+  { nome: "Falegname", ruota: -2 },
+  { nome: "Social media", ruota: 8 },
+] as const;
+
 export function PerChi() {
   return (
     <Sezione
       id="per-chi"
       sopratitolo="Per chi"
-      titolo="Qualunque sia la tua idea, i primi passi sono simili"
+      titolo="Funziona per la tua idea"
       introduzione={
         <p>
-          AVS da indipendente, registro di commercio, IVA, assicurazioni, prima fattura: Bleo ti mostra quali valgono
-          per te.
+          Qualunque sia la tua idea, i primi passi sono simili: AVS da indipendente, registro di commercio, IVA,
+          assicurazioni, prima fattura. Bleo ti mostra quali valgono per te.
         </p>
       }
     >
+      <ul aria-label="Alcuni esempi di attività" className="mx-auto mb-14 flex max-w-3xl flex-wrap justify-center gap-3">
+        {ATTIVITA.map((a, i) => (
+          <li
+            key={a.nome}
+            style={{ transform: `rotate(${a.ruota}deg)` }}
+            className={`rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold shadow-sm sm:text-base ${
+              i % 3 === 0 ? "text-brand" : i % 3 === 1 ? "text-accent" : "text-foreground"
+            }`}
+          >
+            {a.nome}
+          </li>
+        ))}
+      </ul>
       <ul className="grid gap-6 md:grid-cols-3">
         {FOTO.map((f) => (
           <li key={f.src} className="overflow-hidden rounded-2xl border border-border bg-card">

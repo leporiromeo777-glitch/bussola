@@ -26,7 +26,7 @@ export function Compagno() {
           </li>
         ))}
       </ul>
-      <p className="mt-6">
+      <p className="mt-8 text-center">
         <Link href="/percorso#titolo-guardaroba" className={classePulsanteSecondario}>
           Vesti {sito.mascotte} nel tuo percorso
         </Link>

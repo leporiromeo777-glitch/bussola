@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { Compagno } from "@/components/landing/compagno";
 import { ComeFunziona } from "@/components/landing/come-funziona";
+import { Confronto } from "@/components/landing/confronto";
 import { CosaNonE } from "@/components/landing/cosa-non-e";
+import { Dati } from "@/components/landing/dati";
 import { Domande } from "@/components/landing/domande";
 import { Hero } from "@/components/landing/hero";
 import { ListaAttesa } from "@/components/landing/lista-attesa";
+import { Manifesto } from "@/components/landing/manifesto";
+import { Numeri } from "@/components/landing/numeri";
 import { Prezzi } from "@/components/landing/prezzi";
 import { PerChi } from "@/components/landing/per-chi";
-import { Problema } from "@/components/landing/problema";
 import { sito } from "@/lib/sito";
 
 const titolo = `${sito.nome}: dall'idea alla ditta individuale aperta, passo per passo`;
@@ -33,12 +36,15 @@ export default function PaginaIniziale() {
   return (
     <>
       <Hero />
-      <Problema />
-      <PerChi />
+      <Manifesto />
       <ComeFunziona />
+      <PerChi />
+      <Numeri />
       <Compagno />
+      <Confronto />
       <CosaNonE />
       <Prezzi />
+      <Dati />
       <Domande />
       <ListaAttesa />
     </>

@@ -2,7 +2,6 @@ import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { sito, valoreSegnaposto } from "@/lib/sito";
-import { IconaFrecciaGiu } from "./icone";
 import { Sezione } from "./sezione";
 
 const classeLink = "text-brand underline underline-offset-2 hover:text-brand-strong";
@@ -91,16 +90,21 @@ export function Domande() {
   return (
     <Sezione
       id="domande"
-      sopratitolo="Domande frequenti"
-      titolo="Domande e risposte"
+      sopratitolo="FAQ"
+      titolo="Domande frequenti"
       illustrazione={<ImmagineMascotte nome="pensa" sizes="176px" className="h-auto w-full" />}
     >
-      <div className="divide-y divide-border rounded-xl border border-border bg-card">
+      <div className="mx-auto max-w-2xl space-y-3">
         {DOMANDE.map(({ domanda, risposta }) => (
-          <details key={domanda} className="group px-5 sm:px-6">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 font-medium [&::-webkit-details-marker]:hidden">
+          <details key={domanda} className="group rounded-2xl border border-border bg-card px-5 shadow-sm sm:px-6">
+            <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold [&::-webkit-details-marker]:hidden">
               {domanda}
-              <IconaFrecciaGiu className="size-5 shrink-0 text-muted transition-transform group-open:rotate-180" />
+              <span
+                aria-hidden="true"
+                className="flex size-7 shrink-0 items-center justify-center rounded-full bg-foreground text-lg leading-none text-background transition-transform group-open:rotate-45 motion-reduce:transition-none"
+              >
+                +
+              </span>
             </summary>
             <p className="pb-5 text-muted">{risposta}</p>
           </details>

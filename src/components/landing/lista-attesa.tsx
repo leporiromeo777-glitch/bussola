@@ -15,13 +15,13 @@ export function ListaAttesa() {
     <Sezione
       id="lista-attesa"
       sopratitolo="Lista d'attesa"
-      titolo="Entra nella lista d'attesa"
+      titolo="Pronto a partire?"
       sfondo="brand"
       illustrazione={<ImmagineMascotte nome="festa" sizes="176px" className="h-auto w-full" />}
       introduzione={
         <p>
-          Ti scriviamo quando apre la beta chiusa. Chi è in lista ha la precedenza per entrare tra le prime persone a
-          provarla.
+          Entra nella lista d&apos;attesa: ti scriviamo quando apre la beta chiusa, e chi è in lista ha la precedenza
+          per entrare tra le prime persone a provarla.
         </p>
       }
     >

@@ -6,7 +6,10 @@ const SFONDI = {
   brand: "bg-brand-soft",
 } as const;
 
-/** Sezione della landing con titolo collegato (aria-labelledby) e contenitore max-w-5xl. */
+/**
+ * Sezione della landing con titolo collegato (aria-labelledby) e contenitore
+ * max-w-5xl. Titolo centrato e grande, con il sopratitolo in una pillola.
+ */
 export function Sezione({
   id,
   sopratitolo,
@@ -18,36 +21,44 @@ export function Sezione({
 }: {
   id: string;
   sopratitolo?: string;
-  titolo: string;
+  titolo: ReactNode;
   introduzione?: ReactNode;
   sfondo?: keyof typeof SFONDI;
-  /** Immagine decorativa accanto al titolo (dal tablet in su). */
+  /** Immagine decorativa sopra il titolo. */
   illustrazione?: ReactNode;
   children: ReactNode;
 }) {
   const idTitolo = `${id}-titolo`;
   return (
-    <section id={id} aria-labelledby={idTitolo} className={`scroll-mt-4 py-16 sm:py-24 ${SFONDI[sfondo]}`}>
+    <section id={id} aria-labelledby={idTitolo} className={`scroll-mt-24 py-20 sm:py-28 ${SFONDI[sfondo]}`}>
       <div className="mx-auto max-w-5xl px-4">
-        <div className="flex items-end justify-between gap-8">
-          <div className="max-w-2xl">
-            {sopratitolo ? <p className="text-sm font-semibold text-brand">{sopratitolo}</p> : null}
-            <h2 id={idTitolo} className="mt-2 text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
-              {titolo}
-            </h2>
-            {introduzione ? <div className="mt-4 text-lg text-muted">{introduzione}</div> : null}
-          </div>
-          {illustrazione ? <div className="hidden w-36 shrink-0 sm:block lg:w-44">{illustrazione}</div> : null}
+        <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+          {illustrazione ? <div className="mb-4 w-28 sm:w-32">{illustrazione}</div> : null}
+          {sopratitolo ? <Pillola>{sopratitolo}</Pillola> : null}
+          <h2
+            id={idTitolo}
+            className="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-balance sm:text-4xl"
+          >
+            {titolo}
+          </h2>
+          {introduzione ? <div className="mt-4 text-lg text-muted text-pretty">{introduzione}</div> : null}
         </div>
-        <div className="mt-10">{children}</div>
+        <div className="mt-12">{children}</div>
       </div>
     </section>
   );
 }
 
-/** Pulsante principale (link all'ancora del modulo). Testo scuro su teal chiaro in dark mode. */
+/** Piccola etichetta con il bordo sfumato (sopratitoli, «Esempio»). */
+export function Pillola({ children }: { children: ReactNode }) {
+  return (
+    <p className="bordo-sfumato inline-flex rounded-full px-3 py-1 text-sm font-semibold text-brand">{children}</p>
+  );
+}
+
+/** Pulsante principale con la sfumatura del marchio. */
 export const classePulsantePrincipale =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-3 font-medium text-background shadow-sm transition-colors hover:bg-brand-strong";
+  "fondo-sfumato inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-7 py-3 font-semibold shadow-md shadow-brand/20 transition-[filter,transform] hover:brightness-110 active:scale-[0.98] motion-reduce:transition-none";
 
 export const classePulsanteSecondario =
-  "inline-flex items-center justify-center gap-2 rounded-full border border-border bg-card px-6 py-3 font-medium text-foreground transition-colors hover:border-brand";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-border bg-card px-7 py-3 font-semibold text-foreground transition-colors hover:border-brand";
