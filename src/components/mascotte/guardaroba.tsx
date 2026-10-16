@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { iscriviti, leggiGrezzo, scriviGrezzo } from "@/lib/percorso/archivio";
 import {
   analizzaVestito,
@@ -23,8 +23,7 @@ export function useVestito(): Vestito {
   return useMemo(() => analizzaVestito(grezzo), [grezzo]);
 }
 
-/** Salva il vestito in questo browser: tutte le mascotte della pagina si aggiornano. */
-export function salvaVestito(vestito: Vestito) {
+function salva(vestito: Vestito) {
   scriviGrezzo(CHIAVE_VESTITO, JSON.stringify(vestito));
 }
 
@@ -49,21 +48,20 @@ export function Guardaroba() {
         nome="Cappello"
         valori={CAPPELLI}
         scelto={vestito.cappello}
-        onScegli={(cappello) => salvaVestito({ ...vestito, cappello })}
+        onScegli={(cappello) => salva({ ...vestito, cappello })}
       />
       <Gruppo
         nome="Occhiali"
         valori={OCCHIALI}
         scelto={vestito.occhiali}
-        onScegli={(occhiali) => salvaVestito({ ...vestito, occhiali })}
+        onScegli={(occhiali) => salva({ ...vestito, occhiali })}
       />
-      <Gruppo nome="Sciarpa" valori={SCIARPE} scelto={vestito.sciarpa} onScegli={(sciarpa) => salvaVestito({ ...vestito, sciarpa })} />
+      <Gruppo nome="Sciarpa" valori={SCIARPE} scelto={vestito.sciarpa} onScegli={(sciarpa) => salva({ ...vestito, sciarpa })} />
     </section>
   );
 }
 
-/** Una fila di scelte (radio) per un tipo di accessorio. */
-export function Gruppo<T extends string>({
+function Gruppo<T extends string>({
   nome,
   valori,
   scelto,
@@ -74,7 +72,6 @@ export function Gruppo<T extends string>({
   scelto: T;
   onScegli: (valore: T) => void;
 }) {
-  const id = useId();
   return (
     <fieldset className="mt-4">
       <legend className="text-sm font-medium">{nome}</legend>
@@ -86,7 +83,7 @@ export function Gruppo<T extends string>({
           >
             <input
               type="radio"
-              name={`${id}-${nome}`}
+              name={`guardaroba-${nome}`}
               value={valore}
               checked={scelto === valore}
               onChange={() => onScegli(valore)}
