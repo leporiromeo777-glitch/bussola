@@ -4,13 +4,16 @@ import { createHmac } from "node:crypto";
 export type RegolaLimite = { massimo: number; finestraSecondi: number };
 
 /**
- * Limiti per le azioni pubbliche che fanno partire email dal nostro server.
+ * Limiti per le azioni pubbliche che fanno partire email dal nostro server
+ * o che costano (una chiamata a Claude senza accesso).
  * Abbastanza larghi per una classe o un ufficio dietro lo stesso IP,
  * abbastanza stretti da fermare uno script da una sola connessione.
  */
 export const LIMITI_RICHIESTE = {
   listaAttesa: { massimo: 10, finestraSecondi: 60 * 60 },
   accesso: { massimo: 10, finestraSecondi: 60 * 60 },
+  /** «Raccontami la tua idea» nel questionario: costa una chiamata a Claude e di solito basta una prova. */
+  racconto: { massimo: 5, finestraSecondi: 60 * 60 },
 } as const satisfies Record<string, RegolaLimite>;
 
 export type AmbitoLimite = keyof typeof LIMITI_RICHIESTE;

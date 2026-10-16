@@ -69,33 +69,32 @@ export function leggiRichiestaRacconto(
 /* Risposta del modello                                                */
 /* ------------------------------------------------------------------ */
 
+/** Uno dei valori di una domanda, oppure null. */
+function valoreOppureNull<const T extends readonly [string, ...string[]]>(valori: T) {
+  return z.enum(valori).nullable().catch(null);
+}
+
 /**
  * Cosa restituisce Claude (structured output). Ogni domanda è uno dei valori
- * del questionario oppure null (non si capisce dal testo). Le lunghezze dei
- * testi non sono vincoli dello schema ma solo indicazioni: un testo un po'
- * più lungo non deve far fallire tutta la risposta, lo accorcia
- * pulisciRacconto.
+ * del questionario oppure null (il testo non lo dice). Lo schema JSON che
+ * l'SDK manda all'API riporta i valori ammessi solo come descrizione: un
+ * valore fuori elenco non fa fallire tutta la risposta ma diventa null
+ * (quella domanda si farà). Anche le lunghezze dei testi sono solo nelle
+ * istruzioni: i testi troppo lunghi li accorcia pulisciRacconto.
  */
 export const schemaRacconto = z.object({
-  attivita: z.enum(ATTIVITA).nullable(),
-  attivitaAltro: z
-    .string()
-    .nullable()
-    .describe(
-      `Solo se attivita è "altro": l'attività in poche parole (al massimo ${LUNGHEZZA_MASSIMA_ATTIVITA_ALTRO} caratteri). Altrimenti null.`,
-    ),
-  cantone: z.enum(CANTONI).nullable(),
-  soci: z.enum(SOCI).nullable(),
-  fatturato: z.enum(FATTURATI).nullable(),
-  clienti: z.enum(CLIENTI).nullable(),
-  impiego: z.enum(IMPIEGHI).nullable(),
-  avviata: z.enum(AVVII).nullable(),
-  permesso: z.enum(PERMESSI).nullable(),
-  locali: z.enum(SI_NO).nullable(),
-  venditaOnline: z.enum(SI_NO).nullable(),
-  riassunto: z
-    .string()
-    .describe("Una frase breve, cordiale, in italiano semplice, dando del tu, che inizia con «Ho capito:»."),
+  attivita: valoreOppureNull(ATTIVITA),
+  attivitaAltro: z.string().nullable().catch(null),
+  cantone: valoreOppureNull(CANTONI),
+  soci: valoreOppureNull(SOCI),
+  fatturato: valoreOppureNull(FATTURATI),
+  clienti: valoreOppureNull(CLIENTI),
+  impiego: valoreOppureNull(IMPIEGHI),
+  avviata: valoreOppureNull(AVVII),
+  permesso: valoreOppureNull(PERMESSI),
+  locali: valoreOppureNull(SI_NO),
+  venditaOnline: valoreOppureNull(SI_NO),
+  riassunto: z.string(),
 });
 
 export type OutputRacconto = z.infer<typeof schemaRacconto>;
@@ -145,7 +144,7 @@ export function pulisciRacconto(output: unknown): Racconto {
  */
 const REGOLE: Record<IdDomanda, string> = {
   attivita:
-    'Scegli la categoria che descrive meglio il lavoro raccontato (per esempio un fotografo è "digitale_creativo"). Se il lavoro è chiaro ma non rientra in nessuna categoria, usa "altro" e scrivi in attivitaAltro il lavoro in poche parole, con le parole della persona. Se il testo non dice che lavoro vuole fare, null.',
+    `Scegli la categoria che descrive meglio il lavoro raccontato (per esempio un fotografo è "digitale_creativo"). Se il lavoro è chiaro ma non rientra in nessuna categoria, usa "altro" e scrivi in attivitaAltro il lavoro in poche parole (al massimo ${LUNGHEZZA_MASSIMA_ATTIVITA_ALTRO} caratteri), con le parole della persona. Con le altre categorie attivitaAltro è null. Se il testo non dice che lavoro vuole fare, null.`,
   cantone:
     'Conta il luogo dove avrà sede o dove svolgerà l\'attività (se lavora da casa, dove abita). "TI" solo se è nominato il Ticino o un luogo ticinese (per esempio Lugano, Bellinzona, Locarno, Mendrisio, Chiasso, Biasca, una valle ticinese). "GR" solo se è nominato il Grigioni o un luogo grigionese (per esempio Coira, Davos, Mesolcina, Poschiavo, Bregaglia). "altro" solo se è nominato un altro Cantone o un luogo di un altro Cantone. Un luogo all\'estero (per esempio Como o Milano) non dice dove sarà la sede: null.',
   soci:

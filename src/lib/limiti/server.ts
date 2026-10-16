@@ -4,17 +4,20 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { LIMITI_RICHIESTE, chiaveLimite, ipDaIntestazioni, type AmbitoLimite } from "./richieste";
 
 /**
- * Conta una richiesta di questa connessione per l'ambito e dice se è
- * consentita. In modalità demo (niente chiave segreta), senza IP o se il
- * database non risponde la richiesta passa: il limite protegge dagli abusi,
- * non deve bloccare chi usa il sito.
+ * - "consentita": richiesta contata, può passare;
+ * - "superato": troppe richieste da questa connessione;
+ * - "non_disponibile": il limite non si può verificare (modalità demo senza
+ *   chiave segreta, IP sconosciuto o database che non risponde).
  */
-export async function richiestaConsentita(ambito: AmbitoLimite): Promise<boolean> {
+export type EsitoLimite = "consentita" | "superato" | "non_disponibile";
+
+/** Conta una richiesta di questa connessione per l'ambito e dice com'è andata. */
+export async function controllaLimite(ambito: AmbitoLimite): Promise<EsitoLimite> {
   const segreto = process.env.SUPABASE_SECRET_KEY;
   const db = createAdminClient();
-  if (!db || !segreto) return true;
+  if (!db || !segreto) return "non_disponibile";
   const ip = ipDaIntestazioni(await headers());
-  if (!ip) return true;
+  if (!ip) return "non_disponibile";
 
   const { massimo, finestraSecondi } = LIMITI_RICHIESTE[ambito];
   const { data, error } = await db.rpc("consuma_limite", {
@@ -24,7 +27,17 @@ export async function richiestaConsentita(ambito: AmbitoLimite): Promise<boolean
   });
   if (error) {
     console.error(`[limiti] ${ambito}: ${error.code ?? "?"} ${error.message}`);
-    return true;
+    return "non_disponibile";
   }
-  return data !== false;
+  return data === false ? "superato" : "consentita";
+}
+
+/**
+ * Dice se la richiesta è consentita. Se il limite non si può verificare la
+ * richiesta passa: qui il limite protegge dagli abusi, non deve bloccare chi
+ * usa il sito. Per le azioni che costano (Claude) usare controllaLimite e
+ * rifiutare quando il limite non è disponibile.
+ */
+export async function richiestaConsentita(ambito: AmbitoLimite): Promise<boolean> {
+  return (await controllaLimite(ambito)) !== "superato";
 }
