@@ -72,4 +72,34 @@ describe("chiediABleo", () => {
     interrotto.abort();
     expect(await chiediABleo({ ...base, segnale: interrotto.signal })).toEqual({ tipo: "interrotta" });
   });
+
+  it("segnala la chat in cui è salvata la domanda e manda l'id invece della cronologia", async () => {
+    const corpi: unknown[] = [];
+    const righe =
+      rigaEvento({ t: "conversazione", id: "c1", titolo: "Quanto pago di AVS?" }) +
+      rigaEvento({ t: "fine", risposta: [{ testo: "Dipende.", citazioni: [] }], fonti: [], senza_risposta: false });
+    const fetchFn = (async (_url: string, init: RequestInit) => {
+      corpi.push(JSON.parse(String(init.body)));
+      return rispostaAPezzi([righe]);
+    }) as unknown as typeof fetch;
+    const chat: { id: string; titolo: string }[] = [];
+    const base = {
+      domanda: "E nei Grigioni?",
+      cronologia: [{ domanda: "Quanto pago di AVS?", risposta: "Dipende." }],
+      segnale: new AbortController().signal,
+      suTesto: () => {},
+      suConversazione: (c: { id: string; titolo: string }) => chat.push(c),
+      fetchFn,
+    };
+    expect(await chiediABleo({ ...base, conversazioneId: "c1" })).toMatchObject({ tipo: "fine" });
+    expect(await chiediABleo(base)).toMatchObject({ tipo: "fine" });
+    expect(chat).toEqual([
+      { id: "c1", titolo: "Quanto pago di AVS?" },
+      { id: "c1", titolo: "Quanto pago di AVS?" },
+    ]);
+    expect(corpi).toEqual([
+      { domanda: "E nei Grigioni?", conversazioneId: "c1" },
+      { domanda: "E nei Grigioni?", cronologia: [{ domanda: "Quanto pago di AVS?", risposta: "Dipende." }] },
+    ]);
+  });
 });

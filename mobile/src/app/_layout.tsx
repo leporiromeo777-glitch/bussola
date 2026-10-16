@@ -29,6 +29,10 @@ export default function Radice() {
         <Stack.Screen name="strumenti/tariffa" options={{ title: "Tariffa oraria" }} />
         <Stack.Screen name="strumenti/contributi" options={{ title: "Contributi AVS" }} />
         <Stack.Screen name="accedi" options={{ title: "Accedi", presentation: "modal" }} />
+        <Stack.Screen
+          name="chat-elenco"
+          options={{ title: "Le tue chat", presentation: "modal", headerBackVisible: false, headerLeft: () => null }}
+        />
         <Stack.Screen name="guardaroba" options={{ title: "Vesti Bleo" }} />
       </Stack>
     </>

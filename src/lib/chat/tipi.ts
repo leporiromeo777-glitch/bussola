@@ -31,8 +31,13 @@ export type QuotaPubblica = {
   piano_scade_il: string | null;
 };
 
-/** Eventi inviati dal server, uno per riga (NDJSON). */
+/**
+ * Eventi inviati dal server, uno per riga (NDJSON). "conversazione" arriva per
+ * primo quando la domanda è salvata in una chat (nuova o già aperta): i
+ * client che non lo conoscono lo ignorano.
+ */
 export type EventoChat =
+  | { t: "conversazione"; id: string; titolo: string }
   | { t: "testo"; d: string }
   | {
       t: "fine";

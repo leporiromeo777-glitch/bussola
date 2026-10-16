@@ -19,6 +19,13 @@ describe("LettoreNdjson", () => {
     expect(lettore.aggiungi('non json\n{"t":"sconosciuto"}\n{"t":"testo","d":1}\n{"t":"testo","d":"x"}')).toEqual([]);
     expect(lettore.chiudi()).toEqual([{ t: "testo", d: "x" }]);
   });
+
+  it("legge l'evento della chat salvata solo se ha id e titolo", () => {
+    const lettore = new LettoreNdjson();
+    expect(
+      lettore.aggiungi('{"t":"conversazione","id":"c1"}\n{"t":"conversazione","id":"c1","titolo":"AVS"}\n'),
+    ).toEqual([{ t: "conversazione", id: "c1", titolo: "AVS" }]);
+  });
 });
 
 describe("flussoNdjson", () => {

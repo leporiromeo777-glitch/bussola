@@ -11,10 +11,15 @@ export type EsitoChiamata =
 
 type Opzioni = {
   domanda: string;
+  /** Scambi precedenti: servono solo senza `conversazioneId` (con la chat, il contesto lo prende il server). */
   cronologia: ScambioPrecedente[];
+  /** La chat salvata in cui continuare; senza, il server ne apre una nuova. */
+  conversazioneId?: string | null;
   segnale: AbortSignal;
   /** Chiamata per ogni pezzo di testo che arriva. */
   suTesto: (pezzo: string) => void;
+  /** Chiamata quando il server dice in quale chat ha salvato la domanda (prima del testo). */
+  suConversazione?: (conversazione: { id: string; titolo: string }) => void;
   fetchFn?: typeof fetch;
   indirizzo?: string;
 };
@@ -26,8 +31,10 @@ type Opzioni = {
 export async function chiediABleo({
   domanda,
   cronologia,
+  conversazioneId = null,
   segnale,
   suTesto,
+  suConversazione,
   fetchFn = fetch,
   indirizzo = "/api/chat",
 }: Opzioni): Promise<EsitoChiamata> {
@@ -36,7 +43,7 @@ export async function chiediABleo({
     risposta = await fetchFn(indirizzo, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/x-ndjson" },
-      body: JSON.stringify({ domanda, cronologia }),
+      body: JSON.stringify(conversazioneId ? { domanda, conversazioneId } : { domanda, cronologia }),
       signal: segnale,
     });
   } catch {
@@ -65,6 +72,7 @@ export async function chiediABleo({
         : lettore.aggiungi(decodifica.decode(value, { stream: true }));
       for (const evento of eventi) {
         if (evento.t === "testo") suTesto(evento.d);
+        else if (evento.t === "conversazione") suConversazione?.({ id: evento.id, titolo: evento.titolo });
         else if (evento.t === "fine") return { tipo: "fine", evento };
         else return { tipo: "errore", messaggio: evento.messaggio };
       }

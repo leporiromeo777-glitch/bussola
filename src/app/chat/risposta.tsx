@@ -4,6 +4,9 @@ import type { BloccoRisposta, CitazioneMappata, FonteCitata } from "@/lib/chat/t
 
 const idFonte = (idMessaggio: string, numero: number) => `fonte-${idMessaggio}-${numero}`;
 
+/** Solo link web: una risposta riletta dal database non apre mai altri tipi di indirizzo. */
+const linkWeb = (url: string) => (/^https?:\/\//i.test(url) ? url : undefined);
+
 /** Testo della risposta con paragrafi, elenchi e i numeri delle fonti accanto alle frasi citate. */
 export function TestoRisposta({ blocchi, idMessaggio }: { blocchi: BloccoRisposta[]; idMessaggio: string }) {
   const elementi = strutturaRisposta(blocchi);
@@ -70,7 +73,7 @@ export function ElencoFonti({ fonti, idMessaggio }: { fonti: FonteCitata[]; idMe
             </span>
             <div>
               <a
-                href={fonte.url}
+                href={linkWeb(fonte.url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-foreground underline decoration-border underline-offset-2 hover:decoration-brand"

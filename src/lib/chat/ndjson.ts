@@ -9,6 +9,10 @@ function eEventoChat(valore: unknown): valore is EventoChat {
   if (typeof valore !== "object" || valore === null || !("t" in valore)) return false;
   const { t } = valore as { t: unknown };
   if (t === "testo") return typeof (valore as { d?: unknown }).d === "string";
+  if (t === "conversazione") {
+    const { id, titolo } = valore as { id?: unknown; titolo?: unknown };
+    return typeof id === "string" && typeof titolo === "string";
+  }
   if (t === "errore") return typeof (valore as { messaggio?: unknown }).messaggio === "string";
   if (t === "fine") return Array.isArray((valore as { risposta?: unknown }).risposta);
   return false;

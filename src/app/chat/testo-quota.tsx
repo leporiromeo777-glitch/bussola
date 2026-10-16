@@ -2,7 +2,7 @@ import { formattaData } from "@/lib/chat/formato";
 import type { QuotaPubblica } from "@/lib/chat/tipi";
 
 /** Una riga che dice quante domande restano questo mese. */
-export function TestoQuota({ quota }: { quota: QuotaPubblica | null }) {
+export function TestoQuota({ quota, className = "text-sm" }: { quota: QuotaPubblica | null; className?: string }) {
   if (!quota) return null;
   let testo: string;
   if (quota.illimitata) {
@@ -18,7 +18,7 @@ export function TestoQuota({ quota }: { quota: QuotaPubblica | null }) {
     testo = `Ti restano ${quota.rimanenti} domande gratuite su ${quota.limite} questo mese.`;
   }
   return (
-    <p className={`text-sm ${quota.rimanenti === 0 ? "text-danger" : "text-muted"}`}>
+    <p className={`${className} ${quota.rimanenti === 0 ? "text-danger" : "text-muted"}`}>
       {testo}
     </p>
   );

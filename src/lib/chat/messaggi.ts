@@ -1,3 +1,4 @@
+import { TITOLO_MASSIMO } from "./conversazioni";
 import { formattaData } from "./formato";
 import { DOMANDE_GRATIS_AL_MESE } from "./quota";
 import type { QuotaPubblica } from "./tipi";
@@ -28,6 +29,9 @@ export const MESSAGGI = {
   erroreGenerico: "Qualcosa non ha funzionato nel preparare la risposta. Riprova tra poco.",
   rete: "Non riesco a raggiungere Bleo: controlla la connessione e riprova.",
   rispostaInterrotta: "La risposta si è interrotta a metà. Riprova.",
+  chatNonTrovata: "Questa chat non c'è più: forse l'hai eliminata. Apri un'altra chat o iniziane una nuova.",
+  chatNonDisponibili: "In questo momento non riesco a leggere le tue chat. Riprova tra poco.",
+  titoloNonValido: `Scrivi un titolo da 1 a ${TITOLO_MASSIMO} caratteri.`,
 } as const;
 
 /**

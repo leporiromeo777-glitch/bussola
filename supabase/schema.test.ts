@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ID_PASSI } from "../src/data/passi";
+import { TITOLO_MASSIMO } from "../src/lib/chat/conversazioni";
 import { DOMANDE_GRATIS_AL_MESE } from "../src/lib/chat/quota";
 import { LETTURE_AL_GIORNO } from "../src/lib/conti/limiti";
 import { CATEGORIE } from "../src/lib/conti/tipi";
@@ -64,6 +65,12 @@ beforeAll(async () => {
     create function storage.foldername(name text) returns text[] language sql immutable as
       $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
   `);
+  // Come in Supabase: le tabelle nuove di public sono accessibili ad anon e
+  // authenticated (la RLS decide le righe), finché una migrazione non revoca.
+  await db.exec(`
+    grant usage on schema public to anon, authenticated;
+    alter default privileges in schema public grant select, insert, update, delete on tables to anon, authenticated;
+  `);
   for (const nome of MIGRAZIONI) {
     await db.exec(perPglite(readFileSync(new URL(nome, CARTELLA), "utf8")));
   }
@@ -76,8 +83,6 @@ beforeAll(async () => {
     insert into public.frammenti_fonti (fonte_id, posizione, titolo_sezione, testo) values
       ('avs', 1, 'Contributi', 'Gli indipendenti versano i contributi AVS/AI/IPG sul reddito.'),
       ('iva', 1, 'Obbligo', 'È assoggettato all''IVA chi realizza una cifra d''affari annua di almeno 100 000 franchi.');
-    grant usage on schema public to anon, authenticated;
-    grant select, insert, update, delete on all tables in schema public to anon, authenticated;
     grant usage on schema storage to anon, authenticated;
     grant select, insert, update, delete on all tables in schema storage to anon, authenticated;
   `);
@@ -404,6 +409,8 @@ describe("eliminazione dell'account (src/lib/account/eliminazione.ts)", () => {
        where c.contype = 'f' and c.confrelid = 'auth.users'::regclass
        order by 1`);
     expect(r.rows.map((x) => x.tabella)).toEqual([
+      "chat_conversazioni",
+      "chat_messaggi",
       "conti_caselle",
       "conti_documenti",
       "conti_email",
@@ -635,6 +642,229 @@ describe("«I tuoi conti»", () => {
             + (select count(*) from public.conti_caselle where user_id = $1)
             + (select count(*) from public.conti_letture where user_id = $1) as righe`,
       [CONTI],
+    );
+    expect(Number(r.rows[0]?.righe)).toBe(0);
+  });
+});
+
+describe("chat salvate (chat_conversazioni e chat_messaggi)", () => {
+  const CHAT = "99999999-9999-9999-9999-999999999999";
+  const CURIOSO = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+  beforeAll(async () => {
+    await db.exec(`insert into auth.users (id, email) values ('${CHAT}', 'chat@example.ch'), ('${CURIOSO}', 'curioso@example.ch')`);
+  });
+
+  const nuovaChat = (utente: string, titolo = "Devo iscrivermi all'IVA?") =>
+    comeUtente(
+      () =>
+        db
+          .query<{ id: string }>("insert into public.chat_conversazioni (user_id, titolo) values ($1, $2) returning id", [
+            utente,
+            titolo,
+          ])
+          .then((r) => r.rows[0]!.id),
+      utente,
+    );
+
+  const domanda = (utente: string, chat: string, testo = "Devo iscrivermi all'IVA?", come = utente) =>
+    comeUtente(
+      () =>
+        db.query(
+          "insert into public.chat_messaggi (conversazione_id, user_id, ruolo, testo) values ($1, $2, 'utente', $3)",
+          [chat, utente, testo],
+        ),
+      come,
+    );
+
+  const risposta = (utente: string, chat: string, campi: { risposta?: string; fonti?: string } = {}) =>
+    comeUtente(
+      () =>
+        db.query(
+          `insert into public.chat_messaggi (conversazione_id, user_id, ruolo, testo, risposta, fonti, senza_risposta, avviso)
+           values ($1, $2, 'bleo', 'Sì, se superi la soglia.', $3::jsonb, $4::jsonb, false, null)`,
+          [chat, utente, campi.risposta ?? '[{"testo":"Sì, se superi la soglia.","citazioni":[]}]', campi.fonti ?? "[]"],
+        ),
+      utente,
+    );
+
+  it("il titolo ha al massimo TITOLO_MASSIMO caratteri, come in src/lib/chat/conversazioni.ts", async () => {
+    const sql = readFileSync(new URL("20261018000000_chat_conversazioni.sql", CARTELLA), "utf8");
+    expect(sql).toContain(`check (char_length(titolo) between 1 and ${TITOLO_MASSIMO})`);
+    await expect(nuovaChat(CHAT, "")).rejects.toThrow(/check/);
+    await expect(nuovaChat(CHAT, "x".repeat(TITOLO_MASSIMO + 1))).rejects.toThrow(/check/);
+  });
+
+  it("ognuno crea e vede solo le sue chat e i suoi messaggi", async () => {
+    const id = await nuovaChat(CHAT);
+    await domanda(CHAT, id);
+    await risposta(CHAT, id);
+    const proprie = await comeUtente(
+      () => db.query<{ n: number }>("select count(*)::int as n from public.chat_messaggi where conversazione_id = $1", [id]),
+      CHAT,
+    );
+    expect(proprie.rows[0]?.n).toBe(2);
+
+    const viste = await comeUtente(
+      () =>
+        db.query<{ n: number }>(
+          "select (select count(*) from public.chat_conversazioni) + (select count(*) from public.chat_messaggi) as n",
+        ),
+      CURIOSO,
+    );
+    expect(Number(viste.rows[0]?.n)).toBe(0);
+    await expect(
+      comeUtente(
+        () => db.query("insert into public.chat_conversazioni (user_id, titolo) values ($1, 'Intrusa')", [CHAT]),
+        CURIOSO,
+      ),
+    ).rejects.toThrow(/row-level security/);
+    await expect(come("anon", "", () => db.query("select * from public.chat_conversazioni"))).rejects.toThrow(
+      /permission denied/,
+    );
+  });
+
+  it("nessuno scrive messaggi nella chat di un altro, nemmeno con il proprio user_id", async () => {
+    const id = await nuovaChat(CHAT);
+    // Con user_id altrui: la RLS lo ferma.
+    await expect(domanda(CHAT, id, "intrusa", CURIOSO)).rejects.toThrow(/row-level security/);
+    // Con il proprio user_id ma la chat di un altro: il trigger lo ferma.
+    await expect(domanda(CURIOSO, id)).rejects.toThrow(/chat di un altro utente/);
+    // Nemmeno il server con la chiave segreta può mescolare utenti.
+    await expect(
+      db.query("insert into public.chat_messaggi (conversazione_id, user_id, ruolo, testo) values ($1, $2, 'utente', 'x')", [
+        id,
+        CURIOSO,
+      ]),
+    ).rejects.toThrow(/chat di un altro utente/);
+  });
+
+  it("l'utente cambia solo il titolo; le date le decide il database", async () => {
+    const id = await comeUtente(
+      () =>
+        db
+          .query<{ id: string; creata_il: Date; aggiornata_il: Date }>(
+            "insert into public.chat_conversazioni (user_id, titolo, creata_il, aggiornata_il) values ($1, 'futura', now() + interval '5 years', now() + interval '5 years') returning id, creata_il, aggiornata_il",
+            [CHAT],
+          )
+          .then((r) => r.rows[0]!),
+      CHAT,
+    ).catch((e: Error) => e);
+    // Con i privilegi per colonna di Supabase le date non si possono nemmeno indicare.
+    expect(id).toBeInstanceOf(Error);
+    expect(String(id)).toMatch(/permission denied/);
+
+    const chat = await nuovaChat(CHAT, "Prima");
+    await comeUtente(() => db.query("update public.chat_conversazioni set titolo = 'Dopo' where id = $1", [chat]), CHAT);
+    await expect(
+      comeUtente(
+        () => db.query("update public.chat_conversazioni set aggiornata_il = now() + interval '5 years' where id = $1", [chat]),
+        CHAT,
+      ),
+    ).rejects.toThrow(/permission denied/);
+    // Anche dove i privilegi per colonna mancassero, il trigger tiene date e proprietario.
+    await db.query(
+      "update public.chat_conversazioni set user_id = $2, creata_il = now() - interval '2 years', aggiornata_il = now() - interval '2 years' where id = $1",
+      [chat, CURIOSO],
+    );
+    const r = await db.query<{ titolo: string; user_id: string; vecchia: boolean }>(
+      "select titolo, user_id, aggiornata_il < now() - interval '1 year' as vecchia from public.chat_conversazioni where id = $1",
+      [chat],
+    );
+    expect(r.rows).toEqual([{ titolo: "Dopo", user_id: CHAT, vecchia: false }]);
+
+    // Un altro utente non la rinomina.
+    const altrui = await comeUtente(
+      () => db.query("update public.chat_conversazioni set titolo = 'Mia' where id = $1", [chat]),
+      CURIOSO,
+    );
+    expect(altrui.affectedRows).toBe(0);
+  });
+
+  it("ogni messaggio porta la chat in cima (aggiornata_il)", async () => {
+    const chat = await nuovaChat(CHAT);
+    await db.query("alter table public.chat_conversazioni disable trigger chat_conversazione_modifica");
+    await db.query("update public.chat_conversazioni set aggiornata_il = now() - interval '3 days' where id = $1", [chat]);
+    await db.query("alter table public.chat_conversazioni enable trigger chat_conversazione_modifica");
+    await domanda(CHAT, chat);
+    const r = await db.query<{ recente: boolean }>(
+      "select aggiornata_il > now() - interval '1 minute' as recente from public.chat_conversazioni where id = $1",
+      [chat],
+    );
+    expect(r.rows).toEqual([{ recente: true }]);
+  });
+
+  it("i messaggi non si modificano né si cancellano uno per uno; la chat sì, con i messaggi", async () => {
+    const chat = await nuovaChat(CHAT);
+    await domanda(CHAT, chat);
+    await expect(
+      comeUtente(() => db.query("update public.chat_messaggi set testo = 'cambiata' where conversazione_id = $1", [chat]), CHAT),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      comeUtente(() => db.query("delete from public.chat_messaggi where conversazione_id = $1", [chat]), CHAT),
+    ).rejects.toThrow(/permission denied/);
+
+    const altrui = await comeUtente(
+      () => db.query("delete from public.chat_conversazioni where id = $1", [chat]),
+      CURIOSO,
+    );
+    expect(altrui.affectedRows).toBe(0);
+    await comeUtente(() => db.query("delete from public.chat_conversazioni where id = $1", [chat]), CHAT);
+    const r = await db.query<{ n: number }>("select count(*)::int as n from public.chat_messaggi where conversazione_id = $1", [chat]);
+    expect(r.rows[0]?.n).toBe(0);
+  });
+
+  it("rifiuta domande vuote o troppo lunghe e risposte senza blocchi", async () => {
+    const chat = await nuovaChat(CHAT);
+    await expect(domanda(CHAT, chat, "")).rejects.toThrow(/chat_messaggi_testo_lunghezza/);
+    await expect(domanda(CHAT, chat, "x".repeat(1001))).rejects.toThrow(/chat_messaggi_testo_lunghezza/);
+    await expect(risposta(CHAT, chat, { risposta: '{"testo":"non un elenco"}' })).rejects.toThrow(/chat_messaggi_risposta/);
+    await expect(
+      comeUtente(
+        () =>
+          db.query(
+            "insert into public.chat_messaggi (conversazione_id, user_id, ruolo, testo, fonti) values ($1, $2, 'utente', 'ok?', '[]')",
+            [chat, CHAT],
+          ),
+        CHAT,
+      ),
+    ).rejects.toThrow(/chat_messaggi_risposta/);
+  });
+
+  it("al massimo 2000 chat per utente", async () => {
+    await db.query(
+      "insert into public.chat_conversazioni (user_id, titolo) select $1, 'riempitivo' from generate_series(1, 2000 - (select count(*) from public.chat_conversazioni where user_id = $1))",
+      [CURIOSO],
+    );
+    await expect(nuovaChat(CURIOSO)).rejects.toThrow(/troppe righe in chat_conversazioni/);
+    await db.query("delete from public.chat_conversazioni where user_id = $1", [CURIOSO]);
+  });
+
+  it("la pulizia cancella le chat senza attività da 12 mesi, con i messaggi", async () => {
+    const vecchia = await nuovaChat(CHAT, "Vecchia");
+    const recente = await nuovaChat(CHAT, "Recente");
+    await domanda(CHAT, vecchia);
+    await db.query("alter table public.chat_conversazioni disable trigger chat_conversazione_modifica");
+    await db.query("update public.chat_conversazioni set aggiornata_il = now() - interval '12 months 1 day' where id = $1", [vecchia]);
+    await db.query("update public.chat_conversazioni set aggiornata_il = now() - interval '11 months' where id = $1", [recente]);
+    await db.query("alter table public.chat_conversazioni enable trigger chat_conversazione_modifica");
+    await db.exec("select public.pulisci_dati()");
+    const r = await db.query<{ id: string }>("select id from public.chat_conversazioni where id in ($1, $2)", [vecchia, recente]);
+    expect(r.rows).toEqual([{ id: recente }]);
+    const messaggi = await db.query<{ n: number }>("select count(*)::int as n from public.chat_messaggi where conversazione_id = $1", [
+      vecchia,
+    ]);
+    expect(messaggi.rows[0]?.n).toBe(0);
+  });
+
+  it("cancellando l'utente spariscono tutte le sue chat", async () => {
+    const chat = await nuovaChat(CHAT);
+    await domanda(CHAT, chat);
+    await db.query("delete from auth.users where id = $1", [CHAT]);
+    const r = await db.query<{ righe: number }>(
+      `select (select count(*) from public.chat_conversazioni where user_id = $1)
+            + (select count(*) from public.chat_messaggi where user_id = $1) as righe`,
+      [CHAT],
     );
     expect(Number(r.rows[0]?.righe)).toBe(0);
   });
