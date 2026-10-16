@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useId, useMemo, useState, type FormEvent } from "react";
 import { PulsanteDettatura } from "@/components/dettatura";
 import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import { IconaFreccia, IconaSpunta } from "@/components/landing/icone";
@@ -8,6 +8,7 @@ import { classePulsantePrincipale, classeLink } from "@/components/percorso/stil
 import { aggiungiDettato } from "@/lib/dettatura/testo";
 import { salvaBozza, type Bozza } from "@/lib/percorso/bozza";
 import { DOMANDE, etichettaRisposta } from "@/lib/percorso/domande";
+import { VOCI_RACCONTO, vociToccate } from "@/lib/percorso/racconto-checklist";
 import type { IdDomanda } from "@/lib/percorso/risposte";
 
 const ESEMPI = [
@@ -147,7 +148,9 @@ export function Racconto({ onContinua, onDomande }: { onContinua: () => void; on
       <div className="mt-3">
         <PulsanteDettatura onTesto={(dettato) => setTesto((t) => aggiungiDettato(t, dettato, 1000))} disabilitato={inCorso} />
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <ChecklistRacconto testo={testo} />
+      <p className="mt-5 text-sm font-medium text-muted">Oppure parti da un esempio:</p>
+      <div className="mt-2 flex flex-wrap gap-2">
         {ESEMPI.slice(1).map((e) => (
           <button
             key={e}
@@ -181,5 +184,62 @@ export function Racconto({ onContinua, onDomande }: { onContinua: () => void; on
         {inCorso ? "Bleo sta leggendo la tua descrizione." : ""}
       </p>
     </form>
+  );
+}
+
+/** «Cosa dire a Bleo»: le voci si spuntano da sole mentre scrivi o detti. */
+function ChecklistRacconto({ testo }: { testo: string }) {
+  const id = useId();
+  const toccate = useMemo(() => vociToccate(testo), [testo]);
+  const importantiMancanti = VOCI_RACCONTO.filter((v) => v.importante && !toccate.has(v.id)).length;
+
+  return (
+    <section aria-labelledby={`${id}-titolo`} className="mt-5 rounded-2xl border border-border bg-background p-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 id={`${id}-titolo`} className="font-bold">
+          Cosa dire a Bleo
+        </h3>
+        <p className="text-sm text-muted">
+          {toccate.size} di {VOCI_RACCONTO.length}
+        </p>
+      </div>
+      <p className="mt-1 text-sm text-muted">
+        Più cose dici, meno domande ti fa dopo. Le prime quattro sono le più importanti; le voci si spuntano da sole
+        mentre scrivi.
+      </p>
+      <ul className="mt-3 grid gap-x-4 gap-y-2 sm:grid-cols-2">
+        {VOCI_RACCONTO.map((v) => {
+          const fatta = toccate.has(v.id);
+          return (
+            <li key={v.id} className="flex items-start gap-2 text-sm">
+              <span
+                aria-hidden="true"
+                className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border ${
+                  fatta ? "border-brand bg-brand text-background" : "border-border"
+                }`}
+              >
+                {fatta ? <IconaSpunta className="size-3.5" /> : null}
+              </span>
+              <span>
+                <span className={fatta ? "font-medium" : v.importante ? "font-semibold" : ""}>
+                  {v.titolo}
+                  {v.importante ? <span className="text-brand"> *</span> : null}
+                </span>
+                <span className="sr-only">{fatta ? " (già detto)" : " (da dire)"}</span>
+                <span className="block text-muted">{v.esempio}</span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="mt-3 text-xs text-muted">
+        <span className="text-brand">*</span> le più importanti
+        {testo.trim() && importantiMancanti > 0
+          ? ` · ne mancano ${importantiMancanti}`
+          : testo.trim()
+            ? " · ci sono tutte"
+            : ""}
+      </p>
+    </section>
   );
 }
