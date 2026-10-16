@@ -5,14 +5,16 @@
  *   npm run fonti:importa                 tutte le fonti
  *   npm run fonti:importa -- --solo <id>  una fonte sola
  *   npm run fonti:importa -- --prova      scarica e divide, senza scrivere nel database
+ *   npm run fonti:importa -- --sql <file> scrive le istruzioni SQL in un file, da
+ *                                         incollare nel SQL editor di Supabase (senza chiavi)
  *
  * Le fonti con "verificato_da" ancora "import automatico - ..." si salvano
  * con attiva = false: la chat usa solo fonti ricontrollate a mano.
  *
  * Servono NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SECRET_KEY in .env.local
- * (tranne che con --prova). Istruzioni complete in docs/fonti.md.
+ * (tranne che con --prova e --sql). Istruzioni complete in docs/fonti.md.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { extractText, getDocumentProxy } from "unpdf";
 import { leggiElenco, statoImport, type FonteElenco } from "../src/lib/fonti/elenco";
@@ -20,13 +22,16 @@ import { estraiTestoHtml } from "../src/lib/fonti/estrai-html";
 import { pagineInBlocchi } from "../src/lib/fonti/estrai-pdf";
 import { problemaContenuto } from "../src/lib/fonti/controllo-contenuto";
 import { dividiInFrammenti, type Frammento } from "../src/lib/fonti/frammenti";
+import { sqlFonte } from "../src/lib/fonti/sql";
 
 const PERCORSO_ELENCO = "supabase/fonti/elenco.json";
 const TEMPO_MASSIMO_MS = 30_000;
 const USER_AGENT =
   "Mozilla/5.0 (compatible; BussolaFonti/1.0; import delle fonti ufficiali per la chat di Bussola)";
 
-type Opzioni = { solo: string | null; prova: boolean; aiuto: boolean };
+type Opzioni = { solo: string | null; prova: boolean; sql: string | null; aiuto: boolean };
+/** Dove finisce una fonte importata: database (chiave segreta) o file SQL. */
+type Salva = (fonte: FonteElenco, frammenti: Frammento[] | null) => Promise<void>;
 type Esito =
   | { id: string; stato: "importata"; frammenti: number; caratteri: number; avviso?: string }
   | { id: string; stato: "disattivata" }
@@ -35,16 +40,19 @@ type Esito =
 type Scaricato = { urlFinale: string; pdf: boolean; dati: ArrayBuffer; charset: string | null };
 
 function leggiOpzioni(argv: string[]): Opzioni {
-  const opzioni: Opzioni = { solo: null, prova: false, aiuto: false };
+  const opzioni: Opzioni = { solo: null, prova: false, sql: null, aiuto: false };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--solo") opzioni.solo = argv[++i] ?? "";
     else if (arg?.startsWith("--solo=")) opzioni.solo = arg.slice("--solo=".length);
     else if (arg === "--prova") opzioni.prova = true;
+    else if (arg === "--sql") opzioni.sql = argv[++i] ?? "";
+    else if (arg?.startsWith("--sql=")) opzioni.sql = arg.slice("--sql=".length);
     else if (arg === "--aiuto" || arg === "--help" || arg === "-h") opzioni.aiuto = true;
     else throw new Error(`Opzione sconosciuta: ${arg}. Usa --aiuto per l'elenco.`);
   }
   if (opzioni.solo === "") throw new Error("Dopo --solo indica l'id di una fonte, es. --solo ahv-2-02-indipendenti");
+  if (opzioni.sql === "") throw new Error("Dopo --sql indica il file da scrivere, es. --sql fonti.sql");
   return opzioni;
 }
 
@@ -127,15 +135,15 @@ async function salvaFonte(supabase: SupabaseClient, fonte: FonteElenco, framment
 
 const MESSAGGIO_DA_RICONTROLLARE = "non ancora ricontrollata a mano: metti il tuo nome in verificato_da";
 
-async function importaFonte(fonte: FonteElenco, supabase: SupabaseClient | null, prova: boolean): Promise<Esito> {
+async function importaFonte(fonte: FonteElenco, salva: Salva | null, prova: boolean): Promise<Esito> {
   const stato = statoImport(fonte);
   if (stato === "disattivata") {
-    if (supabase) await salvaFonte(supabase, fonte, null);
+    if (salva) await salva(fonte, null);
     return { id: fonte.id, stato: "disattivata" };
   }
   // Con --prova la si scarica comunque, così si possono controllare i frammenti prima di firmarla.
   if (stato === "da_ricontrollare" && !prova) {
-    if (supabase) await salvaFonte(supabase, { ...fonte, attiva: false }, null);
+    if (salva) await salva({ ...fonte, attiva: false }, null);
     return { id: fonte.id, stato: "da_ricontrollare" };
   }
   const scaricato = await scarica(fonte.url);
@@ -149,8 +157,8 @@ async function importaFonte(fonte: FonteElenco, supabase: SupabaseClient | null,
       const anteprima = f.testo.slice(0, 120).replace(/\s+/g, " ");
       console.log(`  #${f.posizione} [${f.titolo_sezione ?? "-"}] ${f.testo.length} car.: ${anteprima}…`);
     }
-  } else if (supabase) {
-    await salvaFonte(supabase, fonte, frammenti);
+  } else if (salva) {
+    await salva(fonte, frammenti);
   }
   const avvisi = [
     scaricato.urlFinale !== fonte.url
@@ -191,7 +199,7 @@ async function segnalaFontiNonInElenco(supabase: SupabaseClient, ids: Set<string
 async function main() {
   const opzioni = leggiOpzioni(process.argv.slice(2));
   if (opzioni.aiuto) {
-    console.log("Uso: npm run fonti:importa [-- --solo <id>] [-- --prova]\nVedi docs/fonti.md.");
+    console.log("Uso: npm run fonti:importa [-- --solo <id>] [-- --prova] [-- --sql <file>]\nVedi docs/fonti.md.");
     return;
   }
 
@@ -209,7 +217,14 @@ async function main() {
   }
 
   let supabase: SupabaseClient | null = null;
-  if (!opzioni.prova) {
+  let salva: Salva | null = null;
+  const istruzioniSql: string[] = [];
+  if (opzioni.sql && !opzioni.prova) {
+    const adesso = new Date().toISOString();
+    salva = async (fonte, frammenti) => {
+      istruzioniSql.push(`-- ${fonte.id}\n${sqlFonte(fonte, frammenti, adesso)}`);
+    };
+  } else if (!opzioni.prova) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const chiave = process.env.SUPABASE_SECRET_KEY;
     if (!url || !chiave) {
@@ -220,15 +235,18 @@ async function main() {
       process.exitCode = 1;
       return;
     }
-    supabase = createClient(url, chiave, { auth: { persistSession: false, autoRefreshToken: false } });
+    const client = createClient(url, chiave, { auth: { persistSession: false, autoRefreshToken: false } });
+    supabase = client;
+    salva = (fonte, frammenti) => salvaFonte(client, fonte, frammenti);
   }
 
-  console.log(`${opzioni.prova ? "Prova (niente database)" : "Import"}: ${fonti.length} fonti da ${PERCORSO_ELENCO}`);
+  const modo = opzioni.prova ? "Prova (niente database)" : opzioni.sql ? `SQL in ${opzioni.sql}` : "Import";
+  console.log(`${modo}: ${fonti.length} fonti da ${PERCORSO_ELENCO}`);
   const esiti: Esito[] = [];
   for (const fonte of fonti) {
     process.stdout.write(`- ${fonte.id} … `);
     try {
-      const esito = await importaFonte(fonte, supabase, opzioni.prova);
+      const esito = await importaFonte(fonte, salva, opzioni.prova);
       esiti.push(esito);
       console.log(
         esito.stato === "importata"
@@ -260,6 +278,10 @@ async function main() {
   const errori = esiti.filter((e) => e.stato === "errore").length;
   console.log(`\n${esiti.length - errori} riuscite, ${errori} non riuscite.`);
 
+  if (opzioni.sql && !opzioni.prova) {
+    writeFileSync(opzioni.sql, `-- Fonti della chat, generate il ${new Date().toISOString()}\nbegin;\n\n${istruzioniSql.join("\n\n")}\n\ncommit;\n`);
+    console.log(`Istruzioni SQL scritte in ${opzioni.sql}: incollale nel SQL editor di Supabase.`);
+  }
   if (supabase && !opzioni.solo) await segnalaFontiNonInElenco(supabase, new Set(elenco.fonti.map((f) => f.id)));
   if (errori > 0) process.exitCode = 1;
 }

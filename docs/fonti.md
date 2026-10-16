@@ -129,6 +129,19 @@ diverso da zero se anche una sola fonte non è riuscita. Gli errori più comuni:
 Lo script avvisa anche se nel database ci sono fonti attive che non sono più
 nell'elenco: `elenco.json` è la fonte di verità, tienilo in Git.
 
+### Importare senza chiave segreta (SQL editor)
+
+Se non vuoi mettere `SUPABASE_SECRET_KEY` sul tuo computer, l'import può
+scrivere le istruzioni SQL in un file, da incollare nel SQL editor di
+Supabase:
+
+```bash
+npm run fonti:importa -- --sql fonti.sql
+```
+
+Il file aggiorna le fonti e sostituisce i loro frammenti in una sola
+transazione (`begin; … commit;`).
+
 ## Controllo mensile (il primo lunedì del mese)
 
 Le regole cambiano (aliquote AVS, soglie, emolumenti). Ogni fonte ha
