@@ -1,0 +1,16 @@
+{
+  "name": "bleo-corso-video",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Le lezioni video del corso di Bleo, fatte con Remotion.",
+  "scripts": {
+    "prepara": "tsx scripts/prepara.ts",
+    "studio": "remotion studio",
+    "render": "tsx scripts/render.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

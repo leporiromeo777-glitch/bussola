@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, type FormEvent, type KeyboardEvent, type Ref } from "react";
+import { useLayoutEffect, useRef, type FormEvent, type KeyboardEvent } from "react";
 import { PulsanteDettatura } from "@/components/dettatura";
 import { LUNGHEZZA_MASSIMA_DOMANDA, LUNGHEZZA_MINIMA_DOMANDA } from "@/lib/chat/limiti";
 import { aggiungiDettato } from "@/lib/dettatura/testo";
@@ -8,6 +8,9 @@ import { IconaFreccia, IconaStop } from "./icone";
 
 /** Altezza massima del campo: circa 6 righe, poi scorre. */
 const ALTEZZA_MASSIMA = 6 * 24 + 16;
+
+/** Il campo della domanda nella pagina (ce n'è uno solo), per dargli il fuoco. */
+export const campoDomanda = () => document.getElementById("domanda") as HTMLTextAreaElement | null;
 
 /**
  * Il campo della domanda, tondo come in ChatGPT: cresce con il testo (fino a
@@ -22,7 +25,6 @@ export function Compositore({
   inCorso,
   bloccato,
   grande = false,
-  campo,
 }: {
   bozza: string;
   onBozza: (testo: string | ((prima: string) => string)) => void;
@@ -33,14 +35,13 @@ export function Compositore({
   bloccato: boolean;
   /** Schermata iniziale: campo più alto, pulsanti sotto il testo. */
   grande?: boolean;
-  campo?: Ref<HTMLTextAreaElement>;
 }) {
-  const interno = useRef<HTMLTextAreaElement | null>(null);
+  const campo = useRef<HTMLTextAreaElement>(null);
   const pronta = bozza.trim().length >= LUNGHEZZA_MINIMA_DOMANDA;
 
   // Il campo cresce con il testo, fino all'altezza massima.
   useLayoutEffect(() => {
-    const el = interno.current;
+    const el = campo.current;
     if (!el) return;
     el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, ALTEZZA_MASSIMA)}px`;
@@ -58,12 +59,6 @@ export function Compositore({
       if (!inCorso && pronta) onInvia();
     }
   }
-
-  const collega = (el: HTMLTextAreaElement | null) => {
-    interno.current = el;
-    if (typeof campo === "function") campo(el);
-    else if (campo) campo.current = el;
-  };
 
   const pulsanti = (
     <div className="flex shrink-0 items-center gap-1">
@@ -108,7 +103,7 @@ export function Compositore({
         </label>
         <textarea
           id="domanda"
-          ref={collega}
+          ref={campo}
           name="domanda"
           rows={grande ? 2 : 1}
           maxLength={LUNGHEZZA_MASSIMA_DOMANDA}

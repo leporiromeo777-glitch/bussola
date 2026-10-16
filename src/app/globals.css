@@ -111,3 +111,45 @@ h2 {
   background-image: var(--sfumatura);
   color: var(--sul-pulsante);
 }
+
+/*
+ * «Chiedi a Bleo»: la chat riempie lo schermo sotto il menu, come un'app.
+ * La pagina non scorre (scorrono i messaggi e l'elenco delle chat) e il piè
+ * di pagina non c'è: i link legali restano nella chat. Vale finché nella
+ * pagina c'è .pagina-chat, cioè solo per chi può usare la chat.
+ */
+body:has(.pagina-chat) {
+  height: 100dvh;
+  overflow: hidden;
+}
+body:has(.pagina-chat) > main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+body:has(.pagina-chat) > footer {
+  display: none;
+}
+
+/* Il cursore che lampeggia in fondo alla risposta mentre Bleo scrive. */
+.cursore-scrittura > div > :last-child::after {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 1.1em;
+  margin-left: 0.15em;
+  vertical-align: text-bottom;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.6;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cursore-scrittura > div > :last-child::after {
+    animation: cursore-scrittura 1s steps(2, start) infinite;
+  }
+}
+@keyframes cursore-scrittura {
+  to {
+    visibility: hidden;
+  }
+}

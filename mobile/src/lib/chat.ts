@@ -101,12 +101,10 @@ type Domanda = {
 
 /**
  * Manda la domanda a /api/chat con chiediABleo (src/lib/chat/cliente.ts).
- * Con una chat aperta manda il suo id e niente cronologia: il server la
- * ricostruisce da solo. Il primo evento NDJSON {"t":"conversazione"} lo
- * legge `osservaConversazione`, perché il lettore condiviso tiene solo gli
- * eventi testo/fine/errore.
+ * Con una chat aperta manda il suo id e niente cronologia: il contesto lo
+ * ricostruisce il server. Il primo evento dice in quale chat è salvata.
  */
-export async function chiediInChat({
+export function chiediInChat({
   domanda,
   conversazioneId,
   token,
@@ -114,96 +112,15 @@ export async function chiediInChat({
   suTesto,
   suConversazione,
 }: Domanda): Promise<EsitoChiamata> {
-  const conToken = fetchConToken(token);
-  let vista = false;
-  const avvisa = (chat: { id: string; titolo: string }) => {
-    if (vista) return;
-    vista = true;
-    suConversazione(chat);
-  };
-  const fetchChat: typeof fetch = async (url, init) => {
-    const risposta = await conToken(url, { ...init, body: corpoConChat(init?.body, conversazioneId) });
-    return osservaConversazione(risposta, avvisa);
-  };
-  // Oggetto a parte (non letterale): se cliente.ts impara `conversazioneId` e
-  // `suConversazione`, li usa; se toglie `cronologia`, il tipo resta valido.
-  const opzioni = {
+  return chiediABleo({
     domanda,
     cronologia: [],
-    conversazioneId: conversazioneId ?? undefined,
-    suConversazione: avvisa,
+    conversazioneId,
     segnale,
     suTesto,
-    fetchFn: fetchChat,
+    suConversazione,
+    fetchFn: fetchConToken(token),
     indirizzo: URL_CHAT,
-  };
-  return chiediABleo(opzioni);
-}
-
-/** Il corpo JSON della domanda con l'id della chat (e senza cronologia, se c'è la chat). */
-function corpoConChat(corpo: BodyInit | null | undefined, conversazioneId: string | null): BodyInit | null | undefined {
-  if (typeof corpo !== "string") return corpo;
-  try {
-    const dati = JSON.parse(corpo) as Record<string, unknown>;
-    if (conversazioneId) {
-      dati.conversazioneId = conversazioneId;
-      delete dati.cronologia;
-    }
-    return JSON.stringify(dati);
-  } catch {
-    return corpo;
-  }
-}
-
-type Lettore = { read: () => Promise<{ done: boolean; value?: Uint8Array }>; cancel: (motivo?: unknown) => Promise<void> };
-
-/**
- * Lascia passare la risposta così com'è, ma legge la prima riga NDJSON: se è
- * {"t":"conversazione","id":…,"titolo":…} chiama `suConversazione`.
- */
-function osservaConversazione(
-  risposta: Response,
-  suConversazione: (chat: { id: string; titolo: string }) => void,
-): Response {
-  const flusso = risposta.ok ? risposta.body : null;
-  if (!flusso) return risposta;
-  const decodifica = new TextDecoder();
-  let primaRiga = "";
-  let finito = false;
-  const leggi = (pezzo: Uint8Array) => {
-    if (finito) return;
-    primaRiga += decodifica.decode(pezzo, { stream: true });
-    const fine = primaRiga.indexOf("\n");
-    if (fine < 0) return;
-    finito = true;
-    try {
-      const evento = JSON.parse(primaRiga.slice(0, fine)) as { t?: unknown; id?: unknown; titolo?: unknown };
-      if (evento.t === "conversazione" && typeof evento.id === "string" && evento.id) {
-        suConversazione({ id: evento.id, titolo: typeof evento.titolo === "string" ? evento.titolo : "" });
-      }
-    } catch {
-      // Non è la riga della chat: niente da fare.
-    }
-  };
-  const corpo = {
-    getReader(): Lettore {
-      const lettore = flusso.getReader();
-      return {
-        async read() {
-          const parte = await lettore.read();
-          if (!parte.done && parte.value) leggi(parte.value);
-          return parte;
-        },
-        cancel: (motivo?: unknown) => lettore.cancel(motivo),
-      };
-    },
-  };
-  return new Proxy(risposta, {
-    get(bersaglio, chiave) {
-      if (chiave === "body") return corpo;
-      const valore: unknown = Reflect.get(bersaglio, chiave, bersaglio);
-      return typeof valore === "function" ? (valore as (...a: unknown[]) => unknown).bind(bersaglio) : valore;
-    },
   });
 }
 
