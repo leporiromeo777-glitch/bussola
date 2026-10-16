@@ -145,9 +145,17 @@ nei log cosa manca. Prima di aprirla:
 ## Pubblicare
 
 Funziona su Netlify o Vercel come un normale progetto Next.js. Imposta le
-variabili d'ambiente **prima** della build. La route della chat ha
+variabili d'ambiente **prima** della build: ogni modifica a una variabile
+arriva al sito solo con una nuova build. La route della chat ha
 `maxDuration = 60` secondi: verifica che il piano dell'hosting lo consenta per
 le funzioni con streaming.
+
+Netlify: `netlify.toml` fissa il comando di build e dichiara il runtime
+Next.js (`@netlify/plugin-nextjs`, senza versione: Netlify usa l'ultima). Senza
+questa dichiarazione un sito creato via API pubblica i file così come sono,
+senza pagine dinamiche. Per le build automatiche a ogni push collega il
+repository in *Project configuration > Build & deploy > Continuous
+deployment*.
 
 ## Struttura
 
