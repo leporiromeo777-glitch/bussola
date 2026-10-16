@@ -4,7 +4,8 @@ import { connection } from "next/server";
 import { Avviso, PaginaLegale } from "@/components/landing/pagina-legale";
 import { DatiTitolare, EmailTitolare } from "@/components/landing/titolare";
 import { SCAMBI_PRECEDENTI_MASSIMI } from "@/lib/chat/limiti";
-import { dataSvizzera } from "@/data/svizzera";
+import { DURATA_LINK_DOCUMENTO, LETTURE_AL_GIORNO } from "@/lib/conti/limiti";
+import { dataSvizzera, fonti, regolePercorso } from "@/data/svizzera";
 import { ELENCO_DPF, GARANZIE_USA, informativaPrivacy, OPDA, trattamentiAttivi } from "@/lib/privacy";
 import { listaAttesaAttiva } from "@/lib/lista-attesa/stato";
 import { sito } from "@/lib/sito";
@@ -73,8 +74,8 @@ export default async function PaginaPrivacy() {
           {hosting.server ? (
             <li>
               Il sito e il suo server girano su Netlify {hosting.server}: i dati che mandi con i moduli (lista
-              d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat) passano da lì prima
-              di arrivare al database.
+              d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, ricevute di «I tuoi
+              conti») passano da lì prima di arrivare al database.
             </li>
           ) : null}
           <li>
@@ -158,6 +159,48 @@ export default async function PaginaPrivacy() {
           <li>
             <strong>Dove:</strong> solo nel tuo browser. Non li riceviamo e non li salviamo sui nostri server; puoi
             cancellarli dallo strumento stesso.
+          </li>
+          <li>
+            <strong>Eccezione:</strong> se hai un account e nello strumento fattura scegli «Registra in I tuoi conti»,
+            salviamo nei tuoi conti numero, nome del cliente, date, importo e riferimento di pagamento di quella
+            fattura (vedi «I tuoi conti» qui sotto). Il resto della fattura, compreso il tuo IBAN, resta nel browser.
+          </li>
+        </ul>
+
+        <h3 id="conti">
+          I tuoi conti
+          <NonAttivo attivo={attivi.conti} />
+        </h3>
+        <ul>
+          <li>
+            <strong>Dati:</strong> le entrate e le uscite che registri (data, importo, descrizione, fornitore o
+            cliente, categoria, se è della ditta o privata); le fatture emesse che registri (numero, nome del cliente,
+            date, importo, riferimento di pagamento, data del pagamento); le foto e i PDF di ricevute e fatture che
+            carichi, con tutto quello che c&apos;è scritto.
+          </li>
+          <li>
+            <strong>Email inoltrate</strong>
+            <NonAttivo attivo={attivi.contiEmail} testo="non ancora attivo" />: se inoltri email al tuo indirizzo
+            personale di Bleo, salviamo gli allegati (PDF e immagini) oppure, se non ce ne sono e l&apos;email sembra
+            una ricevuta, il suo testo; in più mittente, oggetto e data di arrivo di ogni email, e il codice di
+            conferma che Gmail manda quando attivi l&apos;inoltro. Le altre email (senza ricevute, pubblicità, spam)
+            non le leggiamo e ne teniamo solo mittente, oggetto e data.
+          </li>
+          <li>
+            <strong>Dove:</strong> nel database e nell&apos;archivio dei file (Storage) di Supabase, su server{" "}
+            {luogoDati}, in una cartella privata che puoi vedere solo tu.
+          </li>
+          <li>
+            <strong>Perché:</strong> per tenere in ordine le tue entrate, uscite e fatture e mostrarti il riepilogo
+            dell&apos;anno. Bleo non fa la contabilità né le dichiarazioni d&apos;imposta per te: i conti li tieni tu.
+          </li>
+          <li>
+            <strong>Lettura automatica</strong>
+            <NonAttivo attivo={attivi.contiLettura} testo="non ancora attiva" />: le foto, i PDF e le email inoltrate
+            li legge l&apos;intelligenza artificiale di Anthropic (Claude, vedi sotto), solo per estrarre data,
+            importo, fornitore e categoria. Quello che legge resta «da confermare» finché non lo confermi tu. Per
+            limitare i costi e gli abusi leggiamo al massimo {LETTURE_AL_GIORNO} documenti al giorno per persona:
+            per contarli salviamo solo l&apos;ora di ogni lettura, per 2 giorni.
           </li>
         </ul>
 
@@ -303,6 +346,17 @@ export default async function PaginaPrivacy() {
             ogni notte.
           </li>
           <li>
+            <strong>I tuoi conti</strong> (voci, fatture, ricevute, allegati e dati delle email inoltrate): finché non
+            li cancelli tu o non elimini l&apos;account. Se elimini l&apos;account cancelliamo tutto, file compresi. La
+            legge chiede di conservare i documenti della contabilità per {regolePercorso.conservazioneDocumentiAnni.valore}{" "}
+            anni (
+            <a href={fonti.co958f.url} target="_blank" rel="noopener noreferrer">
+              art. 958f CO
+            </a>
+            ): questo obbligo è tuo, non lo assolviamo noi. Scarica i conti e conserva le ricevute anche altrove. I
+            contatori delle letture automatiche li cancelliamo dopo 2 giorni.
+          </li>
+          <li>
             <strong>Dati tecnici:</strong> {durataDatiTecnici}.
           </li>
         </ul>
@@ -320,8 +374,8 @@ export default async function PaginaPrivacy() {
         </p>
         <ul>
           <li>
-            <strong>Supabase Pte. Ltd. (Singapore)</strong>: database e accesso all&apos;account (compresa
-            l&apos;email con il link di accesso). I dati sono salvati su server {luogoDati}; per assistenza e
+            <strong>Supabase Pte. Ltd. (Singapore)</strong>: database, archivio dei file (le ricevute di «I tuoi
+            conti») e accesso all&apos;account (compresa l&apos;email con il link di accesso). I dati sono salvati su server {luogoDati}; per assistenza e
             manutenzione possono essere consultati da Supabase a Singapore e da suoi fornitori negli Stati Uniti,
             tra cui Supabase, Inc.
             <GaranziaUsa testo={GARANZIE_USA.supabase} />
@@ -332,29 +386,46 @@ export default async function PaginaPrivacy() {
               <>
                 {" "}
                 Su Netlify gira anche il server del sito, {hosting.server}: riceve i dati che mandi con i moduli
-                (lista d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, strumenti con l&apos;AI) e li passa
-                al database.
+                (lista d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, strumenti con l&apos;AI, «I tuoi conti»)
+                e li passa al database.
               </>
             ) : null}
             {hosting.garanzia ? <GaranziaUsa testo={hosting.garanzia} /> : null}
           </li>
           <li>
             <strong>Anthropic Ireland, Limited (Irlanda), con Anthropic, PBC (USA)</strong>
-            <NonAttivo attivo={attivi.chat || attivi.racconto} testo="non ancora attivo: la chat è spenta" />: genera
-            le risposte della chat, deduce le risposte del questionario da «Racconta a Bleo», propone i nomi della
-            ditta, scrive i testi pronti e spiega le lettere di «Fotografa la lettera». Per la chat riceve la
+            <NonAttivo
+              attivo={attivi.chat || attivi.racconto || attivi.contiLettura}
+              testo="non ancora attivo: la chat è spenta"
+            />
+            : genera le risposte della chat, deduce le risposte del questionario da «Racconta a Bleo», propone i nomi
+            della ditta, scrive i testi pronti, spiega le lettere di «Fotografa la lettera» e legge le ricevute di «I
+            tuoi conti». Per la chat riceve la
             tua domanda, al massimo le {SCAMBI_PRECEDENTI_MASSIMI} domande e risposte precedenti
             della stessa conversazione e i testi delle fonti pubbliche trovate per rispondere; non riceve la tua
             email né altri dati dell&apos;account. Per gli altri strumenti riceve solo quello che scrivi lì, e per
-            «Fotografa la lettera» solo la foto o il PDF che scegli. Questi dati sono conservati negli Stati Uniti e
+            «Fotografa la lettera» solo la foto o il PDF che scegli. Per «I tuoi conti» riceve la foto o il PDF della
+            ricevuta oppure l&apos;allegato o il testo dell&apos;email inoltrata, con mittente e oggetto
+            dell&apos;email, solo per estrarne i dati. Questi dati sono conservati negli Stati Uniti e
             cancellati da Anthropic entro 30 giorni.
             <GaranziaUsa testo={GARANZIE_USA.anthropic} />
           </li>
           <li>
             <strong>Resend (Plus Five Five, Inc., USA)</strong>
-            <NonAttivo attivo={attivi.email} testo="non ancora attivo: per ora non inviamo email" />: invia le email della lista d&apos;attesa (conferma e
-            aggiornamenti). Riceve il tuo indirizzo email e il testo dell&apos;email, e conserva i dati degli invii
-            negli Stati Uniti per 30 giorni.
+            <NonAttivo
+              attivo={attivi.email || attivi.contiEmail}
+              testo="non ancora attivo: per ora non inviamo né riceviamo email"
+            />
+            : invia le email della lista d&apos;attesa (conferma e aggiornamenti). Riceve il tuo indirizzo email e il
+            testo dell&apos;email, e conserva i dati degli invii negli Stati Uniti per 30 giorni.
+            {attivi.contiEmail ? (
+              <>
+                {" "}
+                Per «I tuoi conti» riceve per noi le email che inoltri al tuo indirizzo personale, con testo e
+                allegati, e le tiene per il tempo previsto dal suo servizio di ricezione [da verificare prima del
+                lancio].
+              </>
+            ) : null}
             <GaranziaUsa testo={GARANZIE_USA.resend} />
           </li>
           {attivi.verificaAntiRobot ? (
@@ -428,7 +499,9 @@ export default async function PaginaPrivacy() {
         <h2 id="sicurezza">8. Sicurezza</h2>
         <p>
           Il sito usa solo connessioni cifrate (HTTPS). Nel database ogni persona può leggere solo i propri dati; la
-          lista d&apos;attesa è accessibile solo dal server. Solo il titolare ha accesso amministrativo.
+          lista d&apos;attesa è accessibile solo dal server. Le ricevute di «I tuoi conti» stanno in un archivio
+          privato: si aprono solo con un link temporaneo che vale {DURATA_LINK_DOCUMENTO / 60} minuti. L&apos;indirizzo personale per inoltrare
+          le email contiene un codice casuale che nessuno può indovinare; se finisce in giro puoi cambiarlo. Solo il titolare ha accesso amministrativo.
         </p>
       </section>
 

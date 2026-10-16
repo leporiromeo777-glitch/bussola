@@ -3,11 +3,12 @@
  * ricevute-<token>@<dominio di ricezione>. Logica pura (usa solo
  * crypto.getRandomValues, che c'è in Node, nei browser e nell'app).
  */
+import type { Casella } from "./tipi";
 
 /** Prefisso della parte locale dell'indirizzo. */
 export const PREFISSO_CASELLA = "ricevute-";
 
-/** Caratteri del token: base32 minuscolo (RFC 4648), niente 0/1/8/9 che si confondono con o/l/b/g. */
+/** Caratteri del token: base32 minuscolo (RFC 4648), cioè lettere e cifre da 2 a 7 (niente 0 e 1, che si confondono con o e l). */
 const ALFABETO = "abcdefghijklmnopqrstuvwxyz234567";
 
 /** 26 caratteri × 5 bit = 130 bit casuali: impossibile da indovinare. */
@@ -65,4 +66,24 @@ export function tokenDaDestinatari(destinatari: readonly unknown[], dominio: str
     if (tokenValido(token)) return token;
   }
   return null;
+}
+
+export type RigaCasella = {
+  token: string;
+  conferma_codice: string | null;
+  conferma_link: string | null;
+  conferma_ricevuta_il: string | null;
+  ultima_email_il: string | null;
+};
+
+/** Risposta di GET/POST /api/conti/casella. Senza riga o senza dominio l'indirizzo è null. */
+export function casellaDaRiga(riga: RigaCasella | null, dominio: string | null): Casella {
+  return {
+    indirizzo: riga && dominio ? indirizzoCasella(riga.token, dominio) : null,
+    confermaGmail:
+      riga?.conferma_ricevuta_il && (riga.conferma_codice || riga.conferma_link)
+        ? { codice: riga.conferma_codice, link: riga.conferma_link, ricevutaIl: riga.conferma_ricevuta_il }
+        : null,
+    ultimaEmail: riga?.ultima_email_il ?? null,
+  };
 }

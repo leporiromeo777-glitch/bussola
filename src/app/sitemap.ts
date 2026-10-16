@@ -12,6 +12,7 @@ const PAGINE: { percorso: string; frequenza: "weekly" | "monthly" | "yearly"; pr
   { percorso: "/strumenti/business-plan", frequenza: "monthly", priorita: 0.6 },
   { percorso: "/strumenti/preventivo", frequenza: "monthly", priorita: 0.6 },
   { percorso: "/strumenti/fattura", frequenza: "monthly", priorita: 0.6 },
+  { percorso: "/conti", frequenza: "monthly", priorita: 0.5 },
   { percorso: "/privacy", frequenza: "yearly", priorita: 0.3 },
   { percorso: "/impressum", frequenza: "yearly", priorita: 0.3 },
 ];

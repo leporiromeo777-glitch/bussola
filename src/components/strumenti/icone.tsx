@@ -140,3 +140,30 @@ export const IconaEtichetta = (p: Props) => (
     <circle cx="8.5" cy="8.5" r="1.25" />
   </Icona>
 );
+
+export const IconaConti = (p: Props) => (
+  <Icona {...p}>
+    <path d="M4 7.5A1.5 1.5 0 0 1 5.5 6h13A1.5 1.5 0 0 1 20 7.5v10a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z" />
+    <path d="M4 10h16M8 15h3M14.5 15h1.5" />
+  </Icona>
+);
+
+export const IconaDocumento = (p: Props) => (
+  <Icona {...p}>
+    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z" />
+    <path d="M14 3v5h5M9 13h6M9 17h4" />
+  </Icona>
+);
+
+export const IconaPosta = (p: Props) => (
+  <Icona {...p}>
+    <rect x="3.5" y="5.5" width="17" height="13" rx="1.5" />
+    <path d="m4 7 8 6 8-6" />
+  </Icona>
+);
+
+export const IconaScarica = (p: Props) => (
+  <Icona {...p}>
+    <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14" />
+  </Icona>
+);

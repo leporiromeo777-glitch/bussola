@@ -10,6 +10,7 @@ import {
   elementiObbligatoriIva,
   emittenteVuoto,
   erroriPagamento,
+  fatturaPerConti,
   NOMI_TIPO,
   normalizzaNumeroIva,
   nuovoDocumento,
@@ -294,6 +295,28 @@ describe("sezione pagamento", () => {
   it("IBAN sbagliato", () => {
     const p = pagamentoDaDocumento(fattura({ emittente: { ...emittente, iban: "CH00 1234" } }));
     expect(p.ok).toBe(false);
+  });
+});
+
+describe("fatturaPerConti", () => {
+  it("manda ai conti solo numero, cliente, date, totale e riferimento (niente IBAN)", () => {
+    const dati = fatturaPerConti(fattura({ data: "2026-10-19", scadenza: "2026-11-18" }));
+    expect(dati).toMatchObject({
+      numero: "F-2026-001",
+      cliente: "Bar Centrale",
+      data: "2026-10-19",
+      scadenza: "2026-11-18",
+      importo: 1400,
+    });
+    expect(dati.riferimento && riferimentoScorValido(dati.riferimento)).toBe(true);
+    expect(JSON.stringify(dati)).not.toContain("CH93");
+  });
+
+  it("scadenza non valida o prima della data e nessun riferimento: null", () => {
+    expect(fatturaPerConti(fattura({ data: "2026-10-19", scadenza: "2026-10-01", riferimento: "nessuno" }))).toMatchObject({
+      scadenza: null,
+      riferimento: null,
+    });
   });
 });
 

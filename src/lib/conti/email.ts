@@ -213,7 +213,7 @@ export function testoDaHtml(html: string): string {
   )
     .replace(/[ \t ]+/g, " ")
     .replace(/ *\n */g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
+    .replace(/\n{2,}/g, "\n")
     .trim();
 }
 

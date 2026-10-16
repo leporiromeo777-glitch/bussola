@@ -77,7 +77,8 @@ export const schemaNuovoMovimento = z
     categoria,
   })
   .strict()
-  .refine((m) => tipoCategoria(m.categoria as CategoriaId) === m.tipo, {
+  // Se la categoria non esiste lo dice già il suo campo: qui solo la coerenza con il tipo.
+  .refine((m) => !eCategoria(m.categoria) || tipoCategoria(m.categoria) === m.tipo, {
     message: MESSAGGI_CONTI.categoria,
     path: ["categoria"],
   });

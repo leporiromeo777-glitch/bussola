@@ -77,6 +77,40 @@ individuale aperta e alla prima fattura, in italiano.
 conto dei clienti, app mobile, altre lingue. Arrivano dopo, solo se i clienti
 le chiedono.
 
+### «I tuoi conti» (fase 1, ottobre 2026)
+
+Pensato per **Bleo Plus**: dopo l'apertura il problema diventa tenere in
+ordine entrate, uscite e fatture, quasi senza fatica. Bleo non fa la
+contabilità né le dichiarazioni per conto dell'utente (LFid): l'utente
+registra e conferma, Bleo legge e ordina.
+
+- **Pagina `/conti` e API `/api/conti/*`** (sito e app con lo stesso
+  contratto, tipi in `src/lib/conti/tipi.ts`).
+- **Ricevute fotografate o in PDF**: le legge Claude (modello economico) e
+  le mette «da confermare»; l'utente dice «Sì, è della ditta» o «No, è
+  privato». Al massimo 50 letture al giorno per persona.
+- **Fatture emesse**: lo strumento fattura le registra con un clic; «Segna
+  pagata» crea l'entrata.
+- **Email inoltrate**: ogni utente ha un indirizzo personale
+  `ricevute-<codice>@<dominio>` (ricezione di Resend). Inoltro automatico da
+  Gmail con un filtro (Bleo mostra il codice di conferma di Gmail) o regole
+  di Outlook.
+- **Riepilogo dell'anno** con avvisi sulle soglie (IVA, contabilità
+  completa) e **CSV per il fiduciario**.
+- I file stanno nello Storage di Supabase; eliminando l'account si cancella
+  tutto. L'obbligo di conservare i documenti per 10 anni (CO 958f) resta
+  dell'utente: va detto chiaramente e va incoraggiato l'export.
+
+**Fasi successive**
+1. **Banca via bLink** (SIX): i movimenti del conto arrivano da soli e si
+   abbinano a ricevute e fatture (fatture pagate riconosciute dal
+   riferimento QR). Serve l'adesione a bLink e il consenso dell'utente.
+2. **Collegamento diretto a Gmail e Outlook** (OAuth), senza inoltro: Bleo
+   cerca da solo le email con fatture e ricevute. Richiede la verifica delle
+   app di Google e Microsoft e un'informativa più ampia.
+3. Da valutare con i clienti: stima dell'accantonamento AVS e imposte dal
+   risultato dell'anno (con lo stesso calcolo dello strumento tariffa).
+
 ## Concorrenza e posizionamento
 
 Bussola non sostituisce EasyGov né il fiduciario: è il mentore che ti dice

@@ -458,6 +458,23 @@ export function pagamentoDaDocumento(doc: Documento): { ok: true; dati: DatiPaga
   };
 }
 
+/**
+ * Dati di una fattura per «I tuoi conti» (POST /api/conti/fatture): solo
+ * numero, nome del cliente, date, totale e riferimento QR. Niente IBAN né
+ * voci, che restano nel browser.
+ */
+export function fatturaPerConti(doc: Documento) {
+  const rif = riferimentoPerFattura(doc);
+  return {
+    numero: doc.numero.trim(),
+    cliente: doc.cliente.nome.trim(),
+    data: doc.data,
+    scadenza: dataIsoValida(doc.scadenza) && doc.scadenza >= doc.data ? doc.scadenza : null,
+    importo: calcolaTotali(doc).totale,
+    riferimento: rif.ok && rif.valore ? rif.valore : null,
+  };
+}
+
 // --- Archivio (schema per i dati salvati nel browser).
 
 const t = (max: number) => z.string().max(max).catch("");

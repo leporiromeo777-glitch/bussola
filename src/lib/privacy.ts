@@ -1,4 +1,5 @@
 import { chiaveAnthropic } from "@/lib/chat/chiave";
+import { dominioRicezione } from "@/lib/conti/casella";
 import { sito } from "@/lib/sito";
 
 /**
@@ -163,6 +164,11 @@ type Ambiente = Record<string, string | undefined>;
  *   nome della ditta, testi pronti, lettere): chiave di Anthropic nostra e
  *   chiave segreta di Supabase (serve per il limite di richieste per IP);
  * - email: chiave Resend e mittente (src/lib/lista-attesa/resend.ts);
+ * - conti («I tuoi conti»): Supabase con la chiave segreta (limiti, Storage,
+ *   eliminazione dei file con l'account); contiLettura: in più una chiave di
+ *   Anthropic nostra (lettura delle ricevute); contiEmail: in più il segreto
+ *   del webhook, il dominio di ricezione e la chiave di Resend
+ *   (ricezioneEmailAttiva in src/lib/conti/server.ts);
  * - protezione dei moduli: chiave segreta di Supabase (src/lib/limiti/server.ts);
  * - verifica anti-robot (Turnstile) e statistiche (Plausible): chiavi pubbliche.
  */
@@ -171,6 +177,9 @@ export type TrattamentiAttivi = {
   chat: boolean;
   racconto: boolean;
   email: boolean;
+  conti: boolean;
+  contiLettura: boolean;
+  contiEmail: boolean;
   protezioneModuli: boolean;
   verificaAntiRobot: boolean;
   statistiche: boolean;
@@ -179,12 +188,20 @@ export type TrattamentiAttivi = {
 export function trattamentiAttivi(env: Ambiente): TrattamentiAttivi {
   const impostata = (nome: string) => Boolean(env[nome]?.trim());
   const supabase = impostata("NEXT_PUBLIC_SUPABASE_URL") && impostata("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
+  const conti = supabase && impostata("SUPABASE_SECRET_KEY");
   return {
     account: supabase,
     chat: supabase && chiaveAnthropic(env) !== null,
     racconto:
       chiaveAnthropic(env) !== null && impostata("NEXT_PUBLIC_SUPABASE_URL") && impostata("SUPABASE_SECRET_KEY"),
     email: impostata("RESEND_API_KEY") && impostata("EMAIL_MITTENTE"),
+    conti,
+    contiLettura: conti && chiaveAnthropic(env) !== null,
+    contiEmail:
+      conti &&
+      impostata("RESEND_WEBHOOK_SECRET") &&
+      dominioRicezione(env.RESEND_DOMINIO_RICEZIONE) !== null &&
+      impostata("RESEND_API_KEY"),
     protezioneModuli: impostata("NEXT_PUBLIC_SUPABASE_URL") && impostata("SUPABASE_SECRET_KEY"),
     verificaAntiRobot: impostata("NEXT_PUBLIC_TURNSTILE_SITE_KEY"),
     statistiche: impostata("NEXT_PUBLIC_PLAUSIBLE_DOMAIN"),

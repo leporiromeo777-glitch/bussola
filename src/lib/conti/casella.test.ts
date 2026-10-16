@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   LUNGHEZZA_TOKEN,
+  casellaDaRiga,
   dominioRicezione,
   indirizzoCasella,
   indirizzoNudo,
@@ -21,7 +22,7 @@ describe("token", () => {
     expect(new Set(Array.from({ length: 50 }, () => nuovoToken())).size).toBe(50);
   });
 
-  it("usa tutti i 32 caratteri in modo uniforme", () => {
+  it("prende i 5 bit bassi di ogni byte (256 è multiplo di 32: nessuna lettera è favorita)", () => {
     const tutti = nuovoToken((b) => b.map((_, i) => i * 8 + 3));
     expect(tutti).toBe("dlt3dlt3dlt3dlt3dlt3dlt3dl");
     expect(nuovoToken((b) => b.fill(255))).toBe("7".repeat(LUNGHEZZA_TOKEN));
@@ -62,5 +63,34 @@ describe("tokenDaDestinatari", () => {
     expect(tokenDaDestinatari([`ricevute-corto@${dominio}`], dominio)).toBeNull();
     expect(tokenDaDestinatari([`ricevute-${TOKEN}0@${dominio}`], dominio)).toBeNull();
     expect(tokenDaDestinatari([42, null], dominio)).toBeNull();
+  });
+});
+
+describe("casellaDaRiga", () => {
+  const riga = {
+    token: TOKEN,
+    conferma_codice: null,
+    conferma_link: null,
+    conferma_ricevuta_il: null,
+    ultima_email_il: null,
+  };
+
+  it("senza riga o senza dominio l'indirizzo è null", () => {
+    expect(casellaDaRiga(null, "abc123.resend.app")).toEqual({ indirizzo: null, confermaGmail: null, ultimaEmail: null });
+    expect(casellaDaRiga(riga, null).indirizzo).toBeNull();
+  });
+
+  it("mostra la conferma di Gmail solo se è arrivata", () => {
+    expect(casellaDaRiga(riga, "abc123.resend.app")).toEqual({
+      indirizzo: `ricevute-${TOKEN}@abc123.resend.app`,
+      confermaGmail: null,
+      ultimaEmail: null,
+    });
+    const conCodice = casellaDaRiga(
+      { ...riga, conferma_codice: "152648392", conferma_ricevuta_il: "2026-10-16T10:00:00Z", ultima_email_il: "2026-10-16T10:00:00Z" },
+      "abc123.resend.app",
+    );
+    expect(conCodice.confermaGmail).toEqual({ codice: "152648392", link: null, ricevutaIl: "2026-10-16T10:00:00Z" });
+    expect(conCodice.ultimaEmail).toBe("2026-10-16T10:00:00Z");
   });
 });

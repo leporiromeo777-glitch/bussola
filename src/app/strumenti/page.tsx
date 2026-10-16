@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ComponentType } from "react";
 import {
   IconaCalendario,
+  IconaConti,
   IconaDispositivo,
   IconaEtichetta,
   IconaFattura,
@@ -18,7 +19,7 @@ import { NotaNonConsulenza } from "@/components/strumenti/intestazione";
 export const metadata: Metadata = {
   title: "Strumenti",
   description:
-    "Tariffa oraria, budget del primo anno, business plan, preventivo e fattura con QR-fattura, nome della ditta, testi pronti e lettere spiegate: strumenti per chi apre una ditta individuale in Ticino.",
+    "Tariffa oraria, budget del primo anno, business plan, preventivo e fattura con QR-fattura, nome della ditta, testi pronti, lettere spiegate e i tuoi conti: strumenti per chi apre una ditta individuale in Ticino.",
 };
 
 type Strumento = {
@@ -28,6 +29,8 @@ type Strumento = {
   link: { href: string; etichetta: string }[];
   /** Usa l'intelligenza artificiale: quello che scrivi viene inviato per la risposta. */
   ai?: true;
+  /** Salva nel tuo account (serve l'accesso), non solo nel browser. */
+  account?: true;
 };
 
 const STRUMENTI: Strumento[] = [
@@ -84,6 +87,15 @@ const STRUMENTI: Strumento[] = [
     link: [{ href: "/strumenti/lettera", etichetta: "Fotografa una lettera" }],
     ai: true,
   },
+  {
+    titolo: "I tuoi conti",
+    testo:
+      "Entrate, uscite e fatture in ordine: fotografa le ricevute o inoltrale per email, Bleo le legge e tu confermi. A fine anno scarichi tutto per il fiduciario.",
+    Icona: IconaConti,
+    link: [{ href: "/conti", etichetta: "Apri i tuoi conti" }],
+    ai: true,
+    account: true,
+  },
 ];
 
 export default function PaginaStrumenti() {
@@ -109,12 +121,13 @@ export default function PaginaStrumenti() {
           <strong className="font-semibold">I tuoi dati restano su questo dispositivo.</strong> Gli strumenti salvano
           quello che scrivi solo nel tuo browser: Bleo non lo riceve. Se cambi dispositivo o cancelli i dati del
           browser, li perdi. Fanno eccezione gli strumenti segnati «con l&apos;AI»: per risponderti, quello che scrivi
-          o fotografi viene inviato all&apos;intelligenza artificiale, senza salvarlo.
+          o fotografi viene inviato all&apos;intelligenza artificiale, senza salvarlo. «I tuoi conti» invece salva le
+          voci e le ricevute nel tuo account, perché le ritrovi ovunque.
         </span>
       </p>
 
       <ul className="mt-10 grid gap-4 sm:grid-cols-2">
-        {STRUMENTI.map(({ titolo, testo, Icona, link, ai }) => (
+        {STRUMENTI.map(({ titolo, testo, Icona, link, ai, account }) => (
           <li key={titolo} className="flex flex-col rounded-xl border border-border bg-card p-6">
             <span className="flex size-10 items-center justify-center rounded-lg bg-brand-soft text-brand">
               <Icona className="size-5" />
@@ -123,6 +136,11 @@ export default function PaginaStrumenti() {
               {titolo}
               {ai ? (
                 <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand">con l&apos;AI</span>
+              ) : null}
+              {account ? (
+                <span className="rounded-full border border-border px-2 py-0.5 text-xs font-semibold text-muted">
+                  con l&apos;account
+                </span>
               ) : null}
             </h2>
             <p className="mt-2 flex-1 text-sm text-muted">{testo}</p>

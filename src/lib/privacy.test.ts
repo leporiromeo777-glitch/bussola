@@ -100,6 +100,9 @@ describe("trattamentiAttivi", () => {
       chat: false,
       racconto: false,
       email: false,
+      conti: false,
+      contiLettura: false,
+      contiEmail: false,
       protezioneModuli: false,
       verificaAntiRobot: false,
       statistiche: false,
@@ -131,6 +134,26 @@ describe("trattamentiAttivi", () => {
     expect(trattamentiAttivi({ RESEND_API_KEY: "re_x" }).email).toBe(false);
     expect(trattamentiAttivi({ RESEND_API_KEY: "re_x", EMAIL_MITTENTE: "Bleo <ciao@esempio.ch>" }).email).toBe(true);
     expect(trattamentiAttivi({ RESEND_API_KEY: " ", EMAIL_MITTENTE: "x" }).email).toBe(false);
+  });
+
+  it("«I tuoi conti» richiede Supabase con la chiave segreta; lettura e email hanno bisogno di altro", () => {
+    const segreta = { ...supabase, SUPABASE_SECRET_KEY: "sb_secret_x" };
+    expect(trattamentiAttivi({ ...supabase }).conti).toBe(false);
+    expect(trattamentiAttivi(segreta).conti).toBe(true);
+    expect(trattamentiAttivi(segreta).contiLettura).toBe(false);
+    expect(trattamentiAttivi({ ...segreta, ANTHROPIC_API_KEY: "sk-ant-x" }).contiLettura).toBe(true);
+    expect(trattamentiAttivi({ ...supabase, ANTHROPIC_API_KEY: "sk-ant-x" }).contiLettura).toBe(false);
+
+    const email = {
+      ...segreta,
+      RESEND_API_KEY: "re_x",
+      RESEND_WEBHOOK_SECRET: "whsec_x",
+      RESEND_DOMINIO_RICEZIONE: "abc123.resend.app",
+    };
+    expect(trattamentiAttivi(email).contiEmail).toBe(true);
+    expect(trattamentiAttivi({ ...email, RESEND_WEBHOOK_SECRET: " " }).contiEmail).toBe(false);
+    expect(trattamentiAttivi({ ...email, RESEND_DOMINIO_RICEZIONE: "non valido" }).contiEmail).toBe(false);
+    expect(trattamentiAttivi({ ...email, SUPABASE_SECRET_KEY: "" }).contiEmail).toBe(false);
   });
 
   it("la protezione dei moduli richiede la chiave segreta di Supabase", () => {

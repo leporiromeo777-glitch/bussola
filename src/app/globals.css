@@ -30,6 +30,9 @@
   /* Sfumatura del marchio (verde acqua della bussola → rosso dell'ago). Testo bianco: almeno 4,5:1 su ogni punto. */
   --sfumatura: linear-gradient(100deg, #0f5e6b 0%, #1b6f7d 45%, #b5401a 100%);
   --sul-pulsante: #ffffff;
+  /* Grafico di «I tuoi conti»: entrate e uscite, controllati per daltonismo e contrasto sulla card. */
+  --grafico-entrate: #008aa0;
+  --grafico-uscite: #c4721f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,6 +50,8 @@
     --success: #4cc382;
     --sfumatura: linear-gradient(100deg, #5fb4c0 0%, #86cbd4 45%, #f0a35a 100%);
     --sul-pulsante: #111417;
+    --grafico-entrate: #1fa6b8;
+    --grafico-uscite: #d27a22;
   }
 }
 
@@ -62,6 +67,8 @@
   --color-accent: var(--accent);
   --color-danger: var(--danger);
   --color-success: var(--success);
+  --color-grafico-entrate: var(--grafico-entrate);
+  --color-grafico-uscite: var(--grafico-uscite);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-titoli: var(--font-titoli-caricato);

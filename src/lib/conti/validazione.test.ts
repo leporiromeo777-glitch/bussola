@@ -28,7 +28,8 @@ describe("leggiNuovoMovimento", () => {
   });
 
   it("la controparte è facoltativa e vuota diventa null", () => {
-    const { controparte: _, ...senza } = movimento;
+    const senza: Record<string, unknown> = { ...movimento };
+    delete senza.controparte;
     expect(leggiNuovoMovimento(senza)).toMatchObject({ ok: true, dati: { controparte: null } });
     expect(leggiNuovoMovimento({ ...movimento, controparte: " " })).toMatchObject({ ok: true, dati: { controparte: null } });
   });
@@ -99,7 +100,9 @@ describe("fatture", () => {
       ok: true,
       dati: { scadenza: null, riferimento: null },
     });
-    const { scadenza: _s, riferimento: _r, ...minima } = fattura;
+    const minima: Record<string, unknown> = { ...fattura };
+    delete minima.scadenza;
+    delete minima.riferimento;
     expect(leggiNuovaFattura(minima)).toMatchObject({ ok: true, dati: { scadenza: null, riferimento: null } });
   });
 

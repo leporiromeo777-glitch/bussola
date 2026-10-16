@@ -13,6 +13,7 @@ import {
   duplicaDocumento,
   elementiObbligatoriIva,
   emittenteVuoto,
+  fatturaPerConti,
   NOMI_TIPO,
   nuovoDocumento,
   preventivoInFattura,
@@ -40,6 +41,7 @@ import {
 } from "../ui";
 import { AnteprimaDocumento } from "./anteprima-documento";
 import { ModuloDocumento } from "./modulo-documento";
+import { RegistraNeiConti, type AccessoConti } from "./registra-conti";
 
 const nessunDocumento = (): Documento[] => [];
 
@@ -55,7 +57,16 @@ function mostraNellUrl(id: string | null) {
   window.history.replaceState(null, "", url);
 }
 
-export function GestioneDocumenti({ tipo, idIniziale }: { tipo: TipoDocumento; idIniziale: string | null }) {
+export function GestioneDocumenti({
+  tipo,
+  idIniziale,
+  accessoConti = null,
+}: {
+  tipo: TipoDocumento;
+  idIniziale: string | null;
+  /** Solo per le fatture: «Registra in I tuoi conti» (null se i conti non sono attivi). */
+  accessoConti?: AccessoConti;
+}) {
   const router = useRouter();
   const [documenti, aggiornaDocumenti] = useArchivio(CHIAVI_ARCHIVIO.documenti, schemaElencoDocumenti, nessunDocumento);
   const [profilo, aggiornaProfilo] = useArchivio(CHIAVI_ARCHIVIO.emittente, schemaEmittente, emittenteVuoto);
@@ -215,6 +226,7 @@ export function GestioneDocumenti({ tipo, idIniziale }: { tipo: TipoDocumento; i
           onEmittente={(m) => aggiornaEmittente(doc.id, m)}
           onDuplica={() => duplica(doc)}
           onInFattura={tipo === "preventivo" ? () => inFattura(doc) : undefined}
+          accessoConti={tipo === "fattura" ? accessoConti : null}
         />
       ) : null}
 
@@ -229,12 +241,14 @@ function Editor({
   onEmittente,
   onDuplica,
   onInFattura,
+  accessoConti,
 }: {
   doc: Documento;
   onCambia: (m: (d: Documento) => Documento) => void;
   onEmittente: (m: Partial<Emittente>) => void;
   onDuplica: () => void;
   onInFattura?: () => void;
+  accessoConti: AccessoConti;
 }) {
   const problemi = controllaDocumento(doc);
   const nomi = NOMI_TIPO[doc.tipo];
@@ -320,6 +334,10 @@ function Editor({
             </div>
           )}
         </div>
+
+        {doc.tipo === "fattura" ? (
+          <RegistraNeiConti key={JSON.stringify(fatturaPerConti(doc))} doc={doc} pronta={problemi.length === 0} accesso={accessoConti} />
+        ) : null}
 
         <AnteprimaDocumento doc={doc} />
       </section>

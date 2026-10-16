@@ -64,4 +64,5 @@ export const navigazione = [
   { href: "/percorso", etichetta: "Il tuo percorso" },
   { href: "/chat", etichetta: "Chiedi a Bleo" },
   { href: "/strumenti", etichetta: "Strumenti" },
+  { href: "/conti", etichetta: "Conti" },
 ] as const;

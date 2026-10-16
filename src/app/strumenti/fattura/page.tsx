@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { GestioneDocumenti } from "@/components/strumenti/documenti/gestione-documenti";
 import { IntestazioneStrumento } from "@/components/strumenti/intestazione";
+import { supabaseConfigured } from "@/lib/supabase/env";
+import { getUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Fattura con QR-fattura",
@@ -10,6 +12,8 @@ export const metadata: Metadata = {
 
 export default async function PaginaFattura({ searchParams }: PageProps<"/strumenti/fattura">) {
   const { doc } = await searchParams;
+  // «Registra in I tuoi conti» solo con Supabase configurato; senza accesso un invito ad accedere.
+  const accessoConti = supabaseConfigured() ? ((await getUser()) ? "collegato" : "ospite") : null;
   return (
     <>
       <IntestazioneStrumento
@@ -21,7 +25,11 @@ export default async function PaginaFattura({ searchParams }: PageProps<"/strume
           </p>
         }
       />
-      <GestioneDocumenti tipo="fattura" idIniziale={typeof doc === "string" ? doc : null} />
+      <GestioneDocumenti
+        tipo="fattura"
+        idIniziale={typeof doc === "string" ? doc : null}
+        accessoConti={accessoConti}
+      />
     </>
   );
 }

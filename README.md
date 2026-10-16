@@ -21,6 +21,7 @@ Il kit per le settimane 1-2 (interviste, messaggi, social, lettere) è in
 | Chat con fonti ufficiali e citazioni | `/chat`, `src/app/api/chat`, `src/lib/chat` | pronta (servono Supabase e Claude) |
 | Import delle fonti ufficiali | `scripts/importa-fonti.ts`, `supabase/fonti/elenco.json` | pronto, fonti da ricontrollare a mano |
 | Strumenti: tariffa oraria, budget, business plan, preventivo, fattura con QR | `/strumenti`, `src/lib/strumenti` | pronti (dati solo nel browser) |
+| «I tuoi conti»: entrate, uscite, fatture emesse, ricevute lette da Claude, email inoltrate, CSV | `/conti`, `src/app/api/conti`, `src/lib/conti` | fase 1 pronta (servono Supabase; Claude e Resend facoltativi) |
 | Pagamenti (Stripe + TWINT), scadenzario via email | | settimane 12-13 del piano |
 
 Tutti i numeri ufficiali (soglie, aliquote, contributi, uffici) stanno in
@@ -128,6 +129,36 @@ in caso di rifiuto e risponde solo da quei documenti.
 Facoltativo: con `RESEND_API_KEY` ed `EMAIL_MITTENTE` (dominio verificato su
 Resend) parte l'email di conferma con il link per disiscriversi. Senza, le
 iscrizioni vengono salvate lo stesso.
+
+### «I tuoi conti» (ricevute e email inoltrate)
+
+1. Esegui la migrazione `20261017000000_conti.sql` (crea le tabelle `conti_*`,
+   il bucket privato `ricevute` dello Storage con le sue regole e aggiorna la
+   pulizia giornaliera). Servono `SUPABASE_SECRET_KEY` (limiti, indirizzi
+   email, cancellazione dei file con l'account) e, per leggere le ricevute,
+   `ANTHROPIC_API_KEY`. Il modello si cambia con `ANTHROPIC_MODEL_RICEVUTE`
+   (predefinito lo stesso modello economico di «Racconta a Bleo»: le email
+   arrivano da sole e conta il costo).
+   Senza Claude le ricevute si salvano lo stesso e i campi li scrive l'utente.
+2. Ricezione delle email (facoltativa), con Resend:
+   - in *Emails > Receiving* prendi il dominio `<id>.resend.app` (oppure
+     configura un tuo dominio con il record MX) e mettilo in
+     `RESEND_DOMINIO_RICEZIONE`;
+   - in *Webhooks > Add Webhook* crea un webhook con URL
+     `https://<dominio del sito>/api/conti/email-in` e solo l'evento
+     `email.received`; copia il segreto di firma (`whsec_…`) in
+     `RESEND_WEBHOOK_SECRET`;
+   - `RESEND_API_KEY` deve poter leggere le email ricevute (API
+     `GET /emails/receiving/{id}` e `/attachments`): usa una chiave con
+     accesso completo, non solo «invio».
+   Ogni utente riceve un indirizzo `ricevute-<codice>@<dominio>`; la pagina
+   `/conti` spiega come inoltrare da Gmail (con il codice di conferma
+   mostrato da Bleo) e da Outlook. Il webhook verifica la firma (Svix),
+   risponde subito e legge al massimo 5 allegati per email dopo la risposta
+   (`after()`), entro `maxDuration = 60` secondi: verifica che il piano
+   dell'hosting lo consenta.
+3. Le app usano le stesse API con `Authorization: Bearer`. `DELETE
+   /api/account` cancella anche i file dello Storage prima dell'utente.
 
 ### Dati del titolare
 
