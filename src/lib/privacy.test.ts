@@ -51,7 +51,8 @@ describe("fornitoreHosting", () => {
 describe("GARANZIE_USA", () => {
   it("indica per ogni fornitore la certificazione DPF o le clausole standard", () => {
     for (const garanzia of Object.values(GARANZIE_USA)) {
-      expect(garanzia).toMatch(/Swiss-U\.S\. Data Privacy Framework|clausole contrattuali standard \(art\. 16 cpv\. 2 lett\. d LPD\)/);
+      expect(garanzia).toMatch(/Swiss-U\.S\. Data Privacy Framework|clausole contrattuali standard dell'UE con l'adeguamento per la Svizzera \(art\. 16 cpv\. 2 lett\. d LPD\)/);
+      expect(garanzia).not.toMatch(/\[/);
     }
     expect(ELENCO_DPF.url).toMatch(/^https:\/\//);
     expect(ELENCO_DPF.verificatoIl).toMatch(/^\d{4}-\d{2}-\d{2}$/);
@@ -59,14 +60,11 @@ describe("GARANZIE_USA", () => {
 });
 
 describe("informativaDa", () => {
-  it("è incompleta finché resta una parte tra parentesi quadre", () => {
-    const informativa = informativaDa({ regioneDati: "svizzera", hosting: "vercel", titolare: titolareCompleto });
-    // Le clausole standard e la durata dei log vanno ancora confermate a mano.
-    expect(informativa.incompleta).toBe(true);
-    expect(informativa.daCompletare).toContain("durata dei dati tecnici");
-    expect(informativa.daCompletare).toContain("garanzia per gli USA di anthropic");
-    expect(informativa.daCompletare).not.toContain("fornitore di hosting");
-    expect(informativa.daCompletare).not.toContain("dati del titolare");
+  it("è completa con titolare, regione e hosting indicati", () => {
+    const informativa = informativaDa({ regioneDati: "svizzera", hosting: "netlify", titolare: titolareCompleto });
+    // Garanzie per l'estero e durata dei log sono state verificate il 16.10.2026.
+    expect(informativa.daCompletare).toEqual([]);
+    expect(informativa.incompleta).toBe(false);
   });
 
   it("segnala titolare, regione e hosting mancanti", () => {

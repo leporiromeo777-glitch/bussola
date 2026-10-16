@@ -28,7 +28,7 @@ const IFPDT = "https://www.edoeb.admin.ch/it";
 
 /** Garanzia per i dati comunicati negli Stati Uniti (LPD art. 19 cpv. 4). */
 function GaranziaUsa({ testo }: { testo: string }) {
-  return <> Garanzia per i dati negli USA: {testo}.</>;
+  return <> Garanzia per i dati comunicati fuori dalla Svizzera e dall&apos;UE: {testo}.</>;
 }
 
 export default function PaginaPrivacy() {
@@ -219,8 +219,10 @@ export default function PaginaPrivacy() {
         </p>
         <ul>
           <li>
-            <strong>Supabase, Inc. (USA)</strong>: database e accesso all&apos;account (compresa l&apos;email con il
-            link di accesso). I dati sono salvati su server {luogoDati}.
+            <strong>Supabase Pte. Ltd. (Singapore)</strong>: database e accesso all&apos;account (compresa
+            l&apos;email con il link di accesso). I dati sono salvati su server {luogoDati}; per assistenza e
+            manutenzione possono essere consultati da Supabase a Singapore e da suoi fornitori negli Stati Uniti,
+            tra cui Supabase, Inc.
             <GaranziaUsa testo={GARANZIE_USA.supabase} />
           </li>
           <li>
@@ -228,14 +230,17 @@ export default function PaginaPrivacy() {
             {hosting.garanzia ? <GaranziaUsa testo={hosting.garanzia} /> : null}
           </li>
           <li>
-            <strong>Anthropic, PBC (USA)</strong>: genera le risposte della chat. Riceve la tua domanda, al massimo
-            le {SCAMBI_PRECEDENTI_MASSIMI} domande e risposte precedenti della stessa conversazione e i testi delle
-            fonti pubbliche trovate per rispondere; non riceve la tua email né altri dati dell&apos;account.
+            <strong>Anthropic Ireland, Limited (Irlanda), con Anthropic, PBC (USA)</strong>: genera le risposte
+            della chat. Riceve la tua domanda, al massimo le {SCAMBI_PRECEDENTI_MASSIMI} domande e risposte precedenti
+            della stessa conversazione e i testi delle fonti pubbliche trovate per rispondere; non riceve la tua
+            email né altri dati dell&apos;account. Questi dati sono conservati negli Stati Uniti e cancellati da
+            Anthropic entro 30 giorni.
             <GaranziaUsa testo={GARANZIE_USA.anthropic} />
           </li>
           <li>
-            <strong>Resend (USA)</strong>: invia le email della lista d&apos;attesa (conferma e aggiornamenti).
-            Riceve il tuo indirizzo email e il testo dell&apos;email.
+            <strong>Resend (Plus Five Five, Inc., USA)</strong>: invia le email della lista d&apos;attesa (conferma e
+            aggiornamenti). Riceve il tuo indirizzo email e il testo dell&apos;email, e conserva i dati degli invii
+            negli Stati Uniti per 30 giorni.
             <GaranziaUsa testo={GARANZIE_USA.resend} />
           </li>
           {verificaAntiRobotAttiva ? (

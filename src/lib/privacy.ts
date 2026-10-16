@@ -45,19 +45,23 @@ export const OPDA = "https://www.fedlex.admin.ch/eli/cc/2022/568/it";
 const CERTIFICATO_DPF = "certificazione secondo lo Swiss-U.S. Data Privacy Framework";
 
 /*
- * Clausole tipo riconosciute dall'IFPDT (LPD art. 16 cpv. 2 lett. d). Per
- * togliere la parte tra parentesi quadre: accetta il contratto sul
- * trattamento dei dati (DPA) del fornitore con le clausole tipo e
- * l'adeguamento per la Svizzera, e conserva una copia.
+ * Clausole tipo riconosciute dall'IFPDT (LPD art. 16 cpv. 2 lett. d).
+ * Verificato il 16.10.2026 sui contratti sul trattamento dei dati (DPA) di
+ * Supabase, Anthropic e Resend: incorporano le clausole standard dell'UE con
+ * l'adeguamento per la Svizzera e si accettano in automatico con i termini di
+ * servizio (https://supabase.com/legal/customer-resources/data-processing-addendum,
+ * https://www.anthropic.com/legal/data-processing-addendum,
+ * https://resend.com/legal/dpa). Conserva una copia in PDF di ciascun DPA.
  */
 const CLAUSOLE_TIPO =
-  "clausole contrattuali standard (art. 16 cpv. 2 lett. d LPD) [da confermare prima del lancio]";
+  "clausole contrattuali standard dell'UE con l'adeguamento per la Svizzera (art. 16 cpv. 2 lett. d LPD), previste dal contratto sul trattamento dei dati del fornitore";
 
 /**
  * Garanzia per i dati comunicati negli Stati Uniti, fornitore per fornitore
- * (LPD art. 19 cpv. 4). Controllato su ELENCO_DPF il 15.10.2026: Vercel e
- * Netlify hanno la certificazione Swiss-U.S. attiva; Supabase e Anthropic non
- * sono nell'elenco; Resend è certificata solo EU-U.S. e UK, non Swiss-U.S.
+ * (LPD art. 19 cpv. 4). Controllato su ELENCO_DPF il 15 e il 16.10.2026:
+ * Vercel e Netlify hanno la certificazione Swiss-U.S. attiva (Netlify fino
+ * al 17.12.2026, poi va ricontrollata); Supabase e Anthropic non sono
+ * nell'elenco; Resend è certificata solo EU-U.S. e UK, non Swiss-U.S.
  * Ricontrolla prima del lancio: le certificazioni scadono ogni anno.
  */
 export const GARANZIE_USA = {
@@ -89,11 +93,13 @@ export function fornitoreHosting(hosting: string | undefined): Fornitore {
 }
 
 /*
- * Per quanto tempo l'hosting e il database tengono i registri tecnici (log):
- * dipende dal piano scelto. Scrivi la durata e togli la parte tra parentesi.
+ * Per quanto tempo l'hosting e il database tengono i registri tecnici (log),
+ * con i piani gratuiti. Verificato il 16.10.2026 su
+ * https://www.netlify.com/pricing/, https://supabase.com/pricing e sul DPA di
+ * Netlify (Exhibit II). Se passi a un piano a pagamento le durate cambiano.
  */
 export const DURATA_DATI_TECNICI =
-  "per il tempo previsto dal fornitore di hosting e del database [durata da indicare prima del lancio]";
+  "i registri tecnici (che possono contenere l'indirizzo IP) restano consultabili per 24 ore su Netlify e per 1 giorno su Supabase con i piani gratuiti; i registri di sicurezza dei propri sistemi Netlify li conserva fino a 90 giorni online e 1 anno in archivio";
 
 export type InformativaPrivacy = {
   luogoDati: string;
