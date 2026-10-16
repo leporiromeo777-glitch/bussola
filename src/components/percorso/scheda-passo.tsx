@@ -13,7 +13,7 @@ const ETICHETTE_STATO: Record<StatoPasso, string> = {
   non_serve: "Non ti riguarda",
 };
 
-/** Link a "Chiedi a Bussola" con la domanda precompilata. */
+/** Link a "Chiedi a Bleo" con la domanda precompilata. */
 export function hrefChiedi(domanda: string): string {
   return `/chat?domanda=${encodeURIComponent(domanda)}`;
 }
@@ -148,7 +148,7 @@ export function SchedaPasso({
                 className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium hover:border-brand"
               >
                 <IconaChat className="size-4" />
-                Chiedi a Bussola
+                Chiedi a Bleo
               </Link>
             </div>
             <p className="hidden text-sm print:block">

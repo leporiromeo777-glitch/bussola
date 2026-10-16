@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ImmagineMascotte, OUTFIT } from "@/components/mascotte/immagine";
+import { sito } from "@/lib/sito";
 import { classePulsanteSecondario, Sezione } from "./sezione";
 
 /** Presenta la mascotte e i suoi vestiti: nel percorso l'utente la veste come vuole. */
@@ -8,12 +9,12 @@ export function Compagno() {
     <Sezione
       id="compagno"
       sopratitolo="Il tuo compagno di viaggio"
-      titolo="Un compagno che ti accompagna passo per passo"
+      titolo={`Ti presento ${sito.mascotte}, che ti accompagna passo per passo`}
       sfondo="brand"
       introduzione={
         <p>
-          Nel percorso ti segue un piccolo compagno, con la bussolina che indica il prossimo passo. Vestilo come vuoi:
-          cappellino, berretto, occhiali, sciarpa.
+          Nel percorso {sito.mascotte} è sempre con te, con la bussolina che indica il prossimo passo. Puoi vestire
+          {sito.mascotte} come vuoi: cappellino, berretto, occhiali, sciarpa.
         </p>
       }
       illustrazione={<ImmagineMascotte nome="coppia" sizes="176px" className="h-auto w-full" />}
@@ -27,7 +28,7 @@ export function Compagno() {
       </ul>
       <p className="mt-6">
         <Link href="/percorso#titolo-guardaroba" className={classePulsanteSecondario}>
-          Vestilo nel tuo percorso
+          Vesti {sito.mascotte} nel tuo percorso
         </Link>
       </p>
     </Sezione>

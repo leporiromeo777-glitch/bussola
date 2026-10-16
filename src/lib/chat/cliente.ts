@@ -23,7 +23,7 @@ type Opzioni = {
  * Manda la domanda a /api/chat e legge la risposta NDJSON man mano che
  * arriva. Restituisce l'evento finale o un errore già pronto da mostrare.
  */
-export async function chiediABussola({
+export async function chiediABleo({
   domanda,
   cronologia,
   segnale,

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
-import { chiediABussola, type EventoFine } from "@/lib/chat/cliente";
+import { chiediABleo, type EventoFine } from "@/lib/chat/cliente";
 import { LUNGHEZZA_MASSIMA_DOMANDA, LUNGHEZZA_MINIMA_DOMANDA, SCAMBI_PRECEDENTI_MASSIMI } from "@/lib/chat/limiti";
 import { testoSemplice } from "@/lib/chat/testo-risposta";
 import type { QuotaPubblica, ScambioPrecedente } from "@/lib/chat/tipi";
@@ -75,11 +75,11 @@ export function Chat({
     ]);
     setBozza("");
     setInCorso(true);
-    setAnnuncio("Bussola sta cercando nelle fonti ufficiali…");
+    setAnnuncio("Bleo sta cercando nelle fonti ufficiali…");
 
     const controllo = new AbortController();
     interruzione.current = controllo;
-    const esito = await chiediABussola({
+    const esito = await chiediABleo({
       domanda,
       cronologia,
       segnale: controllo.signal,
@@ -198,7 +198,7 @@ export function Chat({
         </div>
       </form>
       <p className="mt-3 text-xs text-muted">
-        Bussola può sbagliare: apri sempre la fonte per controllare. Per il tuo caso personale rivolgiti a un
+        Bleo può sbagliare: apri sempre la fonte per controllare. Per il tuo caso personale rivolgiti a un
         fiduciario autorizzato.
       </p>
     </div>
@@ -218,7 +218,7 @@ function Scambio({ messaggio: m }: { messaggio: Messaggio }) {
         className="mt-3 rounded-2xl rounded-bl-sm border border-border bg-card p-4"
         aria-busy={m.stato === "in_attesa" || m.stato === "in_scrittura"}
       >
-        <p className="sr-only">Bussola:</p>
+        <p className="sr-only">Bleo:</p>
         {m.stato === "in_attesa" ? (
           <p className="text-muted motion-safe:animate-pulse">Cerco nelle fonti ufficiali…</p>
         ) : null}

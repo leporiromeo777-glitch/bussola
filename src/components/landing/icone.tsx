@@ -21,8 +21,8 @@ function Icona({ className = "size-5", children }: PropsIcona & { children: Reac
   );
 }
 
-/** Il marchio di Bussola: una rosa dei venti essenziale. */
-export function IconaBussola({ className = "size-6" }: PropsIcona) {
+/** Il marchio di Bleo: una rosa dei venti essenziale. */
+export function IconaBleo({ className = "size-6" }: PropsIcona) {
   return (
     <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false" className={className}>
       <circle cx="16" cy="16" r="13.5" fill="none" stroke="currentColor" strokeWidth="2.5" />

@@ -71,7 +71,7 @@ export default function PaginaStrumenti() {
         <IconaDispositivo className="mt-0.5 size-5 shrink-0 text-brand" />
         <span>
           <strong className="font-semibold">I tuoi dati restano su questo dispositivo.</strong> Gli strumenti salvano
-          quello che scrivi solo nel tuo browser: Bussola non lo riceve. Se cambi dispositivo o cancelli i dati del
+          quello che scrivi solo nel tuo browser: Bleo non lo riceve. Se cambi dispositivo o cancelli i dati del
           browser, li perdi.
         </span>
       </p>

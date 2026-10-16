@@ -28,7 +28,7 @@ export function Hero() {
             Dall&apos;idea alla tua ditta individuale aperta e alla prima fattura, passo per passo.
           </h1>
           <p className="mt-5 text-lg text-muted">
-            Bussola è il mentore che ti dice cosa fare e in che ordine. In italiano, senza giri di parole.
+            Bleo è il mentore che ti dice cosa fare e in che ordine. In italiano, senza giri di parole.
           </p>
           <ul className="mt-6 space-y-3">
             {PROMESSE.map((p) => (

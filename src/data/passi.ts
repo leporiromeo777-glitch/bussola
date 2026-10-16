@@ -4,7 +4,7 @@
  * scadenze vengono da src/data/svizzera.ts. Quali passi valgono per chi, e
  * perché, lo decide src/lib/percorso/regole.ts.
  *
- * Tempi stimati: indicazioni di Bussola per orientarsi, non dati ufficiali.
+ * Tempi stimati: indicazioni di Bleo per orientarsi, non dati ufficiali.
  */
 import {
   aliquoteIva,
@@ -45,7 +45,7 @@ export type Passo = {
   tempoStimato?: string;
   /** Solo costi con fonte ufficiale. */
   costoNoto?: { testo: string; fonte: Fonte };
-  /** Domanda precompilata per "Chiedi a Bussola". */
+  /** Domanda precompilata per "Chiedi a Bleo". */
   domandaChat: string;
 };
 
@@ -86,7 +86,7 @@ export const PASSI = [
     id: "soci-forma-giuridica",
     fase: "prima di iniziare",
     titolo: "Con dei soci: scegli la forma giusta",
-    descrizione: `Una ditta individuale ha un solo titolare. Se partite in più persone, una forma possibile è la Sagl: serve un capitale di almeno ${chf(regole.capitaleMinimoSagl.valore)}, da versare per intero, un atto pubblico dal notaio e l'iscrizione nel registro di commercio. Il percorso per la Sagl arriverà in Bussola più avanti.`,
+    descrizione: `Una ditta individuale ha un solo titolare. Se partite in più persone, una forma possibile è la Sagl: serve un capitale di almeno ${chf(regole.capitaleMinimoSagl.valore)}, da versare per intero, un atto pubblico dal notaio e l'iscrizione nel registro di commercio. Il percorso per la Sagl arriverà in Bleo più avanti.`,
     cosaFare: [
       "Seguite la check list ufficiale del Portale PMI per creare una Sagl.",
       "Chiedete un preventivo a un notaio e, per il vostro caso, a un fiduciario autorizzato (trovi l'elenco nell'albo online del Cantone).",
@@ -421,7 +421,7 @@ export const PASSI = [
       "Registra ogni entrata e ogni uscita con il suo giustificativo (fattura, ricevuta, estratto conto).",
       "A fine anno prepara gli elenchi di attivi e passivi, di entrate e uscite e dei prelevamenti e apporti privati: servono per la dichiarazione d'imposta.",
       `Conserva libri e documenti per ${regolePercorso.conservazioneDocumentiAnni.valore} anni dalla fine dell'esercizio, su carta o in digitale.`,
-      "Bussola non tiene la contabilità per te: se vuoi farla fare, rivolgiti a un fiduciario autorizzato.",
+      "Bleo non tiene la contabilità per te: se vuoi farla fare, rivolgiti a un fiduciario autorizzato.",
     ],
     link: { etichetta: "Codice delle obbligazioni, art. 957", url: fonti.co957.url },
     fonti: [fonti.co957, fonti.co958f, fontiPercorso.lifd125, fonti.albofiduciari],
@@ -462,7 +462,7 @@ export const PASSI = [
     cosaFare: [
       "Chiedi all'Ufficio esazione e condoni le polizze per pagamenti volontari, indicando il reddito e la sostanza che prevedi.",
       `${esazione.nome}, ${esazione.indirizzo}, tel. ${esazione.telefono}, ${esazione.email}.`,
-      "Quanto mettere da parte dipende dal tuo reddito e dal tuo Comune: Bussola non calcola le tue imposte. Per una stima personale rivolgiti a un fiduciario autorizzato.",
+      "Quanto mettere da parte dipende dal tuo reddito e dal tuo Comune: Bleo non calcola le tue imposte. Per una stima personale rivolgiti a un fiduciario autorizzato.",
     ],
     link: {
       etichetta: "Richiesta d'acconto (Divisione delle contribuzioni)",
@@ -518,7 +518,7 @@ export const PASSI = [
       "Senza contabilità commerciale: compila il Modulo 10 «Questionario per indipendenti senza contabilità» e allega le distinte firmate di attivi e passivi, entrate e uscite, apporti e prelevamenti privati.",
       "Con la contabilità commerciale: allega i conti annuali firmati (bilancio e conto economico).",
       "Consegna la dichiarazione entro il termine scritto a pagina 1. Va consegnata anche se non hai ricevuto il modulo. Puoi inviarla online con eTax PF.",
-      "Bussola non compila dichiarazioni: per farti aiutare rivolgiti a un fiduciario autorizzato.",
+      "Bleo non compila dichiarazioni: per farti aiutare rivolgiti a un fiduciario autorizzato.",
     ],
     link: { etichetta: "Moduli della dichiarazione (Ticino)", url: fontiPercorso.dcModuliPf.url },
     fonti: [

@@ -1,6 +1,6 @@
 /**
  * Salvataggio degli strumenti nel browser (localStorage). I dati restano sul
- * dispositivo dell'utente: Bussola non li riceve. Qui c'è la parte pura
+ * dispositivo dell'utente: Bleo non li riceve. Qui c'è la parte pura
  * (chiavi, codifica e lettura sicura); l'aggancio a React è in
  * src/components/strumenti/usa-archivio.ts.
  */

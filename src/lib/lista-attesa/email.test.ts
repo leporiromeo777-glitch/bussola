@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { componiEmailConferma, escapeHtml, linkConferma, linkDisiscrizione, type Mittente } from "./email";
 
 const mittente: Mittente = {
-  nomeSito: "Bussola",
+  nomeSito: "Bleo",
   urlSito: "https://bussola.example",
   titolare: { nome: "Maria Esempio", indirizzo: "Via Esempio 1, 6900 Lugano", email: "ciao@bussola.example" },
 };
@@ -32,7 +32,7 @@ describe("componiEmailConferma", () => {
       expect(corpo).toContain(`https://bussola.example/lista-attesa/conferma?token=${token}`);
       expect(corpo).toContain(`https://bussola.example/lista-attesa/disiscriviti?token=${token}`);
     }
-    expect(email.oggetto).toBe("Conferma la tua iscrizione alla lista d'attesa di Bussola");
+    expect(email.oggetto).toBe("Conferma la tua iscrizione alla lista d'attesa di Bleo");
     expect(email.intestazioni["List-Unsubscribe"]).toBe(
       `<https://bussola.example/lista-attesa/disiscriviti?token=${token}>`,
     );

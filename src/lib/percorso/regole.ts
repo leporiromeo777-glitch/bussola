@@ -5,7 +5,7 @@
  * passi da src/data/passi.ts.
  *
  * Il tono è quello dell'informazione generale ("di regola", "da verificare
- * con"): Bussola non dà consulenza personalizzata (LFid ticinese).
+ * con"): Bleo non dà consulenza personalizzata (LFid ticinese).
  */
 import { FASI, PASSI, type IdPasso, type Passo } from "@/data/passi";
 import {
@@ -132,7 +132,7 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
       ? {
           stato: "da_fare",
           perche:
-            "Parti con dei soci: la ditta individuale non basta e il percorso Sagl di Bussola arriverà più avanti.",
+            "Parti con dei soci: la ditta individuale non basta e il percorso Sagl di Bleo arriverà più avanti.",
         }
       : { stato: "non_serve", perche: "Parti da solo: la ditta individuale ha un solo titolare, cioè tu." },
 
@@ -556,7 +556,7 @@ function calcolaAvvisi(r: Risposte): Avviso[] {
       id: "soci",
       livello: "importante",
       titolo: "Con dei soci la ditta individuale non basta",
-      testo: `La ditta individuale ha un solo titolare. Per partire insieme serve un'altra forma, per esempio una Sagl: almeno ${chf(regole.capitaleMinimoSagl.valore)} di capitale versato per intero e un atto pubblico dal notaio. Il percorso Sagl di Bussola arriverà più avanti: intanto segui la check list del Portale PMI e rivolgiti a un notaio o a un fiduciario autorizzato.`,
+      testo: `La ditta individuale ha un solo titolare. Per partire insieme serve un'altra forma, per esempio una Sagl: almeno ${chf(regole.capitaleMinimoSagl.valore)} di capitale versato per intero e un atto pubblico dal notaio. Il percorso Sagl di Bleo arriverà più avanti: intanto segui la check list del Portale PMI e rivolgiti a un notaio o a un fiduciario autorizzato.`,
       fonti: [fonti.pmiDittaIndividuale, fonti.co773, fontiPercorso.co777c, fonti.pmiChecklist],
     });
   }
@@ -684,7 +684,7 @@ function calcolaAvvisi(r: Risposte): Avviso[] {
       livello: "info",
       titolo: "Grigioni: alcune indicazioni sono solo per il Ticino",
       testo:
-        "Le regole federali (AVS, IVA, registro di commercio) valgono anche per te. Imposte, moduli e autorizzazioni del Cantone dei Grigioni non sono ancora nelle fonti di Bussola: verificali con gli uffici cantonali.",
+        "Le regole federali (AVS, IVA, registro di commercio) valgono anche per te. Imposte, moduli e autorizzazioni del Cantone dei Grigioni non sono ancora nelle fonti di Bleo: verificali con gli uffici cantonali.",
       fonti: [fonti.avsCasseCantonali, fontiPercorso.zefixUffici],
     });
   }
@@ -693,7 +693,7 @@ function calcolaAvvisi(r: Risposte): Avviso[] {
     avvisi.push({
       id: "fuori-zona",
       livello: "info",
-      titolo: "Bussola per ora copre Ticino e Grigioni italiano",
+      titolo: "Bleo per ora copre Ticino e Grigioni italiano",
       testo:
         "Le regole federali (AVS, IVA, registro di commercio, Codice delle obbligazioni) valgono anche per te. Uffici, moduli, imposte e autorizzazioni cantonali sono diversi: verificali con il tuo Cantone.",
       fonti: [fontiPercorso.pmiMettersiInProprio, fonti.avsCasseCantonali, fontiPercorso.zefixUffici],

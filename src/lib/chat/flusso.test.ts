@@ -128,7 +128,7 @@ describe("rispondi", () => {
     expect(f.annullate).toEqual([]);
 
     const richiesta = f.richieste[0];
-    expect(richiesta?.istruzioni).toContain("Sei Bussola");
+    expect(richiesta?.istruzioni).toContain("Sei Bleo");
     expect(richiesta?.contenuto.filter((b) => b.type === "document")).toHaveLength(3);
   });
 

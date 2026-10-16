@@ -34,12 +34,12 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
       <>
         {valoreSegnaposto(sito.titolare.nome) ? (
           <>
-            Bussola è un progetto indipendente, nato da chi sta affrontando adesso gli stessi passi e costruisce il
+            Bleo è un progetto indipendente, nato da chi sta affrontando adesso gli stessi passi e costruisce il
             prodotto con l&apos;aiuto dell&apos;intelligenza artificiale.
           </>
         ) : (
           <>
-            Bussola è un progetto di {sito.titolare.nome}, che sta affrontando adesso gli stessi passi e costruisce il
+            Bleo è un progetto di {sito.titolare.nome}, che sta affrontando adesso gli stessi passi e costruisce il
             prodotto con l&apos;aiuto dell&apos;intelligenza artificiale.
           </>
         )}{" "}
@@ -55,7 +55,7 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
     domanda: "Funziona anche fuori dal Ticino?",
     risposta: (
       <>
-        Per ora Bussola è pensato per la Svizzera italiana: Ticino e Grigioni italiano. Molte regole sono federali, ma
+        Per ora Bleo è pensato per la Svizzera italiana: Ticino e Grigioni italiano. Molte regole sono federali, ma
         quelle cantonali cambiano da un Cantone all&apos;altro: il resto della Svizzera arriverà dopo. Se sei in un
         altro Cantone iscriviti comunque: ci aiuta a capire dove andare.
       </>
@@ -65,7 +65,7 @@ const DOMANDE: { domanda: string; risposta: ReactNode }[] = [
     domanda: "Sostituisce il fiduciario?",
     risposta: (
       <>
-        No. Bussola ti dà informazioni generali con la fonte ufficiale e strumenti che compili tu (tariffa, budget, preventivo, fattura), ma non
+        No. Bleo ti dà informazioni generali con la fonte ufficiale e strumenti che compili tu (tariffa, budget, preventivo, fattura), ma non
         compila dichiarazioni d&apos;imposta e non tiene la contabilità per te. Quando il tuo caso è particolare te lo
         dice e ti consiglia di rivolgerti a un fiduciario autorizzato.
       </>

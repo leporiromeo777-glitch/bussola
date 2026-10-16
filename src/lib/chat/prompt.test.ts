@@ -65,7 +65,7 @@ describe("costruisciContenuto", () => {
     expect(contenuto.map((b) => b.type)).toEqual(["document", "document", "text", "text"]);
     const precedente = contenuto[2];
     expect(precedente?.type === "text" && precedente.text).toContain("Conversazione precedente");
-    expect(precedente?.type === "text" && precedente.text).toContain("Domanda: Quanto costa?\nRisposta di Bussola: CHF 80.");
+    expect(precedente?.type === "text" && precedente.text).toContain("Domanda: Quanto costa?\nRisposta di Bleo: CHF 80.");
   });
 });
 

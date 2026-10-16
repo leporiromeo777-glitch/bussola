@@ -1,6 +1,6 @@
-# Bussola
+# Bleo
 
-Bussola (nome provvisorio) è un mentore per chi apre un'attività nella Svizzera
+Bleo è un mentore per chi apre un'attività nella Svizzera
 italiana. Porta dall'idea alla ditta individuale aperta e alla prima fattura,
 con un percorso personale, risposte che citano sempre la fonte ufficiale e
 documenti pronti.
@@ -174,11 +174,13 @@ Le regole per chi lavora sul codice (anche per gli agenti AI) sono in
 
 ## Limiti da conoscere
 
-- Bussola dà **informazioni generali con fonti**, non consulenza. In Ticino la
+- Bleo dà **informazioni generali con fonti**, non consulenza. In Ticino la
   consulenza fiscale e aziendale per conto di terzi richiede l'autorizzazione
   LFid: prima del lancio va chiesto l'accertamento all'autorità di vigilanza
   (lettera in `docs/kit-settimane-1-2/`).
 - Privacy e impressum sono bozze: vanno fatte rivedere da un giurista.
 - Le fonti importate automaticamente vanno ricontrollate a mano.
-- Il nome "Bussola" ha conflitti (dominio occupato, marchio simile attivo):
-  vedi `docs/ricerca/concorrenti-nome.md`.
+- Il nome è **Bleo** (attività e mascotte) dal 16.10.2026; prima il nome
+  provvisorio era "Bussola", scartato per conflitti di dominio e marchio
+  (`docs/ricerca/concorrenti-nome.md`). Prima del lancio: registrare
+  bleo.ch e bleo.swiss e depositare il marchio presso l'IPI.

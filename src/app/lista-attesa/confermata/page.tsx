@@ -25,7 +25,7 @@ export default async function PaginaConfermata({ searchParams }: PageProps<"/lis
             Sei nella lista d&apos;attesa. Ti scriviamo quando apre la beta chiusa e al massimo due aggiornamenti al
             mese. Ogni email ha il link per disiscriverti.
           </p>
-          <p>Nel frattempo, se ti va, racconta Bussola a chi sta per aprire un&apos;attività.</p>
+          <p>Nel frattempo, se ti va, racconta Bleo a chi sta per aprire un&apos;attività.</p>
         </PaginaMessaggio>
       );
     case "link_non_valido":

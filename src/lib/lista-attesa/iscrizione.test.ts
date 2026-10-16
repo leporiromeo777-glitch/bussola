@@ -13,7 +13,7 @@ import { messaggioIscrizione } from "./messaggi";
 import type { DatiIscrizione } from "./validazione";
 
 const mittente: Mittente = {
-  nomeSito: "Bussola",
+  nomeSito: "Bleo",
   urlSito: "https://bussola.example",
   titolare: { nome: "Maria Esempio", indirizzo: "Via Esempio 1, 6900 Lugano", email: "ciao@bussola.example" },
 };

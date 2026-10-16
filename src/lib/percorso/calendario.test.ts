@@ -194,19 +194,19 @@ describe("anno del riquadro e del file", () => {
 
   it("con l'anno nel nome solo se tutte le date sono di quell'anno", () => {
     expect(nomiCalendario([evento("2027-01-10"), evento("2027-04-10")], 2027)).toEqual({
-      nomeCalendario: "Bussola: scadenze 2027",
-      nomeFile: "bussola-scadenze-2027.ics",
+      nomeCalendario: "Bleo: scadenze 2027",
+      nomeFile: "bleo-scadenze-2027.ics",
     });
-    expect(nomiCalendario([], 2027).nomeFile).toBe("bussola-scadenze-2027.ics");
+    expect(nomiCalendario([], 2027).nomeFile).toBe("bleo-scadenze-2027.ics");
     // Il 15.10.2026 il calendario è del 2027, ma il termine IVA da un inizio al 01.10.2026 cade nel 2026.
     const eventi = eventiDaScadenze(calcolaPercorso(ticino).scadenze, { anno: 2027, inizioAttivita: "2026-10-01" });
     expect(eventi.some((e) => e.data === "2026-10-31")).toBe(true);
     expect(nomiCalendario(eventi, 2027)).toEqual({
-      nomeCalendario: "Bussola: scadenze",
-      nomeFile: "bussola-scadenze.ics",
+      nomeCalendario: "Bleo: scadenze",
+      nomeFile: "bleo-scadenze.ics",
     });
     // Un solo evento, ma di un altro anno: niente anno nel nome.
-    expect(nomiCalendario([evento("2026-10-31")], 2027).nomeCalendario).toBe("Bussola: scadenze");
+    expect(nomiCalendario([evento("2026-10-31")], 2027).nomeCalendario).toBe("Bleo: scadenze");
   });
 });
 
@@ -261,14 +261,14 @@ describe("file .ics", () => {
   });
 
   it("ha intestazione, evento di un giorno intero e promemoria", () => {
-    const righe = spiega(generaIcs([evento], { adesso: ADESSO, nomeCalendario: "Bussola: scadenze 2027" }));
+    const righe = spiega(generaIcs([evento], { adesso: ADESSO, nomeCalendario: "Bleo: scadenze 2027" }));
     expect(righe.slice(0, 6)).toEqual([
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
-      "PRODID:-//Bussola//Scadenze del percorso//IT",
+      "PRODID:-//Bleo//Scadenze del percorso//IT",
       "CALSCALE:GREGORIAN",
       "METHOD:PUBLISH",
-      "X-WR-CALNAME:Bussola: scadenze 2027",
+      "X-WR-CALNAME:Bleo: scadenze 2027",
     ]);
     expect(righe).toContain("UID:prova-2027-01-10@bussola");
     expect(righe).toContain("DTSTAMP:20261015T083005Z");

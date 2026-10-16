@@ -210,7 +210,7 @@ function FoglioPiano({ dati, oggi }: { dati: DatiPiano; oggi: string | null }) {
       </div>
 
       <footer className="mt-4 border-t border-[#d6d2c9] pt-2 text-[10px] text-[#4b515b]">
-        Preparato con Bussola. Documento compilato da chi lo presenta; i numeri sono stime.
+        Preparato con Bleo. Documento compilato da chi lo presenta; i numeri sono stime.
       </footer>
     </article>
   );

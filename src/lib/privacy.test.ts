@@ -120,7 +120,7 @@ describe("trattamentiAttivi", () => {
 
   it("le email partono solo con chiave Resend e mittente", () => {
     expect(trattamentiAttivi({ RESEND_API_KEY: "re_x" }).email).toBe(false);
-    expect(trattamentiAttivi({ RESEND_API_KEY: "re_x", EMAIL_MITTENTE: "Bussola <ciao@esempio.ch>" }).email).toBe(true);
+    expect(trattamentiAttivi({ RESEND_API_KEY: "re_x", EMAIL_MITTENTE: "Bleo <ciao@esempio.ch>" }).email).toBe(true);
     expect(trattamentiAttivi({ RESEND_API_KEY: " ", EMAIL_MITTENTE: "x" }).email).toBe(false);
   });
 

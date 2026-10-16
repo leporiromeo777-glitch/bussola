@@ -10,6 +10,7 @@ import {
   SCIARPE,
   type Vestito,
 } from "@/lib/mascotte/vestito";
+import { sito } from "@/lib/sito";
 import { MascotteSvg } from "./mascotte-svg";
 
 /** Vestito salvato in questo browser (predefinito sul server e prima dell'idratazione). */
@@ -37,9 +38,9 @@ export function Guardaroba() {
   return (
     <section aria-labelledby="titolo-guardaroba" className="rounded-xl border border-border bg-card p-5 print:hidden">
       <h2 id="titolo-guardaroba" className="text-lg font-semibold">
-        Il tuo compagno di viaggio
+        Vesti {sito.mascotte}
       </h2>
-      <p className="mt-1 text-sm text-muted">Vestilo come vuoi: la scelta resta in questo browser.</p>
+      <p className="mt-1 text-sm text-muted">Scegli cappello, occhiali e sciarpa: la scelta resta in questo browser.</p>
       <div className="mt-3 rounded-lg bg-brand-soft/60 p-2">
         <MascotteSvg vestito={vestito} className="mx-auto h-44 w-auto" />
       </div>

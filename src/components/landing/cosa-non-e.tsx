@@ -7,7 +7,7 @@ export function CosaNonE() {
     <Sezione
       id="cosa-non-e"
       sopratitolo="Chiaro fin da subito"
-      titolo="Cosa Bussola non è"
+      titolo="Cosa Bleo non è"
       sfondo="card"
       introduzione={<p>Ti diciamo subito cosa aspettarti, e cosa no.</p>}
     >
@@ -26,7 +26,7 @@ export function CosaNonE() {
             EasyGov
             <span className="sr-only"> (si apre in una nuova scheda)</span>
           </a>{" "}
-          è lo sportello online pubblico per le pratiche d&apos;impresa. Bussola non lo sostituisce: ti ci porta al
+          è lo sportello online pubblico per le pratiche d&apos;impresa. Bleo non lo sostituisce: ti ci porta al
           passo giusto, sapendo già cosa compilare.
         </Punto>
         <Punto titolo="Non inventa le risposte">

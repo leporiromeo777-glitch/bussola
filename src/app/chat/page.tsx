@@ -12,16 +12,16 @@ import { Chat } from "./chat";
 import { DOMANDE_ESEMPIO } from "./esempi";
 
 export const metadata: Metadata = {
-  title: "Chiedi a Bussola",
+  title: "Chiedi a Bleo",
   description:
-    "Fai una domanda sull'apertura della tua ditta individuale: Bussola risponde solo con fonti ufficiali verificate e ti mostra sempre il link.",
+    "Fai una domanda sull'apertura della tua ditta individuale: Bleo risponde solo con fonti ufficiali verificate e ti mostra sempre il link.",
 };
 
 export default async function PaginaChat({ searchParams }: PageProps<"/chat">) {
   // Sempre al momento della richiesta: dipende dall'utente collegato e dalle variabili d'ambiente.
   await connection();
   const { domanda } = await searchParams;
-  // Domanda precompilata dai link "Chiedi a Bussola" del percorso: solo testo, troncato.
+  // Domanda precompilata dai link "Chiedi a Bleo" del percorso: solo testo, troncato.
   const domandaIniziale = typeof domanda === "string" ? domanda.trim().slice(0, 1000) : "";
   const attiva = supabaseConfigured() && anthropicConfigurato();
   const user = attiva ? await getUser() : null;
@@ -37,7 +37,7 @@ export default async function PaginaChat({ searchParams }: PageProps<"/chat">) {
     <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
       <div className="flex items-center gap-4">
         <ImmagineMascotte nome="pensa" priority sizes="96px" className="h-auto w-20 shrink-0" />
-        <h1 className="text-2xl font-semibold sm:text-3xl">Chiedi a Bussola</h1>
+        <h1 className="text-2xl font-semibold sm:text-3xl">Chiedi a Bleo</h1>
       </div>
       <p className="mt-2 max-w-2xl text-muted">
         Rispondo solo con le fonti ufficiali che abbiamo verificato e ti mostro sempre il link: è informazione

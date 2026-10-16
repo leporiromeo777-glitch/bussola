@@ -22,7 +22,7 @@ export function NotaDatiLocali({ chiavi, etichettaCancella = "Cancella i dati di
           <strong className="font-semibold">I tuoi dati restano su questo dispositivo.</strong>{" "}
           {attivo === false
             ? "Questo browser non permette di salvarli: restano solo finché la pagina è aperta."
-            : "Li salviamo solo nel tuo browser, mentre scrivi: Bussola non li riceve."}
+            : "Li salviamo solo nel tuo browser, mentre scrivi: Bleo non li riceve."}
         </span>
       </p>
       <div className="flex shrink-0 items-center gap-2" aria-live="polite">

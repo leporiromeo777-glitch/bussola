@@ -135,7 +135,7 @@ export function eventiDaScadenze(
         scadenza.quando,
         scadenza.dettaglio,
         fonte ? `Fonte: ${fonte.titolo} (${fonte.ente}), ${fonte.url}` : undefined,
-        "Promemoria di Bussola: informazione generale, verifica sempre con l'ufficio competente.",
+        "Promemoria di Bleo: informazione generale, verifica sempre con l'ufficio competente.",
       ].filter((riga): riga is string => Boolean(riga));
       eventi.push({
         uid: `${scadenza.id}-${data}@bussola`,
@@ -168,8 +168,8 @@ export function nomiCalendario(
 ): { nomeCalendario: string; nomeFile: string } {
   const soloQuellAnno = eventi.every((e) => e.data.slice(0, 4) === String(anno));
   return soloQuellAnno
-    ? { nomeCalendario: `Bussola: scadenze ${anno}`, nomeFile: `bussola-scadenze-${anno}.ics` }
-    : { nomeCalendario: "Bussola: scadenze", nomeFile: "bussola-scadenze.ics" };
+    ? { nomeCalendario: `Bleo: scadenze ${anno}`, nomeFile: `bleo-scadenze-${anno}.ics` }
+    : { nomeCalendario: "Bleo: scadenze", nomeFile: "bleo-scadenze.ics" };
 }
 
 /** Protegge un valore TEXT (RFC 5545, 3.3.11): \ ; , e gli a capo. */
@@ -229,10 +229,10 @@ export function generaIcs(
   const righe: string[] = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Bussola//Scadenze del percorso//IT",
+    "PRODID:-//Bleo//Scadenze del percorso//IT",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    `X-WR-CALNAME:${proteggiTesto(opzioni.nomeCalendario ?? "Bussola: scadenze")}`,
+    `X-WR-CALNAME:${proteggiTesto(opzioni.nomeCalendario ?? "Bleo: scadenze")}`,
   ];
   const timbro = istanteIcs(opzioni.adesso);
   for (const evento of eventi) {

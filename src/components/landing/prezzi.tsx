@@ -64,7 +64,7 @@ export function Prezzi() {
           <p className="font-semibold">Accesso anticipato per chi è in lista</p>
           <p className="mt-2">
             Dalla lista d&apos;attesa invitiamo 30–50 persone alla beta chiusa, prevista per dicembre 2026, dando la
-            precedenza a chi si è iscritto prima. Durante la beta Bussola è gratuito per chi partecipa.
+            precedenza a chi si è iscritto prima. Durante la beta Bleo è gratuito per chi partecipa.
           </p>
         </div>
         <a href="#lista-attesa" className={`${classePulsantePrincipale} shrink-0`}>

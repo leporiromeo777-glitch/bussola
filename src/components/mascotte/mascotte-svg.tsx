@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { sito } from "@/lib/sito";
 import { descriviVestito, type Vestito, VESTITO_PREDEFINITO } from "@/lib/mascotte/vestito";
 
 const COLORI = {
@@ -34,7 +35,7 @@ export function MascotteSvg({
 }) {
   const id = useId();
   const pelle = `${id}-pelle`;
-  const etichetta = `Il tuo compagno di viaggio ${descriviVestito(vestito)}${bussolina ? ", con la bussolina accanto" : ""}`;
+  const etichetta = `${sito.mascotte} ${descriviVestito(vestito)}${bussolina ? ", con la bussolina accanto" : ""}`;
 
   return (
     <svg viewBox="0 0 230 260" role="img" aria-label={etichetta} className={className}>

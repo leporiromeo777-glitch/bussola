@@ -32,7 +32,7 @@ export function ComeFunziona() {
       id="come-funziona"
       sopratitolo="Come funziona"
       titolo="Dall'idea alla prima fattura, un passo alla volta"
-      introduzione={<p>Bussola mette in fila quello che serve e ti porta al modulo giusto al momento giusto.</p>}
+      introduzione={<p>Bleo mette in fila quello che serve e ti porta al modulo giusto al momento giusto.</p>}
       illustrazione={<ImmagineMascotte nome="checklist" sizes="176px" className="h-auto w-full" />}
     >
       <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

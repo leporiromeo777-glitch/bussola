@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Sezione } from "./sezione";
 
 // Foto con licenza Unsplash (uso gratuito), in public/foto. Le persone sono
-// modelli delle foto, non utenti di Bussola: le didascalie non lo fanno credere.
+// modelli delle foto, non utenti di Bleo: le didascalie non lo fanno credere.
 const FOTO = [
   {
     src: "/foto/lavoro-portatile.webp",
@@ -43,7 +43,7 @@ export function PerChi() {
       titolo="Qualunque sia la tua idea, i primi passi sono simili"
       introduzione={
         <p>
-          AVS da indipendente, registro di commercio, IVA, assicurazioni, prima fattura: Bussola ti mostra quali valgono
+          AVS da indipendente, registro di commercio, IVA, assicurazioni, prima fattura: Bleo ti mostra quali valgono
           per te.
         </p>
       }

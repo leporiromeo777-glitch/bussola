@@ -199,7 +199,7 @@ export function CalcolatoreTariffa() {
                 errore={errori.riservaImpostePercento}
                 aiuto={
                   <>
-                    Percentuale dell&apos;utile dopo i contributi che metti da parte. Bussola non calcola le imposte:
+                    Percentuale dell&apos;utile dopo i contributi che metti da parte. Bleo non calcola le imposte:
                     per farti un&apos;idea della percentuale usa il <FonteLink fonte={fontiStrumenti.afcCalcolatoreImposte} />{" "}
                     dell&apos;AFC.
                   </>
@@ -336,7 +336,7 @@ function RiepilogoStampa({ dati, r }: { dati: DatiTariffa; r: RisultatoTariffa }
         {r.pilastro3a > 0 ? <RigaValore etichetta="Pilastro 3a" valore={importo(r.pilastro3a, 0)} /> : null}
       </dl>
       <p className="mt-3 text-xs">
-        Stima indicativa preparata con Bussola. Soglia IVA e registro di commercio: {importo(regole.sogliaIva.valore, 0)}.
+        Stima indicativa preparata con Bleo. Soglia IVA e registro di commercio: {importo(regole.sogliaIva.valore, 0)}.
       </p>
       <Fonti fonti={[fonti.avsPromemoria202, fonti.liva10, fonti.co931]} />
     </section>

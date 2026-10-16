@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chiediABussola } from "./cliente";
+import { chiediABleo } from "./cliente";
 import { MESSAGGI } from "./messaggi";
 import { rigaEvento } from "./ndjson";
 
@@ -18,14 +18,14 @@ function rispostaAPezzi(pezzi: string[], init?: ResponseInit) {
 const fetchCon = (risposta: Response | (() => never)) =>
   (async () => (typeof risposta === "function" ? risposta() : risposta)) as unknown as typeof fetch;
 
-describe("chiediABussola", () => {
+describe("chiediABleo", () => {
   it("passa i pezzi di testo e restituisce l'evento finale", async () => {
     const righe =
       rigaEvento({ t: "testo", d: "Ciao" }) +
       rigaEvento({ t: "testo", d: " è" }) +
       rigaEvento({ t: "fine", risposta: [{ testo: "Ciao è", citazioni: [] }], fonti: [], senza_risposta: true });
     const testi: string[] = [];
-    const esito = await chiediABussola({
+    const esito = await chiediABleo({
       domanda: "Domanda?",
       cronologia: [],
       segnale: new AbortController().signal,
@@ -38,7 +38,7 @@ describe("chiediABussola", () => {
 
   it("mostra il messaggio del server per gli errori HTTP (per esempio quota esaurita)", async () => {
     const quota = { piano: "gratis", illimitata: false, limite: 10, rimanenti: 0, rinnovo_il: "2026-11-01", piano_scade_il: null };
-    const esito = await chiediABussola({
+    const esito = await chiediABleo({
       domanda: "Domanda?",
       cronologia: [],
       segnale: new AbortController().signal,
@@ -49,7 +49,7 @@ describe("chiediABussola", () => {
   });
 
   it("se il flusso finisce senza evento finale lo segnala", async () => {
-    const esito = await chiediABussola({
+    const esito = await chiediABleo({
       domanda: "Domanda?",
       cronologia: [],
       segnale: new AbortController().signal,
@@ -64,12 +64,12 @@ describe("chiediABussola", () => {
       throw new TypeError("Failed to fetch");
     });
     const base = { domanda: "Domanda?", cronologia: [], suTesto: () => {}, fetchFn: guasto };
-    expect(await chiediABussola({ ...base, segnale: new AbortController().signal })).toEqual({
+    expect(await chiediABleo({ ...base, segnale: new AbortController().signal })).toEqual({
       tipo: "errore",
       messaggio: MESSAGGI.rete,
     });
     const interrotto = new AbortController();
     interrotto.abort();
-    expect(await chiediABussola({ ...base, segnale: interrotto.signal })).toEqual({ tipo: "interrotta" });
+    expect(await chiediABleo({ ...base, segnale: interrotto.signal })).toEqual({ tipo: "interrotta" });
   });
 });

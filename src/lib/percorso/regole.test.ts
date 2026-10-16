@@ -553,7 +553,7 @@ describe("regole: soci, permessi, vendita online, locali, aiuto", () => {
     expect(passo(calcolaPercorso(risposte()), "aiuto").passo.fonti).toContain(fonti.albofiduciari);
   });
 
-  it("Grigioni e altri Cantoni: avviso informativo sui limiti di Bussola", () => {
+  it("Grigioni e altri Cantoni: avviso informativo sui limiti di Bleo", () => {
     expect(idAvvisi(calcolaPercorso(risposte({ cantone: "GR" })))).toContain("grigioni");
     expect(idAvvisi(calcolaPercorso(risposte({ cantone: "altro" })))).toContain("fuori-zona");
     const ticino = idAvvisi(calcolaPercorso(risposte()));

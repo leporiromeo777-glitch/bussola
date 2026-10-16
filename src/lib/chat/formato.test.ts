@@ -20,7 +20,7 @@ describe("formattaData", () => {
 describe("testi con date", () => {
   it("il messaggio di quota esaurita dice quando ripartono le domande", () => {
     expect(messaggioQuotaEsaurita({ limite: 10, rinnovo_il: "2026-11-01" })).toBe(
-      "Hai già usato le 10 domande di questo mese. Durante la prova di Bussola ci sono 10 domande al mese per ogni persona: ricominciano il 01.11.2026.",
+      "Hai già usato le 10 domande di questo mese. Durante la prova di Bleo ci sono 10 domande al mese per ogni persona: ricominciano il 01.11.2026.",
     );
     // Niente rimandi a un piano a pagamento, che durante la prova non esiste.
     expect(messaggioQuotaEsaurita({ limite: null, rinnovo_il: "2026-11-01" })).not.toMatch(/pagamento|illimitat/);

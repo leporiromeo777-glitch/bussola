@@ -8,9 +8,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Bussola: regole del progetto
+# Bleo: regole del progetto
 
-Bussola è un mentore AI per chi apre un'attività in Svizzera italiana (prima la
+Bleo è un mentore AI per chi apre un'attività in Svizzera italiana (prima la
 ditta individuale, poi la Sagl). Il piano completo è in `docs/piano.md`.
 
 ## Regole sul contenuto (non negoziabili)
@@ -19,7 +19,7 @@ ditta individuale, poi la Sagl). Il piano completo è in `docs/piano.md`.
 - Ogni cifra, soglia, scadenza o nome di ufficio mostrato all'utente viene da
   un dato con fonte ufficiale (URL) e data di controllo: `src/data/` per le
   regole e i link, la tabella `fonti` per la chat. Niente numeri a memoria.
-- Bussola dà informazioni generali con fonti, non consulenza personalizzata:
+- Bleo dà informazioni generali con fonti, non consulenza personalizzata:
   niente dichiarazioni d'imposta né contabilità per conto dei clienti (LFid
   ticinese). Nei casi complessi rimanda a un fiduciario autorizzato.
 - La chat risponde solo dalle fonti verificate e mostra sempre il link; se non

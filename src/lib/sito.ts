@@ -4,7 +4,9 @@
  * l'informativa privacy e l'attivazione di TWINT su Stripe.
  */
 export const sito = {
-  nome: "Bussola",
+  nome: "Bleo",
+  /** Nome della mascotte: è lo stesso dell'attività. */
+  mascotte: "Bleo",
   slogan: "Dall'idea alla prima fattura, passo per passo.",
   descrizione:
     "Il mentore che accompagna chi apre un'attività in Svizzera italiana: percorso personale, risposte con la fonte ufficiale, documenti pronti.",
@@ -58,6 +60,6 @@ export const indirizzoTitolareMancante = indirizzoMancante(sito.titolare);
 /** Voci principali di navigazione dell'app. */
 export const navigazione = [
   { href: "/percorso", etichetta: "Il tuo percorso" },
-  { href: "/chat", etichetta: "Chiedi a Bussola" },
+  { href: "/chat", etichetta: "Chiedi a Bleo" },
   { href: "/strumenti", etichetta: "Strumenti" },
 ] as const;

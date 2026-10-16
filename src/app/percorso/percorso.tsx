@@ -326,11 +326,11 @@ export function Percorso({
               Hai un dubbio?
             </h2>
             <p className="mt-2 text-sm text-muted">
-              Chiedi a Bussola: risponde solo con le fonti ufficiali. Per il tuo caso personale, rivolgiti
+              Chiedi a Bleo: risponde solo con le fonti ufficiali. Per il tuo caso personale, rivolgiti
               all&apos;ufficio competente o a un fiduciario autorizzato.
             </p>
             <Link href="/chat" className={`${classePulsantePrincipale} mt-4 w-full text-sm`}>
-              Chiedi a Bussola
+              Chiedi a Bleo
             </Link>
           </section>
           <Guardaroba />
