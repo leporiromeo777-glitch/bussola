@@ -49,7 +49,10 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 200,
           "backgroundColor": "#FBFAF7",
-          "dark": { "image": "./assets/splash-icon.png", "backgroundColor": "#111417" }
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "backgroundColor": "#111417"
+          }
         }
       ],
       [
@@ -64,7 +67,9 @@
       "typedRoutes": true
     },
     "extra": {
-      "sitoUrl": "https://bussola-ticino.netlify.app"
+      "sitoUrl": "https://bussola-ticino.netlify.app",
+      "supabaseUrl": "https://xuqskqdjnuabfzmyecvb.supabase.co",
+      "supabaseChiave": "sb_publishable__rsPQ1y_mShdfq7lTOM6xw_8-CU7Jp5"
     }
   }
 }
