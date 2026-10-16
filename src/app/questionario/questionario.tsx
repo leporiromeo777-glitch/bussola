@@ -55,7 +55,7 @@ function voceAttuale(): Partial<VoceCronologia> | null {
 }
 
 /** Il questionario: una domanda per schermata, con avanzamento, "Indietro" e il perché di ogni domanda. */
-export function Questionario({ account }: { account: DatiAccount }) {
+export function Questionario({ account, daRacconto = false }: { account: DatiAccount; daRacconto?: boolean }) {
   const router = useRouter();
   const idBase = useId();
   const locali = useRisposteLocali();
@@ -191,7 +191,9 @@ export function Questionario({ account }: { account: DatiAccount }) {
 
       {salvata && bozza === null && indiceScelto === null ? (
         <p className="mt-4 rounded-lg bg-brand-soft p-3 text-sm">
-          Abbiamo ripreso le risposte che stavi dando: continua da qui.
+          {daRacconto
+            ? "Ho già compilato quello che ho capito dal tuo racconto: rispondi solo a quello che manca. Con «Indietro» puoi controllare e correggere."
+            : "Abbiamo ripreso le risposte che stavi dando: continua da qui."}
         </p>
       ) : precedenti && bozza === null && indice === 0 ? (
         <p className="mt-4 rounded-lg bg-brand-soft p-3 text-sm">

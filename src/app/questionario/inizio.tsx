@@ -39,5 +39,5 @@ export function InizioQuestionario({
       />
     );
   }
-  return <Questionario key={giro} account={account} />;
+  return <Questionario key={giro} account={account} daRacconto={giro > 0} />;
 }
