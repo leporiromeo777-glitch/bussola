@@ -400,3 +400,12 @@ revoke execute on function public.pulisci_dati() from public, anon, authenticate
 -- Ogni giorno alle 03:17 (UTC, l'ora del database su Supabase).
 create extension if not exists pg_cron with schema pg_catalog;
 select cron.schedule('pulizia-dati', '17 3 * * *', $$select public.pulisci_dati()$$);
+
+-- ===========================================================================
+-- 20261016000005_revoca_crea_profilo.sql
+-- ===========================================================================
+
+-- Bussola: crea_profilo serve solo al trigger su auth.users (avviso del
+-- linter di sicurezza di Supabase, 16.10.2026). Una funzione trigger non si
+-- può eseguire da sola, ma togliamo comunque il permesso di chiamarla via API.
+revoke execute on function public.crea_profilo() from public, anon, authenticated;
