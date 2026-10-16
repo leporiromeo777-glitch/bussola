@@ -17,7 +17,7 @@ export function Radice() {
           width={LATO}
           height={LATO}
           durationInFrames={1}
-          defaultProps={{ lezioneId: lezione.id, poster: false, durate: null } satisfies PropsLezione}
+          defaultProps={{ lezioneId: lezione.id, copertina: false, durate: null } satisfies PropsLezione}
           calculateMetadata={async ({ props }) => {
             const risposta = await fetch(staticFile(`${props.lezioneId}/durate.json`));
             if (!risposta.ok) throw new Error(`Manca public/${props.lezioneId}/durate.json: lancia npm run prepara.`);

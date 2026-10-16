@@ -7,7 +7,7 @@ import { COLORI, GRIGLIA, OMBRA_SCHEDA, SFUMATURA, TESTO, TITOLI } from "../stil
 
 const USCITA = 8;
 const RITARDO_ENTRATA = 5;
-const PADDING = 34;
+const PADDING = 30;
 const MOLLA = { damping: 14, stiffness: 110, mass: 0.9 };
 
 type Gruppo = { chiave: string; scene: number[]; inizio: number; fine: number };
@@ -128,7 +128,7 @@ function SchedaTitolo({ etichetta, titolo, locale }: { etichetta: string; titolo
   const { fps } = useVideoConfig();
   const parole = titolo.split(" ");
   return (
-    <Cornice stile={{ padding: "40px 34px 44px" }}>
+    <Cornice stile={{ padding: "40px 32px 44px" }}>
       <span
         style={{
           display: "inline-block",
@@ -385,18 +385,19 @@ function SchedaFonte({ fonte, verificatoIl, locale }: { fonte: Fonte; verificato
         {fonte.titolo}
       </h2>
       <p style={{ margin: "14px 0 0", fontSize: 26, fontWeight: 600, color: COLORI.brand }}>{fonte.ente}</p>
-      <p style={{ margin: "6px 0 0", fontSize: 19, fontWeight: 500, color: COLORI.tenue, wordBreak: "break-all" }}>{breve}</p>
+      <p style={{ margin: "6px 0 0", fontSize: 19, fontWeight: 500, color: COLORI.tenue, overflowWrap: "anywhere" }}>{breve}</p>
       <div
         style={{
           marginTop: 24,
           display: "inline-flex",
           alignItems: "center",
-          gap: 10,
-          padding: "10px 16px",
+          gap: 8,
+          padding: "9px 14px",
           borderRadius: 999,
+          whiteSpace: "nowrap",
           backgroundColor: COLORI.successoTenue,
           color: COLORI.successo,
-          fontSize: 21,
+          fontSize: 19,
           fontWeight: 600,
           opacity: Math.min(timbro, 1),
           transform: `scale(${0.7 + 0.3 * timbro})`,
@@ -422,7 +423,7 @@ function IconaLink({ colore, grande = false }: { colore: string; grande?: boolea
 
 function IconaSpunta({ colore }: { colore: string }) {
   return (
-    <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={colore} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+    <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={colore} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
       <path d="M5 12.5l4.5 4.5L19 7.5" />
     </svg>
   );

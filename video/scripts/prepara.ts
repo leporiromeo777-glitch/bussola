@@ -1,17 +1,19 @@
 /**
  * Prepara i file di una lezione in video/public/<id>/ prima del render:
  * copia gli audio delle scene, fa il loop avanti e indietro del video di
- * Bleo che parla, copia le immagini della mascotte e misura le durate.
+ * Bleo che parla, copia le immagini della mascotte, scarica i caratteri e
+ * misura le durate.
  *
  *   npm run prepara -- <id-lezione> <cartella-con-i-file>
  *
  * Nella cartella servono: i file audio delle scene (come in src/lezioni/<id>.ts)
- * e clip-parla.mp4 (Bleo che parla, senza audio). Serve ffmpeg nel PATH.
+ * e clip-parla.mp4 (Bleo che parla, senza audio). Servono ffmpeg e curl nel PATH.
  */
 import { execFileSync, spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { fileCaratteri } from "../src/caratteri";
 import { trovaLezione } from "../src/lezioni";
 import type { Durate } from "../src/lezioni/tipi";
 
@@ -92,6 +94,14 @@ execFileSync(
 mkdirSync(join(VIDEO, "public", "mascotte"), { recursive: true });
 for (const nome of MASCOTTE) {
   copyFileSync(join(VIDEO, "..", "public", "mascotte", nome), join(VIDEO, "public", "mascotte", nome));
+}
+
+// 4. Caratteri (Plus Jakarta Sans e Geist), scaricati una volta sola.
+for (const c of fileCaratteri()) {
+  const file = join(VIDEO, "public", c.file);
+  if (existsSync(file)) continue;
+  mkdirSync(dirname(file), { recursive: true });
+  execFileSync("curl", ["-sSfL", "-o", file, c.url], { stdio: "inherit" });
 }
 
 const durate: Durate = { clip: arrotonda(durata(uscitaClip)), scene };

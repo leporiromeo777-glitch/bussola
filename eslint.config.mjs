@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // L'app Expo ha la sua configurazione (cd mobile && npm run lint).
     "mobile/**",
+    // Le lezioni video (Remotion) sono un progetto a parte: cd video && npm run typecheck.
+    "video/**",
   ]),
 ]);
 

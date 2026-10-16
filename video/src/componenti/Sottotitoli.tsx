@@ -28,7 +28,7 @@ export function Sottotitoli({ battute, parla, fine }: { battute: readonly Battut
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "36px 48px 28px",
+        padding: "30px 44px 24px",
         opacity: comparsa * uscita,
         transform: `translateY(${(1 - comparsa) * 24}px)`,
       }}
@@ -39,7 +39,7 @@ export function Sottotitoli({ battute, parla, fine }: { battute: readonly Battut
           margin: 0,
           fontFamily: TESTO,
           fontWeight: 600,
-          fontSize: 44,
+          fontSize: 48,
           lineHeight: 1.25,
           letterSpacing: "-0.01em",
           color: COLORI.testo,

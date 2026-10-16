@@ -62,3 +62,12 @@ export function IconaIndietro(props: PropsIcona) {
     </Icona>
   );
 }
+
+export function IconaPlay(props: PropsIcona) {
+  return (
+    <Icona {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M10.5 8.8v6.4l5-3.2z" fill="currentColor" />
+    </Icona>
+  );
+}

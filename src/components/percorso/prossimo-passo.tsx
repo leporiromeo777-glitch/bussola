@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { LezioneVideo } from "@/components/corso/lezione-video";
 import { ImmagineMascotte } from "@/components/mascotte/immagine";
 import { IconaChat, IconaSpunta } from "@/components/landing/icone";
+import { lezionePerPasso } from "@/data/corso";
 import type { PassoPercorso } from "@/lib/percorso/regole";
 import { ElencoFonti } from "./elenco-fonti";
 import { IconaLinkEsterno } from "./icone";
@@ -63,6 +65,7 @@ export function ProssimoPasso({
   }
 
   const { passo, perche } = voce;
+  const lezione = lezionePerPasso(passo.id);
   return (
     <section
       aria-labelledby="titolo-prossimo"
@@ -81,6 +84,8 @@ export function ProssimoPasso({
         </div>
         <ImmagineMascotte nome="checklist" sizes="96px" className="hidden h-auto w-24 shrink-0 sm:block" />
       </div>
+
+      {lezione ? <LezioneVideo lezione={lezione} conLinkCorso className="mt-5 sm:max-w-sm" /> : null}
 
       <h3 className="mt-5 text-sm font-semibold">Cosa fare</h3>
       <ol className="mt-2 space-y-2">

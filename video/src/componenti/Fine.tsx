@@ -55,7 +55,7 @@ export function Fine({ prossimoPasso }: { prossimoPasso?: string }) {
                   fontWeight: 800,
                   fontSize: 64,
                   lineHeight: 1.06,
-                  letterSpacing: "-0.03em",
+                  letterSpacing: "-0.02em",
                   color: COLORI.testo,
                   textWrap: "balance",
                 }}

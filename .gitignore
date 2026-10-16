@@ -45,3 +45,8 @@ next-env.d.ts
 
 # netlify (stato del collegamento locale)
 .netlify
+
+# lezioni video: i file sorgente (audio, clip) e i render intermedi non si
+# salvano nel repository; il video finito va in public/corso/
+/video/public/
+/video/out/

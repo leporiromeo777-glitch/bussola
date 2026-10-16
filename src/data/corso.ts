@@ -34,7 +34,7 @@ export const LEZIONI: readonly LezioneCorso[] = [
     video: "/corso/ditta-individuale.mp4",
     poster: "/corso/ditta-individuale.jpg",
     sottotitoli: "/corso/ditta-individuale.vtt",
-    durataSecondi: 50,
+    durataSecondi: 51,
     fonti: [fonti.pmiDittaIndividuale, fontiPercorso.pmiImposteDitta],
     verificatoIl: VERIFICATO_IL,
   },
@@ -43,4 +43,12 @@ export const LEZIONI: readonly LezioneCorso[] = [
 /** La lezione video di un passo, se c'è. */
 export function lezionePerPasso(passoId: string): LezioneCorso | undefined {
   return LEZIONI.find((l) => l.passoId === passoId);
+}
+
+/** Durata breve per le etichette: «51 s», «1 min 20 s». */
+export function durataBreve(secondi: number): string {
+  const s = Math.round(secondi);
+  if (s < 60) return `${s} s`;
+  const resto = s % 60;
+  return resto === 0 ? `${s / 60} min` : `${Math.floor(s / 60)} min ${resto} s`;
 }

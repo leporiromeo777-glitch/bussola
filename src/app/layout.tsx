@@ -94,6 +94,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               voci={[
                 { href: "/questionario", etichetta: "Questionario" },
                 ...navigazione,
+                // Non nel menu in alto (è già pieno): solo qui e nella sitemap.
+                { href: "/corso", etichetta: "Il corso di Bleo" },
               ]}
             />
             <ColonnaPiede

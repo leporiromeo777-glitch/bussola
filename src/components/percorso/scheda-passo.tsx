@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { LezioneVideo } from "@/components/corso/lezione-video";
 import { IconaChat, IconaFrecciaGiu } from "@/components/landing/icone";
+import { lezionePerPasso } from "@/data/corso";
 import type { PassoPercorso, StatoPasso } from "@/lib/percorso/regole";
 import { ElencoFonti } from "./elenco-fonti";
 import { IconaLinkEsterno } from "./icone";
@@ -32,6 +34,7 @@ export function SchedaPasso({
 }) {
   const [aperto, setAperto] = useState(false);
   const { passo, stato, perche, note } = voce;
+  const lezione = lezionePerPasso(passo.id);
   const idCasella = `fatto-${passo.id}`;
   const idPerche = `perche-${passo.id}`;
   const idDettagli = `dettagli-${passo.id}`;
@@ -102,6 +105,8 @@ export function SchedaPasso({
 
           <div id={idDettagli} className={aperto ? "mt-4 space-y-4" : "hidden print:mt-4 print:block print:space-y-4"}>
             <p>{passo.descrizione}</p>
+
+            {lezione ? <LezioneVideo lezione={lezione} conLinkCorso className="sm:max-w-xs" /> : null}
 
             {note.length > 0 ? (
               <div className="rounded-lg bg-brand-soft p-3 text-sm">
