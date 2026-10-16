@@ -18,11 +18,11 @@ import { extractText, getDocumentProxy } from "unpdf";
 import { leggiElenco, statoImport, type FonteElenco } from "../src/lib/fonti/elenco";
 import { estraiTestoHtml } from "../src/lib/fonti/estrai-html";
 import { pagineInBlocchi } from "../src/lib/fonti/estrai-pdf";
+import { problemaContenuto } from "../src/lib/fonti/controllo-contenuto";
 import { dividiInFrammenti, type Frammento } from "../src/lib/fonti/frammenti";
 
 const PERCORSO_ELENCO = "supabase/fonti/elenco.json";
 const TEMPO_MASSIMO_MS = 30_000;
-const CARATTERI_MINIMI = 300;
 const USER_AGENT =
   "Mozilla/5.0 (compatible; BussolaFonti/1.0; import delle fonti ufficiali per la chat di Bussola)";
 
@@ -140,12 +140,9 @@ async function importaFonte(fonte: FonteElenco, supabase: SupabaseClient | null,
   }
   const scaricato = await scarica(fonte.url);
   const frammenti = await estraiFrammenti(scaricato);
+  const problema = problemaContenuto(frammenti);
+  if (problema) throw new Error(problema);
   const caratteri = frammenti.reduce((somma, f) => somma + f.testo.length, 0);
-  if (caratteri < CARATTERI_MINIMI) {
-    throw new Error(
-      `testo estratto troppo corto (${caratteri} caratteri): la pagina forse si carica con JavaScript o è cambiata`,
-    );
-  }
   if (prova) {
     console.log(`\n--- ${fonte.id}: ${frammenti.length} frammenti`);
     for (const f of frammenti) {

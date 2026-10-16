@@ -93,7 +93,7 @@ export const fonti = {
   avsDomandaIndipendente: {
     titolo: "Presentare la domanda di riconoscimento come indipendente",
     url: "https://selbststaendig-erwerbend.ch/it/presentare-una-domanda",
-    ente: "Casse di compensazione AVS",
+    ente: "Centro d'informazione AVS/AI",
   },
   ufasImporti2026: {
     titolo: "Importi validi dal 1° gennaio 2026",

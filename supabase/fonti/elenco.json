@@ -6,9 +6,15 @@
     "ente": "Centro d'informazione AVS/AI",
     "livello": "federale",
     "cantone": null,
-    "argomenti": ["avs", "contributi", "indipendenti", "cassa di compensazione"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "avs",
+      "contributi",
+      "indipendenti",
+      "cassa di compensazione"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": true
   },
   {
     "id": "ufas-attivita-indipendente",
@@ -17,9 +23,16 @@
     "ente": "Ufficio federale delle assicurazioni sociali (UFAS)",
     "livello": "federale",
     "cantone": null,
-    "argomenti": ["assicurazioni sociali", "avs", "infortuni", "previdenza", "indipendenti"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "assicurazioni sociali",
+      "avs",
+      "infortuni",
+      "previdenza",
+      "indipendenti"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": true
   },
   {
     "id": "ufas-importi-2027",
@@ -28,9 +41,15 @@
     "ente": "Ufficio federale delle assicurazioni sociali (UFAS)",
     "livello": "federale",
     "cantone": null,
-    "argomenti": ["avs", "contributi", "2027", "tavola scalare"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "avs",
+      "contributi",
+      "2027",
+      "tavola scalare"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": true
   },
   {
     "id": "pmi-forma-giuridica-ditta-individuale",
@@ -39,9 +58,16 @@
     "ente": "SECO – Portale PMI",
     "livello": "federale",
     "cantone": null,
-    "argomenti": ["ditta individuale", "forma giuridica", "registro di commercio", "contabilità", "imposte"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "ditta individuale",
+      "forma giuridica",
+      "registro di commercio",
+      "contabilità",
+      "imposte"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": false
   },
   {
     "id": "pmi-ditta-individuale-lanciarsi",
@@ -50,9 +76,13 @@
     "ente": "SECO – Portale PMI",
     "livello": "federale",
     "cantone": null,
-    "argomenti": ["ditta individuale", "fondazione", "responsabilità"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano",
+    "argomenti": [
+      "ditta individuale",
+      "fondazione",
+      "responsabilità"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
     "attiva": false
   },
   {
@@ -62,9 +92,15 @@
     "ente": "SECO – Portale PMI",
     "livello": "federale",
     "cantone": null,
-    "argomenti": ["ditta individuale", "sagl", "fondazione", "check list"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "ditta individuale",
+      "sagl",
+      "fondazione",
+      "check list"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": true
   },
   {
     "id": "easygov-ditta-individuale",
@@ -73,9 +109,15 @@
     "ente": "SECO – EasyGov.swiss",
     "livello": "federale",
     "cantone": null,
-    "argomenti": ["ditta individuale", "fondazione", "easygov", "sportello online"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "ditta individuale",
+      "fondazione",
+      "easygov",
+      "sportello online"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": false
   },
   {
     "id": "afc-assoggettamento-iva",
@@ -84,9 +126,14 @@
     "ente": "Amministrazione federale delle contribuzioni (AFC)",
     "livello": "federale",
     "cantone": null,
-    "argomenti": ["iva", "assoggettamento", "cifra d'affari"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "iva",
+      "assoggettamento",
+      "cifra d'affari"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": true
   },
   {
     "id": "ti-rc-iscrizione-ditta-individuale",
@@ -95,9 +142,15 @@
     "ente": "Ufficio del registro di commercio del Cantone Ticino",
     "livello": "cantonale",
     "cantone": "TI",
-    "argomenti": ["registro di commercio", "ditta individuale", "iscrizione", "emolumenti"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "registro di commercio",
+      "ditta individuale",
+      "iscrizione",
+      "emolumenti"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": true
   },
   {
     "id": "ti-ias-affiliazione-cassa-compensazione",
@@ -106,20 +159,32 @@
     "ente": "Istituto delle assicurazioni sociali del Cantone Ticino (IAS)",
     "livello": "cantonale",
     "cantone": "TI",
-    "argomenti": ["avs", "cassa di compensazione", "affiliazione", "indipendenti"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "avs",
+      "cassa di compensazione",
+      "affiliazione",
+      "indipendenti"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": true
   },
   {
     "id": "avs-presentare-domanda-indipendente",
     "url": "https://selbststaendig-erwerbend.ch/it/presentare-una-domanda",
     "titolo": "Presentare una domanda di riconoscimento come indipendente",
-    "ente": "Casse di compensazione AVS (indipendente.ch)",
+    "ente": "Centro d'informazione AVS/AI",
     "livello": "federale",
     "cantone": null,
-    "argomenti": ["avs", "riconoscimento", "indipendenti", "domanda"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "avs",
+      "riconoscimento",
+      "indipendenti",
+      "domanda"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": true
   },
   {
     "id": "suva-accertamento-indipendente",
@@ -128,9 +193,16 @@
     "ente": "Suva",
     "livello": "federale",
     "cantone": null,
-    "argomenti": ["suva", "edilizia", "trasporti", "statuto", "indipendenti"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "suva",
+      "edilizia",
+      "trasporti",
+      "statuto",
+      "indipendenti"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": true
   },
   {
     "id": "ti-fondounimpresa",
@@ -139,8 +211,14 @@
     "ente": "Repubblica e Cantone Ticino – Portale impresa (DFE)",
     "livello": "cantonale",
     "cantone": "TI",
-    "argomenti": ["consulenza", "coaching", "formazione", "fondounimpresa"],
-    "verificato_il": "2026-10-15",
-    "verificato_da": "import automatico - da ricontrollare a mano"
+    "argomenti": [
+      "consulenza",
+      "coaching",
+      "formazione",
+      "fondounimpresa"
+    ],
+    "verificato_il": "2026-10-16",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
+    "attiva": true
   }
 ]
