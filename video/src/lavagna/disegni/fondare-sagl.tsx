@@ -179,22 +179,101 @@ const fondareBasi: Disegno = {
   },
 };
 
-/* 4. «Decidete chi sono i soci, chi dirige la società e il capitale: almeno CHF 20'000, in quote, versato per intero.» */
+/** Una quota della Sagl: un tondino con lo spicchio, sopra la testa del socio. */
+function Quota({ cx, cy, colore }: { cx: number; cy: number; colore: string }) {
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={22} fill={TINTE.carta} stroke={colore} strokeWidth={5} />
+      <path d={`M ${cx} ${cy} V ${cy - 22} A 22 22 0 0 1 ${cx + 22} ${cy} Z`} fill={colore} />
+    </g>
+  );
+}
+
+/* 4. «Decidete chi sono i soci. Per legge dirigono tutti insieme, ma lo statuto può dire altrimenti. Chi lavora senza quota è un collaboratore.» */
+function tempiDirezione(ctx: ContestoDisegno) {
+  return {
+    insieme: cambio(ctx, 0, 0.25),
+    statuto: cambio(ctx, 1, 0.45),
+    uno: cambio(ctx, 2, 0.6),
+    collaboratore: cambio(ctx, 3, 0.8),
+  };
+}
+const fondareDirezione: Disegno = {
+  chiave: (ctx) => tempiDirezione(ctx).insieme,
+  bussolina: (ctx) => {
+    const t = tempiDirezione(ctx);
+    return {
+      posto: { x: 200, y: 450 },
+      azioni: [
+        { tipo: "lancia", quando: t.insieme + 4 },
+        { tipo: "lancia", quando: t.uno + 4 },
+        { tipo: "lancia", quando: t.collaboratore + 4 },
+      ],
+    };
+  },
+  Figura: ({ locale, ctx }) => {
+    const { fps } = ctx;
+    const t = tempiDirezione(ctx);
+    // «Dirigono insieme» lascia il posto a «dirige» sopra un solo socio.
+    const insieme = molla(locale, t.insieme, fps) * (1 - tra(locale, t.uno - 4, t.uno + 4));
+    return (
+      <Tela>
+        <Tappa locale={locale} fps={fps} testo="Soci e direzione" />
+        {/* I soci: ognuno ha una quota. */}
+        <Compare v={molla(locale, 4, fps)} cx={435} cy={360}>
+          <Persona x={380} y={460} s={0.85} />
+          <Persona x={490} y={460} s={0.85} colore={TEAL_CHIARO} />
+          <Quota cx={380} cy={268} colore={TINTE.tratto} />
+          <Quota cx={490} cy={268} colore={TEAL_CHIARO} />
+          <Testo x={435} y={500} corpo={30} titolo peso={800} colore={TINTE.tratto}>
+            Soci
+          </Testo>
+          <Testo x={435} y={538} corpo={24} peso={600} colore={COLORE_TENUE}>
+            hanno una quota
+          </Testo>
+        </Compare>
+        {/* Per legge dirigono tutti insieme. */}
+        <Compare v={insieme} cx={435} cy={200}>
+          <path d="M 340 232 Q 340 216 356 216 H 514 Q 530 216 530 232" fill="none" stroke={TINTE.accento} strokeWidth={6} strokeLinecap="round" />
+          <Pillola x={435} y={190} testo="dirigono insieme" corpo={26} fondo={TINTE.accento} colore={TINTE.carta} />
+        </Compare>
+        {/* Lo statuto può decidere diversamente: per esempio dirige uno solo. */}
+        <Compare v={molla(locale, t.statuto, fps)} cx={685} cy={260}>
+          <Foglio x={620} y={170} w={130} h={170}>
+            <Righe x={640} y={220} w={84} n={3} passo={26} />
+          </Foglio>
+          <Testo x={685} y={372} corpo={28} titolo peso={800} colore={TINTE.tratto}>
+            Statuto
+          </Testo>
+        </Compare>
+        <Freccia d="M 612 240 Q 520 150 420 196" p={tra(locale, t.uno - 6, t.uno + 8)} colore={TINTE.accento} spessore={6} />
+        <Compare v={molla(locale, t.uno + 6, fps)} cx={380} cy={196}>
+          <Pillola x={380} y={196} testo="dirige" corpo={26} fondo={TINTE.accento} colore={TINTE.carta} />
+        </Compare>
+        {/* Chi lavora senza quota: un collaboratore, non un socio. */}
+        <Compare v={molla(locale, t.collaboratore, fps)} cx={870} cy={380}>
+          <Persona x={870} y={460} s={0.8} colore={COLORE_TENUE} />
+          <Righe2 x={870} y={500} righe={["Collaboratore", "senza quota"]} corpo={26} colore={COLORE_TENUE} passo={32} />
+        </Compare>
+      </Tela>
+    );
+  },
+};
+
+/* 5. «Poi decidete il capitale: almeno CHF 20'000, diviso in quote e da versare per intero, in soldi o in natura.» */
 function tempiCapitale(ctx: ContestoDisegno) {
-  const dirige = cambio(ctx, 0, 0.2);
-  const capitale = cambio(ctx, 1, 0.4);
-  const versato = cambio(ctx, 2, 0.7);
-  return { dirige, capitale, versato, natura: versato + Math.round((ctx.voce - versato) * 0.4) };
+  const quote = cambio(ctx, 0, 0.35);
+  const natura = cambio(ctx, 1, 0.75);
+  return { importo: Math.round(quote * 0.55), quote, versato: quote + Math.round((natura - quote) * 0.55), natura };
 }
 const fondareCapitale: Disegno = {
-  chiave: (ctx) => tempiCapitale(ctx).capitale,
+  chiave: (ctx) => tempiCapitale(ctx).importo,
   bussolina: (ctx) => {
     const t = tempiCapitale(ctx);
     return {
       posto: { x: 200, y: 450 },
       azioni: [
-        { tipo: "lancia", quando: t.dirige + 2 },
-        { tipo: "lancia", quando: t.capitale + 4 },
+        { tipo: "lancia", quando: t.importo + 4 },
         { tipo: "lancia", quando: t.versato + 4 },
       ],
     };
@@ -202,30 +281,27 @@ const fondareCapitale: Disegno = {
   Figura: ({ locale, ctx }) => {
     const { fps } = ctx;
     const t = tempiCapitale(ctx);
-    const torta = molla(locale, t.capitale, fps);
     return (
       <Tela>
-        <Tappa locale={locale} fps={fps} testo="Soci, direzione e capitale" />
-        {/* I soci; uno dirige la società. */}
+        <Tappa locale={locale} fps={fps} testo="Il capitale" />
         <Compare v={molla(locale, 4, fps)} cx={425} cy={360}>
           <Persona x={380} y={450} s={0.85} />
           <Persona x={470} y={450} s={0.85} colore={TEAL_CHIARO} />
         </Compare>
-        <Compare v={molla(locale, t.dirige, fps)} cx={380} cy={235}>
-          <Pillola x={380} y={235} testo="dirige" corpo={26} fondo={TINTE.accento} colore={TINTE.carta} />
-        </Compare>
         {/* Il capitale, diviso in quote fra i soci. */}
-        <Compare v={torta} cx={780} cy={215}>
+        <Compare v={molla(locale, 8, fps)} cx={780} cy={215}>
           <path d="M 780 120 A 95 95 0 0 0 780 310 Z" fill={TINTE.tratto} />
           <path d="M 780 120 A 95 95 0 0 1 780 310 Z" fill={TEAL_CHIARO} />
           <line x1={780} y1={116} x2={780} y2={314} stroke={TINTE.carta} strokeWidth={8} />
+        </Compare>
+        <Compare v={molla(locale, t.importo, fps)} cx={780} cy={410}>
+          <Pillola x={780} y={410} testo={`almeno ${chf(regole.capitaleMinimoSagl.valore)}`} corpo={32} fondo={TINTE.crema} colore={TINTE.accento} bordo={TINTE.accento} />
+        </Compare>
+        <g opacity={tra(locale, t.quote, t.quote + 8)}>
           <Testo x={780} y={345} corpo={28} peso={600} colore={COLORE_TENUE}>
             diviso in quote
           </Testo>
-        </Compare>
-        <Compare v={molla(locale, t.capitale + 10, fps)} cx={780} cy={410}>
-          <Pillola x={780} y={410} testo={`almeno ${chf(regole.capitaleMinimoSagl.valore)}`} corpo={32} fondo={TINTE.crema} colore={TINTE.accento} bordo={TINTE.accento} />
-        </Compare>
+        </g>
         <g opacity={tra(locale, t.versato, t.versato + 8)}>
           <Spunta cx={640} cy={490} r={24} p={tra(locale, t.versato + 2, t.versato + 14)} />
           <Testo x={676} y={492} corpo={30} titolo peso={800} colore={TINTE.ok} ancora="start">
@@ -447,6 +523,7 @@ const fondareIscrizione: Disegno = {
 export const DISEGNI_FONDARE_SAGL: Record<string, Disegno> = {
   "fondare-soci": fondareSoci,
   "fondare-basi": fondareBasi,
+  "fondare-direzione": fondareDirezione,
   "fondare-capitale": fondareCapitale,
   "fondare-banca": fondareBanca,
   "fondare-notaio": fondareNotaio,

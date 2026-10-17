@@ -10,22 +10,24 @@
  * l'estratto, assicurazioni sociali (anche il fondatore è dipendente) e IVA;
  * EasyGov per le iscrizioni.
  *
- * Le alternative con dei soci (scene 8 e 9, con i disegni della lezione 1):
+ * Le alternative con dei soci (scene 9 e 10, con i disegni della lezione 1):
  * la società in nome collettivo (fontiPercorso.pmiNomeCollettivo) e la SA,
  * con passi simili nella stessa check list e più capitale
  * (regole.capitaleMinimoSa e versamentoMinimoSa, artt. 621 e 632 CO).
  *
- * Altre fonti: capitale minimo regole.capitaleMinimoSagl (art. 773 CO),
- * versamento per intero (art. 777c CO), atto pubblico (art. 777 CO), i
- * fondatori attivi nella Sagl sono dipendenti
- * (fontiPercorso.pmiAssicurazioniSociali), albo dei fiduciari.
+ * Altre fonti: i soci dirigono insieme salvo diversa regola dello statuto
+ * (fontiPercorso.pmiSagl, art. 809 CO), capitale minimo
+ * regole.capitaleMinimoSagl (art. 773 CO), versamento per intero (art. 777c
+ * CO), atto pubblico (art. 777 CO), i fondatori di Sagl e SA attivi nella
+ * società sono dipendenti, quelli della società in nome collettivo
+ * indipendenti (fontiPercorso.pmiAssicurazioniSociali), albo dei fiduciari.
  * Della check list resta fuori solo la dichiarazione di accettazione
  * dell'organo di revisione (se è previsto): la check list completa è citata
- * nella scena 13.
+ * nella scena 14.
  *
  * La voce dice «società a garanzia limitata» (la sigla Sagl solo nella scena
  * 2, da ascoltare e scegliere fra più versioni), «a-vu-esse» e le cifre in
- * parole (nel campo `voce` delle scene 4 e 9).
+ * parole (nel campo `voce` delle scene 5 e 10).
  */
 import { lezionePerPasso } from "../../../src/data/corso";
 import { chf, fonti, fontiPercorso, regole, VERIFICATO_CHECKLIST } from "../../../src/data/svizzera";
@@ -36,13 +38,13 @@ import type { Lezione } from "./tipi";
 const corso = lezionePerPasso("soci-forma-giuridica");
 if (!corso) throw new Error("Manca la lezione soci-forma-giuridica in src/data/corso.ts");
 
-// La voce dice «ventimila» (scena 4), «centomila» e «cinquantamila franchi» (scena 9).
+// La voce dice «ventimila» (scena 5), «centomila» e «cinquantamila franchi» (scena 10).
 if (
   regole.capitaleMinimoSagl.valore !== 20_000 ||
   regole.capitaleMinimoSa.valore !== 100_000 ||
   regole.versamentoMinimoSa.valore !== 50_000
 ) {
-  throw new Error("Il capitale di Sagl o SA è cambiato: aggiorna `voce` delle scene 4 e 9 e rifalle (npm run voce -- soci-forma-giuridica 4 9).");
+  throw new Error("Il capitale di Sagl o SA è cambiato: aggiorna `voce` delle scene 5 e 10 e rifalle (npm run voce -- soci-forma-giuridica 5 10).");
 }
 const SAGL = chf(regole.capitaleMinimoSagl.valore);
 const SA = chf(regole.capitaleMinimoSa.valore);
@@ -92,19 +94,32 @@ export const sociFormaGiuridica: Lezione = {
     },
     {
       audio: "scena-4.mp3",
-      disegno: "fondare-capitale",
+      disegno: "fondare-direzione",
       stile: "lavagna",
-      testo: `Decidete chi sono i soci, chi dirige la società e il capitale: almeno ${SAGL}, diviso in quote fra i soci e da versare per intero, in soldi o in natura, cioè con dei beni.`,
-      voce: "Decidete chi sono i soci, chi dirige la società e il capitale: almeno ventimila franchi, diviso in quote fra i soci e da versare per intero, in soldi o in natura, cioè con dei beni.",
+      testo:
+        "Decidete chi sono i soci, cioè chi avrà una quota della società. Per legge i soci la dirigono tutti insieme. Ma nello statuto potete decidere diversamente, per esempio che la dirige solo uno di voi. E chi ci lavora senza una quota non è socio: è un collaboratore.",
       schermo: {
         tipo: "punto",
-        titolo: "Soci, direzione e capitale",
-        testo: `Capitale di almeno ${SAGL}, in quote fra i soci, versato per intero (in soldi o in natura).`,
-        fonte: fonti.co773,
+        titolo: "Soci e direzione",
+        testo: "I soci hanno una quota. Per legge dirigono tutti insieme, ma lo statuto può decidere diversamente.",
+        fonte: fontiPercorso.pmiSagl,
       },
     },
     {
       audio: "scena-5.mp3",
+      disegno: "fondare-capitale",
+      stile: "lavagna",
+      testo: `Poi decidete il capitale: almeno ${SAGL}, diviso in quote fra i soci e da versare per intero, in soldi o in natura, cioè con dei beni.`,
+      voce: "Poi decidete il capitale: almeno ventimila franchi, diviso in quote fra i soci e da versare per intero, in soldi o in natura, cioè con dei beni.",
+      schermo: {
+        tipo: "punto",
+        titolo: "Il capitale",
+        testo: `Almeno ${SAGL}, in quote fra i soci, versato per intero (in soldi o in natura).`,
+        fonte: fonti.co773,
+      },
+    },
+    {
+      audio: "scena-6.mp3",
       disegno: "fondare-banca",
       stile: "lavagna",
       testo: "Secondo: scegliete una banca e aprite un conto vincolato, cioè bloccato, dove versate il capitale.",
@@ -116,7 +131,7 @@ export const sociFormaGiuridica: Lezione = {
       },
     },
     {
-      audio: "scena-6.mp3",
+      audio: "scena-7.mp3",
       disegno: "fondare-notaio",
       stile: "lavagna",
       testo:
@@ -129,7 +144,7 @@ export const sociFormaGiuridica: Lezione = {
       },
     },
     {
-      audio: "scena-7.mp3",
+      audio: "scena-8.mp3",
       disegno: "fondare-iscrizione",
       stile: "lavagna",
       testo: "Quarto: la Sagl viene iscritta nel registro di commercio. Con l'estratto del registro, la banca sblocca il capitale.",
@@ -141,7 +156,7 @@ export const sociFormaGiuridica: Lezione = {
       },
     },
     {
-      audio: "scena-8.mp3",
+      audio: "scena-9.mp3",
       disegno: "nome-collettivo",
       stile: "lavagna",
       testo:
@@ -154,7 +169,7 @@ export const sociFormaGiuridica: Lezione = {
       },
     },
     {
-      audio: "scena-9.mp3",
+      audio: "scena-10.mp3",
       disegno: "sagl-sa",
       stile: "lavagna",
       testo: `La SA si fonda con passi simili alla Sagl. Anche qui servono il notaio e il registro di commercio. Ma serve più capitale: almeno ${SA}, e quando la fondate dovete versarne almeno ${SA_VERSATO}.`,
@@ -167,18 +182,18 @@ export const sociFormaGiuridica: Lezione = {
       },
     },
     {
-      audio: "scena-10.mp3",
+      audio: "scena-11.mp3",
       stile: "presentatore",
       testo:
-        "Attenzione: nella Sagl anche voi fondatori, se lavorate nella società, siete considerati dipendenti. Annunciatevi alla cassa AVS e stipulate le assicurazioni obbligatorie, contro gli infortuni e per la previdenza professionale.",
+        "Attenzione: nella Sagl e nella SA, voi fondatori, se lavorate nella società, siete considerati dipendenti. Annunciatevi alla cassa AVS e stipulate le assicurazioni obbligatorie, contro gli infortuni e per la previdenza professionale. Nella società in nome collettivo, invece, siete indipendenti.",
       schermo: {
         tipo: "attenzione",
-        titolo: "Nella Sagl anche i fondatori sono dipendenti",
-        testo: "Cassa AVS e assicurazioni obbligatorie: infortuni e previdenza professionale.",
+        titolo: "Sagl e SA: anche i fondatori sono dipendenti",
+        testo: "Cassa AVS e assicurazioni obbligatorie (infortuni, previdenza professionale). Nome collettivo: indipendenti.",
       },
     },
     {
-      audio: "scena-11.mp3",
+      audio: "scena-12.mp3",
       stile: "presentatore",
       testo:
         "Infine chiarite se dovete pagare l'IVA. Per le iscrizioni al registro di commercio, all'IVA, all'AVS e all'assicurazione infortuni c'è il portale online EasyGov.",
@@ -190,7 +205,7 @@ export const sociFormaGiuridica: Lezione = {
       },
     },
     {
-      audio: "scena-12.mp3",
+      audio: "scena-13.mp3",
       disegno: "fiduciario",
       stile: "presentatore",
       testo:
@@ -203,7 +218,7 @@ export const sociFormaGiuridica: Lezione = {
       },
     },
     {
-      audio: "scena-13.mp3",
+      audio: "scena-14.mp3",
       disegno: "fonte",
       stile: "presentatore",
       testo: "La check list completa la trovi qui sotto, sul Portale PMI. Ci vediamo al prossimo passo!",

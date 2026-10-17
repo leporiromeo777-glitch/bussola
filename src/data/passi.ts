@@ -114,6 +114,7 @@ export const PASSI = [
       fontiPercorso.pmiSa,
       fonti.co621,
       fonti.co632,
+      fontiPercorso.pmiSagl,
     ],
     verificatoIl: VERIFICATO_IL,
     domandaChat: "Cosa serve per aprire una Sagl con un socio?",
