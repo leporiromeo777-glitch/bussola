@@ -10,17 +10,22 @@
  * l'estratto, assicurazioni sociali (anche il fondatore è dipendente) e IVA;
  * EasyGov per le iscrizioni.
  *
+ * Le alternative con dei soci (scene 8 e 9, con i disegni della lezione 1):
+ * la società in nome collettivo (fontiPercorso.pmiNomeCollettivo) e la SA,
+ * con passi simili nella stessa check list e più capitale
+ * (regole.capitaleMinimoSa e versamentoMinimoSa, artt. 621 e 632 CO).
+ *
  * Altre fonti: capitale minimo regole.capitaleMinimoSagl (art. 773 CO),
  * versamento per intero (art. 777c CO), atto pubblico (art. 777 CO), i
  * fondatori attivi nella Sagl sono dipendenti
  * (fontiPercorso.pmiAssicurazioniSociali), albo dei fiduciari.
  * Della check list resta fuori solo la dichiarazione di accettazione
  * dell'organo di revisione (se è previsto): la check list completa è citata
- * nella scena 11.
+ * nella scena 13.
  *
  * La voce dice «società a garanzia limitata» (la sigla Sagl solo nella scena
  * 2, da ascoltare e scegliere fra più versioni), «a-vu-esse» e le cifre in
- * parole («ventimila franchi», nel campo `voce` della scena 4).
+ * parole (nel campo `voce` delle scene 4 e 9).
  */
 import { lezionePerPasso } from "../../../src/data/corso";
 import { chf, fonti, fontiPercorso, regole, VERIFICATO_CHECKLIST } from "../../../src/data/svizzera";
@@ -31,11 +36,17 @@ import type { Lezione } from "./tipi";
 const corso = lezionePerPasso("soci-forma-giuridica");
 if (!corso) throw new Error("Manca la lezione soci-forma-giuridica in src/data/corso.ts");
 
-// La voce (scena 4) dice «ventimila franchi».
-if (regole.capitaleMinimoSagl.valore !== 20_000) {
-  throw new Error("Il capitale minimo della Sagl è cambiato: aggiorna `voce` della scena 4 e rifalla (npm run voce -- soci-forma-giuridica 4).");
+// La voce dice «ventimila» (scena 4), «centomila» e «cinquantamila franchi» (scena 9).
+if (
+  regole.capitaleMinimoSagl.valore !== 20_000 ||
+  regole.capitaleMinimoSa.valore !== 100_000 ||
+  regole.versamentoMinimoSa.valore !== 50_000
+) {
+  throw new Error("Il capitale di Sagl o SA è cambiato: aggiorna `voce` delle scene 4 e 9 e rifalle (npm run voce -- soci-forma-giuridica 4 9).");
 }
 const SAGL = chf(regole.capitaleMinimoSagl.valore);
+const SA = chf(regole.capitaleMinimoSa.valore);
+const SA_VERSATO = chf(regole.versamentoMinimoSa.valore);
 
 export const sociFormaGiuridica: Lezione = {
   id: corso.passoId,
@@ -131,6 +142,32 @@ export const sociFormaGiuridica: Lezione = {
     },
     {
       audio: "scena-8.mp3",
+      disegno: "nome-collettivo",
+      stile: "lavagna",
+      testo:
+        "Se non volete una Sagl, c'è anche la società in nome collettivo. Non serve un capitale minimo, ma va iscritta nel registro di commercio. Se la società non paga i suoi debiti, ne rispondete anche voi, con il vostro patrimonio personale.",
+      schermo: {
+        tipo: "punto",
+        titolo: "Società in nome collettivo",
+        testo: "Nessun capitale minimo, iscrizione nel registro di commercio. Per i debiti rispondono anche i soci.",
+        fonte: fontiPercorso.pmiNomeCollettivo,
+      },
+    },
+    {
+      audio: "scena-9.mp3",
+      disegno: "sagl-sa",
+      stile: "lavagna",
+      testo: `La SA si fonda con passi simili alla Sagl. Anche qui servono il notaio e il registro di commercio. Ma serve più capitale: almeno ${SA}, e quando la fondate dovete versarne almeno ${SA_VERSATO}.`,
+      voce: "La SA si fonda con passi simili alla Sagl. Anche qui servono il notaio e il registro di commercio. Ma serve più capitale: almeno centomila franchi, e quando la fondate dovete versarne almeno cinquantamila franchi.",
+      schermo: {
+        tipo: "punto",
+        titolo: "Società anonima (SA)",
+        testo: `Passi simili alla Sagl. Capitale di almeno ${SA}, versati almeno ${SA_VERSATO}.`,
+        fonte: fontiPercorso.pmiSa,
+      },
+    },
+    {
+      audio: "scena-10.mp3",
       stile: "presentatore",
       testo:
         "Attenzione: nella Sagl anche voi fondatori, se lavorate nella società, siete considerati dipendenti. Annunciatevi alla cassa AVS e stipulate le assicurazioni obbligatorie, contro gli infortuni e per la previdenza professionale.",
@@ -141,7 +178,7 @@ export const sociFormaGiuridica: Lezione = {
       },
     },
     {
-      audio: "scena-9.mp3",
+      audio: "scena-11.mp3",
       stile: "presentatore",
       testo:
         "Infine chiarite se dovete pagare l'IVA. Per le iscrizioni al registro di commercio, all'IVA, all'AVS e all'assicurazione infortuni c'è il portale online EasyGov.",
@@ -153,7 +190,7 @@ export const sociFormaGiuridica: Lezione = {
       },
     },
     {
-      audio: "scena-10.mp3",
+      audio: "scena-12.mp3",
       disegno: "fiduciario",
       stile: "presentatore",
       testo:
@@ -166,7 +203,7 @@ export const sociFormaGiuridica: Lezione = {
       },
     },
     {
-      audio: "scena-11.mp3",
+      audio: "scena-13.mp3",
       disegno: "fonte",
       stile: "presentatore",
       testo: "La check list completa la trovi qui sotto, sul Portale PMI. Ci vediamo al prossimo passo!",

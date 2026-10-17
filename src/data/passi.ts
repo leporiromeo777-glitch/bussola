@@ -109,6 +109,11 @@ export const PASSI = [
       fonti.pmiChecklist,
       fontiPercorso.pmiAssicurazioniSociali,
       fonti.albofiduciari,
+      // Le alternative con dei soci, nella lezione 2 del corso.
+      fontiPercorso.pmiNomeCollettivo,
+      fontiPercorso.pmiSa,
+      fonti.co621,
+      fonti.co632,
     ],
     verificatoIl: VERIFICATO_IL,
     domandaChat: "Cosa serve per aprire una Sagl con un socio?",
