@@ -28,6 +28,11 @@ export type Scena = {
    * Le frasi lunghe vengono divise da sole in righe più brevi.
    */
   testo: string;
+  /**
+   * Il testo per la voce, se non basta cambiare Bleo in «Blìo» e SA in
+   * «esse-a» (vedi src/voce.ts): per esempio le cifre, scritte in parole.
+   */
+  voce?: string;
   schermo: Schermo;
   /**
    * Il disegno della lavagna per questa scena: il nome di un disegno in

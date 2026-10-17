@@ -21,14 +21,26 @@ Servono Node 22, `ffmpeg` e `curl`. La prima volta: `cd video && npm install`.
      `ditta-individuale.ts`: una scena per frase, con `audio`, `testo` (il
      sottotitolo, sempre «Bleo») e `schermo` (il punto chiave a destra).
    - Aggiungi la lezione in `video/src/lezioni/index.ts`.
-2. **Genera la voce** con Higgsfield (`text2speech_v2`, motore ElevenLabs, voce
-   «Dylan»): un file MP3 per scena (`scena-1.mp3`, `scena-2.mp3`, …). Nel testo
-   per la voce scrivi «Blìo» al posto di Bleo, così la pronuncia è giusta.
+2. **Genera la voce** con ElevenLabs (voce «Alberto Loco», modello
+   `eleven_multilingual_v2`; voce e impostazioni in `src/voce.ts`). Serve la
+   chiave in `ELEVENLABS_API_KEY`, con il permesso «Text to Speech»:
+
+   ```sh
+   npm run voce -- <id-passo>        # tutte le scene
+   npm run voce -- <id-passo> 5 6    # solo le scene 5 e 6
+   ```
+
+   Scrive un MP3 per scena in `video/sorgenti/<id-passo>/` (`scena-1.mp3`,
+   `scena-2.mp3`, …). La voce legge il sottotitolo con «Blìo» al posto di Bleo,
+   «esse-a» al posto di SA e «pi-emme-i» al posto di PMI, così la pronuncia è
+   giusta. Le cifre vanno scritte in parole nel campo `voce` della scena
+   (per esempio «ventimila franchi»): con una cifra lo script si ferma prima
+   di spendere caratteri.
 3. **Metti i file in una cartella** `video/sorgenti/<id-passo>/`: gli MP3 delle
-   scene e `clip-parla.mp4` (Bleo che parla, quadrato, senza audio; lo stesso
-   clip va bene per tutte le lezioni). Le sorgenti restano nel repository, così
-   la lezione si può rifare quando cambia una regola. Esempio completo:
-   `video/sorgenti/ditta-individuale/`. Poi:
+   scene (li scrive già `npm run voce`) e `clip-parla.mp4` (Bleo che parla,
+   quadrato, senza audio; lo stesso clip va bene per tutte le lezioni). Le
+   sorgenti restano nel repository, così la lezione si può rifare quando cambia
+   una regola. Esempio completo: `video/sorgenti/ditta-individuale/`. Poi:
 
    ```sh
    npm run prepara -- <id-passo> sorgenti/<id-passo>

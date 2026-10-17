@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Le lezioni video del corso di Bleo, fatte con Remotion.",
   "scripts": {
+    "voce": "tsx scripts/voce.ts",
     "prepara": "tsx scripts/prepara.ts",
     "studio": "remotion studio",
     "render": "tsx scripts/render.ts",

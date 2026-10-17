@@ -21,8 +21,9 @@
  *   generali (fontiPercorso.pmiScegliereForma).
  *
  * La voce dice «Blìo» ed «esse-a», e le cifre in parole («ventimila
- * franchi»): se cambiano i dati, va rifatta la voce (vedi il controllo qui
- * sotto). Lo schermo scrive Bleo, SA e CHF 20'000.
+ * franchi», nel campo `voce` della scena 5): se cambiano i dati, va rifatta
+ * la voce con `npm run voce` (vedi il controllo qui sotto). Lo schermo scrive
+ * Bleo, SA e CHF 20'000.
  */
 import { lezionePerPasso } from "../../../src/data/corso";
 import { chf, fonti, fontiPercorso, regole, VERIFICATO_FORME } from "../../../src/data/svizzera";
@@ -34,7 +35,7 @@ if (!corso) throw new Error("Manca la lezione ditta-individuale in src/data/cors
 
 // La voce (scena 5) dice «ventimila» e «centomila franchi».
 if (regole.capitaleMinimoSagl.valore !== 20_000 || regole.capitaleMinimoSa.valore !== 100_000) {
-  throw new Error("Il capitale minimo di Sagl o SA è cambiato: aggiorna il testo e rifai la voce della scena 5.");
+  throw new Error("Il capitale minimo di Sagl o SA è cambiato: aggiorna `voce` della scena 5 e rifalla (npm run voce -- ditta-individuale 5).");
 }
 const SAGL = chf(regole.capitaleMinimoSagl.valore);
 const SA = chf(regole.capitaleMinimoSa.valore);
@@ -96,6 +97,7 @@ export const dittaIndividuale: Lezione = {
       disegno: "sagl-sa",
       stile: "lavagna",
       testo: `Sagl e SA, invece, si fondano davanti a un notaio e nascono con l'iscrizione nel registro di commercio. Serve un capitale minimo: per la Sagl almeno ${SAGL}, per la SA almeno ${SA}.`,
+      voce: "Sagl ed esse-a, invece, si fondano davanti a un notaio e nascono con l'iscrizione nel registro di commercio. Serve un capitale minimo: per la Sagl almeno ventimila franchi, per la esse-a almeno centomila franchi.",
       schermo: {
         tipo: "punto",
         titolo: "Sagl e SA",
