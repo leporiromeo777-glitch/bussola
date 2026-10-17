@@ -26,6 +26,7 @@ import {
   Righe,
   Salvadanaio,
   Spunta,
+  TEAL_CHIARO,
   Testo,
   TINTE,
   Timbro,
@@ -247,7 +248,7 @@ const titolareSolo: Disegno = {
         <Compare v={molla(locale, 0, fps)} cx={400} cy={430}>
           <Persona x={400} y={430} s={0.9} />
         </Compare>
-        {entraSecondo > 0 ? <Persona x={320 - (1 - entraSecondo) * 160} y={430} s={0.9} colore={TINTE.accento} opacita={entraSecondo} /> : null}
+        {entraSecondo > 0 ? <Persona x={320 - (1 - entraSecondo) * 160} y={430} s={0.9} colore={TEAL_CHIARO} opacita={entraSecondo} /> : null}
         <g opacity={spento}>
           <Freccia d="M 470 320 Q 540 250 600 245" p={tra(locale, 8, 22)} />
           <Compare v={molla(locale, 18, fps)} cx={790} cy={245}>
@@ -430,7 +431,7 @@ const fiduciario: Disegno = {
           <Valigetta x={730} y={400} s={0.8} />
           <Persona x={890} y={400} s={0.7} colore={TINTE.accento} />
         </Compare>
-        <Persona x={x} y={480} s={0.85} umore={capito ? "felice" : "preoccupata"} passo={cammino > 0 && cammino < 1 ? locale / 2.2 : undefined} />
+        <Persona x={x} y={480} s={0.85} inclinata={capito ? 0 : -9} passo={cammino > 0 && cammino < 1 ? locale / 2.2 : undefined} />
         <Compare v={molla(locale, 6, fps)} cx={x + 50} cy={230}>
           <Fumetto cx={x + 50} cy={230} r={46}>
             {capito ? (

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { avsIndipendenti, chf, dataSvizzera, fonti, percentuale, regole } from "./svizzera";
+import { avsIndipendenti, chf, dataSvizzera, fonti, fontiPercorso, percentuale, regole, VERIFICATO_FORME } from "./svizzera";
 
 describe("formattazione svizzera", () => {
   it("chf usa l'apostrofo per le migliaia", () => {
@@ -21,6 +21,18 @@ describe("formattazione svizzera", () => {
 describe("dati ufficiali", () => {
   it("ogni fonte ha un URL https", () => {
     for (const f of Object.values(fonti)) expect(f.url).toMatch(/^https:\/\//);
+  });
+  it("il capitale minimo di Sagl e SA è quello di legge, in formato svizzero", () => {
+    expect(regole.capitaleMinimoSagl.valore).toBe(20_000);
+    expect(regole.capitaleMinimoSa.valore).toBe(100_000);
+    expect(chf(regole.capitaleMinimoSagl.valore)).toBe("CHF 20'000");
+    expect(chf(regole.capitaleMinimoSa.valore)).toBe("CHF 100'000");
+  });
+  it("le pagine sulle forme giuridiche sono del Portale PMI e hanno una data di controllo", () => {
+    for (const f of [fontiPercorso.pmiNomeCollettivo, fontiPercorso.pmiSa, fontiPercorso.pmiScegliereForma, fontiPercorso.pmiSagl]) {
+      expect(f.url).toMatch(/^https:\/\/www\.kmu\.admin\.ch\/it\//);
+    }
+    expect(VERIFICATO_FORME).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
   it("le soglie chiave sono quelle di legge", () => {
     expect(regole.sogliaRegistroCommercio.valore).toBe(100_000);

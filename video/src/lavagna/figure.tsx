@@ -130,8 +130,10 @@ export function Pillola({
 }
 
 /**
- * Una persona stilizzata, con i piedi in (x, y). `passo` fa muovere le
- * gambe (radianti), `umore` cambia la bocca.
+ * Una persona-pittogramma, con i piedi in (x, y): testa rotonda piena e
+ * corpo arrotondato dello stesso colore, senza faccia. `passo` fa muovere le
+ * gambe (radianti); `inclinata` la piega un po' (per esempio se è
+ * preoccupata, insieme al fumetto «?»).
  */
 export function Persona({
   x,
@@ -139,37 +141,106 @@ export function Persona({
   s = 1,
   colore = TINTE.tratto,
   passo,
-  umore = "felice",
+  inclinata = 0,
   opacita = 1,
+  contorno,
 }: {
   x: number;
   y: number;
   s?: number;
   colore?: string;
   passo?: number;
-  umore?: "felice" | "preoccupata";
+  /** Gradi: positivo verso destra. */
+  inclinata?: number;
   opacita?: number;
+  /** Un alone colorato attorno (per esempio rosso: «rispondi tu»). */
+  contorno?: string;
 }) {
-  const g = passo === undefined ? 0 : Math.sin(passo) * 16;
+  const g = passo === undefined ? 0 : Math.sin(passo) * 15;
   const sobbalzo = passo === undefined ? 0 : Math.abs(Math.sin(passo)) * 4;
+  const forma = (
+    <g>
+      <rect x={-27} y={-62} width={22} height={64} rx={11} fill={colore} transform={`rotate(${g} -16 -56)`} />
+      <rect x={5} y={-62} width={22} height={64} rx={11} fill={colore} transform={`rotate(${-g} 16 -56)`} />
+      <rect x={-48} y={-118} width={20} height={62} rx={10} fill={colore} transform={`rotate(${12 - g * 0.7} -38 -112)`} />
+      <rect x={28} y={-118} width={20} height={62} rx={10} fill={colore} transform={`rotate(${-12 + g * 0.7} 38 -112)`} />
+      <path d="M -36 -48 V -96 Q -36 -124 -8 -124 H 8 Q 36 -124 36 -96 V -48 Q 36 -40 28 -40 H -28 Q -36 -40 -36 -48 Z" fill={colore} />
+      <circle cx={0} cy={-156} r={27} fill={colore} />
+    </g>
+  );
   return (
-    <g transform={`translate(${x} ${y - sobbalzo}) scale(${s})`} opacity={opacita}>
-      {/* gambe */}
-      <line x1={-12} y1={-58} x2={-12 - g} y2={-4} stroke={colore} strokeWidth={16} strokeLinecap="round" />
-      <line x1={12} y1={-58} x2={12 + g} y2={-4} stroke={colore} strokeWidth={16} strokeLinecap="round" />
-      {/* corpo e braccia */}
-      <line x1={-30} y1={-112} x2={-38 + g * 0.6} y2={-66} stroke={colore} strokeWidth={14} strokeLinecap="round" />
-      <line x1={30} y1={-112} x2={38 - g * 0.6} y2={-66} stroke={colore} strokeWidth={14} strokeLinecap="round" />
-      <rect x={-32} y={-126} width={64} height={78} rx={28} fill={colore} />
-      {/* testa */}
-      <circle cx={0} cy={-152} r={28} fill={TINTE.pelle} stroke={colore} strokeWidth={6} />
-      <circle cx={-9} cy={-155} r={3.6} fill={COLORI.testo} />
-      <circle cx={9} cy={-155} r={3.6} fill={COLORI.testo} />
-      {umore === "felice" ? (
-        <path d="M -9 -143 Q 0 -134 9 -143" fill="none" stroke={COLORI.testo} strokeWidth={3.5} strokeLinecap="round" />
-      ) : (
-        <path d="M -8 -138 Q 0 -145 8 -138" fill="none" stroke={COLORI.testo} strokeWidth={3.5} strokeLinecap="round" />
-      )}
+    <g transform={`translate(${x} ${y - sobbalzo}) scale(${s}) rotate(${inclinata} 0 -60)`} opacity={opacita}>
+      {contorno ? (
+        <g stroke={contorno} strokeWidth={14} strokeLinejoin="round" fill="none" opacity={0.9}>
+          <circle cx={0} cy={-156} r={27} />
+          <path d="M -36 -48 V -96 Q -36 -124 -8 -124 H 8 Q 36 -124 36 -96 V -48 Q 36 -40 28 -40 H -28 Q -36 -40 -36 -48 Z" />
+        </g>
+      ) : null}
+      {forma}
+    </g>
+  );
+}
+
+/** Il verde acqua più chiaro, per la seconda persona. */
+export const TEAL_CHIARO = "#3b8f9b";
+
+/** Un palazzo: la società (Sagl o SA), con il nome sulla facciata. */
+export function Palazzo({ x, y, s = 1, nome, colore = TINTE.tratto }: { x: number; y: number; s?: number; nome?: string; colore?: string }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <path d="M -80 0 V -150 L 0 -196 L 80 -150 V 0 Z" fill={TINTE.carta} stroke={colore} strokeWidth={7} strokeLinejoin="round" />
+      {[-46, 0, 46].map((cx) => (
+        <rect key={cx} x={cx - 13} y={-128} width={26} height={70} rx={8} fill={TINTE.tinta} stroke={colore} strokeWidth={5} />
+      ))}
+      <rect x={-22} y={-44} width={44} height={44} rx={8} fill={colore} />
+      <line x1={-94} y1={0} x2={94} y2={0} stroke={colore} strokeWidth={8} strokeLinecap="round" />
+      {nome ? (
+        <g>
+          <rect x={-56} y={-186} width={112} height={44} rx={12} fill={colore} />
+          <Testo x={0} y={-163} corpo={30} titolo peso={800} colore={TINTE.carta}>
+            {nome}
+          </Testo>
+        </g>
+      ) : null}
+    </g>
+  );
+}
+
+/** Il registro di commercio: un librone con il segnalibro. */
+export function Registro({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <rect x={-70} y={-110} width={140} height={110} rx={12} fill={TINTE.tratto} />
+      <rect x={-58} y={-100} width={116} height={90} rx={8} fill={TINTE.carta} />
+      <line x1={0} y1={-100} x2={0} y2={-10} stroke={TINTE.tinta} strokeWidth={5} />
+      {[-78, -60, -42].map((yy) => (
+        <g key={yy}>
+          <line x1={-46} y1={yy} x2={-12} y2={yy} stroke={TINTE.tinta} strokeWidth={7} strokeLinecap="round" />
+          <line x1={12} y1={yy} x2={46} y2={yy} stroke={TINTE.tinta} strokeWidth={7} strokeLinecap="round" />
+        </g>
+      ))}
+      <path d="M 30 -110 v 46 l 10 -10 l 10 10 v -46 Z" fill={TINTE.accento} />
+    </g>
+  );
+}
+
+/** Uno scudo con la spunta: «protetto». */
+export function Scudo({ x, y, s = 1, colore = TINTE.ok }: { x: number; y: number; s?: number; colore?: string }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <path d="M 0 -60 L 46 -44 V -10 Q 46 26 0 46 Q -46 26 -46 -10 V -44 Z" fill={colore} />
+      <path d="M -18 -6 L -4 8 L 20 -18" fill="none" stroke={TINTE.carta} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  );
+}
+
+/** Un triangolo d'avviso con il punto esclamativo: il rischio. */
+export function Avviso({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <path d="M 0 -44 L 44 36 H -44 Z" fill={TINTE.rischioTenue} stroke={TINTE.rischio} strokeWidth={7} strokeLinejoin="round" />
+      <line x1={0} y1={-14} x2={0} y2={10} stroke={TINTE.rischio} strokeWidth={8} strokeLinecap="round" />
+      <circle cx={0} cy={24} r={5} fill={TINTE.rischio} />
     </g>
   );
 }

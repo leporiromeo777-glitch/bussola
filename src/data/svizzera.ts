@@ -353,6 +353,23 @@ export const fontiPercorso = {
     url: "https://www.kmu.admin.ch/it/forma-giuridica-societa-a-garanzia-limitata-sagl",
     ente: PMI,
   },
+  // Le quattro forme più comuni e i criteri per scegliere (lezione 1 del corso):
+  // pagine ricontrollate il 17.10.2026, vedi VERIFICATO_FORME.
+  pmiNomeCollettivo: {
+    titolo: "Forma giuridica: la società in nome collettivo",
+    url: "https://www.kmu.admin.ch/it/forma-giuridica-societa-in-nome-collettivo",
+    ente: PMI,
+  },
+  pmiSa: {
+    titolo: "Forma giuridica: la società anonima (SA)",
+    url: "https://www.kmu.admin.ch/it/forma-giuridica-societa-anonima-sa",
+    ente: PMI,
+  },
+  pmiScegliereForma: {
+    titolo: "Scegliere una forma giuridica: una forma giuridica per ogni impresa",
+    url: "https://www.kmu.admin.ch/it/scegliere-una-forma-giuridica-una-forma-giuridica-per-ogni-impresa",
+    ente: PMI,
+  },
 
   // Autorizzazioni e permessi
   sefriProfessioniRegolamentate: {
@@ -580,6 +597,13 @@ export const fontiPercorso = {
     ente: "Cantone Ticino",
   },
 } as const satisfies Record<string, Fonte>;
+
+/**
+ * Data dell'ultimo controllo delle pagine del Portale PMI sulle forme
+ * giuridiche (ditta individuale, nome collettivo, Sagl, SA, scelta della
+ * forma, imposte) e degli artt. 621 e 773 CO.
+ */
+export const VERIFICATO_FORME = "2026-10-17";
 
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
