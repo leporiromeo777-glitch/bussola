@@ -94,8 +94,8 @@ export const LEZIONI: readonly LezioneCorso[] = [
         video: "/corso/soci-forma-giuridica-statuto.mp4",
         poster: "/corso/soci-forma-giuridica-statuto.jpg",
         sottotitoli: "/corso/soci-forma-giuridica-statuto.vtt",
-        durataSecondi: 108,
-        fonti: [fontiPercorso.statutoTipoSagl, fontiPercorso.co776, fontiPercorso.co809, fontiPercorso.co777b],
+        durataSecondi: 117,
+        fonti: [fontiPercorso.statutoTipoSagl, fontiPercorso.co776, fontiPercorso.co809, fontiPercorso.co774, fontiPercorso.co777b],
         verificatoIl: VERIFICATO_DOCUMENTI_SAGL,
       },
       {

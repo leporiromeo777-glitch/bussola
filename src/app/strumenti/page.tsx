@@ -5,6 +5,7 @@ import {
   IconaCalendario,
   IconaConti,
   IconaDispositivo,
+  IconaDocumento,
   IconaEtichetta,
   IconaFattura,
   IconaFotocamera,
@@ -19,7 +20,7 @@ import { NotaNonConsulenza } from "@/components/strumenti/intestazione";
 export const metadata: Metadata = {
   title: "Strumenti",
   description:
-    "Tariffa oraria, budget del primo anno, business plan, preventivo e fattura con QR-fattura, nome della ditta, testi pronti, lettere spiegate e i tuoi conti: strumenti per chi apre una ditta individuale in Ticino.",
+    "Tariffa oraria, budget del primo anno, business plan, preventivo e fattura con QR-fattura, documenti per fondare una Sagl, nome della ditta, testi pronti, lettere spiegate e i tuoi conti: strumenti per chi apre una ditta individuale in Ticino.",
 };
 
 type Strumento = {
@@ -62,6 +63,13 @@ const STRUMENTI: Strumento[] = [
       { href: "/strumenti/preventivo", etichetta: "Nuovo preventivo" },
       { href: "/strumenti/fattura", etichetta: "Nuova fattura" },
     ],
+  },
+  {
+    titolo: "Fondare una Sagl",
+    testo:
+      "Per chi parte con dei soci: i dati della società, il capitale e le quote, chi dirige. Scarichi in PDF la scheda per il notaio e una bozza dello statuto, con le fonti di legge.",
+    Icona: IconaDocumento,
+    link: [{ href: "/strumenti/sagl", etichetta: "Prepara i documenti" }],
   },
   {
     titolo: "Nome della ditta",

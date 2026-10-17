@@ -98,6 +98,7 @@ export const PASSI = [
     descrizione: `Una ditta individuale ha un solo titolare. Se partite in più persone, una forma possibile è la Sagl: serve un capitale di almeno ${chf(regole.capitaleMinimoSagl.valore)}, da versare per intero, un atto pubblico dal notaio e l'iscrizione nel registro di commercio. Il percorso per la Sagl arriverà in Bleo più avanti.`,
     cosaFare: [
       "Seguite la check list ufficiale del Portale PMI per creare una Sagl.",
+      "Con lo strumento «Fondare una Sagl» di Bleo preparate i dati e scaricate in PDF la scheda per il notaio e una bozza dello statuto.",
       "Chiedete un preventivo a un notaio e, per il vostro caso, a un fiduciario autorizzato (trovi l'elenco nell'albo online del Cantone).",
       "Sappiate che nella Sagl i soci che lavorano nella società sono considerati dipendenti per le assicurazioni sociali.",
     ],
@@ -119,6 +120,7 @@ export const PASSI = [
       fontiPercorso.statutoTipoSagl,
       fontiPercorso.co776,
       fontiPercorso.co809,
+      fontiPercorso.co774,
       fontiPercorso.co777a,
       fontiPercorso.co777b,
       fontiPercorso.co778,

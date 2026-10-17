@@ -6,6 +6,8 @@
  * regola (quote, soci, assemblea, gerenti, conti), chi dirige (art. 809 CO;
  * statuto tipo, art. 22: i gerenti li elegge l'assemblea e non devono essere
  * soci), e che poi si allega all'atto di fondazione (art. 777b CO).
+ * Lo statuto tipo è del 2008: la scena 6 lo dice (la legge è cambiata, per
+ * esempio sul valore delle quote, art. 774 CO).
  * Testi ricontrollati il 17.10.2026 (VERIFICATO_DOCUMENTI_SAGL).
  *
  * Bleo spiega il modello, non scrive lo statuto per qualcuno: per il proprio
@@ -88,18 +90,19 @@ export const statutoSagl: Lezione = {
       audio: "scena-6.mp3",
       stile: "presentatore",
       testo:
-        "Attenzione: lo statuto tipo è un esempio. Le parti tra parentesi quadre, come il nome e lo scopo, le scrivete voi, e le altre regole le scegliete e le adattate al vostro caso. Per questo fatevi aiutare dal notaio o da un fiduciario autorizzato.",
+        "Attenzione: lo statuto tipo è del 2008, e da allora la legge è cambiata, per esempio sul valore delle quote. Quindi usatelo solo come esempio: le parti tra parentesi quadre le scrivete voi, e il resto lo adattate con il notaio o con un fiduciario autorizzato.",
+      voce: "Attenzione: lo statuto tipo è del duemilaotto, e da allora la legge è cambiata, per esempio sul valore delle quote. Quindi usatelo solo come esempio: le parti tra parentesi quadre le scrivete voi, e il resto lo adattate con il notaio o con un fiduciario autorizzato.",
       schermo: {
         tipo: "attenzione",
-        titolo: "Lo statuto tipo è un esempio",
-        testo: "Adattatelo al vostro caso, con il notaio o un fiduciario autorizzato.",
+        titolo: "Lo statuto tipo è del 2008",
+        testo: "La legge è cambiata (per esempio sul valore delle quote): usatelo solo come esempio, con il notaio o un fiduciario autorizzato.",
       },
     },
     {
       audio: "scena-7.mp3",
       stile: "presentatore",
       testo:
-        "Poi lo statuto va fatto controllare dal notaio e dal registro di commercio, e si allega all'atto di fondazione. Come funziona, lo vedi nell'altro video facoltativo.",
+        "Poi lo statuto va fatto controllare dal notaio e dal registro di commercio, e si allega all'atto di fondazione. Come funziona, lo vedi nell'altro video facoltativo. E con lo strumento di Bleo «Fondare una Sagl» potete preparare i vostri dati e una prima bozza da portare al notaio.",
       schermo: {
         tipo: "punto",
         titolo: "E poi?",

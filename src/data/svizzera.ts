@@ -308,8 +308,15 @@ export const fontiPercorso = {
   co778: { titolo: "Codice delle obbligazioni, art. 778", url: `${CO}#art_778`, ente: FEDLEX },
   co779: { titolo: "Codice delle obbligazioni, art. 779", url: `${CO}#art_779`, ente: FEDLEX },
   co809: { titolo: "Codice delle obbligazioni, art. 809", url: `${CO}#art_809`, ente: FEDLEX },
+  co774: { titolo: "Codice delle obbligazioni, art. 774", url: `${CO}#art_774`, ente: FEDLEX },
+  // Strumento «Fondare una Sagl» (scheda e bozza dello statuto): ricontrollati il 17.10.2026.
+  co772: { titolo: "Codice delle obbligazioni, art. 772", url: `${CO}#art_772`, ente: FEDLEX },
+  co814: { titolo: "Codice delle obbligazioni, art. 814", url: `${CO}#art_814`, ente: FEDLEX },
+  co818: { titolo: "Codice delle obbligazioni, art. 818", url: `${CO}#art_818`, ente: FEDLEX },
+  co727a: { titolo: "Codice delle obbligazioni, art. 727a", url: `${CO}#art_727_a`, ente: FEDLEX },
+  co804: { titolo: "Codice delle obbligazioni, art. 804", url: `${CO}#art_804`, ente: FEDLEX },
   statutoTipoSagl: {
-    titolo: "Statuto tipo Sagl, con le note",
+    titolo: "Statuto tipo Sagl, con le note (modello del 2008)",
     url: "https://www4.ti.ch/fileadmin/DI/DG/RC/Documentazione/Statuti_SAGL_annotati.pdf",
     ente: "Cantone Ticino, Registro di commercio (modello dell'Ufficio federale del registro di commercio)",
   },
@@ -628,7 +635,9 @@ export const VERIFICATO_CHECKLIST = "2026-10-17";
 
 /**
  * Data dell'ultimo controllo dello statuto tipo Sagl del registro di commercio
- * e degli artt. 776-779 e 809 CO, per i video facoltativi della lezione 2.
+ * e degli artt. 774, 776-779 e 809 CO, per i video facoltativi della lezione 2.
+ * Lo statuto tipo è del 2008: precede la riforma del 2023 (per esempio oggi le
+ * quote devono solo valere più di zero, art. 774 CO, e l'art. 776a è abrogato).
  */
 export const VERIFICATO_DOCUMENTI_SAGL = "2026-10-17";
 

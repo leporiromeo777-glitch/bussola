@@ -14,6 +14,7 @@ export const CHIAVI_ARCHIVIO = {
   businessPlan: "bussola.strumenti.business-plan",
   documenti: "bussola.strumenti.documenti",
   emittente: "bussola.strumenti.emittente",
+  fondazioneSagl: "bussola.strumenti.fondazione-sagl",
 } as const;
 
 export type ChiaveArchivio = (typeof CHIAVI_ARCHIVIO)[keyof typeof CHIAVI_ARCHIVIO];
