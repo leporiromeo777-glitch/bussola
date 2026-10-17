@@ -28,6 +28,11 @@ describe("dati ufficiali", () => {
     expect(chf(regole.capitaleMinimoSagl.valore)).toBe("CHF 20'000");
     expect(chf(regole.capitaleMinimoSa.valore)).toBe("CHF 100'000");
   });
+  it("nella SA alla costituzione si versano almeno CHF 50'000", () => {
+    expect(regole.versamentoMinimoSa.valore).toBe(50_000);
+    expect(regole.versamentoMinimoSa.fonte).toBe(fonti.co632);
+    expect(chf(regole.versamentoMinimoSa.valore)).toBe("CHF 50'000");
+  });
   it("le pagine sulle forme giuridiche sono del Portale PMI e hanno una data di controllo", () => {
     for (const f of [fontiPercorso.pmiNomeCollettivo, fontiPercorso.pmiSa, fontiPercorso.pmiScegliereForma, fontiPercorso.pmiSagl]) {
       expect(f.url).toMatch(/^https:\/\/www\.kmu\.admin\.ch\/it\//);

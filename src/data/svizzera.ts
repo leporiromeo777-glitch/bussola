@@ -36,6 +36,7 @@ export const fonti = {
   co958f: { titolo: "Codice delle obbligazioni, art. 958f", url: `${CO}#art_958_f`, ente: "Confederazione (Fedlex)" },
   co773: { titolo: "Codice delle obbligazioni, art. 773", url: `${CO}#art_773`, ente: "Confederazione (Fedlex)" },
   co621: { titolo: "Codice delle obbligazioni, art. 621", url: `${CO}#art_621`, ente: "Confederazione (Fedlex)" },
+  co632: { titolo: "Codice delle obbligazioni, art. 632", url: `${CO}#art_632`, ente: "Confederazione (Fedlex)" },
   liva10: { titolo: "Legge sull'IVA, art. 10", url: `${LIVA}#art_10`, ente: "Confederazione (Fedlex)" },
   liva14: { titolo: "Legge sull'IVA, art. 14", url: `${LIVA}#art_14`, ente: "Confederazione (Fedlex)" },
   liva27: { titolo: "Legge sull'IVA, art. 27", url: `${LIVA}#art_27`, ente: "Confederazione (Fedlex)" },
@@ -150,6 +151,7 @@ export const regole = {
   sogliaContabilitaSemplificata: dato(500_000, fonti.co957, "Con una cifra d'affari inferiore a questa nell'ultimo esercizio la ditta individuale può tenere solo entrate, uscite e situazione patrimoniale; da CHF 500'000 esatti serve la contabilità completa."),
   capitaleMinimoSagl: dato(20_000, fonti.co773),
   capitaleMinimoSa: dato(100_000, fonti.co621),
+  versamentoMinimoSa: dato(50_000, fonti.co632, "Alla costituzione della SA va versato almeno il 20% del valore nominale di ogni azione e in totale almeno CHF 50'000. Nella Sagl invece il capitale va versato per intero (art. 777c CO)."),
 } as const;
 
 /** Aliquote IVA in vigore dal 01.01.2024. */

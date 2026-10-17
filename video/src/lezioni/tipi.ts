@@ -29,8 +29,9 @@ export type Scena = {
    */
   testo: string;
   /**
-   * Il testo per la voce, se non basta cambiare Bleo in «Blìo» e SA in
-   * «esse-a» (vedi src/voce.ts): per esempio le cifre, scritte in parole.
+   * Il testo per la voce, se deve dire qualcosa in modo diverso dal
+   * sottotitolo: per esempio le cifre, scritte in parole. Le pronunce di
+   * src/voce.ts (Bleo, Sagl, SA, …) valgono anche qui.
    */
   voce?: string;
   schermo: Schermo;

@@ -15,19 +15,24 @@ export const VOCE_BLEO = {
 } as const;
 
 /**
- * Il testo che legge la voce: `voce` della scena se c'è, se no il sottotitolo
- * con «Blìo» al posto di Bleo (si scrive Bleo, si dice «Blìo»), «esse-a» al
- * posto di SA e «pi-emme-i» al posto di PMI. Le cifre la voce le legge male:
- * vanno scritte in parole nel campo `voce` della scena.
+ * Come la voce deve dire le parole che legge male: si scrive Bleo, si dice
+ * «Blìo»; le sigle lettera per lettera (Sagl non è una parola).
+ */
+const PRONUNCE: readonly [RegExp, string][] = [
+  [/\bBleo\b/g, "Blìo"],
+  [/\bSagl\b/g, "esse-a-gi-elle"],
+  [/\be SA\b/g, "ed esse-a"],
+  [/\bSA\b/g, "esse-a"],
+  [/\bPMI\b/g, "pi-emme-i"],
+];
+
+/**
+ * Il testo che legge la voce: `voce` della scena se c'è, se no il sottotitolo,
+ * con le pronunce qui sopra. Le cifre la voce le legge male: vanno scritte in
+ * parole nel campo `voce` della scena.
  */
 export function testoPerVoce(scena: Scena): string {
-  const testo =
-    scena.voce ??
-    scena.testo
-      .replace(/\bBleo\b/g, "Blìo")
-      .replace(/\be SA\b/g, "ed esse-a")
-      .replace(/\bSA\b/g, "esse-a")
-      .replace(/\bPMI\b/g, "pi-emme-i");
+  const testo = PRONUNCE.reduce((t, [parola, pronuncia]) => t.replace(parola, pronuncia), scena.voce ?? scena.testo);
   if (/\d|CHF/.test(testo)) {
     throw new Error(`Cifre nel testo della voce di ${scena.audio}: scrivile in parole nel campo «voce» della scena.`);
   }
