@@ -16,11 +16,14 @@ export const VOCE_BLEO = {
 
 /**
  * Come la voce deve dire le parole che legge male: si scrive Bleo, si dice
- * «Blìo»; le sigle lettera per lettera (Sagl non è una parola).
+ * «Blìo»; le sigle lettera per lettera (Sagl non è una parola). Per Sagl lo
+ * spazio prima di «èlle» e la virgola dopo servono: senza, la L si perde e
+ * si sente «SAGel» (provato a orecchio il 17.10.2026).
  */
 const PRONUNCE: readonly [RegExp, string][] = [
   [/\bBleo\b/g, "Blìo"],
-  [/\bSagl\b/g, "esse-a-gi-elle"],
+  [/\bSagl\b(?![.,;:!?])/g, "esse-a-gi èlle,"],
+  [/\bSagl\b/g, "esse-a-gi èlle"],
   [/\be SA\b/g, "ed esse-a"],
   [/\bSA\b/g, "esse-a"],
   [/\bPMI\b/g, "pi-emme-i"],

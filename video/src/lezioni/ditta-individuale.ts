@@ -22,7 +22,7 @@
  * - criteri di scelta (autonomia, rischio, capitale, imposte) e indicazioni
  *   generali (fontiPercorso.pmiScegliereForma).
  *
- * La voce dice «Blìo», «esse-a-gi-elle» ed «esse-a» (src/voce.ts), e le
+ * La voce dice «Blìo», «esse-a-gi èlle» ed «esse-a» (src/voce.ts), e le
  * cifre in parole («ventimila franchi», nel campo `voce` della scena 5): se
  * cambiano i dati, va rifatta la voce con `npm run voce` (vedi il controllo
  * qui sotto). Lo schermo scrive Bleo, Sagl, SA e CHF 20'000.

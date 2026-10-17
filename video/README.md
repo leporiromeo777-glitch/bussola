@@ -32,7 +32,7 @@ Servono Node 22, `ffmpeg` e `curl`. La prima volta: `cd video && npm install`.
 
    Scrive un MP3 per scena in `video/sorgenti/<id-passo>/` (`scena-1.mp3`,
    `scena-2.mp3`, …). La voce legge il sottotitolo con «Blìo» al posto di Bleo
-   e le sigle lettera per lettera («esse-a-gi-elle» per Sagl, «esse-a» per SA,
+   e le sigle lettera per lettera («esse-a-gi èlle» per Sagl, «esse-a» per SA,
    «pi-emme-i» per PMI; l'elenco è in `src/voce.ts`), così la pronuncia è
    giusta. Le cifre vanno scritte in parole nel campo `voce` della scena
    (per esempio «ventimila franchi»): con una cifra lo script si ferma prima
