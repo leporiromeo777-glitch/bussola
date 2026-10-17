@@ -7,6 +7,8 @@ import { Sfondo } from "./componenti/Sfondo";
 import { Sottotitoli } from "./componenti/Sottotitoli";
 import { trovaLezione } from "./lezioni";
 import type { Durate, StileLezione } from "./lezioni/tipi";
+import { Lavagna } from "./lavagna/Lavagna";
+import { Misto } from "./misto/Misto";
 import { Presentatore } from "./presentatore/Presentatore";
 import { GRIGLIA } from "./stile";
 import { calcolaTempi, FPS, LATO } from "./tempi";
@@ -34,25 +36,27 @@ export function Lezione({ lezioneId, stile, copertina, durate }: PropsLezione) {
   const lezione = trovaLezione(lezioneId);
   const tempi = calcolaTempi(lezione, durate);
   const parla = tempi.scene.some((s) => frame >= s.inizio && frame < s.inizio + s.voce);
-  const presentatore = (stile ?? lezione.stile ?? "classico") === "presentatore";
+  const scelto = stile ?? lezione.stile ?? "classico";
+  const presentatore = scelto === "presentatore";
   return (
     <AbsoluteFill>
       <Sfondo />
       <Intestazione scene={tempi.scene} numero={lezione.numero} />
-      {presentatore ? (
-        <Presentatore lezione={lezione} durate={durate} tempi={tempi} />
-      ) : (
+      {presentatore ? <Presentatore lezione={lezione} durate={durate} tempi={tempi} /> : null}
+      {scelto === "lavagna" ? <Lavagna lezione={lezione} durate={durate} tempi={tempi} parla={parla} /> : null}
+      {scelto === "misto" ? <Misto lezione={lezione} durate={durate} tempi={tempi} parla={parla} /> : null}
+      {scelto === "classico" ? (
         <AbsoluteFill style={{ transform: `translateY(${copertina ? SPOSTAMENTO_COPERTINA : 0}px)` }}>
           <ClipBleo src={`${lezione.id}/${lezione.clip}`} durataLoop={Math.floor(durate.clip * FPS)} />
           <Schede scene={lezione.scene} tempi={tempi.scene} />
         </AbsoluteFill>
-      )}
+      ) : null}
       {copertina ? null : (
         <Sottotitoli
           battute={tempi.battute}
           parla={parla}
           fine={tempi.inizioFine}
-          stile={presentatore ? "presentatore" : "classico"}
+          stile={scelto}
         />
       )}
       {lezione.scene.map((scena, i) => (
@@ -61,7 +65,7 @@ export function Lezione({ lezioneId, stile, copertina, durate }: PropsLezione) {
         </Sequence>
       ))}
       <Sequence from={tempi.inizioFine}>
-        <Fine prossimoPasso={lezione.prossimoPasso} salta={presentatore} />
+        <Fine prossimoPasso={lezione.prossimoPasso} salta={scelto !== "classico"} />
       </Sequence>
     </AbsoluteFill>
   );

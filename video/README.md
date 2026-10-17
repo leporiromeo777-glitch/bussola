@@ -66,9 +66,24 @@ Ogni lezione ha uno stile, `stile` in `video/src/lezioni/<id-passo>.ts`
   dell'avviso, spinge la scheda della fonte e fa sì con la testa. I
   sottotitoli sono una fascia più bassa sopra la pancia di Bleo.
 
-Per ogni lezione c'è anche la composizione nell'altro stile,
-`<id-passo>-<stile>` (per esempio `ditta-individuale-presentatore`). Per
-provarla senza toccare il sito:
+- **lavagna**: Bleo parla in una finestra rotonda in basso a sinistra (testa e
+  petto dal clip `clip.mp4` della lezione); il resto è una lavagna a puntini con
+  un disegno animato per scena, che spiega quello che dice. Ogni scena nomina il
+  suo disegno con `disegno` (i disegni sono in `src/lavagna/disegni/`, uno
+  file per lezione, registrati in `index.ts`): la seconda parte del disegno
+  parte alla pausa misurata della voce (il cambio di sottotitolo). Niente cifre
+  nei disegni, solo concetti. La bussolina indica e tocca le figure; i tre
+  cerchi dell'elenco si riempiono uno per scena.
+- **misto**: ogni scena sceglie `stile: "presentatore"` o `"lavagna"` (con due
+  stili, per esempio `["presentatore", "lavagna"]`, la scena si divide alla
+  prima pausa della voce). Nei passaggi Bleo vola nella finestra rotonda (o ne
+  esce), i disegni entrano o scivolano via, la bussolina è sempre la stessa.
+  Vedi `src/misto/Misto.tsx`.
+
+Per ogni lezione ci sono anche le composizioni negli altri stili,
+`<id-passo>-<stile>` (per esempio `ditta-individuale-presentatore`,
+`ditta-individuale-lavagna`, `ditta-individuale-misto`). Per provarne una senza
+toccare il sito:
 
 ```sh
 npm run render -- ditta-individuale presentatore

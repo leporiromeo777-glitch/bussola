@@ -29,6 +29,17 @@ export type Scena = {
    */
   testo: string;
   schermo: Schermo;
+  /**
+   * Il disegno della lavagna per questa scena: il nome di un disegno in
+   * src/lavagna/disegni/. Se manca, la lavagna mostra la scheda (`schermo`).
+   */
+  disegno?: string;
+  /**
+   * Nel «misto»: lo stile della scena (se manca: «presentatore»). Con due
+   * stili la scena si divide alla prima pausa misurata della voce (il primo
+   * cambio di sottotitolo).
+   */
+  stile?: StileScena | readonly [StileScena, StileScena];
 };
 
 /**
@@ -37,10 +48,17 @@ export type Scena = {
  *   chiave a destra e i sottotitoli sotto;
  * - «presentatore»: Bleo in primo piano a sinistra, senza scheda, che indica a
  *   destra; la bussolina fa comparire i punti chiave accanto alla sua mano.
+ * - «lavagna»: Bleo in una finestra rotonda in basso a sinistra; il resto è
+ *   una lavagna con disegni animati che spiegano ogni scena (`disegno`).
+ * - «misto»: ogni scena sceglie «presentatore» o «lavagna» (`stile` della
+ *   scena), con i passaggi animati fra i due.
  */
-export type StileLezione = "classico" | "presentatore";
+export type StileLezione = "classico" | "presentatore" | "lavagna" | "misto";
 
-export const STILI: readonly StileLezione[] = ["classico", "presentatore"];
+export const STILI: readonly StileLezione[] = ["classico", "presentatore", "lavagna", "misto"];
+
+/** Lo stile di una scena nel «misto». */
+export type StileScena = "presentatore" | "lavagna";
 
 export type Lezione = {
   /** Uguale al passo del percorso: è anche l'id della composizione e il nome dei file. */

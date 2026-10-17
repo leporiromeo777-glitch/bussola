@@ -5,7 +5,17 @@ import type { Durate, Lezione, Schermo } from "../lezioni/tipi";
 import type { Tempi } from "../tempi";
 import { BleoPresentatore } from "./BleoPresentatore";
 import { Bussolina } from "./Bussolina";
-import { altoScheda, creaPiano, fondoScheda, posa, spinta, srotolato, TEMPI_SCHEDE, type Misura } from "./coreografia";
+import {
+  altoScheda,
+  creaPiano,
+  fondoScheda,
+  posa,
+  spinta,
+  srotolato,
+  TEMPI_SCHEDE,
+  type GruppoScene,
+  type Misura,
+} from "./coreografia";
 import { PRESENTATORE } from "./griglia";
 import { Scintille } from "./Scintille";
 
@@ -20,7 +30,6 @@ const { colonna } = PRESENTATORE;
  */
 export function Presentatore({ lezione, durate, tempi }: { lezione: Lezione; durate: Durate; tempi: Tempi }) {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
   if (!durate.presentatore) {
     throw new Error("Manca Bleo presentatore: metti il clip in video/sorgenti/presentatore/ e rilancia npm run prepara.");
   }
@@ -32,28 +41,61 @@ export function Presentatore({ lezione, durate, tempi }: { lezione: Lezione; dur
   return (
     <>
       <BleoPresentatore clip={durate.presentatore} />
-      {/* Copie invisibili delle schede (nello stato finale del gruppo), per misurarle. */}
-      <div ref={misure.rif} style={{ visibility: "hidden" }} aria-hidden>
-        {gruppi.map((g) => {
-          const ultima = g.scene.at(-1)!;
-          return (
-            <div
-              key={g.chiave}
-              data-gruppo={g.chiave}
-              style={{ position: "absolute", left: colonna.x, top: 0, width: colonna.larghezza }}
-            >
-              <Scheda
-                schermo={lezione.scene[ultima].schermo}
-                locale={1000}
-                comparse={g.scene.map((i) => ({ inizio: -1000, schermo: lezione.scene[i].schermo }))}
-              />
-            </div>
-          );
-        })}
-      </div>
+      <CopieDaMisurare rif={misure.rif} lezione={lezione} gruppi={gruppi} />
+      <SchedePresentatore lezione={lezione} tempi={tempi} gruppi={gruppi} misure={misure.valori} />
+      <Scintille scintille={piano.scintille} />
+      {adesso ? <Bussolina posa={adesso} piano={piano} /> : null}
+    </>
+  );
+}
+
+/** Copie invisibili delle schede (nello stato finale del gruppo), per misurarle (vedi useMisure). */
+export function CopieDaMisurare({
+  rif,
+  lezione,
+  gruppi,
+}: {
+  rif: RefObject<HTMLDivElement | null>;
+  lezione: Lezione;
+  gruppi: readonly GruppoScene[];
+}) {
+  return (
+    <div ref={rif} style={{ visibility: "hidden" }} aria-hidden>
+      {gruppi.map((g) => {
+        const ultima = g.scene.at(-1)!;
+        return (
+          <div key={g.chiave} data-gruppo={g.chiave} style={{ position: "absolute", left: colonna.x, top: 0, width: colonna.larghezza }}>
+            <Scheda
+              schermo={lezione.scene[ultima].schermo}
+              locale={1000}
+              comparse={g.scene.map((i) => ({ inizio: -1000, schermo: lezione.scene[i].schermo }))}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Le schede accanto alla mano di Bleo, ognuna con la sua entrata; escono alla fine del loro gruppo. */
+export function SchedePresentatore({
+  lezione,
+  tempi,
+  gruppi,
+  misure,
+}: {
+  lezione: Lezione;
+  tempi: Tempi;
+  gruppi: readonly GruppoScene[];
+  misure: Readonly<Record<string, Misura>>;
+}) {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  return (
+    <>
       {gruppi.map((g) => {
         if (frame < g.inizio || frame >= g.fine + USCITA) return null;
-        const misura = misure.valori[g.chiave];
+        const misura = misure[g.chiave];
         const tipo = lezione.scene[g.scene[0]].schermo.tipo;
         const alto = altoScheda(misura, tipo);
         const altezza = fondoScheda(tipo) - alto;
@@ -88,8 +130,6 @@ export function Presentatore({ lezione, durate, tempi }: { lezione: Lezione; dur
           </div>
         );
       })}
-      <Scintille scintille={piano.scintille} />
-      {adesso ? <Bussolina posa={adesso} piano={piano} /> : null}
     </>
   );
 }
@@ -188,7 +228,7 @@ function Rullo({ locale, altezza }: { locale: number; altezza: number }) {
  * Misura le copie invisibili delle schede a ogni fotogramma (dopo il disegno,
  * prima che il fotogramma venga fotografato) e le aggiorna solo se cambiano.
  */
-function useMisure(): { rif: RefObject<HTMLDivElement | null>; valori: Record<string, Misura> } {
+export function useMisure(): { rif: RefObject<HTMLDivElement | null>; valori: Record<string, Misura> } {
   const rif = useRef<HTMLDivElement>(null);
   const [valori, setValori] = useState<Record<string, Misura>>({});
   useLayoutEffect(() => {

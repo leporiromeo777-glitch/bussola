@@ -32,31 +32,43 @@ export const dittaIndividuale: Lezione = {
   scene: [
     {
       audio: "scena-1.mp3",
+      disegno: "titolo-lezione",
+      stile: "presentatore",
       testo: "Ciao, sono Bleo! In un minuto ti spiego cos'è una ditta individuale.",
       schermo: { tipo: "titolo", etichetta: `Il corso di Bleo · Lezione ${corso.numero}`, titolo: corso.titolo },
     },
     {
       audio: "scena-2.mp3",
+      disegno: "scala-forme",
+      stile: "lavagna",
       testo: "È la forma più semplice per lavorare in proprio. Ricorda tre cose.",
       schermo: treCose(0),
     },
     {
       audio: "scena-3.mp3",
+      disegno: "linea-tempo",
+      stile: "lavagna",
       testo: "Primo: la ditta nasce quando inizi la tua attività.",
       schermo: treCose(1),
     },
     {
       audio: "scena-4.mp3",
+      disegno: "cassaforte-vuota",
+      stile: "lavagna",
       testo: "Secondo: non serve un capitale per aprirla.",
       schermo: treCose(2),
     },
     {
       audio: "scena-5.mp3",
+      disegno: "titolare-solo",
+      stile: "lavagna",
       testo: "Terzo: il titolare sei solo tu. Se partite in più persone, serve un'altra forma.",
       schermo: treCose(3),
     },
     {
       audio: "scena-6.mp3",
+      disegno: "patrimonio",
+      stile: ["presentatore", "lavagna"],
       testo:
         "Attenzione: tu e la ditta siete la stessa persona. Per questo rispondi dei debiti della ditta con tutto il tuo patrimonio personale.",
       schermo: {
@@ -67,6 +79,8 @@ export const dittaIndividuale: Lezione = {
     },
     {
       audio: "scena-7.mp3",
+      disegno: "imposte",
+      stile: "lavagna",
       testo: "E le imposte sul reddito della ditta le paghi tu, nella tua dichiarazione personale.",
       schermo: {
         tipo: "punto",
@@ -77,6 +91,8 @@ export const dittaIndividuale: Lezione = {
     },
     {
       audio: "scena-8.mp3",
+      disegno: "fiduciario",
+      stile: "presentatore",
       testo: "Se il rischio ti preoccupa, chiedi a un fiduciario autorizzato se ti conviene un'altra forma.",
       schermo: {
         tipo: "punto",
@@ -86,6 +102,8 @@ export const dittaIndividuale: Lezione = {
     },
     {
       audio: "scena-9.mp3",
+      disegno: "fonte",
+      stile: "presentatore",
       testo: "La fonte ufficiale la trovi qui sotto, sul Portale PMI della Confederazione. Ci vediamo al prossimo passo!",
       schermo: { tipo: "fonte", fonte: fonteDitta, verificatoIl: corso.verificatoIl },
     },

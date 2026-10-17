@@ -29,10 +29,19 @@ function Pezzo({ nome, stile, children }: { nome: string; stile?: CSSProperties;
   );
 }
 
-export function Bussolina({ posa, piano }: { posa: Posa; piano: Piano }) {
+export function Bussolina({
+  posa,
+  piano,
+  altezza = DIMENSIONI_BUSSOLINA.altezza,
+}: {
+  posa: Posa;
+  piano: Piano;
+  /** Altezza quando fa qualcosa (da ferma è un po' più piccola, vedi `posa.scala`). */
+  altezza?: number;
+}) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const { altezza, larghezza } = DIMENSIONI_BUSSOLINA;
+  const larghezza = altezza * (DIMENSIONI_BUSSOLINA.larghezza / DIMENSIONI_BUSSOLINA.altezza);
   const k = altezza / LATO_Y;
   const cartellino = piano.cartellini.find((c) => frame >= c.inizio && frame < Math.min(c.fine, piano.fine) + 6);
   const allerta = piano.allerte.find((a) => frame >= a.inizio && frame < a.fine);
@@ -54,7 +63,8 @@ export function Bussolina({ posa, piano }: { posa: Posa; piano: Piano }) {
         top: posa.y - altezza,
         width: larghezza,
         height: altezza,
-        transform: `rotate(${posa.rotazione}deg) scale(${posa.sx * posa.scala}, ${posa.sy * posa.scala})`,
+        // Specchiata per ultima: anche l'inclinazione si gira dall'altra parte.
+        transform: `${posa.specchio ? "scaleX(-1) " : ""}rotate(${posa.rotazione}deg) scale(${posa.sx * posa.scala}, ${posa.sy * posa.scala})`,
         transformOrigin: "50% 100%",
         filter: "drop-shadow(0 10px 12px rgba(15, 94, 107, 0.28))",
       }}

@@ -5,7 +5,23 @@ import { PRESENTATORE } from "../presentatore/griglia";
 import type { Battuta } from "../tempi";
 import { COLORI, GRIGLIA, OMBRA_SCHEDA, TESTO } from "../stile";
 
-/** Dove sta il riquadro e quanto è grande il testo, nei due stili. */
+/** Una fascia più bassa, sopra la pancia di Bleo: non copre il viso, la mano né le schede. */
+const FASCIA: { riquadro: CSSProperties; corpo: number } = {
+  riquadro: {
+    left: PRESENTATORE.sottotitoli.lato,
+    right: PRESENTATORE.sottotitoli.lato,
+    bottom: PRESENTATORE.sottotitoli.fondo,
+    minHeight: PRESENTATORE.sottotitoli.altezza,
+    boxSizing: "border-box",
+    padding: "20px 36px 14px",
+  },
+  corpo: PRESENTATORE.sottotitoli.corpo,
+};
+
+/**
+ * Dove sta il riquadro e quanto è grande il testo. Lavagna e misto usano la
+ * stessa fascia del presentatore, così nel misto i sottotitoli non si spostano.
+ */
 const FORMATO: Record<StileLezione, { riquadro: CSSProperties; corpo: number }> = {
   classico: {
     riquadro: {
@@ -17,18 +33,9 @@ const FORMATO: Record<StileLezione, { riquadro: CSSProperties; corpo: number }> 
     },
     corpo: 48,
   },
-  // Una fascia più bassa, sopra la pancia di Bleo: non copre il viso, la mano né le schede.
-  presentatore: {
-    riquadro: {
-      left: PRESENTATORE.sottotitoli.lato,
-      right: PRESENTATORE.sottotitoli.lato,
-      bottom: PRESENTATORE.sottotitoli.fondo,
-      minHeight: PRESENTATORE.sottotitoli.altezza,
-      boxSizing: "border-box",
-      padding: "20px 36px 14px",
-    },
-    corpo: PRESENTATORE.sottotitoli.corpo,
-  },
+  presentatore: FASCIA,
+  lavagna: FASCIA,
+  misto: FASCIA,
 };
 
 /** Sottotitoli grandi in basso, con l'etichetta «Bleo» e le barrette che si muovono mentre parla. */

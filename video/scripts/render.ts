@@ -25,7 +25,7 @@ const SITO = join(VIDEO, "..", "public", "corso");
 const OUT = join(VIDEO, "out");
 const REMOTION = join(VIDEO, "node_modules", ".bin", "remotion");
 /** Copertina: il titolo è entrato e Bleo sorride con gli occhi aperti (vedi `copertina` in src/Lezione.tsx). */
-const SECONDI_COPERTINA: Record<StileLezione, number> = { classico: 2, presentatore: 2.5 };
+const SECONDI_COPERTINA: Record<StileLezione, number> = { classico: 2, presentatore: 2.5, lavagna: 2.5, misto: 2.5 };
 
 const [id, stileRichiesto] = process.argv.slice(2);
 if (!id || (stileRichiesto && !STILI.includes(stileRichiesto as StileLezione))) {

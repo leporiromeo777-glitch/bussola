@@ -20,9 +20,11 @@ export type Misura = { altezza: number; punti: Punto[] };
 /** Un gruppo di scene con la stessa scheda (vedi gruppiSchede in componenti/Schede.tsx). */
 export type GruppoScene = { chiave: string; scene: number[]; inizio: number; fine: number };
 
-type Mossa =
-  | { tipo: "entra"; inizio: number; durata: number; a: Punto }
-  | { tipo: "salta"; inizio: number; durata: number; a: Punto; altezza: number }
+export type Mossa =
+  | { tipo: "entra"; inizio: number; durata: number; a: Punto; specchio?: boolean }
+  | { tipo: "salta"; inizio: number; durata: number; a: Punto; altezza: number; specchio?: boolean }
+  /** Si gira dall'altra parte (specchio: guarda e tocca verso sinistra). */
+  | { tipo: "gira"; inizio: number; durata: number; specchio: boolean }
   | { tipo: "tira"; inizio: number; durata: number; a: Punto }
   /** Volo lungo una curva che passa vicino a `controllo` (per girare attorno alle schede). */
   | { tipo: "vola"; inizio: number; durata: number; a: Punto; controllo: Punto }
@@ -90,6 +92,8 @@ export type Posa = Corpo & {
   scala: number;
   /** Rotazione dell'ago, in gradi. */
   ago: number;
+  /** Girata verso sinistra (immagine specchiata). */
+  specchio?: boolean;
 };
 
 /** Ritardi (in fotogrammi dall'inizio della scena) usati sia dalla bussolina sia dalle schede. */
@@ -114,10 +118,10 @@ export const TEMPI_SCHEDE = {
 } as const;
 
 /** Durate (fotogrammi) delle mosse della bussolina. */
-const DURATE = { salto: 12, tocco: 16, lancio: 18, scossa: 34, allerta: 72, annuisci: 22, sparisci: 6, cammina: 32 } as const;
+export const DURATE = { salto: 12, tocco: 16, lancio: 18, scossa: 34, allerta: 72, annuisci: 22, sparisci: 6, cammina: 32 } as const;
 
 /** Di quanto gira il braccio destro per toccare un numero (punta a destra). */
-const ANGOLO_TOCCO = 45;
+export const ANGOLO_TOCCO = 45;
 
 const { colonna, bussolina } = PRESENTATORE;
 /** Altezza quando fa qualcosa; ferma è un po' più piccola (`bussolina.ferma`). */
@@ -132,7 +136,7 @@ const K = ALTEZZA / PEZZI.lato[1];
  * Dove arriva la punta della mano destra con il braccio girato di `angolo`,
  * rispetto ai piedi (pixel del video, bussolina grande).
  */
-function manoDestra(angolo: number): Punto {
+export function manoDestra(angolo: number, altezza: number = ALTEZZA): Punto {
   const [px, py] = PEZZI["braccio-dx"].perno;
   const [, y0, x1] = PEZZI["braccio-dx"].riquadro;
   // La mano: in cima al braccio, un po' prima del bordo destro.
@@ -145,7 +149,8 @@ function manoDestra(angolo: number): Punto {
   // Più il raggio della mano, nella direzione del braccio.
   const lungo = Math.hypot(rx - px, ry - py);
   const punta = { x: rx + ((rx - px) / lungo) * 20, y: ry + ((ry - py) / lungo) * 20 };
-  return { x: (punta.x - PEZZI.lato[0] / 2) * K, y: (punta.y - PEZZI.lato[1]) * K };
+  const k = (K * altezza) / ALTEZZA;
+  return { x: (punta.x - PEZZI.lato[0] / 2) * k, y: (punta.y - PEZZI.lato[1]) * k };
 }
 /** Da dove arriva in volo: fuori dallo schermo, in alto a destra. */
 const PARTENZA: Punto = { x: 1200, y: -40 };
@@ -163,135 +168,156 @@ export function altoScheda(misura: Misura | undefined, tipo: Schermo["tipo"]): n
   return fondoScheda(tipo) - (misura?.altezza ?? 400);
 }
 
+/** Lo stato del regista mentre mette in fila le mosse: dove si trova la bussolina e cosa ha fatto. */
+export type Regia = {
+  mosse: Mossa[];
+  cartellini: Piano["cartellini"];
+  allerte: Piano["allerte"];
+  scintille: Scintilla[];
+  qui: Punto | null;
+};
+
+export function nuovaRegia(): Regia {
+  return { mosse: [], cartellini: [], allerte: [], scintille: [], qui: null };
+}
+
+/** Va in `a`: la prima volta entra in volo, poi con un salto (se non è già lì). */
+export function vai(r: Regia, a: Punto, inizio: number, durata: number = DURATE.salto, altezza = 90, specchio?: boolean) {
+  if (r.qui === null) {
+    r.mosse.push({ tipo: "entra", inizio, durata, a, specchio });
+  } else if (Math.hypot(a.x - r.qui.x, a.y - r.qui.y) > 4) {
+    r.mosse.push({ tipo: "salta", inizio, durata, a, altezza, specchio });
+  } else if (specchio !== undefined) {
+    r.mosse.push({ tipo: "gira", inizio, durata: 1, specchio });
+  }
+  r.qui = a;
+}
+
+const aRiposo = (r: Regia) => r.qui !== null && r.qui.x === RIPOSO.x && r.qui.y === RIPOSO.y;
+
 export function creaPiano(
   scene: readonly Scena[],
   tempi: Tempi,
   gruppi: readonly GruppoScene[],
   misure: Readonly<Record<string, Misura>>,
 ): Piano {
-  const mosse: Mossa[] = [];
-  const cartellini: Piano["cartellini"] = [];
-  const allerte: Piano["allerte"] = [];
-  const scintille: Scintilla[] = [];
-  let qui: Punto | null = null;
+  const r = nuovaRegia();
+  gruppi.forEach((g) => gruppoPresentatore(r, g, scene, tempi, misure));
+  return { ...r, fine: tempi.inizioFine };
+}
 
-  const vai = (a: Punto, inizio: number, durata: number = DURATE.salto, altezza = 90) => {
-    if (qui === null) {
-      mosse.push({ tipo: "entra", inizio, durata, a });
-    } else if (Math.hypot(a.x - qui.x, a.y - qui.y) > 4) {
-      mosse.push({ tipo: "salta", inizio, durata, a, altezza });
+/** Le mosse della bussolina per un gruppo di scene nello stile «presentatore». */
+export function gruppoPresentatore(
+  r: Regia,
+  g: GruppoScene,
+  scene: readonly Scena[],
+  tempi: Tempi,
+  misure: Readonly<Record<string, Misura>>,
+) {
+  const s = g.inizio;
+  const misura = misure[g.chiave];
+  const schermo = scene[g.scene[0]].schermo;
+  const alto = altoScheda(misura, schermo.tipo);
+  const basso = fondoScheda(schermo.tipo);
+  const destra = colonna.x + colonna.larghezza;
+  switch (schermo.tipo) {
+    case "titolo": {
+      // Si appende al rullo con le mani in alto e lo tira giù.
+      const x = destra - LARGHEZZA * 0.42;
+      const mani = -manoDestra(POSE_TIRA.braccioDx).y;
+      vai(r, { x, y: alto + mani }, s, TEMPI_SCHEDE.titoloTira);
+      const giu = { x, y: basso + mani };
+      r.mosse.push({ tipo: "tira", inizio: s + TEMPI_SCHEDE.titoloTira, durata: TEMPI_SCHEDE.titoloDurata, a: giu });
+      r.qui = giu;
+      // Torna al suo posto girando fuori a destra e sopra la scheda, così non copre il titolo.
+      r.mosse.push({
+        tipo: "vola",
+        inizio: s + TEMPI_SCHEDE.titoloTira + TEMPI_SCHEDE.titoloDurata + 6,
+        durata: 22,
+        a: RIPOSO,
+        controllo: { x: 1500, y: 40 },
+      });
+      r.qui = RIPOSO;
+      break;
     }
-    qui = a;
-  };
-  const aRiposo = () => qui !== null && qui.x === RIPOSO.x && qui.y === RIPOSO.y;
-
-  gruppi.forEach((g) => {
-    const s = g.inizio;
-    const misura = misure[g.chiave];
-    const schermo = scene[g.scene[0]].schermo;
-    const alto = altoScheda(misura, schermo.tipo);
-    const basso = fondoScheda(schermo.tipo);
-    const destra = colonna.x + colonna.larghezza;
-    switch (schermo.tipo) {
-      case "titolo": {
-        // Si appende al rullo con le mani in alto e lo tira giù.
-        const x = destra - LARGHEZZA * 0.42;
-        const mani = -manoDestra(POSE_TIRA.braccioDx).y;
-        vai({ x, y: alto + mani }, s, TEMPI_SCHEDE.titoloTira);
-        const giu = { x, y: basso + mani };
-        mosse.push({ tipo: "tira", inizio: s + TEMPI_SCHEDE.titoloTira, durata: TEMPI_SCHEDE.titoloDurata, a: giu });
-        qui = giu;
-        // Torna al suo posto girando fuori a destra e sopra la scheda, così non copre il titolo.
-        mosse.push({
-          tipo: "vola",
-          inizio: s + TEMPI_SCHEDE.titoloTira + TEMPI_SCHEDE.titoloDurata + 6,
-          durata: 22,
-          a: RIPOSO,
-          controllo: { x: 1500, y: 40 },
-        });
-        qui = RIPOSO;
-        break;
-      }
-      case "elenco": {
-        // Il «lancio» (si allunga dopo 4 fotogrammi) coincide con l'entrata della scheda.
-        if (aRiposo()) mosse.push({ tipo: "lancia", inizio: s + TEMPI_SCHEDE.elencoEntra - 5, durata: DURATE.lancio });
-        else vai(RIPOSO, s);
-        let visibili = 0;
-        g.scene.forEach((i) => {
-          const sc = scene[i].schermo;
-          if (sc.tipo !== "elenco") return;
-          const t = tempi.scene[i].inizio;
-          if (sc.visibili === 0) {
-            // «Ricorda tre cose»: il cartellino con il numero sale sull'ultima frase della scena.
-            const fine = t + tempi.scene[i].durata;
-            const battute = tempi.battute.filter((b) => b.inizio * FPS >= t - 1 && b.inizio * FPS < fine);
-            const ultima = battute.length > 1 ? Math.round(battute.at(-1)!.inizio * FPS) : t + 20;
-            cartellini.push({ inizio: ultima, fine: Infinity, testo: String(sc.punti.length) });
-          }
-          for (let k = visibili; k < sc.visibili; k++) {
-            const passo = (k - visibili) * 30;
-            const centro = misura?.punti[k] ?? { x: 56, y: 120 + 80 * k };
-            // Il braccio destro scende a destra e la mano tocca il bordo del numero.
-            const mano = manoDestra(ANGOLO_TOCCO);
-            const piedi = { x: colonna.x + centro.x - 26 - mano.x + 4, y: alto + centro.y - mano.y };
-            vai(piedi, t + passo, TEMPI_SCHEDE.puntoSalto, 60);
-            mosse.push({ tipo: "tocca", inizio: t + passo + TEMPI_SCHEDE.puntoSalto, durata: DURATE.tocco });
-            scintille.push({ x: colonna.x + centro.x, y: alto + centro.y, inizio: t + passo + TEMPI_SCHEDE.puntoTocco, raggio: 92 });
-            const c = cartellini.at(-1);
-            if (c && c.fine === Infinity) c.fine = t + passo + 2;
-          }
-          visibili = Math.max(visibili, sc.visibili);
-        });
-        break;
-      }
-      case "attenzione": {
-        // Se deve prima tornare al suo posto, trema appena arrivata.
-        const t = aRiposo() ? s + 2 : s + DURATE.salto;
-        vai(RIPOSO, s, DURATE.salto, 110);
-        mosse.push({ tipo: "scuoti", inizio: t, durata: DURATE.scossa });
-        allerte.push({ inizio: t + 1, fine: Math.min(t + DURATE.allerta, g.fine) });
-        break;
-      }
-      case "punto": {
-        if (!aRiposo()) vai(RIPOSO, s);
-        mosse.push({ tipo: "lancia", inizio: s + TEMPI_SCHEDE.puntoEntra - 5, durata: DURATE.lancio });
-        scintille.push({ x: colonna.x + 6, y: alto + 6, inizio: s + TEMPI_SCHEDE.puntoEntra + 5, raggio: 80 });
-        break;
-      }
-      case "fonte": {
-        mosse.push({ tipo: "sparisci", inizio: s, durata: DURATE.sparisci });
-        if (qui) scintille.push({ x: qui.x, y: qui.y - ALTEZZA * FERMA * 0.5, inizio: s + 3, raggio: 70 });
-        // Spinge la scheda dall'angolo in alto a destra: il corpo resta sopra la
-        // scheda (sopra il testo), il braccio sinistro teso contro il bordo e i
-        // piedi sul margine bianco in cima.
-        const a = { x: destra - LARGHEZZA * 0.17, y: alto + 50 };
-        const da = { x: a.x + TEMPI_SCHEDE.fonteCorsa, y: a.y };
-        mosse.push({ tipo: "spingi", inizio: s + TEMPI_SCHEDE.fonteSpinge, durata: TEMPI_SCHEDE.fonteDurata, da, a });
-        qui = a;
-        // Poi un saltello sul bordo in alto della scheda e fa sì con la testa.
-        const sopra = { x: destra - LARGHEZZA * 0.6, y: alto + 14 };
-        const t = s + TEMPI_SCHEDE.fonteSpinge + TEMPI_SCHEDE.fonteDurata + 4;
-        vai(sopra, t, 14, 60);
-        mosse.push({ tipo: "annuisci", inizio: t + 16, durata: DURATE.annuisci });
-        // Poi passeggia sul bordo della scheda e alla fine fa festa (sull'ultima frase).
-        const fineScena = g.fine;
-        const passeggia = t + 16 + DURATE.annuisci + 10;
-        const piu = { x: sopra.x - 150, y: sopra.y };
-        if (passeggia + DURATE.cammina < fineScena - 40) {
-          mosse.push({ tipo: "cammina", inizio: passeggia, durata: DURATE.cammina, a: piu });
-          qui = piu;
+    case "elenco": {
+      // Il «lancio» (si allunga dopo 4 fotogrammi) coincide con l'entrata della scheda.
+      if (aRiposo(r)) r.mosse.push({ tipo: "lancia", inizio: s + TEMPI_SCHEDE.elencoEntra - 5, durata: DURATE.lancio });
+      else vai(r, RIPOSO, s);
+      let visibili = 0;
+      g.scene.forEach((i) => {
+        const sc = scene[i].schermo;
+        if (sc.tipo !== "elenco") return;
+        const t = tempi.scene[i].inizio;
+        if (sc.visibili === 0) {
+          // «Ricorda tre cose»: il cartellino con il numero sale sull'ultima frase della scena.
+          const fine = t + tempi.scene[i].durata;
+          const battute = tempi.battute.filter((b) => b.inizio * FPS >= t - 1 && b.inizio * FPS < fine);
+          const ultima = battute.length > 1 ? Math.round(battute.at(-1)!.inizio * FPS) : t + 20;
+          r.cartellini.push({ inizio: ultima, fine: Infinity, testo: String(sc.punti.length) });
         }
-        const ultima = tempi.battute.filter((b) => b.inizio * FPS >= s - 1 && b.inizio * FPS < fineScena).at(-1);
-        const festa = Math.max(
-          passeggia + DURATE.cammina + 4,
-          ultima && ultima.inizio * FPS > s + 1 ? Math.round(ultima.inizio * FPS) : fineScena - 60,
-        );
-        if (fineScena - 4 - festa >= 30) mosse.push({ tipo: "festeggia", inizio: festa, durata: fineScena - 4 - festa });
-        break;
-      }
+        for (let k = visibili; k < sc.visibili; k++) {
+          const passo = (k - visibili) * 30;
+          const centro = misura?.punti[k] ?? { x: 56, y: 120 + 80 * k };
+          // Il braccio destro scende a destra e la mano tocca il bordo del numero.
+          const mano = manoDestra(ANGOLO_TOCCO);
+          const piedi = { x: colonna.x + centro.x - 26 - mano.x + 4, y: alto + centro.y - mano.y };
+          vai(r, piedi, t + passo, TEMPI_SCHEDE.puntoSalto, 60);
+          r.mosse.push({ tipo: "tocca", inizio: t + passo + TEMPI_SCHEDE.puntoSalto, durata: DURATE.tocco });
+          r.scintille.push({ x: colonna.x + centro.x, y: alto + centro.y, inizio: t + passo + TEMPI_SCHEDE.puntoTocco, raggio: 92 });
+          const c = r.cartellini.at(-1);
+          if (c && c.fine === Infinity) c.fine = t + passo + 2;
+        }
+        visibili = Math.max(visibili, sc.visibili);
+      });
+      break;
     }
-  });
-  return { mosse, cartellini, allerte, scintille, fine: tempi.inizioFine };
+    case "attenzione": {
+      // Se deve prima tornare al suo posto, trema appena arrivata.
+      const t = aRiposo(r) ? s + 2 : s + DURATE.salto;
+      vai(r, RIPOSO, s, DURATE.salto, 110);
+      r.mosse.push({ tipo: "scuoti", inizio: t, durata: DURATE.scossa });
+      r.allerte.push({ inizio: t + 1, fine: Math.min(t + DURATE.allerta, g.fine) });
+      break;
+    }
+    case "punto": {
+      if (!aRiposo(r)) vai(r, RIPOSO, s);
+      r.mosse.push({ tipo: "lancia", inizio: s + TEMPI_SCHEDE.puntoEntra - 5, durata: DURATE.lancio });
+      r.scintille.push({ x: colonna.x + 6, y: alto + 6, inizio: s + TEMPI_SCHEDE.puntoEntra + 5, raggio: 80 });
+      break;
+    }
+    case "fonte": {
+      r.mosse.push({ tipo: "sparisci", inizio: s, durata: DURATE.sparisci });
+      if (r.qui) r.scintille.push({ x: r.qui.x, y: r.qui.y - ALTEZZA * FERMA * 0.5, inizio: s + 3, raggio: 70 });
+      // Spinge la scheda dall'angolo in alto a destra: il corpo resta sopra la
+      // scheda (sopra il testo), il braccio sinistro teso contro il bordo e i
+      // piedi sul margine bianco in cima.
+      const a = { x: destra - LARGHEZZA * 0.17, y: alto + 50 };
+      const da = { x: a.x + TEMPI_SCHEDE.fonteCorsa, y: a.y };
+      r.mosse.push({ tipo: "spingi", inizio: s + TEMPI_SCHEDE.fonteSpinge, durata: TEMPI_SCHEDE.fonteDurata, da, a });
+      r.qui = a;
+      // Poi un saltello sul bordo in alto della scheda e fa sì con la testa.
+      const sopra = { x: destra - LARGHEZZA * 0.6, y: alto + 14 };
+      const t = s + TEMPI_SCHEDE.fonteSpinge + TEMPI_SCHEDE.fonteDurata + 4;
+      vai(r, sopra, t, 14, 60);
+      r.mosse.push({ tipo: "annuisci", inizio: t + 16, durata: DURATE.annuisci });
+      // Poi passeggia sul bordo della scheda e alla fine fa festa (sull'ultima frase).
+      const fineScena = g.fine;
+      const passeggia = t + 16 + DURATE.annuisci + 10;
+      const piu = { x: sopra.x - 150, y: sopra.y };
+      if (passeggia + DURATE.cammina < fineScena - 40) {
+        r.mosse.push({ tipo: "cammina", inizio: passeggia, durata: DURATE.cammina, a: piu });
+        r.qui = piu;
+      }
+      const ultima = tempi.battute.filter((b) => b.inizio * FPS >= s - 1 && b.inizio * FPS < fineScena).at(-1);
+      const festa = Math.max(
+        passeggia + DURATE.cammina + 4,
+        ultima && ultima.inizio * FPS > s + 1 ? Math.round(ultima.inizio * FPS) : fineScena - 60,
+      );
+      if (fineScena - 4 - festa >= 30) r.mosse.push({ tipo: "festeggia", inizio: festa, durata: fineScena - 4 - festa });
+      break;
+    }
+  }
 }
 
 const limita = (n: number, min = 0, max = 1) => Math.min(max, Math.max(min, n));
@@ -319,7 +345,12 @@ export function posa(piano: Piano, f: number): Posa | null {
     tiene && ferma
       ? { braccioDx: -6 + Math.sin(f / 2.2) * 6 * Math.max(0.3, 1 - (f - tiene.inizio) / 30), braccioSx: -30, bocca: "aperta" as const }
       : {};
-  return { ...p, ...cartellino, scala: p.scala * taglia(piano, f) };
+  let specchio = false;
+  for (const m of piano.mosse) {
+    if (f < m.inizio) break;
+    if ("specchio" in m && m.specchio !== undefined) specchio = m.specchio;
+  }
+  return { ...p, ...cartellino, scala: p.scala * taglia(piano, f), specchio };
 }
 
 /** Da FERMA a 1: cresce poco prima di ogni mossa e torna piccola poco dopo. */
@@ -424,6 +455,8 @@ function posaInMossa(m: Mossa, da: Punto, u: number, f: number): Posa {
   const arco = Math.sin(Math.PI * u);
   const t = u * m.durata;
   switch (m.tipo) {
+    case "gira":
+      return base;
     case "entra": {
       // Arriva in volo da in alto a destra lungo una curva, sbattendo le braccia.
       const e = frena(u);
