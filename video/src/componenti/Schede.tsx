@@ -128,6 +128,10 @@ function Barra() {
 function SchedaTitolo({ etichetta, titolo, locale }: { etichetta: string; titolo: string; locale: number }) {
   const { fps } = useVideoConfig();
   const parole = titolo.split(" ");
+  // Una parola lunga (per esempio «un'autorizzazione?») deve stare nella scheda:
+  // oltre i 13 caratteri il titolo si rimpicciolisce.
+  const piuLunga = Math.max(...parole.map((p) => p.length));
+  const corpo = Math.round(58 * Math.min(1, 13 / piuLunga));
   return (
     <Cornice stile={{ padding: "40px 32px 44px" }}>
       <span
@@ -149,7 +153,7 @@ function SchedaTitolo({ etichetta, titolo, locale }: { etichetta: string; titolo
           margin: "26px 0 28px",
           fontFamily: TITOLI,
           fontWeight: 800,
-          fontSize: 58,
+          fontSize: corpo,
           lineHeight: 1.04,
           letterSpacing: "-0.03em",
           color: COLORI.testo,

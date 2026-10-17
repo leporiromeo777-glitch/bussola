@@ -641,6 +641,12 @@ export const VERIFICATO_CHECKLIST = "2026-10-17";
  */
 export const VERIFICATO_DOCUMENTI_SAGL = "2026-10-17";
 
+/**
+ * Data dell'ultimo controllo delle fonti sulle autorizzazioni (Portale PMI,
+ * note informative della SEFRI, Polizia cantonale), per la lezione 3.
+ */
+export const VERIFICATO_AUTORIZZAZIONI = "2026-10-17";
+
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
   mesiPerIvaDaSubito: dato(12, fonti.liva14, "Se all'avvio è presumibile superare la soglia IVA entro 12 mesi, si è assoggettati da subito."),

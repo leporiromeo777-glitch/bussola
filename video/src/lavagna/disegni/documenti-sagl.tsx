@@ -42,7 +42,7 @@ const RIGA = { x: 330, w: 650, alto: 92, h: 78, passo: 92 };
  * momento (`tempi`, in fotogrammi dall'inizio della scena), con il numero, e
  * la bussolina la tocca.
  */
-function elenco(titolo: string, righe: readonly string[], tempi: (ctx: ContestoDisegno) => number[]): Disegno {
+export function elenco(titolo: string, righe: readonly string[], tempi: (ctx: ContestoDisegno) => number[]): Disegno {
   return {
     chiave: (ctx) => tempi(ctx)[0],
     bussolina: (ctx) => ({

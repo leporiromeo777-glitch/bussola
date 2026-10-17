@@ -3,7 +3,7 @@
  * I video si fanno con Remotion nella cartella video/ (vedi video/README.md),
  * che legge da qui titolo, numero e fonti di ogni lezione.
  *
- * Per ora ci sono le lezioni 1 e 2; gli altri passi appaiono come «In arrivo».
+ * Per ora ci sono le lezioni 1, 2 e 3; gli altri passi appaiono come «In arrivo».
  * Una lezione può avere dei video facoltativi (`approfondimenti`), che
  * spiegano meglio un punto: si vedono sotto il video della lezione.
  */
@@ -11,6 +11,7 @@ import type { IdPasso } from "./passi";
 import {
   fonti,
   fontiPercorso,
+  VERIFICATO_AUTORIZZAZIONI,
   VERIFICATO_CHECKLIST,
   VERIFICATO_DOCUMENTI_SAGL,
   VERIFICATO_FORME,
@@ -115,6 +116,17 @@ export const LEZIONI: readonly LezioneCorso[] = [
         verificatoIl: VERIFICATO_DOCUMENTI_SAGL,
       },
     ],
+  },
+  {
+    passoId: "autorizzazioni",
+    numero: 3,
+    titolo: "Ti serve un'autorizzazione?",
+    video: "/corso/autorizzazioni.mp4",
+    poster: "/corso/autorizzazioni.jpg",
+    sottotitoli: "/corso/autorizzazioni.vtt",
+    durataSecondi: 99,
+    fonti: [fontiPercorso.pmiMettersiInProprio, fontiPercorso.sefriProfessioniRegolamentate, fontiPercorso.poliziaAutorizzazioni],
+    verificatoIl: VERIFICATO_AUTORIZZAZIONI,
   },
 ];
 

@@ -3,6 +3,7 @@
  * il suo con `disegno` (vedi src/lezioni/tipi.ts); una lezione nuova aggiunge
  * il suo file di disegni e lo mette qui.
  */
+import { DISEGNI_AUTORIZZAZIONI } from "./autorizzazioni";
 import { DISEGNI_DITTA_INDIVIDUALE } from "./ditta-individuale";
 import { DISEGNI_DOCUMENTI_SAGL } from "./documenti-sagl";
 import { DISEGNI_FONDARE_SAGL } from "./fondare-sagl";
@@ -14,6 +15,7 @@ export const DISEGNI: Readonly<Record<string, Disegno>> = {
   ...DISEGNI_FORME,
   ...DISEGNI_FONDARE_SAGL,
   ...DISEGNI_DOCUMENTI_SAGL,
+  ...DISEGNI_AUTORIZZAZIONI,
 };
 
 export type { ContestoDisegno, Disegno } from "./tipi";
