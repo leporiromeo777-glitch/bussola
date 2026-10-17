@@ -76,7 +76,8 @@ export function Schede({ scene, tempi }: { scene: readonly Scena[]; tempi: reado
   );
 }
 
-function Scheda({
+/** Una scheda, a frame `locale` dalla sua comparsa (usata anche dallo stile «presentatore»). */
+export function Scheda({
   schermo,
   locale,
   comparse,
@@ -216,6 +217,7 @@ function SchedaElenco({
           return (
             <li
               key={punto.testo}
+              data-punto={i}
               style={{
                 display: "flex",
                 alignItems: "flex-start",

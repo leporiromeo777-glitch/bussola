@@ -8,19 +8,27 @@
  *
  * Nella cartella servono: i file audio delle scene (come in src/lezioni/<id>.ts)
  * e clip-parla.mp4 (Bleo che parla, senza audio). Servono ffmpeg e curl nel PATH.
+ *
+ * Per lo stile «presentatore» prepara anche, una volta per tutte le lezioni,
+ * Bleo presentatore con lo sfondo trasparente (da sorgenti/presentatore/).
  */
 import { execFileSync, spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { fileCaratteri } from "../src/caratteri";
 import { trovaLezione } from "../src/lezioni";
 import type { Durate } from "../src/lezioni/tipi";
+import { CLIP_PRESENTATORE } from "../src/presentatore/clip";
 
 const QUI = dirname(fileURLToPath(import.meta.url));
 const VIDEO = resolve(QUI, "..");
 const MASCOTTE = ["festa.webp", "bussolina.webp"];
 const CLIP_SORGENTE = "clip-parla.mp4";
+/** Bleo presentatore su sfondo trasparente (VP9 con alfa): saluta, poi indica a destra. */
+const PRESENTATORE_SORGENTE = join(VIDEO, "sorgenti", "presentatore", "bleo-presentatore-alpha.webm");
+/** Primo fotogramma in cui Bleo indica già a destra: da qui parte il loop. */
+const TAGLIO_PRESENTATORE = 56;
 
 const [id, cartella] = process.argv.slice(2);
 if (!id || !cartella) {
@@ -104,9 +112,55 @@ for (const c of fileCaratteri()) {
   execFileSync("curl", ["-sSfL", "-o", file, c.url], { stdio: "inherit" });
 }
 
-const durate: Durate = { clip: arrotonda(durata(uscitaClip)), scene };
+// 5. Bleo presentatore (stile «presentatore»): il saluto una volta, poi il
+//    pezzo in cui indica, avanti e indietro. Il decoder libvpx-vp9 serve per
+//    leggere il canale alfa; -auto-alt-ref 0 per poterlo scrivere.
+function contaFotogrammi(file: string): number {
+  return Number(ffprobe(file, "-count_frames", "-select_streams", "v:0", "-show_entries", "stream=nb_read_frames"));
+}
+
+function preparaPresentatore(): Durate["presentatore"] {
+  if (!existsSync(PRESENTATORE_SORGENTE)) {
+    console.warn(`Manca ${PRESENTATORE_SORGENTE}: lo stile «presentatore» non si può fare.`);
+    return undefined;
+  }
+  const cartella = join(VIDEO, "public", CLIP_PRESENTATORE.cartella);
+  mkdirSync(cartella, { recursive: true });
+  const saluto = join(cartella, CLIP_PRESENTATORE.saluto);
+  const indica = join(cartella, CLIP_PRESENTATORE.indica);
+  const aggiornato = (f: string) => existsSync(f) && statSync(f).mtimeMs > statSync(PRESENTATORE_SORGENTE).mtimeMs;
+  if (!aggiornato(saluto) || !aggiornato(indica)) {
+    const totale = contaFotogrammi(PRESENTATORE_SORGENTE);
+    const vp9 = ["-an", "-c:v", "libvpx-vp9", "-pix_fmt", "yuva420p", "-b:v", "0", "-crf", "24", "-auto-alt-ref", "0", "-row-mt", "1"];
+    const ffmpeg = (filtro: string, uscita: string) =>
+      execFileSync(
+        "ffmpeg",
+        ["-v", "error", "-y", "-c:v", "libvpx-vp9", "-i", PRESENTATORE_SORGENTE, "-filter_complex", filtro, "-map", "[v]", ...vp9, uscita],
+        { stdio: "inherit" },
+      );
+    // Il ritaglio sul verde lascia un filo scuro sul bordo: si toglie stringendo
+    // l'alfa di un pixel (erosion) e ammorbidendolo appena.
+    const bordo = "format=yuva420p,split[c][m];[m]alphaextract,erosion,gblur=sigma=0.7[a];[c][a]alphamerge,format=yuva420p[v]";
+    ffmpeg(`[0:v]trim=end_frame=${TAGLIO_PRESENTATORE},setpts=PTS-STARTPTS,${bordo}`, saluto);
+    // Come per clip-parla: il primo e l'ultimo fotogramma del pezzo al contrario si tolgono.
+    ffmpeg(
+      `[0:v]trim=start_frame=${TAGLIO_PRESENTATORE},setpts=PTS-STARTPTS,split[a][b];` +
+        `[b]reverse,trim=start_frame=1:end_frame=${totale - TAGLIO_PRESENTATORE - 1},setpts=PTS-STARTPTS[r];` +
+        `[a][r]concat=n=2:v=1:a=0,${bordo}`,
+      indica,
+    );
+  }
+  const [num, den] = ffprobe(saluto, "-select_streams", "v:0", "-show_entries", "stream=r_frame_rate").split("/").map(Number);
+  return { fps: num / (den || 1), saluto: contaFotogrammi(saluto), indica: contaFotogrammi(indica) };
+}
+
+const durate: Durate = { clip: arrotonda(durata(uscitaClip)), presentatore: preparaPresentatore(), scene };
 writeFileSync(join(destinazione, "durate.json"), `${JSON.stringify(durate, null, 2)}\n`);
 
 const voce = scene.reduce((s, x) => s + x.durata, 0);
 console.log(`Pronto: ${destinazione}`);
 console.log(`${scene.length} scene, voce ${voce.toFixed(2)} s, clip in loop ${durate.clip.toFixed(2)} s.`);
+if (durate.presentatore) {
+  const { fps, saluto, indica } = durate.presentatore;
+  console.log(`Presentatore: saluto ${(saluto / fps).toFixed(2)} s, loop ${(indica / fps).toFixed(2)} s.`);
+}

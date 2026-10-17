@@ -1,9 +1,49 @@
+import type { CSSProperties } from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import type { StileLezione } from "../lezioni/tipi";
+import { PRESENTATORE } from "../presentatore/griglia";
 import type { Battuta } from "../tempi";
 import { COLORI, GRIGLIA, OMBRA_SCHEDA, TESTO } from "../stile";
 
+/** Dove sta il riquadro e quanto è grande il testo, nei due stili. */
+const FORMATO: Record<StileLezione, { riquadro: CSSProperties; corpo: number }> = {
+  classico: {
+    riquadro: {
+      left: GRIGLIA.margine,
+      right: GRIGLIA.margine,
+      top: GRIGLIA.sottotitoli.alto,
+      bottom: GRIGLIA.margine,
+      padding: "30px 44px 24px",
+    },
+    corpo: 48,
+  },
+  // Una fascia più bassa, sopra la pancia di Bleo: non copre il viso, la mano né le schede.
+  presentatore: {
+    riquadro: {
+      left: PRESENTATORE.sottotitoli.lato,
+      right: PRESENTATORE.sottotitoli.lato,
+      bottom: PRESENTATORE.sottotitoli.fondo,
+      minHeight: PRESENTATORE.sottotitoli.altezza,
+      boxSizing: "border-box",
+      padding: "22px 36px 16px",
+    },
+    corpo: PRESENTATORE.sottotitoli.corpo,
+  },
+};
+
 /** Sottotitoli grandi in basso, con l'etichetta «Bleo» e le barrette che si muovono mentre parla. */
-export function Sottotitoli({ battute, parla, fine }: { battute: readonly Battuta[]; parla: boolean; fine: number }) {
+export function Sottotitoli({
+  battute,
+  parla,
+  fine,
+  stile = "classico",
+}: {
+  battute: readonly Battuta[];
+  parla: boolean;
+  fine: number;
+  stile?: StileLezione;
+}) {
+  const { riquadro, corpo } = FORMATO[stile];
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const t = frame / fps;
@@ -17,10 +57,7 @@ export function Sottotitoli({ battute, parla, fine }: { battute: readonly Battut
     <div
       style={{
         position: "absolute",
-        left: GRIGLIA.margine,
-        right: GRIGLIA.margine,
-        top: GRIGLIA.sottotitoli.alto,
-        bottom: GRIGLIA.margine,
+        ...riquadro,
         borderRadius: 40,
         backgroundColor: "rgba(255, 255, 255, 0.92)",
         border: `1px solid ${COLORI.bordo}`,
@@ -28,7 +65,6 @@ export function Sottotitoli({ battute, parla, fine }: { battute: readonly Battut
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "30px 44px 24px",
         opacity: comparsa * uscita,
         transform: `translateY(${(1 - comparsa) * 24}px)`,
       }}
@@ -39,7 +75,7 @@ export function Sottotitoli({ battute, parla, fine }: { battute: readonly Battut
           margin: 0,
           fontFamily: TESTO,
           fontWeight: 600,
-          fontSize: 48,
+          fontSize: corpo,
           lineHeight: 1.25,
           letterSpacing: "-0.01em",
           color: COLORI.testo,

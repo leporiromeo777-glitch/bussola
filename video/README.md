@@ -35,7 +35,8 @@ Servono Node 22, `ffmpeg` e `curl`. La prima volta: `cd video && npm install`.
    ```
 
    Lo script copia gli audio in `video/public/<id-passo>/`, fa il loop avanti e
-   indietro del video di Bleo, scarica i caratteri del sito (Plus Jakarta Sans e
+   indietro del video di Bleo (e di Bleo presentatore, vedi sotto), copia le
+   immagini della mascotte, scarica i caratteri del sito (Plus Jakarta Sans e
    Geist) e misura durate e pause della voce in `durate.json`.
 4. **Fai il render**:
 
@@ -48,6 +49,54 @@ Servono Node 22, `ffmpeg` e `curl`. La prima volta: `cd video && npm install`.
    aggiornala in `durataSecondi` in `src/data/corso.ts` (il test lo controlla).
 
 Per vedere e ritoccare la lezione dal browser: `npm run studio`.
+
+## Due stili
+
+Ogni lezione ha uno stile, `stile` in `video/src/lezioni/<id-passo>.ts`
+(se manca: `"classico"`).
+
+- **classico**: Bleo parla in una scheda arrotondata in alto a sinistra, il
+  punto chiave compare a destra, i sottotitoli sotto.
+- **presentatore**: Bleo in primo piano a sinistra, senza scheda, tagliato in
+  vita, che indica a destra. Le schede (le stesse dello stile classico)
+  compaiono accanto alla sua mano e le fa comparire la bussolina, il suo
+  aiutante, animata solo con il codice (`src/presentatore/coreografia.ts`):
+  arriva in volo e srotola il titolo, tocca i punti dell'elenco (con le
+  stelline) e alza il cartellino «3», trema con l'ago che gira prima
+  dell'avviso, spinge la scheda della fonte e fa sì con la testa. I
+  sottotitoli sono una fascia più bassa sopra la pancia di Bleo.
+
+Per ogni lezione c'è anche la composizione nell'altro stile,
+`<id-passo>-<stile>` (per esempio `ditta-individuale-presentatore`). Per
+provarla senza toccare il sito:
+
+```sh
+npm run render -- ditta-individuale presentatore
+```
+
+Scrive solo in `video/out/ditta-individuale-presentatore.{mp4,jpg,vtt}`. Per
+pubblicare una lezione nello stile presentatore: `stile: "presentatore"` nei
+dati della lezione, poi `npm run render -- <id-passo>`.
+
+### Bleo presentatore (sfondo trasparente)
+
+Il clip è in `video/sorgenti/presentatore/` e vale per tutte le lezioni: 6 s,
+960×960, 24 fps. Bleo saluta (fino a ~2,3 s), poi abbassa la mano e indica a
+destra con l'altro braccio. È stato generato una volta sola su verde croma
+(`clip-presentatore-verde.mp4`), poi ritagliato con ffmpeg (VP9 con canale
+alfa):
+
+```sh
+ffmpeg -i clip-presentatore-verde.mp4 -vf "chromakey=0x06A244:0.10:0.04,format=rgba,geq=r='r(X,Y)':g='min(g(X,Y),max(r(X,Y),b(X,Y)))':b='b(X,Y)':a='alpha(X,Y)',format=yuva420p" -c:v libvpx-vp9 -b:v 0 -crf 28 -auto-alt-ref 0 -row-mt 1 bleo-presentatore-alpha.webm
+```
+
+`npm run prepara` ne fa due pezzi in `video/public/presentatore/`:
+`saluto.webm` (fotogrammi 0–55, si vede una volta) e `indica.webm` (dal
+fotogramma 56, avanti e indietro, in loop). Stringe l'alfa di un pixel per
+togliere il filo scuro lasciato dal ritaglio; nel video un'ombra morbida stacca
+Bleo dal crema. Per leggere l'alfa ffmpeg deve usare il decoder `libvpx-vp9`
+(`-c:v libvpx-vp9` prima di `-i`); Remotion lo mostra con
+`<OffthreadVideo transparent>`.
 
 ## Come funziona
 

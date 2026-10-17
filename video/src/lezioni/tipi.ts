@@ -31,12 +31,25 @@ export type Scena = {
   schermo: Schermo;
 };
 
+/**
+ * Come si presenta la lezione:
+ * - «classico»: Bleo in una scheda arrotondata in alto a sinistra, il punto
+ *   chiave a destra e i sottotitoli sotto;
+ * - «presentatore»: Bleo in primo piano a sinistra, senza scheda, che indica a
+ *   destra; la bussolina fa comparire i punti chiave accanto alla sua mano.
+ */
+export type StileLezione = "classico" | "presentatore";
+
+export const STILI: readonly StileLezione[] = ["classico", "presentatore"];
+
 export type Lezione = {
   /** Uguale al passo del percorso: è anche l'id della composizione e il nome dei file. */
   id: LezioneCorso["passoId"];
   numero: number;
   titolo: string;
-  /** Il video di Bleo che parla, già pronto per il loop (vedi scripts/prepara.ts). */
+  /** Lo stile del video pubblicato. Se manca: «classico». */
+  stile?: StileLezione;
+  /** Il video di Bleo che parla, già pronto per il loop (vedi scripts/prepara.ts). Per lo stile «classico». */
   clip: string;
   scene: readonly Scena[];
   /** Titolo del passo successivo del percorso, per la scheda finale. */
@@ -46,6 +59,13 @@ export type Lezione = {
 /** Durate misurate da scripts/prepara.ts (in secondi) e salvate in public/<id>/durate.json. */
 export type Durate = {
   clip: number;
+  /**
+   * Bleo presentatore (stile «presentatore»), in video/public/presentatore/:
+   * il saluto si vede una volta all'inizio, poi il pezzo in cui indica va in
+   * loop. Fotogrammi dei due file e la loro frequenza. Manca se in
+   * video/sorgenti/presentatore/ non c'è il clip.
+   */
+  presentatore?: { fps: number; saluto: number; indica: number };
   scene: readonly {
     audio: string;
     durata: number;
