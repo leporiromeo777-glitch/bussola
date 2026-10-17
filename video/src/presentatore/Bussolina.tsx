@@ -75,8 +75,8 @@ function Cartellino({
   frame: number;
   mano: { x: number; y: number };
 }) {
-  const lato = 66;
-  const bastone = 30;
+  const lato = 86;
+  const bastone = 38;
   const scala = Math.max(0, Math.min(su, 1.2) * (1 - Math.min(1, giu)));
   return (
     <div
@@ -116,7 +116,7 @@ function Cartellino({
           justifyContent: "center",
           fontFamily: TITOLI,
           fontWeight: 800,
-          fontSize: 36,
+          fontSize: 48,
           color: COLORI.card,
           lineHeight: 1,
         }}
@@ -132,7 +132,7 @@ function Fumetto({ locale, durata }: { locale: number; durata: number }) {
   const { fps } = useVideoConfig();
   const su = spring({ frame: locale, fps, config: { damping: 9, stiffness: 180 } });
   const via = Math.min(1, Math.max(0, (locale - (durata - 8)) / 8));
-  const lato = 58;
+  const lato = 76;
   return (
     <div
       style={{
@@ -150,8 +150,8 @@ function Fumetto({ locale, durata }: { locale: number; durata: number }) {
           position: "absolute",
           right: 4,
           bottom: -7,
-          width: 18,
-          height: 18,
+          width: 22,
+          height: 22,
           backgroundColor: COLORI.accento,
           transform: "rotate(45deg)",
           borderRadius: 3,
@@ -171,7 +171,7 @@ function Fumetto({ locale, durata }: { locale: number; durata: number }) {
           justifyContent: "center",
           fontFamily: TITOLI,
           fontWeight: 800,
-          fontSize: 34,
+          fontSize: 46,
           color: COLORI.card,
           lineHeight: 1,
         }}

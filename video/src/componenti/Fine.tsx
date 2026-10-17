@@ -7,7 +7,16 @@ import { Sfondo } from "./Sfondo";
  * Scheda finale: Bleo che festeggia e il titolo del prossimo passo. Con
  * `salta` (stile «presentatore») Bleo e la bussolina fanno dei saltelli.
  */
-export function Fine({ prossimoPasso, salta = false }: { prossimoPasso?: string; salta?: boolean }) {
+export function Fine({
+  prossimoPasso,
+  salta = false,
+  marchio = true,
+}: {
+  prossimoPasso?: string;
+  salta?: boolean;
+  /** Il marchio in basso (la vetrina della bussolina lo toglie per la sua etichetta). */
+  marchio?: boolean;
+}) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const dissolvenza = interpolate(frame, [0, 10], [0, 1], { extrapolateRight: "clamp" });
@@ -77,32 +86,34 @@ export function Fine({ prossimoPasso, salta = false }: { prossimoPasso?: string;
           )}
         </div>
       </AbsoluteFill>
-      <div
-        style={{
-          position: "absolute",
-          bottom: 56,
-          left: 0,
-          right: 0,
-          display: "flex",
-          justifyContent: "center",
-          opacity: Math.min(testo, 1),
-        }}
-      >
-        <Marchio altezza={56} />
-      </div>
+      {marchio ? (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 56,
+            left: 0,
+            right: 0,
+            display: "flex",
+            justifyContent: "center",
+            opacity: Math.min(testo, 1),
+          }}
+        >
+          <Marchio altezza={56} />
+        </div>
+      ) : null}
     </AbsoluteFill>
   );
 }
 
-/** Saltelli di gioia: su e giù ogni 16 fotogrammi, schiacciati quando toccano terra. */
+/** Saltelli di gioia: su e giù ogni 18 fotogrammi, schiacciati quando toccano terra. */
 function saltelli(t: number): { y: number; sx: number; sy: number } {
   if (t < 0) return { y: 0, sx: 1, sy: 1 };
-  const periodo = 16;
+  const periodo = 18;
   const u = (t % periodo) / periodo;
-  const altezza = 34 * Math.exp(-t / 70);
+  const altezza = 56 * Math.exp(-t / 110);
   const y = -Math.sin(Math.PI * u) * altezza;
   // Vicino a terra (inizio e fine del salto) si schiaccia, in aria si allunga.
   const terra = Math.max(0, 1 - Math.min(u, 1 - u) * 6);
-  const schiaccia = (terra * 0.08 - Math.sin(Math.PI * u) * 0.04) * (altezza / 34);
+  const schiaccia = (terra * 0.1 - Math.sin(Math.PI * u) * 0.05) * (altezza / 56);
   return { y, sx: 1 + schiaccia, sy: 1 - schiaccia };
 }

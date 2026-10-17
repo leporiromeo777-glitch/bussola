@@ -3,8 +3,8 @@ import type { Scintilla } from "./coreografia";
 
 /** Colori del marchio: verde acqua della bussola, rosso dell'ago, ocra dell'accento. */
 const COLORI = ["#0f5e6b", "#b5401a", "#d29a35", "#2f8c99"];
-const DURATA = 24;
-const PEZZI = 10;
+const DURATA = 30;
+const PEZZI = 12;
 
 /** Stellina a quattro punte, centrata in 0,0 e grande 2×2. */
 const STELLA = "M0,-1 C0.12,-0.12 0.12,-0.12 1,0 C0.12,0.12 0.12,0.12 0,1 C-0.12,0.12 -0.12,0.12 -1,0 C-0.12,-0.12 -0.12,-0.12 0,-1Z";
@@ -25,7 +25,7 @@ export function Scintille({ scintille }: { scintille: readonly Scintilla[] }) {
               r={s.raggio * 0.75 * via}
               fill="none"
               stroke="#2f8c99"
-              strokeWidth={5 * (1 - t)}
+              strokeWidth={6 * (1 - t)}
               opacity={0.5 * (1 - t)}
             />
             {Array.from({ length: PEZZI }, (_, k) => {
@@ -40,11 +40,11 @@ export function Scintille({ scintille }: { scintille: readonly Scintilla[] }) {
                   key={k}
                   d={STELLA}
                   fill={colore}
-                  transform={`translate(${x} ${y}) rotate(${t * 140}) scale(${11 * grandezza})`}
+                  transform={`translate(${x} ${y}) rotate(${t * 140}) scale(${16 * grandezza})`}
                   opacity={1 - t * t}
                 />
               ) : (
-                <circle key={k} cx={x} cy={y} r={5 * grandezza} fill={colore} opacity={1 - t * t} />
+                <circle key={k} cx={x} cy={y} r={7 * grandezza} fill={colore} opacity={1 - t * t} />
               );
             })}
           </g>

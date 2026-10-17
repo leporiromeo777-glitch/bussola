@@ -107,7 +107,8 @@ function entrataScheda(
       const q = srotolato(locale);
       return {
         stile: { clipPath: `inset(-90px -90px ${(1 - q) * altezza - q * 100}px -90px)`, opacity: q > 0 ? 1 : 0 },
-        ritardo: 6,
+        // Le parole del titolo salgono mentre la scheda si srotola.
+        ritardo: TEMPI_SCHEDE.titoloTira - 2,
       };
     }
     case "elenco": {
@@ -148,7 +149,7 @@ function entrataScheda(
       // Spinta da destra come un foglio, con la stessa curva della bussolina.
       const q = spinta(locale);
       return {
-        stile: { transform: `translateX(${(1 - q) * 620}px) rotate(${(1 - q) * 3}deg)`, transformOrigin: "left bottom" },
+        stile: { transform: `translateX(${(1 - q) * TEMPI_SCHEDE.fonteCorsa}px) rotate(${(1 - q) * 3}deg)`, transformOrigin: "left bottom" },
         ritardo: TEMPI_SCHEDE.fonteSpinge,
       };
     }

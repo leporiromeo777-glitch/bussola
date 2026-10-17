@@ -78,6 +78,13 @@ Scrive solo in `video/out/ditta-individuale-presentatore.{mp4,jpg,vtt}`. Per
 pubblicare una lezione nello stile presentatore: `stile: "presentatore"` nei
 dati della lezione, poi `npm run render -- <id-passo>`.
 
+Le animazioni della bussolina, una per una con un'etichetta e senza voce
+(circa 19 s), sono nella composizione `bussolina-animazioni`:
+
+```sh
+npx remotion render src/index.ts bussolina-animazioni out/bussolina-animazioni.mp4 --muted
+```
+
 ### Bleo presentatore (sfondo trasparente)
 
 Il clip è in `video/sorgenti/presentatore/` e vale per tutte le lezioni: 6 s,

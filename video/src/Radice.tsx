@@ -1,6 +1,7 @@
 import { Composition, staticFile } from "remotion";
 import { Lezione, type PropsLezione } from "./Lezione";
 import { LEZIONI, trovaLezione } from "./lezioni";
+import { tempiVetrina, Vetrina, type PropsVetrina } from "./presentatore/Vetrina";
 import { STILI, type Durate } from "./lezioni/tipi";
 import { calcolaTempi, FPS, LATO } from "./tempi";
 
@@ -39,6 +40,21 @@ export function Radice() {
           />
         ));
       })}
+      {/* Le animazioni della bussolina una per una, senza voce (stile «presentatore»). */}
+      <Composition
+        id="bussolina-animazioni"
+        component={Vetrina}
+        fps={FPS}
+        width={LATO}
+        height={LATO}
+        durationInFrames={tempiVetrina().tempi.totale}
+        defaultProps={{ durate: null } satisfies PropsVetrina}
+        calculateMetadata={async ({ props }) => {
+          const risposta = await fetch(staticFile("ditta-individuale/durate.json"));
+          if (!risposta.ok) throw new Error("Manca public/ditta-individuale/durate.json: lancia npm run prepara.");
+          return { props: { ...props, durate: (await risposta.json()) as Durate } };
+        }}
+      />
     </>
   );
 }

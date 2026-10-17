@@ -25,7 +25,7 @@ const FORMATO: Record<StileLezione, { riquadro: CSSProperties; corpo: number }> 
       bottom: PRESENTATORE.sottotitoli.fondo,
       minHeight: PRESENTATORE.sottotitoli.altezza,
       boxSizing: "border-box",
-      padding: "22px 36px 16px",
+      padding: "20px 36px 14px",
     },
     corpo: PRESENTATORE.sottotitoli.corpo,
   },
