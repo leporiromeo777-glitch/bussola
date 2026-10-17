@@ -53,6 +53,7 @@ export const dittaIndividuale: Lezione = {
   id: corso.passoId,
   numero: corso.numero,
   titolo: "Quale forma per la tua attività?",
+  stile: "misto",
   clip: "clip.mp4",
   prossimoPasso: titoloProssimoPasso(corso.passoId),
   scene: [

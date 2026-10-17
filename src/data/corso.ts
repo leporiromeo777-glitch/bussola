@@ -5,8 +5,8 @@
  *
  * Per ora c'è solo la lezione 1; gli altri passi appaiono come «In arrivo».
  */
-import { VERIFICATO_IL, type IdPasso } from "./passi";
-import { fonti, fontiPercorso, type Fonte } from "./svizzera";
+import type { IdPasso } from "./passi";
+import { fonti, fontiPercorso, VERIFICATO_FORME, type Fonte } from "./svizzera";
 
 export type LezioneCorso = {
   /** Il passo del percorso che la lezione spiega (id in PASSI). */
@@ -30,13 +30,20 @@ export const LEZIONI: readonly LezioneCorso[] = [
   {
     passoId: "ditta-individuale",
     numero: 1,
-    titolo: "Cos'è una ditta individuale",
+    titolo: "Quale forma per la tua attività?",
     video: "/corso/ditta-individuale.mp4",
     poster: "/corso/ditta-individuale.jpg",
     sottotitoli: "/corso/ditta-individuale.vtt",
-    durataSecondi: 51,
-    fonti: [fonti.pmiDittaIndividuale, fontiPercorso.pmiImposteDitta],
-    verificatoIl: VERIFICATO_IL,
+    durataSecondi: 153,
+    fonti: [
+      fontiPercorso.pmiScegliereForma,
+      fonti.pmiDittaIndividuale,
+      fontiPercorso.pmiNomeCollettivo,
+      fontiPercorso.pmiSagl,
+      fontiPercorso.pmiSa,
+      fontiPercorso.pmiImposteDitta,
+    ],
+    verificatoIl: VERIFICATO_FORME,
   },
 ];
 

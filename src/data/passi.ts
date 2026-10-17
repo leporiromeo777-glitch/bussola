@@ -78,7 +78,15 @@ export const PASSI = [
       "Tu e la ditta siete la stessa persona: le imposte sul reddito della ditta le paghi tu, nella tua dichiarazione personale.",
     ],
     link: { etichetta: "Scheda del Portale PMI", url: fonti.pmiDittaIndividuale.url },
-    fonti: [fonti.pmiDittaIndividuale, fontiPercorso.pmiImposteDitta],
+    fonti: [
+      fonti.pmiDittaIndividuale,
+      fontiPercorso.pmiImposteDitta,
+      // Le altre forme, a confronto nella lezione 1 del corso.
+      fontiPercorso.pmiScegliereForma,
+      fontiPercorso.pmiNomeCollettivo,
+      fontiPercorso.pmiSagl,
+      fontiPercorso.pmiSa,
+    ],
     verificatoIl: VERIFICATO_IL,
     tempoStimato: "2 minuti",
     domandaChat: "Cos'è una ditta individuale e cosa rischio con il mio patrimonio personale?",
