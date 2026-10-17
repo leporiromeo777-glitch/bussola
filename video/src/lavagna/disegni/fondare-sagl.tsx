@@ -372,8 +372,10 @@ const fondareBanca: Disegno = {
 /* 6. «Terzo: atto di fondazione e statuto, controllo dal notaio e dal registro; poi l'assemblea di fondazione, con l'atto pubblico.» */
 function tempiNotaio(ctx: ContestoDisegno) {
   const controllo = cambio(ctx, 0, 0.3);
-  const assemblea = cambio(ctx, 1, 0.62);
-  return { controllo, assemblea, timbro: assemblea + Math.round((ctx.voce - assemblea) * 0.6) };
+  const assemblea = cambio(ctx, 1, 0.5);
+  // L'ultima frase rimanda ai video facoltativi della lezione.
+  const facoltativi = ctx.cambi[2] ?? Math.round(ctx.voce * 0.8);
+  return { controllo, assemblea, timbro: assemblea + Math.round((facoltativi - assemblea) * 0.6), facoltativi };
 }
 const fondareNotaio: Disegno = {
   chiave: (ctx) => tempiNotaio(ctx).timbro,
@@ -451,6 +453,9 @@ const fondareNotaio: Disegno = {
                 <Timbro cx={900} cy={330} r={38} />
               </g>
               <Righe2 x={895} y={410} righe={["Atto", "pubblico"]} corpo={26} passo={32} />
+            </Compare>
+            <Compare v={molla(locale, t.facoltativi, fps)} cx={640} cy={590}>
+              <Pillola x={640} y={590} testo="Video facoltativi qui sotto" corpo={28} fondo={TINTE.crema} colore={TINTE.accento} bordo={TINTE.accento} />
             </Compare>
           </g>
         ) : null}

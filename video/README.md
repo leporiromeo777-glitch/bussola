@@ -65,6 +65,26 @@ Servono Node 22, `ffmpeg` e `curl`. La prima volta: `cd video && npm install`.
 
 Per vedere e ritoccare la lezione dal browser: `npm run studio`.
 
+## Video facoltativi
+
+Una lezione può avere dei video facoltativi che spiegano meglio un punto
+(per esempio lo statuto e l'atto di fondazione nella lezione 2). Sul sito si
+vedono sotto il video della lezione, ognuno con le sue fonti.
+
+1. Aggiungilo in `approfondimenti` della lezione in `src/data/corso.ts`, con
+   un id `<id-passo>-<tema>` (è anche il nome dei file). Le sue fonti devono
+   essere anche fonti del passo in `src/data/passi.ts` (il test lo controlla).
+2. Crea `video/src/lezioni/<id>.ts` come una lezione, con
+   `approfondimentoPerId("<id>")`, `prossimoPasso: <titolo della lezione>` e
+   `etichettaFine: "Torna alla lezione"`; aggiungilo in
+   `video/src/lezioni/index.ts`.
+3. Poi come per una lezione: `npm run voce -- <id>`, la cartella
+   `video/sorgenti/<id>/` con `clip-parla.mp4`, `npm run prepara` e
+   `npm run render`. Aggiorna `durataSecondi` del video facoltativo.
+
+Bleo spiega i documenti in generale e i modelli ufficiali: non li scrive per
+il caso di qualcuno, e rimanda al notaio o a un fiduciario autorizzato.
+
 ## Due stili
 
 Ogni lezione ha uno stile, `stile` in `video/src/lezioni/<id-passo>.ts`

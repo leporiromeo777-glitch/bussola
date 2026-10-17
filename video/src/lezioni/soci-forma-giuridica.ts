@@ -135,7 +135,7 @@ export const sociFormaGiuridica: Lezione = {
       disegno: "fondare-notaio",
       stile: "lavagna",
       testo:
-        "Terzo: preparate l'atto di fondazione e lo statuto, e fateli controllare prima dal notaio e dal registro di commercio. Poi fate l'assemblea di fondazione, con l'atto pubblico dal notaio.",
+        "Terzo: preparate l'atto di fondazione e lo statuto, e fateli controllare prima dal notaio e dal registro di commercio. Poi fate l'assemblea di fondazione, con l'atto pubblico dal notaio. Come si preparano questi documenti, lo vedete nei video facoltativi qui sotto.",
       schermo: {
         tipo: "punto",
         titolo: "3. Documenti e notaio",

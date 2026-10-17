@@ -14,7 +14,7 @@ import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { lezionePerPasso } from "../../src/data/corso";
+import { approfondimentoPerId, lezionePerPasso } from "../../src/data/corso";
 import { trovaLezione } from "../src/lezioni";
 import { STILI, type Durate, type StileLezione } from "../src/lezioni/tipi";
 import { calcolaTempi, formattaVtt, FPS } from "../src/tempi";
@@ -77,7 +77,7 @@ const mb = (f: string) => (statSync(f).size / 1024 / 1024).toFixed(2);
 console.log(pubblica ? `\nFatto: public/corso/${lezione.id}.{mp4,jpg,vtt}` : `\nProva (sito non toccato): video/out/${composizione}.{mp4,jpg,vtt}`);
 console.log(`Durata ${secondi.toFixed(2)} s, video ${mb(mp4)} MB, copertina ${mb(jpg)} MB.`);
 
-const corso = lezionePerPasso(lezione.id);
+const corso = lezionePerPasso(lezione.id) ?? approfondimentoPerId(lezione.id)?.approfondimento;
 if (pubblica && corso && corso.durataSecondi !== Math.round(secondi)) {
   console.warn(`Attenzione: in src/data/corso.ts durataSecondi è ${corso.durataSecondi}, il video dura ${Math.round(secondi)} s.`);
 }

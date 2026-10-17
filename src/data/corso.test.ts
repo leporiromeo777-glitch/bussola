@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { durataBreve, LEZIONI, lezionePerPasso } from "./corso";
+import { approfondimentoPerId, durataBreve, LEZIONI, lezionePerPasso, tuttiIVideo } from "./corso";
 import { eIdPasso, PASSI } from "./passi";
 
 const PUBLIC = join(__dirname, "..", "..", "public");
@@ -26,20 +26,33 @@ describe("il corso di Bleo", () => {
     expect(new Set(LEZIONI.map((l) => l.passoId)).size).toBe(LEZIONI.length);
   });
 
-  it("le fonti della lezione sono fonti ufficiali del suo passo", () => {
-    for (const l of LEZIONI) {
-      const passo = PASSI.find((p) => p.id === l.passoId)!;
+  it("le fonti di ogni video sono fonti ufficiali del suo passo", () => {
+    for (const { passoId, video: l } of tuttiIVideo()) {
+      const passo = PASSI.find((p) => p.id === passoId)!;
       expect(l.fonti.length).toBeGreaterThan(0);
       for (const f of l.fonti) {
         expect(f.url).toMatch(/^https:\/\//);
-        expect(passo.fonti.map((x) => x.url)).toContain(f.url);
+        expect(passo.fonti.map((x) => x.url), `${l.titolo}: ${f.titolo}`).toContain(f.url);
       }
       expect(l.verificatoIl).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
   });
 
-  it("video, copertina e sottotitoli esistono in public/", () => {
+  it("i video facoltativi hanno un id unico, che comincia con il passo, e file con lo stesso nome", () => {
+    const ids = LEZIONI.flatMap((l) => (l.approfondimenti ?? []).map((a) => a.id));
+    expect(new Set(ids).size).toBe(ids.length);
     for (const l of LEZIONI) {
+      for (const a of l.approfondimenti ?? []) {
+        expect(a.id.startsWith(`${l.passoId}-`)).toBe(true);
+        expect(a.video).toBe(`/corso/${a.id}.mp4`);
+        expect(approfondimentoPerId(a.id)).toEqual({ lezione: l, approfondimento: a });
+      }
+    }
+    expect(approfondimentoPerId("non-esiste")).toBeUndefined();
+  });
+
+  it("video, copertina e sottotitoli esistono in public/", () => {
+    for (const { video: l } of tuttiIVideo()) {
       expect(l.video).toMatch(/^\/corso\/.+\.mp4$/);
       expect(l.poster).toMatch(/^\/corso\/.+\.jpg$/);
       expect(l.sottotitoli).toMatch(/^\/corso\/.+\.vtt$/);
@@ -50,7 +63,7 @@ describe("il corso di Bleo", () => {
   });
 
   it("la durata scritta è quella del video, e il video parte subito (moov prima di mdat)", () => {
-    for (const l of LEZIONI) {
+    for (const { video: l } of tuttiIVideo()) {
       const file = readFileSync(join(PUBLIC, l.video));
       expect(Math.round(durataMp4(file))).toBe(l.durataSecondi);
       expect(file.indexOf("moov")).toBeLessThan(file.indexOf("mdat"));
@@ -58,7 +71,7 @@ describe("il corso di Bleo", () => {
   });
 
   it("i sottotitoli sono WebVTT e finiscono prima della fine del video", () => {
-    for (const l of LEZIONI) {
+    for (const { video: l } of tuttiIVideo()) {
       const vtt = readFileSync(join(PUBLIC, l.sottotitoli), "utf8");
       expect(vtt.startsWith("WEBVTT")).toBe(true);
       const fini = [...vtt.matchAll(/--> (\d{2}):(\d{2}):(\d{2}\.\d{3})/g)].map(

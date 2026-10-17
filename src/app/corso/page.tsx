@@ -27,7 +27,7 @@ export default function PaginaCorso() {
             Un video breve per ogni passo
           </h1>
           <p className="mt-4 text-lg text-muted">
-            Bleo ti spiega ogni passo del percorso in meno di un minuto, con i sottotitoli e il link alla fonte
+            Bleo ti spiega ogni passo del percorso in pochi minuti, con i sottotitoli e il link alla fonte
             ufficiale. Le lezioni seguono l&apos;ordine del percorso: {PRONTE === 1 ? "la prima è pronta" : `${PRONTE} sono pronte`}, le altre
             arrivano presto.
           </p>

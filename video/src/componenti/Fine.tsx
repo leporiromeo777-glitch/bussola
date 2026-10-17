@@ -4,15 +4,18 @@ import { Marchio } from "./Marchio";
 import { Sfondo } from "./Sfondo";
 
 /**
- * Scheda finale: Bleo che festeggia e il titolo del prossimo passo. Con
- * `salta` (stile «presentatore») Bleo e la bussolina fanno dei saltelli.
+ * Scheda finale: Bleo che festeggia e il titolo del prossimo passo (o, per un
+ * video facoltativo, della lezione a cui tornare). Con `salta` (stile
+ * «presentatore») Bleo e la bussolina fanno dei saltelli.
  */
 export function Fine({
   prossimoPasso,
+  etichetta = "Prossimo passo",
   salta = false,
   marchio = true,
 }: {
   prossimoPasso?: string;
+  etichetta?: string;
   salta?: boolean;
   /** Il marchio in basso (la vetrina della bussolina lo toglie per la sua etichetta). */
   marchio?: boolean;
@@ -62,7 +65,7 @@ export function Fine({
                   fontWeight: 700,
                 }}
               >
-                Prossimo passo
+                {etichetta}
               </span>
               <h2
                 style={{

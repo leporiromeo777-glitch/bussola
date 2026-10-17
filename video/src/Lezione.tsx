@@ -65,7 +65,7 @@ export function Lezione({ lezioneId, stile, copertina, durate }: PropsLezione) {
         </Sequence>
       ))}
       <Sequence from={tempi.inizioFine}>
-        <Fine prossimoPasso={lezione.prossimoPasso} salta={scelto !== "classico"} />
+        <Fine prossimoPasso={lezione.prossimoPasso} etichetta={lezione.etichettaFine} salta={scelto !== "classico"} />
       </Sequence>
     </AbsoluteFill>
   );

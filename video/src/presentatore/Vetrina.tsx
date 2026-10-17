@@ -69,7 +69,7 @@ export function Vetrina({ durate }: PropsVetrina) {
       <Testata />
       <Presentatore lezione={lezione} durate={durate} tempi={tempi} />
       <Sequence from={tempi.inizioFine}>
-        <Fine prossimoPasso={lezione.prossimoPasso} salta marchio={false} />
+        <Fine prossimoPasso={lezione.prossimoPasso} etichetta={lezione.etichettaFine} salta marchio={false} />
       </Sequence>
       <Etichetta etichette={etichette} />
     </AbsoluteFill>

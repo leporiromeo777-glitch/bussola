@@ -1,4 +1,4 @@
-import type { LezioneCorso } from "../../../src/data/corso";
+import type { Approfondimento, LezioneCorso } from "../../../src/data/corso";
 import type { Fonte } from "../../../src/data/svizzera";
 
 /** Un punto di un elenco che si costruisce scena dopo scena. */
@@ -67,8 +67,12 @@ export const STILI: readonly StileLezione[] = ["classico", "presentatore", "lava
 export type StileScena = "presentatore" | "lavagna";
 
 export type Lezione = {
-  /** Uguale al passo del percorso: è anche l'id della composizione e il nome dei file. */
-  id: LezioneCorso["passoId"];
+  /**
+   * Il passo del percorso, o per un video facoltativo l'id in
+   * src/data/corso.ts («<passo>-<tema>»): è anche l'id della composizione e
+   * il nome dei file.
+   */
+  id: LezioneCorso["passoId"] | Approfondimento["id"];
   numero: number;
   titolo: string;
   /** Lo stile del video pubblicato. Se manca: «classico». */
@@ -78,6 +82,8 @@ export type Lezione = {
   scene: readonly Scena[];
   /** Titolo del passo successivo del percorso, per la scheda finale. */
   prossimoPasso?: string;
+  /** L'etichetta sopra quel titolo nella scheda finale (se manca: «Prossimo passo»). */
+  etichettaFine?: string;
 };
 
 /** Durate misurate da scripts/prepara.ts (in secondi) e salvate in public/<id>/durate.json. */

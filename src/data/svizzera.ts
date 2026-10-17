@@ -300,6 +300,19 @@ export const fontiPercorso = {
   // Forma giuridica, nome e registro di commercio
   co777: { titolo: "Codice delle obbligazioni, art. 777", url: `${CO}#art_777`, ente: FEDLEX },
   co777c: { titolo: "Codice delle obbligazioni, art. 777c", url: `${CO}#art_777_c`, ente: FEDLEX },
+  // Statuto e atto di fondazione della Sagl (video facoltativi della lezione 2):
+  // testi ricontrollati il 17.10.2026, vedi VERIFICATO_DOCUMENTI_SAGL.
+  co776: { titolo: "Codice delle obbligazioni, art. 776", url: `${CO}#art_776`, ente: FEDLEX },
+  co777a: { titolo: "Codice delle obbligazioni, art. 777a", url: `${CO}#art_777_a`, ente: FEDLEX },
+  co777b: { titolo: "Codice delle obbligazioni, art. 777b", url: `${CO}#art_777_b`, ente: FEDLEX },
+  co778: { titolo: "Codice delle obbligazioni, art. 778", url: `${CO}#art_778`, ente: FEDLEX },
+  co779: { titolo: "Codice delle obbligazioni, art. 779", url: `${CO}#art_779`, ente: FEDLEX },
+  co809: { titolo: "Codice delle obbligazioni, art. 809", url: `${CO}#art_809`, ente: FEDLEX },
+  statutoTipoSagl: {
+    titolo: "Statuto tipo Sagl, con le note",
+    url: "https://www4.ti.ch/fileadmin/DI/DG/RC/Documentazione/Statuti_SAGL_annotati.pdf",
+    ente: "Cantone Ticino, Registro di commercio (modello dell'Ufficio federale del registro di commercio)",
+  },
   co950: { titolo: "Codice delle obbligazioni, art. 950", url: `${CO}#art_950`, ente: FEDLEX },
   co954a: { titolo: "Codice delle obbligazioni, art. 954a", url: `${CO}#art_954_a`, ente: FEDLEX },
   // Artt. 944 e 946 CO e pagine dell'IPI: testi ricontrollati il 16.10.2026 (strumento «Nome della ditta»).
@@ -612,6 +625,12 @@ export const VERIFICATO_FORME = "2026-10-17";
  * Sagl (fonti.pmiChecklist), che la lezione 2 del corso segue punto per punto.
  */
 export const VERIFICATO_CHECKLIST = "2026-10-17";
+
+/**
+ * Data dell'ultimo controllo dello statuto tipo Sagl del registro di commercio
+ * e degli artt. 776-779 e 809 CO, per i video facoltativi della lezione 2.
+ */
+export const VERIFICATO_DOCUMENTI_SAGL = "2026-10-17";
 
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
