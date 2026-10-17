@@ -35,7 +35,7 @@ import {
 } from "../figure";
 import { seconda, type Disegno } from "./tipi";
 
-function Tela({ children }: { children: React.ReactNode }) {
+export function Tela({ children }: { children: React.ReactNode }) {
   return (
     <svg viewBox="0 0 1000 700" width={1000} height={700} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
       {children}
@@ -52,9 +52,16 @@ const titoloLezione: Disegno = {
     specchio: true,
     azioni: [{ tipo: "tocca", quando: seconda(ctx) + 26, bersaglio: TARGA_1, specchio: true }],
   }),
-  Figura: ({ locale, ctx }) => {
+  Figura: ({ locale, ctx, schermo }) => {
     const { fps } = ctx;
     const dopo = seconda(ctx);
+    // Il titolo della scena su due righe, divise più o meno a metà.
+    const testo = schermo.tipo === "titolo" ? schermo.titolo : "";
+    const parole = testo.split(" ");
+    let taglio = 1;
+    while (taglio < parole.length - 1 && parole.slice(0, taglio + 1).join(" ").length <= testo.length / 2) taglio++;
+    const righe = [parole.slice(0, taglio).join(" "), parole.slice(taglio).join(" ")];
+    const etichetta = schermo.tipo === "titolo" ? schermo.etichetta : "";
     const riga1 = tra(locale, 4, 26);
     const riga2 = tra(locale, 18, 42);
     const sotto = tra(locale, 38, 54);
@@ -69,16 +76,16 @@ const titoloLezione: Disegno = {
           </clipPath>
         </defs>
         <Compare v={molla(locale, 0, fps)} cx={500} cy={60}>
-          <Pillola x={500} y={60} testo="Il corso di Bleo · Lezione 1" corpo={30} />
+          <Pillola x={500} y={60} testo={etichetta} corpo={30} />
         </Compare>
         <g clipPath="url(#scrivi-1)">
           <Testo x={500} y={165} corpo={76} titolo peso={800}>
-            Cos'è una
+            {righe[0]}
           </Testo>
         </g>
         <g clipPath="url(#scrivi-2)">
           <Testo x={500} y={250} corpo={76} titolo peso={800}>
-            ditta individuale
+            {righe[1]}
           </Testo>
         </g>
         <Freccia d="M 220 302 Q 500 286 780 302" p={sotto} colore={TINTE.accento} spessore={10} punta={false} />
