@@ -35,12 +35,12 @@ import { Tela } from "./ditta-individuale";
 import type { ContestoDisegno, Disegno } from "./tipi";
 
 /** Il cambio di sottotitolo `i` (fotogrammi dall'inizio della scena), o una frazione della voce. */
-function cambio(ctx: ContestoDisegno, i: number, frazione: number): number {
+export function cambio(ctx: ContestoDisegno, i: number, frazione: number): number {
   return ctx.cambi[i] ?? Math.round(ctx.voce * frazione);
 }
 
 /** Un'etichetta su più righe, centrata. */
-function Righe2({ x, y, righe, corpo = 30, colore = TINTE.tratto, passo = 36, peso = 800 }: { x: number; y: number; righe: string[]; corpo?: number; colore?: string; passo?: number; peso?: number }) {
+export function Righe2({ x, y, righe, corpo = 30, colore = TINTE.tratto, passo = 36, peso = 800 }: { x: number; y: number; righe: string[]; corpo?: number; colore?: string; passo?: number; peso?: number }) {
   return (
     <g>
       {righe.map((r, i) => (
@@ -107,7 +107,7 @@ const quattroForme: Disegno = {
     );
   },
 };
-const COLORE_TENUE = "#5d6470";
+export const COLORE_TENUE = "#5d6470";
 
 /* 3. La ditta individuale: le tre cose da ricordare. */
 const PUNTI_DITTA = [

@@ -3,9 +3,10 @@
  * questa cartella, la voce in LEZIONI qui sotto e in src/data/corso.ts.
  */
 import { dittaIndividuale } from "./ditta-individuale";
+import { sociFormaGiuridica } from "./soci-forma-giuridica";
 import type { Lezione } from "./tipi";
 
-export const LEZIONI: readonly Lezione[] = [dittaIndividuale];
+export const LEZIONI: readonly Lezione[] = [dittaIndividuale, sociFormaGiuridica];
 
 export function trovaLezione(id: string): Lezione {
   const lezione = LEZIONI.find((l) => l.id === id);

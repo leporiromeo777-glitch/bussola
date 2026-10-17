@@ -607,6 +607,12 @@ export const fontiPercorso = {
  */
 export const VERIFICATO_FORME = "2026-10-17";
 
+/**
+ * Data dell'ultimo controllo della check list del Portale PMI per creare una
+ * Sagl (fonti.pmiChecklist), che la lezione 2 del corso segue punto per punto.
+ */
+export const VERIFICATO_CHECKLIST = "2026-10-17";
+
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
   mesiPerIvaDaSubito: dato(12, fonti.liva14, "Se all'avvio è presumibile superare la soglia IVA entro 12 mesi, si è assoggettati da subito."),

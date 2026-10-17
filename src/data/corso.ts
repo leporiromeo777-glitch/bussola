@@ -3,10 +3,10 @@
  * I video si fanno con Remotion nella cartella video/ (vedi video/README.md),
  * che legge da qui titolo, numero e fonti di ogni lezione.
  *
- * Per ora c'è solo la lezione 1; gli altri passi appaiono come «In arrivo».
+ * Per ora ci sono le lezioni 1 e 2; gli altri passi appaiono come «In arrivo».
  */
 import type { IdPasso } from "./passi";
-import { fonti, fontiPercorso, VERIFICATO_FORME, type Fonte } from "./svizzera";
+import { fonti, fontiPercorso, VERIFICATO_CHECKLIST, VERIFICATO_FORME, type Fonte } from "./svizzera";
 
 export type LezioneCorso = {
   /** Il passo del percorso che la lezione spiega (id in PASSI). */
@@ -44,6 +44,24 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.pmiImposteDitta,
     ],
     verificatoIl: VERIFICATO_FORME,
+  },
+  {
+    passoId: "soci-forma-giuridica",
+    numero: 2,
+    titolo: "Fondare una Sagl con i soci",
+    video: "/corso/soci-forma-giuridica.mp4",
+    poster: "/corso/soci-forma-giuridica.jpg",
+    sottotitoli: "/corso/soci-forma-giuridica.vtt",
+    durataSecondi: 123,
+    fonti: [
+      fonti.pmiChecklist,
+      fonti.co773,
+      fontiPercorso.co777c,
+      fontiPercorso.co777,
+      fontiPercorso.pmiAssicurazioniSociali,
+      fonti.albofiduciari,
+    ],
+    verificatoIl: VERIFICATO_CHECKLIST,
   },
 ];
 

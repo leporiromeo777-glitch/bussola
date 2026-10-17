@@ -27,7 +27,7 @@ export const SIGLA_SAGL = "esse-a-gi èlle";
 /**
  * Come la voce deve dire le parole che legge male: si scrive Bleo, si dice
  * «Blìo»; Sagl per esteso (vedi SIGLA_SAGL); le altre sigle lettera per
- * lettera.
+ * lettera (IVA si legge come una parola, va bene così).
  */
 const PRONUNCE: readonly [RegExp, string][] = [
   [/\bBleo\b/g, "Blìo"],
@@ -35,6 +35,7 @@ const PRONUNCE: readonly [RegExp, string][] = [
   [/\be SA\b/g, "ed esse-a"],
   [/\bSA\b/g, "esse-a"],
   [/\bPMI\b/g, "pi-emme-i"],
+  [/\bAVS\b/g, "a-vu-esse"],
 ];
 
 /**
