@@ -10,7 +10,9 @@
  * e clip-parla.mp4 (Bleo che parla, senza audio). Servono ffmpeg e curl nel PATH.
  *
  * Per lo stile «presentatore» prepara anche, una volta per tutte le lezioni,
- * Bleo presentatore con lo sfondo trasparente (da sorgenti/presentatore/).
+ * Bleo presentatore con lo sfondo trasparente (da sorgenti/presentatore/) e
+ * la bussolina tagliata a pezzi (scripts/taglia-bussolina.py, serve python3
+ * con Pillow e NumPy).
  */
 import { execFileSync, spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
@@ -103,6 +105,19 @@ mkdirSync(join(VIDEO, "public", "mascotte"), { recursive: true });
 for (const nome of MASCOTTE) {
   copyFileSync(join(VIDEO, "..", "public", "mascotte", nome), join(VIDEO, "public", "mascotte", nome));
 }
+
+// 3b. La bussolina tagliata a pezzi per animarla come un burattino (stile «presentatore»).
+const tagli = spawnSync(
+  "python3",
+  [
+    join(VIDEO, "scripts", "taglia-bussolina.py"),
+    join(VIDEO, "public", "mascotte", "bussolina.webp"),
+    join(VIDEO, "public", "bussolina"),
+    join(VIDEO, "src", "presentatore", "pezzi-bussolina.json"),
+  ],
+  { stdio: "inherit" },
+);
+if (tagli.status !== 0) console.warn("Non sono riuscito a tagliare la bussolina (serve python3 con Pillow e NumPy).");
 
 // 4. Caratteri (Plus Jakarta Sans e Geist), scaricati una volta sola.
 for (const c of fileCaratteri()) {

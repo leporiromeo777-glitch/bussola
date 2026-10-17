@@ -10,6 +10,7 @@
 import type { Scena, Schermo } from "../lezioni/tipi";
 import { FPS, type Tempi } from "../tempi";
 import { PRESENTATORE } from "./griglia";
+import PEZZI from "./pezzi-bussolina.json";
 
 export type Punto = { x: number; y: number };
 
@@ -30,7 +31,11 @@ type Mossa =
   | { tipo: "scuoti"; inizio: number; durata: number }
   | { tipo: "sparisci"; inizio: number; durata: number }
   | { tipo: "spingi"; inizio: number; durata: number; da: Punto; a: Punto }
-  | { tipo: "annuisci"; inizio: number; durata: number };
+  | { tipo: "annuisci"; inizio: number; durata: number }
+  /** Cammina a terra (gambe alternate, un saltello per passo). */
+  | { tipo: "cammina"; inizio: number; durata: number; a: Punto }
+  /** Salti di gioia con le braccia in alto. */
+  | { tipo: "festeggia"; inizio: number; durata: number };
 
 /** Una pioggia di stelline e puntini. */
 export type Scintilla = { x: number; y: number; inizio: number; raggio: number };
@@ -46,7 +51,35 @@ export type Piano = {
   fine: number;
 };
 
-export type Posa = {
+/**
+ * Le parti del burattino (vedi Bussolina.tsx e scripts/taglia-bussolina.py).
+ * Angoli in gradi, in senso orario: il braccio destro parte alzato (0) e con
+ * +45 punta a destra; il sinistro parte giù a sinistra e con +90 punta in
+ * alto a sinistra; le gambe con un angolo positivo portano il piede a sinistra.
+ */
+export type Corpo = {
+  braccioDx: number;
+  braccioSx: number;
+  /**
+   * Il braccio sinistro è attaccato in basso e corto: per alzarlo la spalla
+   * scivola lungo l'anello (gira attorno al centro della cassa), poi il braccio
+   * gira sul suo perno.
+   */
+  spallaSx: number;
+  gambaSx: number;
+  gambaDx: number;
+  /** Lunghezza delle gambe: meno di 1 raccolte, più di 1 allungate. */
+  gambe: number;
+  /** Apertura degli occhi: 1 normali, ~0 chiusi, più di 1 sgranati. */
+  occhi: number;
+  /** Occhi chiusi felici (^ ^). */
+  felice: boolean;
+  /** Dove guarda: spostamento delle pupille, in pixel dell'immagine. */
+  sguardo: number;
+  bocca: "sorriso" | "oh" | "aperta";
+};
+
+export type Posa = Corpo & {
   x: number;
   y: number;
   /** Gradi. */
@@ -81,7 +114,10 @@ export const TEMPI_SCHEDE = {
 } as const;
 
 /** Durate (fotogrammi) delle mosse della bussolina. */
-const DURATE = { salto: 12, tocco: 14, lancio: 18, scossa: 32, allerta: 72, annuisci: 22, sparisci: 6 } as const;
+const DURATE = { salto: 12, tocco: 16, lancio: 18, scossa: 34, allerta: 72, annuisci: 22, sparisci: 6, cammina: 32 } as const;
+
+/** Di quanto gira il braccio destro per toccare un numero (punta a destra). */
+const ANGOLO_TOCCO = 45;
 
 const { colonna, bussolina } = PRESENTATORE;
 /** Altezza quando fa qualcosa; ferma è un po' più piccola (`bussolina.ferma`). */
@@ -89,6 +125,28 @@ const ALTEZZA = bussolina.altezza;
 const FERMA = bussolina.ferma / bussolina.altezza;
 const LARGHEZZA = ALTEZZA * bussolina.rapporto;
 const RIPOSO: Punto = bussolina.riposo;
+/** Da pixel dell'immagine (540×720) a pixel del video, quando è grande. */
+const K = ALTEZZA / PEZZI.lato[1];
+
+/**
+ * Dove arriva la punta della mano destra con il braccio girato di `angolo`,
+ * rispetto ai piedi (pixel del video, bussolina grande).
+ */
+function manoDestra(angolo: number): Punto {
+  const [px, py] = PEZZI["braccio-dx"].perno;
+  const [, y0, x1] = PEZZI["braccio-dx"].riquadro;
+  // La mano: in cima al braccio, un po' prima del bordo destro.
+  const mano = { x: x1 - 18, y: y0 + 22 };
+  const a = (angolo * Math.PI) / 180;
+  const vx = mano.x - px;
+  const vy = mano.y - py;
+  const rx = px + vx * Math.cos(a) - vy * Math.sin(a);
+  const ry = py + vx * Math.sin(a) + vy * Math.cos(a);
+  // Più il raggio della mano, nella direzione del braccio.
+  const lungo = Math.hypot(rx - px, ry - py);
+  const punta = { x: rx + ((rx - px) / lungo) * 20, y: ry + ((ry - py) / lungo) * 20 };
+  return { x: (punta.x - PEZZI.lato[0] / 2) * K, y: (punta.y - PEZZI.lato[1]) * K };
+}
 /** Da dove arriva in volo: fuori dallo schermo, in alto a destra. */
 const PARTENZA: Punto = { x: 1200, y: -40 };
 
@@ -136,9 +194,9 @@ export function creaPiano(
     const destra = colonna.x + colonna.larghezza;
     switch (schermo.tipo) {
       case "titolo": {
-        // Prende il rullo con le mani (a 2/3 dell'altezza) e lo tira giù.
+        // Si appende al rullo con le mani in alto e lo tira giù.
         const x = destra - LARGHEZZA * 0.42;
-        const mani = ALTEZZA * 0.36;
+        const mani = -manoDestra(POSE_TIRA.braccioDx).y;
         vai({ x, y: alto + mani }, s, TEMPI_SCHEDE.titoloTira);
         const giu = { x, y: basso + mani };
         mosse.push({ tipo: "tira", inizio: s + TEMPI_SCHEDE.titoloTira, durata: TEMPI_SCHEDE.titoloDurata, a: giu });
@@ -173,8 +231,9 @@ export function creaPiano(
           for (let k = visibili; k < sc.visibili; k++) {
             const passo = (k - visibili) * 30;
             const centro = misura?.punti[k] ?? { x: 56, y: 120 + 80 * k };
-            // La mano alzata (a destra dell'immagine) tocca il bordo del numero.
-            const piedi = { x: colonna.x + centro.x - 26 - LARGHEZZA * 0.47 + 6, y: alto + centro.y + ALTEZZA * 0.49 };
+            // Il braccio destro scende a destra e la mano tocca il bordo del numero.
+            const mano = manoDestra(ANGOLO_TOCCO);
+            const piedi = { x: colonna.x + centro.x - 26 - mano.x + 4, y: alto + centro.y - mano.y };
             vai(piedi, t + passo, TEMPI_SCHEDE.puntoSalto, 60);
             mosse.push({ tipo: "tocca", inizio: t + passo + TEMPI_SCHEDE.puntoSalto, durata: DURATE.tocco });
             scintille.push({ x: colonna.x + centro.x, y: alto + centro.y, inizio: t + passo + TEMPI_SCHEDE.puntoTocco, raggio: 92 });
@@ -190,7 +249,7 @@ export function creaPiano(
         const t = aRiposo() ? s + 2 : s + DURATE.salto;
         vai(RIPOSO, s, DURATE.salto, 110);
         mosse.push({ tipo: "scuoti", inizio: t, durata: DURATE.scossa });
-        allerte.push({ inizio: t + 1, fine: t + DURATE.allerta });
+        allerte.push({ inizio: t + 1, fine: Math.min(t + DURATE.allerta, g.fine) });
         break;
       }
       case "punto": {
@@ -202,20 +261,32 @@ export function creaPiano(
       case "fonte": {
         mosse.push({ tipo: "sparisci", inizio: s, durata: DURATE.sparisci });
         if (qui) scintille.push({ x: qui.x, y: qui.y - ALTEZZA * FERMA * 0.5, inizio: s + 3, raggio: 70 });
-        // Spinge la scheda dall'angolo in basso a destra, davanti alla scheda
-        // (così si vede tutta mentre spinge); poi si sposta sull'angolo in alto.
-        const piedi = Math.min(basso + ALTEZZA * 0.12, PRESENTATORE.sottotitoli.cima - 6);
-        const a = { x: destra - LARGHEZZA * 0.4, y: piedi };
-        const da = { x: a.x + TEMPI_SCHEDE.fonteCorsa, y: piedi };
+        // Spinge la scheda dall'angolo in alto a destra: il corpo resta sopra la
+        // scheda (sopra il testo), il braccio sinistro teso contro il bordo e i
+        // piedi sul margine bianco in cima.
+        const a = { x: destra - LARGHEZZA * 0.17, y: alto + 50 };
+        const da = { x: a.x + TEMPI_SCHEDE.fonteCorsa, y: a.y };
         mosse.push({ tipo: "spingi", inizio: s + TEMPI_SCHEDE.fonteSpinge, durata: TEMPI_SCHEDE.fonteDurata, da, a });
         qui = a;
-        // Poi salta sull'angolo in alto a destra della scheda e fa sì con la testa.
+        // Poi un saltello sul bordo in alto della scheda e fa sì con la testa.
         const sopra = { x: destra - LARGHEZZA * 0.6, y: alto + 14 };
         const t = s + TEMPI_SCHEDE.fonteSpinge + TEMPI_SCHEDE.fonteDurata + 4;
-        // Esce un attimo a destra e torna sopra la scheda, senza passare sul testo.
-        mosse.push({ tipo: "vola", inizio: t, durata: 20, a: sopra, controllo: { x: 1400, y: alto + (basso - alto) * 0.5 } });
-        qui = sopra;
-        mosse.push({ tipo: "annuisci", inizio: t + 22, durata: DURATE.annuisci });
+        vai(sopra, t, 14, 60);
+        mosse.push({ tipo: "annuisci", inizio: t + 16, durata: DURATE.annuisci });
+        // Poi passeggia sul bordo della scheda e alla fine fa festa (sull'ultima frase).
+        const fineScena = g.fine;
+        const passeggia = t + 16 + DURATE.annuisci + 10;
+        const piu = { x: sopra.x - 150, y: sopra.y };
+        if (passeggia + DURATE.cammina < fineScena - 40) {
+          mosse.push({ tipo: "cammina", inizio: passeggia, durata: DURATE.cammina, a: piu });
+          qui = piu;
+        }
+        const ultima = tempi.battute.filter((b) => b.inizio * FPS >= s - 1 && b.inizio * FPS < fineScena).at(-1);
+        const festa = Math.max(
+          passeggia + DURATE.cammina + 4,
+          ultima && ultima.inizio * FPS > s + 1 ? Math.round(ultima.inizio * FPS) : fineScena - 60,
+        );
+        if (fineScena - 4 - festa >= 30) mosse.push({ tipo: "festeggia", inizio: festa, durata: fineScena - 4 - festa });
         break;
       }
     }
@@ -227,6 +298,11 @@ const limita = (n: number, min = 0, max = 1) => Math.min(max, Math.max(min, n));
 const mescola = (a: number, b: number, t: number) => a + (b - a) * t;
 const dolce = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 const frena = (t: number) => 1 - (1 - t) ** 3;
+/** Molla smorzata dopo un colpo: parte da 1, oscilla e si ferma. */
+const molla = (t: number, durata = 4.5, frequenza = 0.8) => (t >= 0 && t < 24 ? Math.exp(-t / durata) * Math.cos(t * frequenza) : 0);
+
+/** Le braccia alzate per appendersi al rullo del titolo. */
+const POSE_TIRA = { braccioDx: -20, braccioSx: 45, spallaSx: 55 } as const;
 
 /**
  * Dove sta la bussolina e com'è al fotogramma `f`; null se non è (ancora) in
@@ -235,7 +311,15 @@ const frena = (t: number) => 1 - (1 - t) ** 3;
  */
 export function posa(piano: Piano, f: number): Posa | null {
   const p = posaBase(piano, f);
-  return p && { ...p, scala: p.scala * taglia(piano, f) };
+  if (!p) return null;
+  const tiene = piano.cartellini.find((c) => f >= c.inizio && f < Math.min(c.fine, piano.fine));
+  const ferma = !piano.mosse.some((m) => f >= m.inizio && f < m.inizio + m.durata);
+  // Con il cartellino: il braccio destro lo tiene su e lo scuote un po', l'altro sul fianco.
+  const cartellino =
+    tiene && ferma
+      ? { braccioDx: -6 + Math.sin(f / 2.2) * 6 * Math.max(0.3, 1 - (f - tiene.inizio) / 30), braccioSx: -30, bocca: "aperta" as const }
+      : {};
+  return { ...p, ...cartellino, scala: p.scala * taglia(piano, f) };
 }
 
 /** Da FERMA a 1: cresce poco prima di ogni mossa e torna piccola poco dopo. */
@@ -268,14 +352,15 @@ function posaBase(piano: Piano, f: number): Posa | null {
   if (sparita) return null;
   // Fra una mossa e l'altra: galleggia piano (su e giù, un po' inclinata).
   const calma = limita((f - finita) / 14);
-  const t = f - atterrata;
-  const molla = t >= 0 && t < 20 ? Math.exp(-t / 4.5) * Math.cos(t * 0.8) : 0;
+  const atterra = molla(f - atterrata);
   return {
+    ...riposo(f, calma),
     x: qui.x,
     y: qui.y + Math.sin(f / 9) * 7 * calma - 4 * calma,
     rotazione: Math.sin(f / 14) * 3 * calma,
-    sx: 1 + 0.17 * molla,
-    sy: 1 - 0.17 * molla,
+    sx: 1 + 0.17 * atterra,
+    sy: 1 - 0.17 * atterra,
+    gambe: 1 - 0.12 * Math.max(0, atterra),
     scala: 1,
     ago: agoCalmo(f),
   };
@@ -286,27 +371,92 @@ function agoCalmo(f: number): number {
   return Math.sin(f / 6) * 5 + Math.sin(f / 2.7) * 2;
 }
 
+/**
+ * Sbatte gli occhi ogni 2–4 secondi, mai a ritmo fisso: 1 aperti, ~0 chiusi.
+ * (Gli intervalli vengono da una sequenza fissa, così ogni render è uguale.)
+ */
+export function palpebre(f: number): number {
+  let t = 25;
+  for (let k = 1; t <= f + 8; k++) {
+    const d = f - t;
+    if (d >= 0 && d < 7) return 1 - 0.92 * Math.sin((d / 7) * Math.PI);
+    t += 60 + ((k * 37) % 61);
+  }
+  return 1;
+}
+
+/** Il corpo quando aspetta: braccia che dondolano sfasate, sguardo che gira, occhi che sbattono. */
+function riposo(f: number, calma = 1): Corpo {
+  return {
+    braccioDx: Math.sin(f / 11) * 8 * calma,
+    braccioSx: Math.sin(f / 13 + 1.3) * 7 * calma,
+    spallaSx: 0,
+    gambaSx: Math.sin(f / 17) * 2 * calma,
+    gambaDx: Math.sin(f / 17 + 2) * 2 * calma,
+    gambe: 1,
+    occhi: palpebre(f),
+    felice: false,
+    // Si guarda intorno: le pupille vanno da una parte all'altra, piano.
+    sguardo: (Math.sin(f / 41) * 12 + Math.sin(f / 13) * 3) * calma,
+    bocca: "sorriso",
+  };
+}
+
+/** In volo: braccia che sbattono come alucce, gambe che penzolano indietro. */
+function volo(f: number, verso: number): Corpo {
+  const ali = Math.sin(f * 1.5);
+  return {
+    braccioDx: -15 + ali * 30,
+    braccioSx: 40 - ali * 30,
+    spallaSx: 30,
+    gambaSx: limita(verso, -1, 1) * 16 + Math.sin(f * 0.7) * 7,
+    gambaDx: limita(verso, -1, 1) * 16 + Math.sin(f * 0.7 + 1.2) * 7,
+    gambe: 1.05,
+    occhi: 1,
+    felice: false,
+    sguardo: limita(verso, -1, 1) * -6,
+    bocca: "aperta",
+  };
+}
+
 function posaInMossa(m: Mossa, da: Punto, u: number, f: number): Posa {
-  const base: Posa = { x: da.x, y: da.y, rotazione: 0, sx: 1, sy: 1, scala: 1, ago: agoCalmo(f) };
+  const base: Posa = { ...riposo(f), x: da.x, y: da.y, rotazione: 0, sx: 1, sy: 1, scala: 1, ago: agoCalmo(f) };
   const arco = Math.sin(Math.PI * u);
+  const t = u * m.durata;
   switch (m.tipo) {
     case "entra": {
-      // Arriva in volo da in alto a destra lungo una curva, girando su sé stessa.
+      // Arriva in volo da in alto a destra lungo una curva, sbattendo le braccia.
       const e = frena(u);
       const c = { x: m.a.x + 320, y: m.a.y - 560 };
       const x = (1 - e) ** 2 * PARTENZA.x + 2 * (1 - e) * e * c.x + e * e * m.a.x;
       const y = (1 - e) ** 2 * PARTENZA.y + 2 * (1 - e) * e * c.y + e * e * m.a.y;
-      return { ...base, x, y, rotazione: -60 * (1 - e), sx: 1 - 0.1 * arco, sy: 1 + 0.14 * arco, scala: 0.7 + 0.3 * e };
+      return {
+        ...base,
+        ...volo(f, -1),
+        x,
+        y,
+        rotazione: -30 * (1 - e),
+        sx: 1 - 0.1 * arco,
+        sy: 1 + 0.14 * arco,
+        scala: 0.7 + 0.3 * e,
+      };
     }
     case "salta": {
       const e = dolce(u);
       const x = mescola(da.x, m.a.x, e);
       const y = mescola(da.y, m.a.y, e) - m.altezza * 4 * u * (1 - u);
       const verso = limita((m.a.x - da.x) / 25, -10, 10);
-      // Si schiaccia per partire, si allunga in aria.
+      // Si schiaccia per partire (gambe piegate), si allunga in aria (gambe raccolte), braccia su.
       const carica = u < 0.18 ? Math.sin((u / 0.18) * Math.PI) : 0;
       return {
         ...base,
+        ...volo(f, verso / 10),
+        braccioDx: -25 + Math.sin(f * 1.5) * 18 * arco,
+        braccioSx: 45 - Math.sin(f * 1.5) * 16 * arco,
+        spallaSx: 35 * arco,
+        gambe: 1 - 0.18 * arco + 0.08 * carica,
+        gambaSx: verso * 1.6 * arco + 10 * arco,
+        gambaDx: verso * 1.6 * arco - 10 * arco,
         x,
         y,
         rotazione: verso * arco,
@@ -320,72 +470,192 @@ function posaInMossa(m: Mossa, da: Punto, u: number, f: number): Posa {
       const y = (1 - e) ** 2 * da.y + 2 * (1 - e) * e * m.controllo.y + e * e * m.a.y;
       // Inclinata nel verso del volo, allungata in aria.
       const dx = 2 * (1 - e) * (m.controllo.x - da.x) + 2 * e * (m.a.x - m.controllo.x);
-      return { ...base, x, y, rotazione: limita(dx / 60, -18, 18) * arco, sx: 1 - 0.08 * arco, sy: 1 + 0.12 * arco };
-    }
-    case "tira": {
-      // Scende tirando il rullo: tesa e un po' allungata.
-      const e = dolce(u);
       return {
         ...base,
+        ...volo(f, dx / 300),
+        x,
+        y,
+        rotazione: limita(dx / 60, -18, 18) * arco,
+        sx: 1 - 0.08 * arco,
+        sy: 1 + 0.12 * arco,
+      };
+    }
+    case "tira": {
+      // Appesa al rullo con le braccia in alto: due strattoni verso il basso,
+      // il corpo che si piega all'indietro e le gambe che puntano.
+      const e = dolce(u);
+      const strappo = Math.sin(u * Math.PI * 2) ** 2;
+      return {
+        ...base,
+        braccioDx: POSE_TIRA.braccioDx + 14 * strappo,
+        braccioSx: POSE_TIRA.braccioSx - 22 * strappo,
+        spallaSx: POSE_TIRA.spallaSx,
+        gambaSx: 14 + 8 * strappo,
+        gambaDx: -14 - 8 * strappo,
+        gambe: 1.04,
+        occhi: 1 - 0.45 * strappo,
+        bocca: strappo > 0.3 ? "oh" : "aperta",
         x: mescola(da.x, m.a.x, e) + Math.sin(u * Math.PI * 3) * 3,
-        y: mescola(da.y, m.a.y, e),
-        rotazione: Math.sin(u * Math.PI * 2) * 5,
-        sx: 1 - 0.06 * arco,
-        sy: 1 + 0.08 * arco,
+        y: mescola(da.y, m.a.y, e) + 8 * strappo,
+        rotazione: -7 * strappo,
+        sx: 1 - 0.05 * arco + 0.04 * strappo,
+        sy: 1 + 0.07 * arco - 0.05 * strappo,
       };
     }
     case "tocca": {
-      // Uno slancio verso il numero e indietro.
-      const colpo = Math.sin(Math.PI * Math.min(1, u * 1.6)) * (u < 0.625 ? 1 : 0);
-      return { ...base, x: da.x + 24 * colpo, rotazione: 15 * colpo, sx: 1 + 0.1 * colpo, sy: 1 - 0.1 * colpo };
+      // Si piega in avanti, carica il braccio e colpisce il numero; poi sorride.
+      const carica = u < 0.25 ? Math.sin((u / 0.25) * (Math.PI / 2)) : 0;
+      const colpo = u < 0.25 ? 0 : u < 0.4 ? dolce((u - 0.25) / 0.15) : 1 - dolce(limita((u - 0.7) / 0.3));
+      const rimbalzo = u > 0.4 ? molla(t - 0.4 * m.durata, 2.5, 1.4) : 0;
+      return {
+        ...base,
+        braccioDx: -25 * carica + (ANGOLO_TOCCO + 6 * rimbalzo) * colpo,
+        braccioSx: -15 * colpo,
+        gambaSx: 6 * colpo,
+        gambaDx: -4 * colpo,
+        bocca: "aperta",
+        felice: u > 0.45 && u < 0.85,
+        rotazione: 6 * colpo - 4 * carica,
+        sx: 1 + 0.06 * colpo,
+        sy: 1 - 0.06 * colpo,
+      };
     }
     case "lancia": {
-      // Si carica (schiacciata), poi si allunga verso la scheda come per lanciarla.
+      // Carica il braccio all'indietro (schiacciata), poi lo lancia avanti verso la scheda.
       const carica = u < 0.3 ? Math.sin((u / 0.3) * (Math.PI / 2)) : Math.max(0, 1 - (u - 0.3) / 0.15);
       const slancio = u < 0.3 ? 0 : Math.sin(limita((u - 0.3) / 0.7) * Math.PI);
       return {
         ...base,
+        braccioDx: -40 * carica + 75 * slancio,
+        braccioSx: 20 * carica - 10 * slancio,
+        gambaSx: 8 * slancio,
+        gambaDx: -8 * slancio,
+        gambe: 1 - 0.1 * carica,
+        bocca: slancio > 0.2 ? "aperta" : "sorriso",
         y: da.y - 22 * slancio,
-        rotazione: 10 * slancio - 4 * carica,
+        rotazione: 10 * slancio - 6 * carica,
         sx: 1 + 0.14 * carica - 0.08 * slancio,
         sy: 1 - 0.16 * carica + 0.12 * slancio,
       };
     }
     case "scuoti": {
-      // Trema tutta e l'ago gira veloce (due giri, dietro la cassa quando punta in basso).
+      // Spavento: occhi sgranati, bocca a «oh», braccia in alto, trema tutta;
+      // l'ago fa tre giri (dietro la cassa quando punta in basso) e si ferma con un rimbalzo.
       const smorza = 1 - u * u;
-      const t = u * m.durata;
+      const giri = 1080 * frena(limita(u / 0.7));
+      const assesta = u > 0.7 ? 22 * molla((u - 0.7) * m.durata, 3, 1.1) : 0;
       return {
         ...base,
+        braccioDx: -28 + Math.sin(t * 2.6) * 12 * smorza,
+        braccioSx: 48 + Math.sin(t * 2.6 + 1) * 14 * smorza,
+        spallaSx: 50,
+        gambaSx: Math.sin(t * 3) * 8 * smorza + 6,
+        gambaDx: Math.sin(t * 3 + 1.5) * 8 * smorza - 6,
+        occhi: 1.25,
+        sguardo: Math.sin(t * 1.3) * 5 * smorza,
+        bocca: "oh",
         x: da.x + Math.sin(t * 2.2) * 12 * smorza,
         y: da.y - Math.abs(Math.sin(t * 1.1)) * 10 * smorza,
-        rotazione: Math.sin(t * 1.7) * 16 * smorza,
+        rotazione: Math.sin(t * 1.7) * 14 * smorza,
         sx: 1 + Math.sin(t * 2.2) * 0.07 * smorza,
         sy: 1 - Math.sin(t * 2.2) * 0.07 * smorza,
-        ago: 1080 * frena(Math.min(1, u * 1.1)) + agoCalmo(f) * (1 - smorza),
+        ago: giri + assesta + agoCalmo(f) * (1 - smorza),
       };
     }
     case "sparisci": {
       const e = u * u;
-      return { ...base, rotazione: 120 * e, scala: Math.max(0.001, 1 - e), sx: 1 + 0.15 * arco, sy: 1 - 0.15 * arco };
-    }
-    case "spingi": {
-      // Segue il bordo destro della scheda, inclinata in avanti come chi spinge.
-      const e = frena(u);
       return {
         ...base,
+        braccioDx: -30 * u,
+        braccioSx: 50 * u,
+        spallaSx: 40 * u,
+        occhi: 0.1,
+        bocca: "oh",
+        rotazione: 120 * e,
+        scala: Math.max(0.001, 1 - e),
+        sx: 1 + 0.15 * arco,
+        sy: 1 - 0.15 * arco,
+      };
+    }
+    case "spingi": {
+      // Cammina spingendo il bordo destro della scheda: piegata in avanti, il
+      // braccio sinistro teso contro la scheda, gambe alternate e un saltello per passo.
+      const e = frena(u);
+      const passo = Math.sin((t / 5) * Math.PI);
+      return {
+        ...base,
+        braccioDx: -40 + passo * 6,
+        braccioSx: 42 + passo * 4,
+        gambaSx: 20 * passo,
+        gambaDx: -20 * passo,
+        gambe: 1 - 0.06 * Math.abs(passo),
+        occhi: 0.75,
+        bocca: "oh",
         x: mescola(m.da.x, m.a.x, e),
-        y: m.a.y,
-        rotazione: -14 * (1 - u * 0.6),
-        sx: 1.07 - 0.05 * u,
-        sy: 0.94 + 0.04 * u,
+        y: m.a.y - Math.abs(passo) * 7,
+        rotazione: -13 * (1 - u * 0.5),
+        sx: 1.05 - 0.04 * u,
+        sy: 0.95 + 0.04 * u,
         scala: limita(u * 5, 0.001, 1),
       };
     }
+    case "cammina": {
+      // Due passi e mezzo: gambe alternate, braccia che dondolano al contrario, un saltello per passo.
+      const e = dolce(u);
+      const passo = Math.sin((t / 6) * Math.PI);
+      const verso = Math.sign(m.a.x - da.x) || 1;
+      return {
+        ...base,
+        braccioDx: -passo * 18,
+        braccioSx: passo * 18,
+        gambaSx: 18 * passo,
+        gambaDx: -18 * passo,
+        sguardo: verso * 6,
+        bocca: "aperta",
+        x: mescola(da.x, m.a.x, e),
+        y: mescola(da.y, m.a.y, e) - Math.abs(passo) * 9,
+        rotazione: verso * 6 + passo * 3,
+        sx: 1 - 0.03 * Math.abs(passo),
+        sy: 1 + 0.03 * Math.abs(passo),
+      };
+    }
     case "annuisci": {
-      // Due piccoli sì: si abbassa e torna su, con un rimbalzo.
+      // Due piccoli sì a occhi chiusi, contenta.
       const s = Math.sin(u * Math.PI * 2) ** 2;
-      return { ...base, y: da.y, sx: 1 + 0.07 * s, sy: 1 - 0.1 * s, rotazione: 5 * s };
+      return {
+        ...base,
+        braccioDx: 18 * s,
+        braccioSx: -12 * s,
+        felice: true,
+        bocca: "aperta",
+        y: da.y,
+        sx: 1 + 0.07 * s,
+        sy: 1 - 0.1 * s,
+        rotazione: 5 * s,
+      };
+    }
+    case "festeggia": {
+      // Saltelli con le braccia in alto e le gambe che scalciano; schiacciata quando atterra.
+      const n = Math.max(2, Math.min(3, Math.round(m.durata / 18)));
+      const periodo = m.durata / n;
+      const v = (t % periodo) / periodo;
+      const su = Math.sin(Math.PI * v);
+      const terra = Math.max(0, 1 - Math.min(v, 1 - v) * 5);
+      return {
+        ...base,
+        braccioDx: -30 + Math.sin(t * 0.9) * 14,
+        braccioSx: 50 - Math.sin(t * 0.9) * 16,
+        spallaSx: 55,
+        gambaSx: 22 * Math.sin(v * Math.PI * 2),
+        gambaDx: -22 * Math.sin(v * Math.PI * 2),
+        gambe: 1 - 0.15 * su,
+        felice: su > 0.3,
+        bocca: "aperta",
+        y: da.y - 46 * su,
+        rotazione: Math.sin(t / periodo * Math.PI) * 6,
+        sx: 1 + 0.1 * terra - 0.06 * su,
+        sy: 1 - 0.12 * terra + 0.1 * su,
+      };
     }
   }
 }

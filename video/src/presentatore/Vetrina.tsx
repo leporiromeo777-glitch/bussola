@@ -18,17 +18,17 @@ import { Presentatore } from "./Presentatore";
 const LEZIONE_ID = "ditta-individuale";
 /** Le scene della lezione 1 da mostrare e quanti fotogrammi dura ciascuna. */
 const SCENE: readonly { indice: number; durata: number }[] = [
-  { indice: 0, durata: 90 }, // titolo
-  { indice: 1, durata: 54 }, // elenco vuoto, cartellino «3»
-  { indice: 2, durata: 42 },
-  { indice: 3, durata: 42 },
-  { indice: 4, durata: 42 },
-  { indice: 5, durata: 78 }, // attenzione
-  { indice: 6, durata: 54 }, // punto
-  { indice: 8, durata: 84 }, // fonte
+  { indice: 0, durata: 130 }, // titolo, poi si guarda intorno
+  { indice: 1, durata: 50 }, // elenco vuoto, cartellino «3»
+  { indice: 2, durata: 40 },
+  { indice: 3, durata: 40 },
+  { indice: 4, durata: 40 },
+  { indice: 5, durata: 72 }, // attenzione
+  { indice: 6, durata: 50 }, // punto
+  { indice: 8, durata: 176 }, // fonte: spinge, annuisce, cammina, festeggia
 ];
 const INIZIO = 12;
-const DURATA_FINE = 60;
+const DURATA_FINE = 50;
 
 export function tempiVetrina(): { lezione: Lezione; tempi: Tempi; etichette: { da: number; testo: string }[] } {
   const originale = trovaLezione(LEZIONE_ID);
@@ -41,15 +41,19 @@ export function tempiVetrina(): { lezione: Lezione; tempi: Tempi; etichette: { d
   });
   const tempi: Tempi = { scene, inizioFine: frame, totale: frame + DURATA_FINE, battute: [] };
   const da = (i: number) => scene[i].inizio;
+  // Fonte (vedi creaPiano): spinge (6+24), saltello sul bordo (4+16), annuisce (22), cammina dopo 10.
+  const cammina = da(7) + TEMPI_SCHEDE.fonteSpinge + TEMPI_SCHEDE.fonteDurata + 4 + 16 + 22 + 10;
   const etichette = [
     { da: 0, testo: "Entra volando" },
     { da: da(0) + TEMPI_SCHEDE.titoloTira, testo: "Srotola il titolo" },
+    { da: da(0) + 70, testo: "Si guarda intorno" },
     { da: da(1), testo: "Alza il cartellino «3»" },
     { da: da(2), testo: "Tocca e fa comparire" },
     { da: da(5), testo: "Fa girare l'ago" },
     { da: da(6), testo: "Lancia una scheda" },
     { da: da(7), testo: "Spinge la fonte" },
-    { da: tempi.inizioFine, testo: "Festeggia" },
+    { da: cammina, testo: "Cammina" },
+    { da: cammina + 36, testo: "Festeggia" },
   ];
   return { lezione, tempi, etichette };
 }

@@ -12,10 +12,10 @@ export const PRESENTATORE = {
   bleo: { x: 12, y: 331, lato: 749 },
   /**
    * Le schede: a destra della mano, appoggiate in basso alla stessa linea. Il
-   * titolo un po' più in alto, così la bussolina che lo srotola non finisce
-   * dietro i sottotitoli.
+   * titolo un po' più in alto, così la bussolina appesa al rullo che lo
+   * srotola non finisce dietro i sottotitoli.
    */
-  colonna: { x: 612, larghezza: 420, fondo: 880, fondoTitolo: 820 },
+  colonna: { x: 612, larghezza: 420, fondo: 880, fondoTitolo: 780 },
   /** Fascia dei sottotitoli: copre solo la pancia di Bleo, sotto la mano. `cima` = 1080 − fondo − altezza. */
   sottotitoli: { lato: 40, fondo: 20, altezza: 134, corpo: 40, cima: 926 },
   bussolina: {

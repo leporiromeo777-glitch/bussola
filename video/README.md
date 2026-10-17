@@ -78,8 +78,17 @@ Scrive solo in `video/out/ditta-individuale-presentatore.{mp4,jpg,vtt}`. Per
 pubblicare una lezione nello stile presentatore: `stile: "presentatore"` nei
 dati della lezione, poi `npm run render -- <id-passo>`.
 
+La bussolina è un burattino di carta (cut-out), senza crediti AI:
+`scripts/taglia-bussolina.py` (Python con Pillow e NumPy, lo lancia
+`npm run prepara`) taglia `public/mascotte/bussolina.webp` in pezzi
+(`video/public/bussolina/`: corpo, ago, braccia, gambe, occhi, bocca) e scrive
+i perni in `src/presentatore/pezzi-bussolina.json`. Braccia, gambe e ago stanno
+dietro la cassa e girano sul loro perno; occhi e bocca sbattono e cambiano
+(bocca a «oh», aperta, occhi felici). Le pose di ogni mossa sono in
+`src/presentatore/coreografia.ts`.
+
 Le animazioni della bussolina, una per una con un'etichetta e senza voce
-(circa 19 s), sono nella composizione `bussolina-animazioni`:
+(circa 22 s), sono nella composizione `bussolina-animazioni`:
 
 ```sh
 npx remotion render src/index.ts bussolina-animazioni out/bussolina-animazioni.mp4 --muted
