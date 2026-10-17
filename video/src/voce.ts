@@ -15,15 +15,23 @@ export const VOCE_BLEO = {
 } as const;
 
 /**
+ * La sigla Sagl detta lettera per lettera. Dentro le frasi la voce la legge
+ * ogni volta in modo diverso, spesso male («SAGel», lettere staccate; provato
+ * a orecchio il 17.10.2026): per questo si dice il nome per esteso e la sigla
+ * solo la prima volta, nel campo `voce` della scena («…, detta anche
+ * ${SIGLA_SAGL}, …», con la virgola dopo, che fa sentire la L). Quella
+ * scena va ascoltata e, se serve, rifatta.
+ */
+export const SIGLA_SAGL = "esse-a-gi èlle";
+
+/**
  * Come la voce deve dire le parole che legge male: si scrive Bleo, si dice
- * «Blìo»; le sigle lettera per lettera (Sagl non è una parola). Per Sagl lo
- * spazio prima di «èlle» e la virgola dopo servono: senza, la L si perde e
- * si sente «SAGel» (provato a orecchio il 17.10.2026).
+ * «Blìo»; Sagl per esteso (vedi SIGLA_SAGL); le altre sigle lettera per
+ * lettera.
  */
 const PRONUNCE: readonly [RegExp, string][] = [
   [/\bBleo\b/g, "Blìo"],
-  [/\bSagl\b(?![.,;:!?])/g, "esse-a-gi èlle,"],
-  [/\bSagl\b/g, "esse-a-gi èlle"],
+  [/\bSagl\b/g, "società a garanzia limitata"],
   [/\be SA\b/g, "ed esse-a"],
   [/\bSA\b/g, "esse-a"],
   [/\bPMI\b/g, "pi-emme-i"],

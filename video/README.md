@@ -31,10 +31,12 @@ Servono Node 22, `ffmpeg` e `curl`. La prima volta: `cd video && npm install`.
    ```
 
    Scrive un MP3 per scena in `video/sorgenti/<id-passo>/` (`scena-1.mp3`,
-   `scena-2.mp3`, …). La voce legge il sottotitolo con «Blìo» al posto di Bleo
-   e le sigle lettera per lettera («esse-a-gi èlle» per Sagl, «esse-a» per SA,
-   «pi-emme-i» per PMI; l'elenco è in `src/voce.ts`), così la pronuncia è
-   giusta. Le cifre vanno scritte in parole nel campo `voce` della scena
+   `scena-2.mp3`, …). La voce legge il sottotitolo con «Blìo» al posto di Bleo,
+   «società a garanzia limitata» al posto di Sagl (la sigla detta lettera per
+   lettera viene male: si dice solo la prima volta, con `SIGLA_SAGL` nel campo
+   `voce`, e quella scena va ascoltata) e le altre sigle lettera per lettera
+   («esse-a» per SA, «pi-emme-i» per PMI; l'elenco è in `src/voce.ts`), così
+   la pronuncia è giusta. Le cifre vanno scritte in parole nel campo `voce` della scena
    (per esempio «ventimila franchi»): con una cifra lo script si ferma prima
    di spendere caratteri.
 3. **Metti i file in una cartella** `video/sorgenti/<id-passo>/`: gli MP3 delle

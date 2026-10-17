@@ -22,13 +22,15 @@
  * - criteri di scelta (autonomia, rischio, capitale, imposte) e indicazioni
  *   generali (fontiPercorso.pmiScegliereForma).
  *
- * La voce dice «Blìo», «esse-a-gi èlle» ed «esse-a» (src/voce.ts), e le
- * cifre in parole («ventimila franchi», nel campo `voce` della scena 5): se
- * cambiano i dati, va rifatta la voce con `npm run voce` (vedi il controllo
- * qui sotto). Lo schermo scrive Bleo, Sagl, SA e CHF 20'000.
+ * La voce dice «Blìo», «società a garanzia limitata» (la sigla Sagl solo
+ * nella scena 2) ed «esse-a» (src/voce.ts), e le cifre in parole («ventimila
+ * franchi», nel campo `voce` della scena 5): se cambiano i dati, va rifatta
+ * la voce con `npm run voce` (vedi il controllo qui sotto). Lo schermo scrive
+ * Bleo, Sagl, SA e CHF 20'000.
  */
 import { lezionePerPasso } from "../../../src/data/corso";
 import { chf, fonti, fontiPercorso, regole, VERIFICATO_FORME } from "../../../src/data/svizzera";
+import { SIGLA_SAGL } from "../voce";
 import { titoloProssimoPasso } from "./prossimo-passo";
 import type { Lezione } from "./tipi";
 
@@ -66,7 +68,9 @@ export const dittaIndividuale: Lezione = {
       disegno: "quattro-forme",
       stile: "lavagna",
       testo:
-        "La ditta individuale è per una persona sola. La società in nome collettivo è per due o più persone. Sagl e SA, invece, sono società vere e proprie, separate da chi le fonda.",
+        "La ditta individuale è per una persona sola. La società in nome collettivo è per due o più persone. La società a garanzia limitata, detta anche Sagl, e la SA, invece, sono società vere e proprie, separate da chi le fonda.",
+      // Solo qui la voce dice la sigla, lettera per lettera; altrove il nome per esteso.
+      voce: `La ditta individuale è per una persona sola. La società in nome collettivo è per due o più persone. La società a garanzia limitata, detta anche ${SIGLA_SAGL}, e la SA, invece, sono società vere e proprie, separate da chi le fonda.`,
       schermo: {
         tipo: "punto",
         titolo: "Le quattro forme più comuni",
@@ -103,8 +107,8 @@ export const dittaIndividuale: Lezione = {
       audio: "scena-5.mp3",
       disegno: "sagl-sa",
       stile: "lavagna",
-      testo: `Sagl e SA, invece, si fondano davanti a un notaio e nascono con l'iscrizione nel registro di commercio. Serve un capitale minimo. Per la Sagl almeno ${SAGL}, da versare tutti quando la fondi. Per la SA almeno ${SA}, e quando la fondi devi versarne almeno ${SA_VERSATO}.`,
-      voce: "Sagl e SA, invece, si fondano davanti a un notaio e nascono con l'iscrizione nel registro di commercio. Serve un capitale minimo. Per la Sagl almeno ventimila franchi, da versare tutti quando la fondi. Per la SA almeno centomila franchi, e quando la fondi devi versarne almeno cinquantamila franchi.",
+      testo: `La Sagl e la SA, invece, si fondano davanti a un notaio e nascono con l'iscrizione nel registro di commercio. Serve un capitale minimo. Per la Sagl almeno ${SAGL}, da versare tutti quando la fondi. Per la SA almeno ${SA}, e quando la fondi devi versarne almeno ${SA_VERSATO}.`,
+      voce: "La Sagl e la SA, invece, si fondano davanti a un notaio e nascono con l'iscrizione nel registro di commercio. Serve un capitale minimo. Per la Sagl almeno ventimila franchi, da versare tutti quando la fondi. Per la SA almeno centomila franchi, e quando la fondi devi versarne almeno cinquantamila franchi.",
       schermo: {
         tipo: "punto",
         titolo: "Sagl e SA",
@@ -129,7 +133,7 @@ export const dittaIndividuale: Lezione = {
       disegno: "imposte-confronto",
       stile: "lavagna",
       testo:
-        "Anche le imposte cambiano. Con la ditta individuale, e anche nella società in nome collettivo, il reddito va nella tua dichiarazione personale. Sagl e SA, invece, pagano le imposte come società.",
+        "Anche le imposte cambiano. Con la ditta individuale, e anche nella società in nome collettivo, il reddito va nella tua dichiarazione personale. La Sagl e la SA, invece, pagano le imposte come società.",
       schermo: {
         tipo: "punto",
         titolo: "Le imposte",
