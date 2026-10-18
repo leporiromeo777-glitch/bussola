@@ -713,6 +713,18 @@ export const fontiPercorso = {
   lavs64: { titolo: "Legge sull'AVS (LAVS), art. 64", url: `${LAVS}#art_64`, ente: FEDLEX },
   oavs41bis: { titolo: "Ordinanza sull'AVS (OAVS), art. 41bis", url: `${OAVS}#art_41_bis`, ente: FEDLEX },
   oavs42: { titolo: "Ordinanza sull'AVS (OAVS), art. 42", url: `${OAVS}#art_42`, ente: FEDLEX },
+  // Acconti AVS (passo e lezione 19): ricontrollati il 18.10.2026, vedi VERIFICATO_ACCONTI_AVS.
+  oavs24: { titolo: "Ordinanza sull'AVS (OAVS), art. 24 (contributi d'acconto)", url: `${OAVS}#art_24`, ente: FEDLEX },
+  oavs25: { titolo: "Ordinanza sull'AVS (OAVS), art. 25 (fissazione e compensazione)", url: `${OAVS}#art_25`, ente: FEDLEX },
+  oavs27: { titolo: "Ordinanza sull'AVS (OAVS), art. 27 (comunicazione delle autorità fiscali)", url: `${OAVS}#art_27`, ente: FEDLEX },
+  oavs34: { titolo: "Ordinanza sull'AVS (OAVS), art. 34 (periodi di pagamento)", url: `${OAVS}#art_34`, ente: FEDLEX },
+  oavs34a: { titolo: "Ordinanza sull'AVS (OAVS), art. 34a (diffida)", url: `${OAVS}#art_34_a`, ente: FEDLEX },
+  oavs34b: { titolo: "Ordinanza sull'AVS (OAVS), art. 34b (dilazione di pagamento)", url: `${OAVS}#art_34_b`, ente: FEDLEX },
+  iasAdeguamentoIndipendenti: {
+    titolo: "Richiesta di adeguamento dei contributi personali per indipendenti",
+    url: "https://www4.ti.ch/index.php?id=121746",
+    ente: IAS,
+  },
   pmiAssicurazioniSociali: {
     titolo: "Il funzionamento delle assicurazioni sociali",
     url: "https://www.kmu.admin.ch/it/il-funzionamento-delle-assicurazioni-sociali",
@@ -1260,6 +1272,44 @@ export const regoleRegistro = {
  */
 export const VERIFICATO_SITO_ONLINE = "2026-10-18";
 
+/**
+ * Data dell'ultimo controllo delle fonti sugli acconti AVS degli
+ * indipendenti, per il passo e la lezione 19: promemoria 2.02 (stato
+ * 01.01.2026, edizione novembre 2025, punti 8-16: acconti, contributi
+ * definitivi, pagamento, interessi di mora e compensativi, esempi), OAVS artt.
+ * 24, 25, 27, 34, 34a, 34b, 41bis e 42 (stato 01.01.2026), pagine dell'IAS
+ * sugli acconti e sulla richiesta di adeguamento per indipendenti,
+ * informazioni periodiche AF 2026 dell'IAS e art. 73 della legge ticinese
+ * sugli assegni di famiglia (la modifica in vigore dal 01.01.2027, BU 2026
+ * 283, non tocca l'art. 73). I valori di regolePercorso accontiAvs,
+ * sogliaAccontiAvs, interesseMoraAvs, variazioneRedditoIas e
+ * termineConguaglioAvsGiorni corrispondono a queste fonti.
+ */
+export const VERIFICATO_ACCONTI_AVS = "2026-10-18";
+
+function datoAccontiAvs<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_ACCONTI_AVS };
+}
+
+/** Acconti AVS degli indipendenti: ritardi, diffida e interessi (OAVS), con quelli in `regolePercorso`. */
+export const regoleAccontiAvs = {
+  giorniMoraAcconto: datoAccontiAvs(
+    30,
+    fontiPercorso.oavs41bis,
+    "Gli acconti si pagano entro 10 giorni dalla fine del trimestre (art. 34 cpv. 3 OAVS). Se il pagamento non arriva alla cassa entro 30 giorni dalla fine del trimestre, gli interessi di mora decorrono dalla fine del trimestre (art. 41bis cpv. 1 lett. a OAVS; promemoria 2.02, punto 11). Conta il giorno in cui il pagamento arriva alla cassa (art. 42 cpv. 1 OAVS).",
+  ),
+  anniInizioMoraAccontiBassi: datoAccontiAvs(
+    2,
+    fontiPercorso.oavs41bis,
+    "Se gli acconti sono almeno il 25% sotto i contributi dovuti (il promemoria 2.02: «non arrivano al 75 %»), sulla differenza non ancora pagata gli interessi di mora decorrono dal 1° gennaio del secondo anno dopo l'anno di contribuzione: per il 2026 dal 01.01.2028 (art. 41bis cpv. 1 lett. f OAVS). Vale anche se la fattura arriva più tardi ed è pagata in tempo (promemoria 2.02, esempio 2).",
+  ),
+  tassaDiffidaFranchi: datoAccontiAvs(
+    { min: 20, max: 200 },
+    fontiPercorso.oavs34a,
+    "Chi non paga i contributi entro i termini riceve subito una diffida scritta dalla cassa, con una tassa da CHF 20 a CHF 200 (art. 34a OAVS). In difficoltà finanziarie si può chiedere una dilazione con acconti regolari (art. 34b OAVS); gli interessi di mora restano dovuti (promemoria 2.02, punto 10).",
+  ),
+} as const;
+
 /** IVA: date e periodi minimi (passo e lezione 14), con quelli in `regole` e `regolePercorso`. */
 export const regoleIva = {
   aliquoteInVigoreDal: datoIva(
@@ -1302,15 +1352,27 @@ export const regolePercorso = {
     "Giorni dalla comunicazione del numero IVA per chiedere l'aliquota saldo (art. 78 OIVA) o il rendiconto annuale (art. 76a OIVA).",
   ),
   attivitaAccessoriaAvs: dato(2_500, fonti.avsPromemoria202, "Reddito annuo da attività indipendente accessoria fino al quale i contributi si pagano solo su richiesta."),
-  accontiAvs: dato(
+  accontiAvs: datoAccontiAvs(
     { giorno: 10, mesi: [1, 4, 7, 10] },
     fonti.avsPromemoria202,
-    "Acconti trimestrali entro il 10° giorno dalla fine di ogni trimestre.",
+    "Acconti trimestrali entro il 10° giorno dalla fine di ogni trimestre (promemoria 2.02, punto 10; art. 34 OAVS): il 10 gennaio si paga l'ultimo trimestre dell'anno prima.",
   ),
-  sogliaAccontiAvs: dato(0.75, fontiPercorso.oavs41bis, "Se gli acconti sono inferiori al 75% dei contributi definitivi, gli interessi di mora decorrono dal 1° gennaio del secondo anno dopo l'anno di contribuzione."),
-  interesseMoraAvs: dato(0.05, fontiPercorso.oavs42),
-  variazioneRedditoIas: dato(0.25, fontiPercorso.iasAcconti, "Variazione del reddito, in più o in meno, da segnalare alla cassa."),
-  termineConguaglioAvsGiorni: dato(30, fonti.avsPromemoria202),
+  sogliaAccontiAvs: datoAccontiAvs(
+    0.75,
+    fontiPercorso.oavs41bis,
+    "Se gli acconti sono inferiori al 75% dei contributi definitivi, sulla differenza gli interessi di mora decorrono dal 1° gennaio del secondo anno dopo l'anno di contribuzione (vedi regoleAccontiAvs.anniInizioMoraAccontiBassi).",
+  ),
+  interesseMoraAvs: datoAccontiAvs(0.05, fontiPercorso.oavs42, "Tasso annuo degli interessi di mora e compensativi, calcolati in giorni (art. 42 cpv. 2 e 3 OAVS)."),
+  variazioneRedditoIas: datoAccontiAvs(
+    0.25,
+    fontiPercorso.iasAcconti,
+    "Per l'IAS è una divergenza sostanziale, da segnalare alla cassa, una variazione delle basi di calcolo (utile, rendite o sostanza) di più o meno il 25%: per iscritto o con la richiesta online di adeguamento (fontiPercorso.iasAdeguamentoIndipendenti). Le altre casse possono avere criteri diversi.",
+  ),
+  termineConguaglioAvsGiorni: datoAccontiAvs(
+    30,
+    fonti.avsPromemoria202,
+    "La fattura del conguaglio si paga entro 30 giorni dalla data della fattura, non dal ricevimento; il termine non si può prolungare (promemoria 2.02, punto 10; art. 25 cpv. 2 OAVS).",
+  ),
   conservazioneDocumentiAnni: dato(10, fonti.co958f),
   autenticazioneFirmaRcTicino: dato(20, fontiPercorso.rcTicinoTasseCantonali, "Allo sportello dell'Ufficio RC (legalizzazione di una firma)."),
   ifdRataUnicaTicino: dato({ giorno: 31, mese: 3 }, fontiPercorso.dcIfdProvvisorio, "Termine di pagamento della rata unica del calcolo provvisorio IFD."),
@@ -1352,6 +1414,7 @@ export const ufficiPercorso = {
       telefonoAffiliazioni: "+41 91 821 92 88",
     },
     fontiPercorso.iasAcconti,
+    "I due numeri sono nella pagina dell'IAS sugli acconti (ricontrollata il 18.10.2026); l'indirizzo e-mail del servizio è nel foglio IAS delle aliquote 2025 (fonti.iasAliquote2025).",
   ),
   laboratorioCantonaleTicino: dato(
     {

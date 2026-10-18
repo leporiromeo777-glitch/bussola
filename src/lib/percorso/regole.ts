@@ -743,7 +743,7 @@ function calcolaScadenze(r: Risposte): Scadenza[] {
     titolo: "Acconti AVS",
     titoloEvento: "Acconto AVS",
     quando: "10 gennaio, 10 aprile, 10 luglio e 10 ottobre",
-    dettaglio: `Se gli acconti restano sotto il ${percentuale(regolePercorso.sogliaAccontiAvs.valore, 0)} dei contributi definitivi paghi interessi di mora. Il conguaglio dopo la tassazione si paga entro ${regolePercorso.termineConguaglioAvsGiorni.valore} giorni.`,
+    dettaglio: `Se gli acconti restano sotto il ${percentuale(regolePercorso.sogliaAccontiAvs.valore, 0)} dei contributi definitivi paghi interessi di mora. Il conguaglio dopo la tassazione si paga entro ${regolePercorso.termineConguaglioAvsGiorni.valore} giorni dalla data della fattura.`,
     fonti: [fonti.avsPromemoria202],
     calendario: {
       tipo: "annuale",
