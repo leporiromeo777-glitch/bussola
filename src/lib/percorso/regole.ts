@@ -16,6 +16,7 @@ import {
   fontiPercorso,
   percentuale,
   regole,
+  regoleInfortuni,
   regolePercorso,
   supplementiTicino,
   uffici,
@@ -344,14 +345,13 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
     return haLavoroDipendente(r)
       ? {
           stato: "facoltativo",
-          perche:
-            "Hai anche un lavoro da dipendente; per l'attività in proprio la LAINF non è obbligatoria. Come sei coperto è da verificare con la tua cassa malati.",
+          perche: `Hai anche un lavoro da dipendente: se lavori almeno ${regoleInfortuni.oreSettimanaliNonProfessionali.valore} ore alla settimana per lo stesso datore, la sua assicurazione ti copre anche nel tempo libero (con meno ore ci pensa la cassa malati). Per l'attività in proprio la LAINF non è obbligatoria: chiedi all'assicuratore del datore come sei coperto.`,
           note,
         }
       : {
           stato: "da_fare",
           perche:
-            "Lavorerai solo in proprio: nessun datore di lavoro ti assicura contro gli infortuni. Se prima eri dipendente, controlla che la copertura infortuni della cassa malati sia di nuovo attiva.",
+            "Lavorerai solo in proprio: nessun datore di lavoro ti assicura contro gli infortuni. Se prima eri dipendente, avvisa la cassa malati che l'assicurazione del datore è finita: da lì gli infortuni li copre di nuovo lei.",
           note,
         };
   },

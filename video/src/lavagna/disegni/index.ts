@@ -14,6 +14,7 @@ import { DISEGNI_SANITA } from "./sanita";
 import { DISEGNI_PERMESSO_LAVORO } from "./permesso-lavoro";
 import { DISEGNI_NOME_DITTA } from "./nome-ditta";
 import { DISEGNI_STATUTO_SUVA } from "./statuto-suva";
+import { DISEGNI_ASSICURAZIONE_INFORTUNI } from "./assicurazione-infortuni";
 import type { Disegno } from "./tipi";
 
 export const DISEGNI: Readonly<Record<string, Disegno>> = {
@@ -28,6 +29,7 @@ export const DISEGNI: Readonly<Record<string, Disegno>> = {
   ...DISEGNI_PERMESSO_LAVORO,
   ...DISEGNI_NOME_DITTA,
   ...DISEGNI_STATUTO_SUVA,
+  ...DISEGNI_ASSICURAZIONE_INFORTUNI,
 };
 
 export type { ContestoDisegno, Disegno } from "./tipi";

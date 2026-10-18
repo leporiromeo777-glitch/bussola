@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { avsIndipendenti, chf, dataSvizzera, fonti, fontiPercorso, percentuale, regole, VERIFICATO_FORME } from "./svizzera";
+import {
+  avsIndipendenti,
+  chf,
+  dataSvizzera,
+  fonti,
+  fontiPercorso,
+  percentuale,
+  regole,
+  regoleInfortuni,
+  VERIFICATO_FORME,
+  VERIFICATO_INFORTUNI,
+} from "./svizzera";
 
 describe("formattazione svizzera", () => {
   it("chf usa l'apostrofo per le migliaia", () => {
@@ -43,6 +54,15 @@ describe("dati ufficiali", () => {
     expect(regole.sogliaRegistroCommercio.valore).toBe(100_000);
     expect(regole.sogliaIva.valore).toBe(100_000);
     expect(avsIndipendenti[2026].valore.contributoMinimo).toBe(530);
+  });
+  it("assicurazione infortuni facoltativa: il guadagno minimo è il 45% (2026) e il 30% (dal 2027) del massimo", () => {
+    const massimo = regoleInfortuni.guadagnoMassimoAssicurato.valore;
+    expect(massimo).toBe(148_200);
+    expect(regoleInfortuni.guadagnoMinimoIndipendenti[2026].valore).toBe(Math.round(massimo * 0.45));
+    expect(regoleInfortuni.guadagnoMinimoIndipendenti[2027].valore).toBe(Math.round(massimo * 0.3));
+    expect(chf(regoleInfortuni.guadagnoMinimoIndipendenti[2026].valore)).toBe("CHF 66'690");
+    expect(regoleInfortuni.guadagnoMinimoIndipendenti[2027].fonte).toBe(fontiPercorso.oainfModifica2027);
+    expect(regoleInfortuni.oreSettimanaliNonProfessionali.verificatoIl).toBe(VERIFICATO_INFORTUNI);
   });
 });
 

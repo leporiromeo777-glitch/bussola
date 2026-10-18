@@ -2,6 +2,7 @@
  * Tutte le lezioni del corso. Per aggiungerne una: un nuovo file di dati in
  * questa cartella, la voce in LEZIONI qui sotto e in src/data/corso.ts.
  */
+import { assicurazioneInfortuni } from "./assicurazione-infortuni";
 import { autorizzazioneSanitaria } from "./autorizzazione-sanitaria";
 import { autorizzazioni } from "./autorizzazioni";
 import { dittaIndividuale } from "./ditta-individuale";
@@ -16,7 +17,7 @@ import { statutoSuva } from "./statuto-suva";
 import type { Lezione } from "./tipi";
 
 /** Le lezioni e i loro video facoltativi (anche questi hanno una composizione). */
-export const LEZIONI: readonly Lezione[] = [dittaIndividuale, sociFormaGiuridica, statutoSagl, attoFondazioneSagl, autorizzazioni, esercizioPubblico, notificaAlimenti, autorizzazioneSanitaria, permessoLavoro, nomeDitta, statutoSuva];
+export const LEZIONI: readonly Lezione[] = [dittaIndividuale, sociFormaGiuridica, statutoSagl, attoFondazioneSagl, autorizzazioni, esercizioPubblico, notificaAlimenti, autorizzazioneSanitaria, permessoLavoro, nomeDitta, statutoSuva, assicurazioneInfortuni];
 
 export function trovaLezione(id: string): Lezione {
   const lezione = LEZIONI.find((l) => l.id === id);

@@ -17,6 +17,7 @@ import {
   regole,
   regoleAlimenti,
   regoleEserciziPubblici,
+  regoleInfortuni,
   regolePercorso,
   regoleSanita,
   regolePermessi,
@@ -30,6 +31,7 @@ import {
   VERIFICATO_PERMESSI,
   VERIFICATO_NOME_DITTA,
   VERIFICATO_SUVA,
+  VERIFICATO_INFORTUNI,
   type Fonte,
 } from "./svizzera";
 
@@ -79,6 +81,7 @@ const ufficioSanita = ufficioSanitaTicino.valore;
 const perm = regolePermessi;
 const migrazione = ufficiPercorso.migrazioneTicino.valore;
 const suva = regoleSuva;
+const inf = regoleInfortuni;
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -409,22 +412,38 @@ export const PASSI = [
     fase: "aprire l'attività",
     titolo: "Controlla di essere assicurato contro gli infortuni",
     descrizione:
-      "Da indipendente l'assicurazione infortuni (LAINF) non è obbligatoria: puoi assicurarti a titolo facoltativo. Senza assicurazione infortuni, gli infortuni li paga la cassa malati, ma solo se la copertura infortuni è attiva.",
+      "Da indipendente l'assicurazione infortuni (LAINF) non è obbligatoria: puoi assicurarti a titolo facoltativo. Senza, gli infortuni li copre la cassa malati come una malattia: paga le cure, con franchigia e aliquota, ma non il guadagno che perdi se non puoi lavorare.",
     cosaFare: [
-      "Chiedi alla tua cassa malati se la copertura infortuni è attiva: da dipendente poteva essere sospesa.",
-      "Valuta un'assicurazione infortuni facoltativa: nei settori della Suva c'è l'assicurazione per imprenditori, negli altri settori offrono coperture assicuratori privati e casse malati.",
+      `Se lasci un lavoro da dipendente, l'assicurazione del datore ti copre fino a ${inf.coperturaDopoImpiegoGiorni.valore} giorni dopo la fine del salario. Prima che finisca puoi prolungarla con un accordo fino a ${inf.prolungamentoMesi.valore} mesi, per gli infortuni non professionali.`,
+      "Chiama la tua cassa malati: se da dipendente avevi sospeso la copertura infortuni, avvisala che l'assicurazione del datore di lavoro è finita. Da lì gli infortuni li copre di nuovo lei, ma se non avvisi può chiederti i premi arretrati con gli interessi.",
+      `Valuta un'assicurazione infortuni facoltativa: paga le cure e, se non puoi lavorare, un'indennità giornaliera dell'${percentuale(inf.indennitaGiornaliera.valore)} del guadagno assicurato. Nei settori della Suva c'è la sua assicurazione per imprenditori; negli altri settori la offrono assicuratori privati e casse malati.`,
+      `Il premio si calcola sul guadagno assicurato, che concordi con l'assicuratore in base al tuo reddito: almeno ${chf(inf.guadagnoMinimoIndipendenti[2026].valore)} nel 2026 e ${chf(inf.guadagnoMinimoIndipendenti[2027].valore)} dal 2027.`,
+      `Se hai anche un lavoro da dipendente di almeno ${inf.oreSettimanaliNonProfessionali.valore} ore alla settimana, il datore ti assicura anche contro gli infortuni nel tempo libero; l'attività in proprio la puoi assicurare a titolo facoltativo.`,
+      "Se assumi qualcuno, assicurarlo contro gli infortuni è obbligatorio: il premio per gli infortuni professionali lo paghi tu, quello per gli infortuni non professionali lo trattieni dal salario.",
     ],
     link: { etichetta: "Portale PMI: assicurazione infortuni", url: fontiPercorso.pmiInfortuni.url },
     fonti: [
       fontiPercorso.lainf4,
-      fontiPercorso.lamal1a,
-      fontiPercorso.lamal8,
       fonti.avsPromemoria202,
-      fontiPercorso.suvaImprenditori,
+      fontiPercorso.lainf1a,
+      fontiPercorso.oainf13,
+      fontiPercorso.ufspObbligoInfortuni,
+      fontiPercorso.lamal1a,
+      fontiPercorso.lamal28,
+      fontiPercorso.lainf17,
       fontiPercorso.pmiInfortuni,
+      fontiPercorso.suvaImprenditori,
+      fontiPercorso.oainf135,
+      fontiPercorso.oainf138,
+      fontiPercorso.oainfModifica2027,
+      fontiPercorso.suvaPremiImprenditori,
+      fontiPercorso.lainf3,
+      fontiPercorso.lamal8,
+      fontiPercorso.lamal10,
+      fontiPercorso.lainf91,
     ],
-    verificatoIl: VERIFICATO_IL,
-    tempoStimato: "Una telefonata alla cassa malati",
+    verificatoIl: VERIFICATO_INFORTUNI,
+    tempoStimato: "Una telefonata alla cassa malati, più le offerte da confrontare",
     domandaChat: "Da indipendente sono assicurato contro gli infortuni?",
   },
   {
