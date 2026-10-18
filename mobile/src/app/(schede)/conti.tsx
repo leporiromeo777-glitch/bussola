@@ -5,6 +5,7 @@ import { ActivityIndicator, Pressable, RefreshControl, View } from "react-native
 import { dataSvizzera } from "@/data/svizzera";
 import type { Casella, FatturaEmessa, Movimento, RispostaConti } from "@/lib/conti/tipi";
 import { SezioneCasella } from "~/components/conti/casella-email";
+import { SezioneDaParte } from "~/components/conti/da-parte";
 import { SezioneFatture } from "~/components/conti/fatture";
 import { FoglioModifica } from "~/components/conti/foglio-modifica";
 import { bozzaDa, ModuloMovimento } from "~/components/conti/modulo-movimento";
@@ -406,6 +407,8 @@ function ContiUtente() {
       </View>
 
       <SezioneRiepilogo riepilogo={dati.riepilogo} />
+
+      <SezioneDaParte riepilogo={dati.riepilogo} oggi={oggiLocale()} />
 
       <SezioneFatture fatture={dati.fatture} riepilogo={dati.riepilogo} onSegnaPagata={segnaPagata} />
 
