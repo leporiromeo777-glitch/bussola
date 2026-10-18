@@ -8,8 +8,12 @@ import {
   percentuale,
   regole,
   regoleInfortuni,
+  regolePercorso,
+  regoleRegistro,
+  tasseRegistroCommercio,
   VERIFICATO_FORME,
   VERIFICATO_INFORTUNI,
+  VERIFICATO_REGISTRO,
 } from "./svizzera";
 
 describe("formattazione svizzera", () => {
@@ -63,6 +67,15 @@ describe("dati ufficiali", () => {
     expect(chf(regoleInfortuni.guadagnoMinimoIndipendenti[2026].valore)).toBe("CHF 66'690");
     expect(regoleInfortuni.guadagnoMinimoIndipendenti[2027].fonte).toBe(fontiPercorso.oainfModifica2027);
     expect(regoleInfortuni.oreSettimanaliNonProfessionali.verificatoIl).toBe(VERIFICATO_INFORTUNI);
+  });
+  it("registro di commercio: tasse, autenticazione e multa sono quelle delle fonti, con la data di controllo", () => {
+    const t = tasseRegistroCommercio.valore;
+    expect(t.primaIscrizioneDittaIndividuale + t.perFunzione + t.perDirittoDiFirma).toBe(t.stimaTitolareConFirma);
+    expect(regolePercorso.autenticazioneFirmaRcTicino.valore).toBeLessThan(regoleRegistro.autenticazioneFirmaNotaioMassimoFranchi.valore);
+    expect(chf(regoleRegistro.multaMancataIscrizioneFranchi.valore)).toBe("CHF 5'000");
+    expect(regoleRegistro.multaMancataIscrizioneFranchi.fonte).toBe(fontiPercorso.co940);
+    expect(regoleRegistro.fallimentoDopoCancellazioneMesi.valore).toBe(6);
+    for (const d of Object.values(regoleRegistro)) expect(d.verificatoIl).toBe(VERIFICATO_REGISTRO);
   });
 });
 

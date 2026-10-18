@@ -19,6 +19,7 @@ import {
   regoleEserciziPubblici,
   regoleInfortuni,
   regolePercorso,
+  regoleRegistro,
   regoleSanita,
   regolePermessi,
   regoleSuva,
@@ -32,6 +33,7 @@ import {
   VERIFICATO_NOME_DITTA,
   VERIFICATO_SUVA,
   VERIFICATO_INFORTUNI,
+  VERIFICATO_REGISTRO,
   type Fonte,
 } from "./svizzera";
 
@@ -82,6 +84,7 @@ const perm = regolePermessi;
 const migrazione = ufficiPercorso.migrazioneTicino.valore;
 const suva = regoleSuva;
 const inf = regoleInfortuni;
+const reg = regoleRegistro;
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -452,22 +455,38 @@ export const PASSI = [
     titolo: "Decidi se iscriverti al registro di commercio",
     descrizione: `L'iscrizione è obbligatoria quando la ditta ha realizzato almeno ${SOGLIA_100K} di cifra d'affari nell'ultimo esercizio: conta la cifra d'affari, non l'utile. Sotto la soglia è facoltativa, ma hai sempre il diritto di iscriverti.`,
     cosaFare: [
+      "Prima di decidere, guarda cosa cambia: il nome della ditta è protetto nel luogo, ma i dati della ditta, con il tuo nome, sono pubblici (Foglio ufficiale svizzero di commercio e Internet). La contabilità invece non dipende dall'iscrizione, ma dalla cifra d'affari.",
+      `Se sei iscritto e non paghi un debito, il creditore può chiedere il tuo fallimento, che riguarda tutto il patrimonio (senza iscrizione di regola c'è il pignoramento). Vale anche per ${reg.fallimentoDopoCancellazioneMesi.valore} mesi dopo la cancellazione.`,
       "Puoi iscriverti online e in italiano con EasyGov. In Ticino c'è anche il formulario dell'Ufficio del registro di commercio, da firmare e spedire per posta con una copia del documento d'identità.",
       `Tasse federali per un titolare con firma individuale: ${chf(tasseRc.primaIscrizioneDittaIndividuale)} per la prima iscrizione, più ${chf(tasseRc.perFunzione)} per la funzione e ${chf(tasseRc.perDirittoDiFirma)} per il diritto di firma.`,
-      `La firma sulla notificazione va autenticata: in Ticino ${chf(regolePercorso.autenticazioneFirmaRcTicino.valore)} allo sportello dell'Ufficio RC, oppure da un notaio o dal segretario comunale.`,
+      `La firma sulla notificazione va autenticata: in Ticino ${chf(regolePercorso.autenticazioneFirmaRcTicino.valore)} allo sportello dell'Ufficio RC, al massimo ${chf(reg.autenticazioneFirmaNotaioMassimoFranchi.valore)} da un notaio, oppure dal segretario comunale.`,
+      `Se devi iscriverti e non lo fai, l'Ufficio ti dà un termine; poi ti iscrive d'ufficio e può darti una multa fino a ${chf(reg.multaMancataIscrizioneFranchi.valore)}.`,
       "Se ti iscrivi, nelle fatture usa il nome della ditta esattamente come è iscritto.",
     ],
     link: { etichetta: "Iscriviti con EasyGov", url: fontiPercorso.easygovDittaIndividuale.url },
     fonti: [
       fonti.co931,
-      fonti.oemolRc,
-      fonti.rcTicinoIscrizione,
-      fontiPercorso.rcTicinoTasseCantonali,
+      fontiPercorso.pmiDittaIndividualeLanciarsi,
+      fontiPercorso.co946,
+      fontiPercorso.co936,
+      fontiPercorso.co936a,
+      fonti.co957,
+      fontiPercorso.lef39,
+      fontiPercorso.lef42,
+      fontiPercorso.lef197,
+      fontiPercorso.co938,
+      fontiPercorso.co940,
       fontiPercorso.easygovDittaIndividuale,
+      fontiPercorso.pmiIscrizioneNome,
+      fonti.rcTicinoIscrizione,
+      fonti.rcTicinoContatti,
+      fontiPercorso.rcTicinoTasseCantonali,
+      fontiPercorso.tariffaNotarile,
+      fonti.oemolRc,
       fontiPercorso.zefixUffici,
       fontiPercorso.co954a,
     ],
-    verificatoIl: VERIFICATO_IL,
+    verificatoIl: VERIFICATO_REGISTRO,
     tempoStimato: "1 ora, più l'autenticazione della firma",
     costoNoto: {
       testo: `${chf(tasseRc.stimaTitolareConFirma)} di tasse federali (${chf(tasseRc.primaIscrizioneDittaIndividuale)} + ${chf(tasseRc.perFunzione)} + ${chf(tasseRc.perDirittoDiFirma)}), più l'autenticazione della firma`,
