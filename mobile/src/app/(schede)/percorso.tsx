@@ -236,7 +236,8 @@ function Scadenze({ percorso, fatti }: { percorso: Percorso; fatti: ReadonlySet<
         <View style={{ flex: 1 }}>
           <Testo variante="forte">Promemoria sul telefono</Testo>
           <Testo variante="piccolo" attenuato>
-            Una notifica alle 9, una settimana prima di ogni scadenza e di ogni votazione da seguire.
+            Una notifica alle 9, una settimana prima di ogni scadenza e di ogni votazione da seguire, e il mattino
+            dopo la scadenza di una tua fattura non pagata.
           </Testo>
         </View>
         <Switch

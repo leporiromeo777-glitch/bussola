@@ -92,6 +92,27 @@ export function impostaPromemoria(attivi: boolean): void {
   scrivi(CHIAVE_PROMEMORIA, attivi ? "si" : null);
 }
 
+/** Promemoria attivi, letti adesso (fuori dalle schermate). */
+export function promemoriaAttivi(): boolean {
+  return leggi(CHIAVE_PROMEMORIA) === "si";
+}
+
+/** Tutto quello che serve per riprogrammare le notifiche, letto adesso dal telefono. */
+export function leggiStatoNotifiche(): {
+  percorso: Percorso | null;
+  fatti: ReadonlySet<string>;
+  scadenze: boolean;
+  settimana: boolean;
+} {
+  const salvate = analizzaRisposteSalvate(leggi(CHIAVE_RISPOSTE));
+  return {
+    percorso: salvate ? calcolaPercorso(salvate.risposte) : null,
+    fatti: new Set(analizzaPassiFatti(leggi(CHIAVE_PASSI_FATTI))),
+    scadenze: promemoriaAttivi(),
+    settimana: leggi(CHIAVE_SETTIMANA) === "si",
+  };
+}
+
 export function useSettimanaAttiva(): boolean {
   return useGrezzo(CHIAVE_SETTIMANA) === "si";
 }

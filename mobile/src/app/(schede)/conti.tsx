@@ -1,13 +1,15 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Pressable, RefreshControl, View } from "react-native";
+import { AccessibilityInfo, ActivityIndicator, Pressable, RefreshControl, View } from "react-native";
 import { dataSvizzera } from "@/data/svizzera";
-import type { Casella, FatturaEmessa, Movimento, RispostaConti } from "@/lib/conti/tipi";
+import { NOMI_LIVELLO } from "@/lib/conti/sollecito";
+import type { Casella, FatturaEmessa, Movimento, RispostaConti, Sollecito } from "@/lib/conti/tipi";
 import { SezioneCasella } from "~/components/conti/casella-email";
 import { SezioneDaParte } from "~/components/conti/da-parte";
 import { SezioneFatture } from "~/components/conti/fatture";
 import { FoglioModifica } from "~/components/conti/foglio-modifica";
+import { FoglioSollecito } from "~/components/conti/foglio-sollecito";
 import { bozzaDa, ModuloMovimento } from "~/components/conti/modulo-movimento";
 import { SezioneRiepilogo } from "~/components/conti/riepilogo";
 import { RigaMovimento, SchedaDaConfermare } from "~/components/conti/scheda-movimento";
@@ -27,9 +29,11 @@ import {
   leggiCasella,
   rigeneraCasella,
   segnaFattura,
+  segnaSollecito,
   type NuovoMovimento,
 } from "~/lib/conti";
 import { avvisa, chiediConferma } from "~/lib/conferma";
+import { aggiornaPromemoriaFatture } from "~/lib/notifiche";
 import { scattaFoto, scegliFoto, scegliPdf, type SceltaFile } from "~/lib/ricevute";
 import { useSessione } from "~/lib/sessione";
 import { oggiLocale } from "~/lib/stato";
@@ -116,6 +120,7 @@ function ContiUtente() {
   const [avvisoLettura, setAvvisoLettura] = useState("");
   const [attesaCasella, setAttesaCasella] = useState(false);
   const [inModifica, setInModifica] = useState<Movimento | null>(null);
+  const [inSollecito, setInSollecito] = useState<FatturaEmessa | null>(null);
   const [aggiungi, setAggiungi] = useState(false);
   const [tuttiMovimenti, setTuttiMovimenti] = useState(false);
   const richiesta = useRef(0);
@@ -151,6 +156,12 @@ function ContiUtente() {
   useEffect(() => {
     if (dati && dati.riepilogo.anno === annoCorrente()) impostaDaConfermare(contaDaConfermare(dati.movimenti));
   }, [dati]);
+
+  // I promemoria delle fatture non pagate seguono le fatture lette (e quelle segnate pagate qui).
+  const fatture = dati?.fatture;
+  useEffect(() => {
+    if (fatture) void aggiornaPromemoriaFatture(fatture).catch(() => {});
+  }, [fatture]);
 
   function cambiaAnno(nuovo: number) {
     richiesta.current++;
@@ -250,6 +261,26 @@ function ContiUtente() {
       }
       cambia(esito.dati);
     }
+  }
+
+  async function salvaSollecito(f: FatturaEmessa, sollecito: Sollecito | null): Promise<boolean> {
+    const cambia = (nuova: FatturaEmessa) =>
+      setDati((d) => d && { ...d, fatture: d.fatture.map((x) => (x.id === f.id ? nuova : x)) });
+    cambia({ ...f, sollecito });
+    const esito = await conModifica(() => segnaSollecito(f.id, sollecito));
+    if (!esito.ok) {
+      cambia(f);
+      avvisa("Non è stato possibile salvare", esito.messaggio);
+      return false;
+    }
+    cambia(esito.dati);
+    setInSollecito((aperta) => (aperta?.id === f.id ? esito.dati : aperta));
+    AccessibilityInfo.announceForAccessibility(
+      sollecito
+        ? `Fattura ${f.numero}: ${NOMI_LIVELLO[sollecito.livello].breve} segnato come inviato il ${dataSvizzera(sollecito.inviatoIl)}.`
+        : `Fattura ${f.numero}: tolta la nota del sollecito.`,
+    );
+    return true;
   }
 
   async function leggiRicevuta(scegli: () => Promise<SceltaFile>) {
@@ -410,7 +441,12 @@ function ContiUtente() {
 
       <SezioneDaParte riepilogo={dati.riepilogo} oggi={oggiLocale()} />
 
-      <SezioneFatture fatture={dati.fatture} riepilogo={dati.riepilogo} onSegnaPagata={segnaPagata} />
+      <SezioneFatture
+        fatture={dati.fatture}
+        riepilogo={dati.riepilogo}
+        onSegnaPagata={segnaPagata}
+        onPreparaSollecito={setInSollecito}
+      />
 
       <Scheda>
         <Pressable
@@ -478,6 +514,7 @@ function ContiUtente() {
         onSalva={salvaModifica}
         onElimina={(m) => void elimina(m)}
       />
+      <FoglioSollecito fattura={inSollecito} onChiudi={() => setInSollecito(null)} onSegna={salvaSollecito} />
     </Schermata>
   );
 }

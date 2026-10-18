@@ -2007,3 +2007,31 @@ export const datiStrumenti = {
     "Dal 22.11.2025 nella QR-fattura è ammesso solo l'indirizzo strutturato (tipo S): NPA, località e paese obbligatori.",
   ),
 } as const;
+
+// ---------------------------------------------------------------------------
+// «I tuoi conti»: il sollecito di pagamento delle fatture emesse scadute.
+// Mora e interessi moratori (CO artt. 102 e 104) sono in
+// regoleMancatoPagamento, con le fonti fontiPercorso.co102 e co104.
+// ---------------------------------------------------------------------------
+
+/**
+ * Data dell'ultimo controllo della pagina «Procedure d'esecuzione» di ch.ch
+ * per il sollecito di pagamento (sollecito consueto ma non obbligatorio,
+ * domanda d'esecuzione all'Ufficio di esecuzione del domicilio del
+ * debitore). Lo stesso giorno sono stati riletti su Fedlex anche gli artt.
+ * 102 e 104 CO (testo in vigore dal 01.10.2026).
+ */
+export const VERIFICATO_SOLLECITI = "2026-10-18";
+
+function datoSolleciti<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_SOLLECITI };
+}
+
+/** Se dopo i solleciti il cliente non paga: la via ufficiale. */
+export const regoleSolleciti = {
+  esecuzione: datoSolleciti(
+    { ufficio: "Ufficio di esecuzione", dove: "del luogo di domicilio del debitore" },
+    fontiPercorso.chEsecuzioni,
+    "Mandare prima un sollecito è consuetudine, ma non è obbligatorio. Se anche dopo il sollecito il debitore non paga, il creditore può presentare una domanda d'esecuzione all'Ufficio di esecuzione del luogo di domicilio del debitore, anche con lo sportello delle esecuzioni online; le spese le anticipa il creditore (ch.ch, «Procedure d'esecuzione»).",
+  ),
+} as const;

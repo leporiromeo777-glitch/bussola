@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { giorniDiRitardo, livelloConsigliato, testoRitardo, testoSollecitoInviato } from "@/lib/conti/sollecito";
 import type { FatturaEmessa, StatoFattura } from "@/lib/conti/tipi";
 import { chiama } from "./api";
+import { PannelloSollecito } from "./sollecito";
 import { Messaggio, classeLinkConti, classePiccolo, classeSi, data, importo } from "./ui-conti";
 
 const ETICHETTE: Record<StatoFattura, { testo: string; classe: string }> = {
@@ -53,6 +55,11 @@ export function FattureEmesse({
           </dd>
         </div>
       </dl>
+      {scadute.length > 0 ? (
+        <p className="mt-3 text-sm text-muted">
+          Per una fattura scaduta Bleo ti prepara il sollecito da mandare al cliente: scegli «Prepara il sollecito».
+        </p>
+      ) : null}
       <ul className="mt-4 divide-y divide-border rounded-2xl border border-border bg-card">
         {ordinate.map((f) => (
           <li key={f.id} className="p-4">
@@ -70,7 +77,10 @@ function RigaFattura({ fattura: f, oggi, onCambiato }: { fattura: FatturaEmessa;
   const [inCorso, setInCorso] = useState(false);
   const [messaggio, setMessaggio] = useState<string | null>(null);
   const [eliminare, setEliminare] = useState(false);
+  const [sollecito, setSollecito] = useState(false);
   const etichetta = ETICHETTE[f.stato];
+  const ritardo = f.stato === "scaduta" ? giorniDiRitardo(f, oggi) : 0;
+  const idPannello = `sollecito-${f.id}`;
 
   async function pagata(pagataIl: string | null) {
     setInCorso(true);
@@ -80,6 +90,15 @@ function RigaFattura({ fattura: f, oggi, onCambiato }: { fattura: FatturaEmessa;
     if (!esito.ok) return setMessaggio(esito.messaggio);
     setSegna(false);
     onCambiato(pagataIl ? `Fattura ${f.numero} pagata: è tra le entrate.` : `Fattura ${f.numero} di nuovo da incassare.`);
+  }
+
+  async function togliSollecito() {
+    setInCorso(true);
+    setMessaggio(null);
+    const esito = await chiama(`/api/conti/fatture/${encodeURIComponent(f.id)}`, { metodo: "PATCH", corpo: { sollecito: null } });
+    setInCorso(false);
+    if (!esito.ok) return setMessaggio(esito.messaggio);
+    onCambiato(`Fattura ${f.numero}: tolta la nota del sollecito.`);
   }
 
   async function elimina() {
@@ -101,6 +120,20 @@ function RigaFattura({ fattura: f, oggi, onCambiato }: { fattura: FatturaEmessa;
             del {data(f.data)}
             {f.pagataIl ? ` · pagata il ${data(f.pagataIl)}` : f.scadenza ? ` · da pagare entro il ${data(f.scadenza)}` : ""}
           </p>
+          {ritardo > 0 ? <p className="text-sm font-semibold text-danger">{testoRitardo(ritardo)}</p> : null}
+          {f.sollecito && !f.pagataIl ? (
+            <p className="text-sm text-muted">
+              {testoSollecitoInviato(f.sollecito)} ·{" "}
+              <button
+                type="button"
+                className="min-h-6 font-medium text-brand underline underline-offset-2 hover:text-brand-strong disabled:opacity-60"
+                disabled={inCorso}
+                onClick={() => void togliSollecito()}
+              >
+                Togli questa nota<span className="sr-only"> del sollecito per la fattura {f.numero}</span>
+              </button>
+            </p>
+          ) : null}
         </div>
         <div className="flex items-center gap-2 sm:flex-col sm:items-end sm:gap-1">
           <p className="font-bold tabular-nums">{importo(f.importo)}</p>
@@ -131,6 +164,18 @@ function RigaFattura({ fattura: f, oggi, onCambiato }: { fattura: FatturaEmessa;
         </div>
       ) : (
         <div className="mt-3 flex flex-wrap gap-2">
+          {f.stato === "scaduta" ? (
+            <button
+              type="button"
+              className={`${classePiccolo} ${sollecito ? "border-brand bg-brand-soft" : "border-brand text-brand"}`}
+              aria-expanded={sollecito}
+              aria-controls={idPannello}
+              onClick={() => setSollecito((s) => !s)}
+            >
+              {livelloConsigliato(f) === 2 ? "Prepara il 2° sollecito" : "Prepara il sollecito"}
+              <span className="sr-only"> per la fattura {f.numero}</span>
+            </button>
+          ) : null}
           {f.pagataIl ? (
             <button type="button" className={classePiccolo} disabled={inCorso} onClick={() => void pagata(null)}>
               Non è ancora pagata
@@ -165,6 +210,11 @@ function RigaFattura({ fattura: f, oggi, onCambiato }: { fattura: FatturaEmessa;
         </div>
       )}
       <Messaggio testo={messaggio} />
+      {sollecito && f.stato === "scaduta" ? (
+        <div id={idPannello}>
+          <PannelloSollecito fattura={f} oggi={oggi} onChiudi={() => setSollecito(false)} onCambiato={onCambiato} />
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  aggiungiGiorni,
   categoriaPerTipo,
   chf2,
   daCentesimi,
   dataIsoValida,
   dataSvizzeraBreve,
   etichettaCategoria,
+  giorniTra,
   haDueDecimali,
   inCentesimi,
   leggiAnno,
@@ -91,5 +93,21 @@ describe("categorie", () => {
   it("ogni categoria ha un'etichetta e gli id sono unici", () => {
     expect(new Set(CATEGORIE.map((c) => c.id)).size).toBe(CATEGORIE.length);
     for (const c of CATEGORIE) expect(etichettaCategoria(c.id)).toBe(c.etichetta);
+  });
+});
+
+describe("giorni tra le date", () => {
+  it("aggiunge e toglie giorni, anche a fine mese, a fine anno e negli anni bisestili", () => {
+    expect(aggiungiGiorni("2026-10-31", 1)).toBe("2026-11-01");
+    expect(aggiungiGiorni("2026-12-25", 10)).toBe("2027-01-04");
+    expect(aggiungiGiorni("2028-02-28", 1)).toBe("2028-02-29");
+    expect(aggiungiGiorni("2026-03-01", -1)).toBe("2026-02-28");
+  });
+
+  it("conta i giorni da una data all'altra, anche al cambio dell'ora", () => {
+    expect(giorniTra("2026-10-15", "2026-10-18")).toBe(3);
+    expect(giorniTra("2026-10-18", "2026-10-15")).toBe(-3);
+    expect(giorniTra("2026-03-28", "2026-03-30")).toBe(2);
+    expect(giorniTra("2026-10-24", "2026-10-26")).toBe(2);
   });
 });

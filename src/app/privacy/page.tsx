@@ -175,7 +175,8 @@ export default async function PaginaPrivacy() {
           <li>
             <strong>Dati:</strong> le entrate e le uscite che registri (data, importo, descrizione, fornitore o
             cliente, categoria, se è della ditta o privata); le fatture emesse che registri (numero, nome del cliente,
-            date, importo, riferimento di pagamento, data del pagamento); le foto e i PDF di ricevute e fatture che
+            date, importo, riferimento di pagamento, data del pagamento e, se lo segni, giorno e livello
+            dell&apos;ultimo sollecito mandato); le foto e i PDF di ricevute e fatture che
             carichi, con tutto quello che c&apos;è scritto.
           </li>
           <li>
@@ -198,6 +199,19 @@ export default async function PaginaPrivacy() {
             <strong>«Quanto mettere da parte»:</strong> la percentuale per le imposte, gli acconti AVS, il mese in cui
             hai iniziato e se l&apos;attività è principale o accessoria restano solo sul tuo dispositivo (nel browser o
             nella memoria dell&apos;app). Non li riceviamo: la stima si calcola lì, dai conti che vedi.
+          </li>
+          <li>
+            <strong>Solleciti di pagamento:</strong> il testo del sollecito per una fattura scaduta lo prepara il tuo
+            browser o l&apos;app, e lo mandi tu con la tua email o un&apos;altra app: noi non lo riceviamo e non lo
+            mandiamo. L&apos;IBAN e il nome che scrivi nel sollecito non li salviamo; sul sito li prendiamo, se ci sono,
+            dallo strumento fattura salvato nel tuo browser. Salviamo solo, quando lo segni, il giorno e il livello
+            del sollecito.
+          </li>
+          <li>
+            <strong>Promemoria nell&apos;app:</strong> se attivi i promemoria sul telefono, l&apos;app programma sul
+            telefono stesso un avviso per il mattino dopo la scadenza di ogni fattura non pagata, con numero, nome
+            del cliente e scadenza. È una notifica locale: non passa dai nostri server e la togli spegnendo i
+            promemoria o uscendo dall&apos;account.
           </li>
           <li>
             <strong>Lettura automatica</strong>
