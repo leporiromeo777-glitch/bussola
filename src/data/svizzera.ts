@@ -640,10 +640,18 @@ export const fontiPercorso = {
   },
 
   // AVS e assicurazioni
+  // Riconoscimento come indipendente (passo e lezione 11): le pagine di
+  // selbststaendig-erwerbend.ch le pubblica il Centro d'informazione AVS/AI
+  // (impronta del sito); ricontrollate il 18.10.2026, vedi VERIFICATO_AVS_INDIPENDENTI.
   avsCosaSuccedeOra: {
     titolo: "Cosa succede ora? (dopo la domanda di riconoscimento)",
     url: "https://selbststaendig-erwerbend.ch/it/cosa-succede-ora",
-    ente: "Casse di compensazione AVS",
+    ente: "Centro d'informazione AVS/AI",
+  },
+  avsIndipendenza: {
+    titolo: "Cosa significa indipendenza? (criteri, attività accessoria, casse di compensazione)",
+    url: "https://selbststaendig-erwerbend.ch/it/indipendenza",
+    ente: "Centro d'informazione AVS/AI",
   },
   iasAffiliazione: {
     titolo: "Affiliazione alla cassa di compensazione competente",
@@ -944,6 +952,21 @@ export const regolePermessi = {
   notificaCambiamentiGiorni: datoPermessi(14, fontiPercorso.umIndipendentiUeAelsB, "Cambiamenti di indirizzo, nazionalità, nome, Comune o Cantone, stato civile o famiglia: da notificare all'Ufficio della migrazione entro 14 giorni (lo stesso termine vale con il permesso G)."),
   rinnovoPrimaDellaScadenzaGiorni: datoPermessi(14, fontiPercorso.umIndipendentiUeAelsB, "Il rinnovo del permesso va chiesto all'Ufficio della migrazione almeno 14 giorni prima della scadenza (anche con il permesso G)."),
 } as const;
+
+/**
+ * Data dell'ultimo controllo delle fonti sul riconoscimento come indipendente
+ * presso la cassa AVS, per il passo e la lezione 11: promemoria 2.02 (stato
+ * 01.01.2026, edizione novembre 2025: criteri, tassi, contributo minimo,
+ * attività accessoria, acconti e contributi definitivi), pagine
+ * «Presentare una domanda», «Cosa succede ora?» e «Cosa significa
+ * indipendenza?» di selbststaendig-erwerbend.ch (www.indipendente.ch, citato
+ * dal promemoria, rimanda lì), pagina dell'IAS sull'affiliazione, art. 64
+ * LAVS (stato 01.01.2026), elenco delle casse cantonali, Portale PMI
+ * («Mettersi in proprio», punti 3-5) e importi UFAS dal 01.01.2027.
+ * I valori usati (avsIndipendenti, regolePercorso.attivitaAccessoriaAvs,
+ * uffici.cassaCompensazioneTicino) corrispondono a queste fonti.
+ */
+export const VERIFICATO_AVS_INDIPENDENTI = "2026-10-18";
 
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {

@@ -28,6 +28,7 @@ import {
   VERIFICATO_SANITA,
   VERIFICATO_PERMESSI,
   VERIFICATO_NOME_DITTA,
+  VERIFICATO_AVS_INDIPENDENTI,
   type Fonte,
 } from "./svizzera";
 
@@ -372,21 +373,25 @@ export const PASSI = [
     descrizione:
       "È la cassa di compensazione AVS a decidere se sei indipendente. Guarda se fatturi a tuo nome, se ti assumi il rischio economico, se organizzi liberamente il lavoro e se lavori per diversi clienti. La domanda si fa online e va presentata nei primissimi mesi di attività.",
     cosaFare: [
-      "Raccogli le prove: offerte e fatture ai clienti, contratti, prove dei pagamenti ricevuti, pubblicità, eventuali investimenti o contratti d'affitto.",
-      "Presenta la domanda online su selbststaendig-erwerbend.ch: il sito la inoltra alla tua cassa.",
+      "Raccogli le prove: offerte e fatture ai clienti, contratti, prove dei pagamenti ricevuti, pubblicità, contratti d'affitto o di leasing e la prova del capitale che hai investito.",
+      "Presenta la domanda online su selbststaendig-erwerbend.ch (anche dall'indirizzo indipendente.ch): il sito la inoltra alla tua cassa.",
       "Se sei membro di un'associazione professionale che ha una propria cassa, devi affiliarti a quella; altrimenti alla cassa cantonale.",
-      "La cassa stabilisce poi gli acconti da pagare sul reddito che prevedi.",
+      "Aspetta la decisione scritta della cassa: se respinge la domanda, per quell'attività sei dipendente e il tuo cliente deve versare per te i contributi AVS.",
+      `Se ti riconosce, la cassa stabilisce gli acconti da pagare ogni trimestre sul reddito che prevedi. Nel ${avs2026.anno} i contributi AVS/AI/IPG vanno dal ${percentuale(avs2026.tassoMinimoScala, 3)} al ${percentuale(avs2026.tassoMassimo, 0)} del reddito; sotto ${chf(avs2026.limiteInferioreScala)} si paga il contributo minimo di ${chf(avs2026.contributoMinimo)} (${chf(avs2027.contributoMinimo)} dal ${avs2027.anno}).`,
     ],
     link: { etichetta: "Presenta la domanda online", url: fonti.avsDomandaIndipendente.url },
     fonti: [
       fonti.avsPromemoria202,
       fonti.avsDomandaIndipendente,
+      fontiPercorso.avsIndipendenza,
+      fontiPercorso.avsCosaSuccedeOra,
       fontiPercorso.iasAffiliazione,
       fonti.avsCasseCantonali,
       fontiPercorso.lavs64,
       fontiPercorso.pmiMettersiInProprio,
+      fonti.ufasImporti2027,
     ],
-    verificatoIl: VERIFICATO_IL,
+    verificatoIl: VERIFICATO_AVS_INDIPENDENTI,
     tempoStimato: "1 ora, più i documenti da raccogliere",
     domandaChat: "Come mi faccio riconoscere come indipendente dalla cassa AVS?",
   },

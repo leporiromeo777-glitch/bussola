@@ -20,6 +20,7 @@ import {
   VERIFICATO_SANITA,
   VERIFICATO_PERMESSI,
   VERIFICATO_NOME_DITTA,
+  VERIFICATO_AVS_INDIPENDENTI,
   type Fonte,
 } from "./svizzera";
 
@@ -244,6 +245,27 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.co951,
     ],
     verificatoIl: VERIFICATO_NOME_DITTA,
+  },
+  {
+    passoId: "riconoscimento-avs",
+    numero: 11,
+    titolo: "Indipendente per l'AVS",
+    video: "/corso/riconoscimento-avs.mp4",
+    poster: "/corso/riconoscimento-avs.jpg",
+    sottotitoli: "/corso/riconoscimento-avs.vtt",
+    durataSecondi: 175,
+    fonti: [
+      fonti.avsPromemoria202,
+      fontiPercorso.avsIndipendenza,
+      fontiPercorso.lavs64,
+      fontiPercorso.iasAffiliazione,
+      fonti.avsCasseCantonali,
+      fonti.avsDomandaIndipendente,
+      fontiPercorso.pmiMettersiInProprio,
+      fontiPercorso.avsCosaSuccedeOra,
+      fonti.ufasImporti2027,
+    ],
+    verificatoIl: VERIFICATO_AVS_INDIPENDENTI,
   },
 ];
 
