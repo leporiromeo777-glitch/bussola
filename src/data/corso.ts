@@ -23,6 +23,7 @@ import {
   VERIFICATO_SUVA,
   VERIFICATO_INFORTUNI,
   VERIFICATO_AVS_INDIPENDENTI,
+  VERIFICATO_AIUTO,
   type Fonte,
 } from "./svizzera";
 
@@ -316,6 +317,31 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fonti.ufasImporti2027,
     ],
     verificatoIl: VERIFICATO_AVS_INDIPENDENTI,
+  },
+  {
+    passoId: "aiuto",
+    numero: 9,
+    titolo: "A chi chiedere aiuto",
+    video: "/corso/aiuto.mp4",
+    poster: "/corso/aiuto.jpg",
+    sottotitoli: "/corso/aiuto.vtt",
+    durataSecondi: 160,
+    fonti: [
+      fontiPercorso.fondounimpresa,
+      fontiPercorso.fondounimpresaGratuito,
+      fontiPercorso.portaleImpresaServizi,
+      fontiPercorso.fondounimpresaBreve,
+      fontiPercorso.fondounimpresaCorsi,
+      fonti.lfid,
+      fontiPercorso.autoritaFiduciari,
+      fonti.albofiduciari,
+      fontiPercorso.dlAvsTicino,
+      fontiPercorso.pmiMettersiInProprio,
+      fontiPercorso.pmiServiziSupporto,
+      fontiPercorso.pmiEasyGov,
+      fontiPercorso.grCostituzioneStartup,
+    ],
+    verificatoIl: VERIFICATO_AIUTO,
   },
 ];
 

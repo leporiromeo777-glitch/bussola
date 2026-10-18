@@ -296,7 +296,8 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
       perche =
         "Fondounimpresa è per cittadini svizzeri e stranieri con permesso B o C: verifica con loro se vi hai accesso.";
     } else if (r.cantone === "GR") {
-      perche = "Fondounimpresa accompagna anche chi risiede nella Regione Moesa, nel Grigioni italiano.";
+      perche =
+        "Fondounimpresa accompagna anche chi risiede nella Regione Moesa, nel Grigioni italiano. In tutto il Cantone ti aiuta l'Ufficio dell'economia e del turismo dei Grigioni.";
     } else {
       const fondo = regolePercorso.fondounimpresa.valore;
       perche = `Se risiedi in Ticino puoi chiedere a Fondounimpresa fino a ${fondo.oreMassime} ore di accompagnamento.`;
