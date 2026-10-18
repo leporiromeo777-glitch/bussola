@@ -3,7 +3,7 @@
  * I video si fanno con Remotion nella cartella video/ (vedi video/README.md),
  * che legge da qui titolo, numero e fonti di ogni lezione.
  *
- * Per ora ci sono le lezioni da 1 a 4; gli altri passi appaiono come «In arrivo».
+ * Per ora solo alcuni passi hanno la loro lezione; gli altri appaiono come «In arrivo».
  * Una lezione può avere dei video facoltativi (`approfondimenti`), che
  * spiegano meglio un punto: si vedono sotto il video della lezione.
  */
@@ -16,6 +16,7 @@ import {
   VERIFICATO_DOCUMENTI_SAGL,
   VERIFICATO_ESERCIZI_PUBBLICI,
   VERIFICATO_FORME,
+  VERIFICATO_PERMESSI,
   type Fonte,
 } from "./svizzera";
 
@@ -146,6 +147,32 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.diplomaEsercenteCorso,
     ],
     verificatoIl: VERIFICATO_ESERCIZI_PUBBLICI,
+  },
+  {
+    passoId: "permesso-lavoro",
+    numero: 7,
+    titolo: "Il permesso per lavorare in proprio",
+    video: "/corso/permesso-lavoro.mp4",
+    poster: "/corso/permesso-lavoro.jpg",
+    sottotitoli: "/corso/permesso-lavoro.vtt",
+    durataSecondi: 161,
+    fonti: [
+      fontiPercorso.lstri38,
+      fontiPercorso.pmiMettersiInProprio,
+      fontiPercorso.semSoggiornoAttivita,
+      fontiPercorso.umIndipendentiUeAelsB,
+      fontiPercorso.semFrontalieri,
+      fontiPercorso.umIndipendentiUeAels,
+      fontiPercorso.semFaqLiberaCircolazione,
+      fontiPercorso.umModificaPermessoB,
+      fontiPercorso.lstri19,
+      fontiPercorso.semIstruzioniOlcp,
+      fontiPercorso.grPromemoriaIndipendenti,
+      fontiPercorso.umRichiestaPermessoB,
+      fontiPercorso.umRichiestaPermessoG,
+      fontiPercorso.grIndipendentiUeAels,
+    ],
+    verificatoIl: VERIFICATO_PERMESSI,
   },
 ];
 

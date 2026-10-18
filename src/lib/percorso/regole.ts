@@ -92,6 +92,17 @@ const prevedeAlmeno100k = (r: Risposte) => r.fatturato === "almeno_100k";
 const giaAvviata = (r: Risposte) => r.avviata !== "no";
 const edileOTrasporti = (r: Risposte) => r.attivita === "artigianato_edilizia" || r.attivita === "trasporti";
 
+/**
+ * Le fonti dell'avviso sul permesso: le avvertenze ticinesi per il permesso G
+ * o B (con l'art. 38 LStrI, per chi ha un permesso B ma non è cittadino
+ * UE/AELS), o la legge sugli stranieri.
+ */
+function fontiAvvisoPermesso(r: Risposte) {
+  if (r.permesso === "g") return [fontiPercorso.pmiMettersiInProprio, fontiPercorso.umIndipendentiUeAels];
+  if (r.permesso === "b") return [fontiPercorso.pmiMettersiInProprio, fontiPercorso.umIndipendentiUeAelsB, fontiPercorso.lstri38];
+  return [fontiPercorso.pmiMettersiInProprio, fontiPercorso.lstri19];
+}
+
 function notaCassaAvs(r: Risposte): string {
   if (r.cantone === "TI") {
     const cassa = uffici.cassaCompensazioneTicino.valore;
@@ -254,7 +265,7 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
         return {
           stato: "non_serve",
           perche:
-            "La guida ufficiale indica questo passo per i frontalieri (permesso G) e per chi chiede un permesso B: con la cittadinanza svizzera o il permesso C, di regola, non ti riguarda.",
+            "Con la cittadinanza svizzera o il permesso C puoi lavorare in proprio in tutta la Svizzera (LStrI, art. 38): di regola questo passo non ti riguarda.",
         };
     }
   },
@@ -650,7 +661,7 @@ function calcolaAvvisi(r: Risposte): Avviso[] {
                   ? `Verifica subito con ${ufficio} che il tuo permesso B ti consenta di lavorare come indipendente.`
                   : `Verifica subito con ${ufficio} se e come puoi lavorare in proprio.`) +
               " È un caso complesso: fatti aiutare da un professionista, per esempio un avvocato che si occupa di permessi.",
-            fonti: [fontiPercorso.pmiMettersiInProprio, fontiPercorso.umIndipendentiUeAels],
+            fonti: fontiAvvisoPermesso(r),
           }
         : {
             id: "permesso",
@@ -662,7 +673,7 @@ function calcolaAvvisi(r: Risposte): Avviso[] {
                 : r.permesso === "b"
                   ? `Verifica con ${ufficio} che il tuo permesso B ti consenta di lavorare come indipendente.`
                   : `Verifica con ${ufficio} se e come puoi lavorare in proprio.`,
-            fonti: [fontiPercorso.pmiMettersiInProprio, fontiPercorso.umIndipendentiUeAels],
+            fonti: fontiAvvisoPermesso(r),
           },
     );
   }

@@ -17,9 +17,11 @@ import {
   regole,
   regoleEserciziPubblici,
   regolePercorso,
+  regolePermessi,
   tasseRegistroCommercio,
   ufficiPercorso,
   VERIFICATO_ESERCIZI_PUBBLICI,
+  VERIFICATO_PERMESSI,
   type Fonte,
 } from "./svizzera";
 
@@ -64,6 +66,8 @@ const esazione = ufficiPercorso.esazioneCondoniTicino.valore;
 const fondounimpresa = ufficiPercorso.fondounimpresa.valore;
 const laboratorio = ufficiPercorso.laboratorioCantonaleTicino.valore;
 const ep = regoleEserciziPubblici;
+const perm = regolePermessi;
+const migrazione = ufficiPercorso.migrazioneTicino.valore;
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -224,16 +228,32 @@ export const PASSI = [
     id: "permesso-lavoro",
     fase: "prima di iniziare",
     titolo: "Verifica il permesso per lavorare in proprio",
-    descrizione:
-      "Chi non ha la cittadinanza svizzera deve avere un permesso che consenta l'attività indipendente. I frontalieri che vogliono mettersi in proprio chiedono il permesso G; i cittadini UE/AELS, se la domanda è accolta, ricevono un permesso B valido cinque anni.",
+    descrizione: `Con la cittadinanza svizzera o il permesso C puoi lavorare in proprio in tutta la Svizzera (LStrI, art. 38). Altrimenti ti serve un permesso che consenta l'attività indipendente: i cittadini UE/AELS che vivono in Svizzera chiedono il permesso B, i frontalieri il permesso G. Se la domanda è accolta valgono ${perm.durataPermessoIndipendentiAnni.valore} anni, ma già con la domanda devi dimostrare che la tua attività indipendente è vera e ti permette di vivere. Per i cittadini di altri Stati le condizioni sono più severe (LStrI, art. 19).`,
     cosaFare: [
-      "Se sei frontaliere, per lavorare in proprio ti serve il permesso G; se sei cittadino UE/AELS, chiedi il permesso B per indipendenti (se la domanda è accolta vale cinque anni).",
-      "In Ticino prepara la domanda seguendo le indicazioni dell'Ufficio della migrazione per gli indipendenti UE/AELS.",
-      "Prima di iniziare, chiedi conferma all'ufficio della migrazione del tuo Cantone.",
+      `Se sei cittadino UE/AELS e vivi in Svizzera, chiedi il permesso B per l'attività indipendente; se abiti all'estero e lavori qui da frontaliere, il permesso G (e torni a casa ${perm.rientroFrontalieri.valore}). Con un permesso B UE/AELS da dipendente puoi passare all'attività indipendente, ma prima avvisa l'Ufficio della migrazione; con un permesso L serve un nuovo permesso B.`,
+      "Prepara le prove della tua attività. L'elenco ufficiale dei Grigioni chiede tra l'altro un business plan, le prove che l'attività ti fa vivere (per esempio commesse ed estratti della contabilità), il contratto d'affitto del locale, l'assicurazione malattia e infortuni e la decisione dell'istituto delle assicurazioni sociali (la cassa AVS).",
+      `In Ticino invia la domanda all'${migrazione.nome} (${migrazione.sezione}) con la procedura online, prima di iniziare l'attività: tel. ${migrazione.telefono}, ${migrazione.email}. Nei Grigioni la domanda passa dal controllo abitanti del Comune dove abiti (da frontaliere, di quello dove ha sede la ditta); dall'estero va all'Ufficio della migrazione e del diritto civile.`,
+      `Dopo, comunica all'Ufficio della migrazione i cambiamenti (per esempio di indirizzo) entro ${perm.notificaCambiamentiGiorni.valore} giorni e chiedi il rinnovo almeno ${perm.rinnovoPrimaDellaScadenzaGiorni.valore} giorni prima della scadenza.`,
+      "Se vieni da uno Stato fuori da UE/AELS e non hai il permesso C, chiedi prima all'ufficio della migrazione del tuo Cantone e fatti aiutare da un professionista.",
     ],
     link: { etichetta: "Portale PMI: mettersi in proprio", url: fontiPercorso.pmiMettersiInProprio.url },
-    fonti: [fontiPercorso.pmiMettersiInProprio, fontiPercorso.umIndipendentiUeAels],
-    verificatoIl: VERIFICATO_IL,
+    fonti: [
+      fontiPercorso.pmiMettersiInProprio,
+      fontiPercorso.lstri38,
+      fontiPercorso.semSoggiornoAttivita,
+      fontiPercorso.umIndipendentiUeAelsB,
+      fontiPercorso.semFrontalieri,
+      fontiPercorso.umIndipendentiUeAels,
+      fontiPercorso.semFaqLiberaCircolazione,
+      fontiPercorso.umModificaPermessoB,
+      fontiPercorso.semIstruzioniOlcp,
+      fontiPercorso.grPromemoriaIndipendenti,
+      fontiPercorso.grIndipendentiUeAels,
+      fontiPercorso.umRichiestaPermessoB,
+      fontiPercorso.umRichiestaPermessoG,
+      fontiPercorso.lstri19,
+    ],
+    verificatoIl: VERIFICATO_PERMESSI,
     domandaChat: "Con il mio permesso posso lavorare come indipendente in Ticino?",
   },
   {
