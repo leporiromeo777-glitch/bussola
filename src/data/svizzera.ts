@@ -905,6 +905,83 @@ export const fontiPercorso = {
     url: "https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/it#art_44",
     ente: FEDLEX,
   },
+  // Il primo dipendente (video facoltativo della lezione 21): letti il
+  // 18.10.2026, vedi VERIFICATO_DIPENDENTI. Con quelle sopra: lainf1a,
+  // lainf66, lainf91 e oainf13 (e fonti.ufasImporti2026 e 2027).
+  avsPromemoria201: {
+    titolo: "Promemoria 2.01: Contributi salariali all'AVS, all'AI e alle IPG",
+    url: "https://www.ahv-iv.ch/p/2.01.i",
+    ente: "Centro d'informazione AVS/AI",
+  },
+  iasAliquoteDatori2026: {
+    titolo: "Aliquote contributive 2026 dei datori di lavoro (procedura ordinaria)",
+    url: "https://www4.ti.ch/fileadmin/DSS/IAS/pdf/formulari/UC/Aliquote_contributive_2026_procedura_ordinaria.pdf",
+    ente: IAS,
+  },
+  iasAnnunciareCollaboratori: {
+    titolo: "Annunciare i propri collaboratori",
+    url: "https://www4.ti.ch/dss/ias/prestazioni-e-contributi/scheda/p/s/dettaglio/annunciare-i-propri-collaboratori",
+    ente: IAS,
+  },
+  iasAffiliazioneDatori: {
+    titolo: "Formulario 111: affiliazione dei datori di lavoro (anche indipendenti che assumono)",
+    url: "https://www4.ti.ch/fileadmin/DSS/IAS/pdf/formulari/UC/111_Affiliazione_dei_datori_di_lavoro.pdf",
+    ente: IAS,
+  },
+  lavs51: { titolo: "Legge sull'AVS (LAVS), artt. 12-14 e 51: datori di lavoro", url: `${LAVS}#art_51`, ente: FEDLEX },
+  ladi3: {
+    titolo: "Legge sull'assicurazione contro la disoccupazione (LADI), art. 3: contributi",
+    url: "https://www.fedlex.admin.ch/eli/cc/1982/2184_2184_2184/it#art_3",
+    ente: FEDLEX,
+  },
+  decretoAfDatori2026: {
+    titolo: "Decreto esecutivo sull'aliquota contributiva per gli assegni familiari 2026 (Cassa cantonale)",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/855",
+    ente: RACCOLTA_TI,
+  },
+  lainf69: { titolo: "Legge sull'assicurazione contro gli infortuni (LAINF), artt. 68-69: scelta dell'assicuratore", url: `${LAINF}#art_69`, ente: FEDLEX },
+  lpp2: {
+    titolo: "Legge sulla previdenza professionale (LPP), artt. 2 e 7: assicurazione obbligatoria dei dipendenti",
+    url: "https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/it#art_2",
+    ente: FEDLEX,
+  },
+  lpp11: {
+    titolo: "Legge sulla previdenza professionale (LPP), art. 11: affiliazione del datore di lavoro",
+    url: "https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/it#art_11",
+    ente: FEDLEX,
+  },
+  lpp66: {
+    titolo: "Legge sulla previdenza professionale (LPP), art. 66: ripartizione dei contributi",
+    url: "https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/it#art_66",
+    ente: FEDLEX,
+  },
+  co320: { titolo: "Codice delle obbligazioni, artt. 319-320: il contratto di lavoro", url: `${CO}#art_320`, ente: FEDLEX },
+  co330b: { titolo: "Codice delle obbligazioni, art. 330b: obbligo di informare per scritto", url: `${CO}#art_330_b`, ente: FEDLEX },
+  lsm: {
+    titolo: "Legge sul salario minimo (LSM), RL 843.600",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/698",
+    ente: RACCOLTA_TI,
+  },
+  decretoSalarioMinimo2026: {
+    titolo: "Decreto esecutivo concernente il salario minimo orario per settore economico (2026)",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/865",
+    ente: RACCOLTA_TI,
+  },
+  lsmModifica2027: {
+    titolo: "Legge sul salario minimo: modifica del 20.04.2026, in vigore dal 01.01.2027 (BU 2026, 186)",
+    url: "https://www3.ti.ch/CAN/fu/2026/BU_022.pdf",
+    ente: "Cantone Ticino, Bollettino ufficiale delle leggi",
+  },
+  dcImpostaFonte: {
+    titolo: "Informazioni sull'imposta alla fonte",
+    url: "https://www4.ti.ch/dfe/dc/dichiarazione/imposte-alla-fonte-1/informazioni-sullimposte-alla-fonte",
+    ente: "Cantone Ticino, Ufficio delle imposte alla fonte e del bollo",
+  },
+  dcImpostaFonteFaq: {
+    titolo: "Imposta alla fonte: domande frequenti (gennaio 2025)",
+    url: "https://www4.ti.ch/fileadmin/DFE/DC/DOC-IF/Direttive/DC_imposte_fonte_FAQ_2025.pdf",
+    ente: "Cantone Ticino, Ufficio delle imposte alla fonte e del bollo",
+  },
 
   // IVA e fatture
   liva11: { titolo: "Legge sull'IVA, art. 11", url: `${LIVA}#art_11`, ente: FEDLEX },
@@ -1392,6 +1469,86 @@ export const regolePrevidenza = {
     fontiPercorso.lamal67,
     "Possono stipulare un'assicurazione d'indennità giornaliera le persone domiciliate o che lavorano in Svizzera che hanno compiuto i 15 anni ma non ancora i 65 (art. 67 cpv. 1 LAMal), anche con un assicuratore diverso da quello dell'assicurazione delle cure (cpv. 2).",
   ),
+} as const;
+
+/**
+ * Data dell'ultimo controllo delle fonti sul primo dipendente di una ditta
+ * individuale, per il video facoltativo della lezione 21 («Assumere il primo
+ * dipendente»): promemoria AVS 2.01 (stato 01.01.2026: tassi, metà a testa,
+ * acconti, dichiarazione dei salari entro il 30 gennaio), foglio IAS delle
+ * aliquote 2026 dei datori di lavoro, pagine dell'IAS sull'affiliazione e
+ * sull'annuncio dei collaboratori («nel caso in cui un indipendente occupi
+ * del personale, valgono le stesse regole che per i datori di lavoro»),
+ * formulario IAS 111, LAVS artt. 12-14, 51 e 64 e LADI art. 3 (stato
+ * 01.01.2026), decreto esecutivo ticinese sull'aliquota AF 2026 (RL 856.310)
+ * e informazioni periodiche AF 2026 dell'IAS, LAINF artt. 1a, 59, 66, 68, 69,
+ * 73 e 91 (stato 01.01.2026), LPP artt. 2, 7, 8, 10, 11 e 66 (stato
+ * 01.01.2025) con gli importi UFAS 2026 e 2027, CO artt. 319, 320 e 330b
+ * (stato 01.10.2026), legge ticinese sul salario minimo (stato 21.04.2023)
+ * con la modifica del 20.04.2026 (BU 2026, 186, in vigore dal 01.01.2027) e
+ * il decreto esecutivo 2026 (RL 843.620), pagina e FAQ (gennaio 2025)
+ * dell'Ufficio delle imposte alla fonte e del bollo.
+ */
+export const VERIFICATO_DIPENDENTI = "2026-10-18";
+
+function datoDipendenti<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_DIPENDENTI };
+}
+
+/** Quando una ditta individuale assume: contributi, cassa pensione, contratto, salario minimo ticinese. */
+export const regoleDipendenti = {
+  contributiAvsAiIpg2026: datoDipendenti(
+    { totale: 0.106, dipendente: 0.053 },
+    fontiPercorso.avsPromemoria201,
+    "Tassi 2026 (promemoria 2.01, stato 01.01.2026, punto 3): AVS 8,7%, AI 1,4%, IPG 0,5%, in tutto 10,6% del salario. Il datore di lavoro trattiene il 5,3% dal salario e lo versa alla cassa con la sua quota, anch'essa del 5,3% (artt. 5, 13 e 14 LAVS: 4,35% a testa per l'AVS). Gli stessi tassi sono nel foglio IAS 2026. Le spese amministrative della cassa sono a carico del datore di lavoro (all'IAS l'1,5% del contributo AVS/AI/IPG nel 2026).",
+  ),
+  contributiDisoccupazione2026: datoDipendenti(
+    { totale: 0.022, dipendente: 0.011, salarioMassimo: 148_200 },
+    fontiPercorso.ladi3,
+    "2,2% del salario fino al guadagno massimo assicurato LAINF, CHF 148'200 all'anno per rapporto di lavoro; metà a carico del datore di lavoro e metà del lavoratore (art. 3 LADI, stato 01.01.2026; foglio IAS 2026). Sulla parte di salario sopra questo importo non si paga.",
+  ),
+  assegniFamiliariDatori2026: datoDipendenti(
+    0.016,
+    fontiPercorso.decretoAfDatori2026,
+    "Aliquota 2026 per i datori di lavoro affiliati alla Cassa cantonale di compensazione per gli assegni familiari, spese amministrative comprese, sui salari determinanti AVS; è a carico dei datori di lavoro. Le casse professionali possono avere aliquote diverse (IAS, informazioni periodiche AF 2026). Nel foglio IAS 2026 dei datori di lavoro si aggiungono 0,15% per gli assegni integrativi (art. 73 LAF), 0,095% per l'orientamento scolastico e professionale, 0,15% per l'assegno parentale e le spese amministrative.",
+  ),
+  dichiarazioneSalari: datoDipendenti(
+    { giorno: 30, mese: 1 },
+    fontiPercorso.avsPromemoria201,
+    "La dichiarazione dei salari va inoltrata alla cassa al più tardi entro il 30 gennaio dopo la fine dell'anno contributivo. Durante l'anno si pagano contributi d'acconto sulla somma dei salari stimata: ogni trimestre se la somma annua non supera CHF 200'000, se no ogni mese, entro il 10 del mese dopo (promemoria 2.01, punti 4 e 5; formulario IAS 111).",
+  ),
+  etaLpp: datoDipendenti(
+    17,
+    fontiPercorso.lpp2,
+    "Sottostanno all'assicurazione obbligatoria i lavoratori che hanno più di 17 anni e ricevono da un datore di lavoro un salario annuo sopra la soglia d'entrata (art. 2 cpv. 1 LPP): per morte e invalidità dal 1° gennaio dopo i 17 anni compiuti, per la vecchiaia dopo i 24 (art. 7 cpv. 1). Il datore di lavoro deve affiliarsi a un istituto di previdenza registrato e la cassa AVS lo controlla (art. 11); paga almeno quanto tutti i suoi lavoratori insieme (art. 66).",
+  ),
+  /** Soglia d'entrata LPP: salario annuo minimo da un datore di lavoro, per anno. */
+  sogliaLpp: {
+    2026: datoDipendenti(
+      22_680,
+      fonti.ufasImporti2026,
+      "Salario annuo minimo della previdenza professionale obbligatoria nel 2026, invariato dal 2025 (artt. 2 e 7 LPP, stato 01.01.2025: «di oltre 22 680 franchi»).",
+    ),
+    2027: datoDipendenti(23_040, fonti.ufasImporti2027, "Salario annuo minimo dal 01.01.2027, deciso dal Consiglio federale il 02.10.2026."),
+  },
+  informazioneScrittaMesi: datoDipendenti(
+    1,
+    fontiPercorso.co330b,
+    "Se il rapporto di lavoro è a tempo indeterminato o dura più di un mese, il datore di lavoro informa per scritto il lavoratore, al più tardi un mese dopo l'inizio, su: nomi delle parti, data d'inizio, funzione, salario e supplementi, durata settimanale del lavoro (art. 330b CO). Il contratto in sé non richiede una forma speciale (art. 320 CO).",
+  ),
+  /** Salario minimo orario lordo in Ticino (CHF all'ora), da … a … secondo il settore economico, per anno. */
+  salarioMinimoTicino: {
+    2026: datoDipendenti(
+      { da: 20, a: 20.5 },
+      fontiPercorso.decretoSalarioMinimo2026,
+      "Nel 2026 il salario minimo orario lordo per settore economico è fra CHF 20.00 e CHF 20.50 (decreto esecutivo dell'11.12.2025, soglie invariate). Con la paga oraria si aggiungono le indennità per vacanze e giorni festivi. La legge non si applica fra l'altro agli apprendisti e ai rapporti con un contratto collettivo di obbligatorietà generale o con salario minimo obbligatorio (art. 3 LSM).",
+    ),
+    2027: datoDipendenti(
+      { da: 20.5, a: 21 },
+      fontiPercorso.lsmModifica2027,
+      "Intervallo per il 2027 dalla norma transitoria della modifica della LSM del 20.04.2026 (in vigore dal 01.01.2027); poi CHF 21.00-21.50 nel 2028 e CHF 21.75-22.25 nel 2029. Gli importi per settore li fissa il decreto esecutivo (quello 2027 non è ancora pubblicato). Dal 2027 il salario minimo prevale anche sui contratti collettivi con salari più bassi, con eccezioni transitorie.",
+    ),
+  },
 } as const;
 /**
  * Data dell'ultimo controllo delle fonti sul riconoscimento come indipendente

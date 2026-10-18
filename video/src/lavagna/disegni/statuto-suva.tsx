@@ -33,7 +33,7 @@ function Titolo({ locale, fps, testo }: { locale: number; fps: number; testo: st
 const GRIGIO = "#b9bec6";
 
 /** Il casco da cantiere sopra un muretto di mattoni: l'edilizia. */
-function Cantiere({ cx, cy }: { cx: number; cy: number }) {
+export function Cantiere({ cx, cy }: { cx: number; cy: number }) {
   const mattoni = [
     [-48, 20],
     [-14, 20],
@@ -68,7 +68,7 @@ function Pulizie({ cx, cy }: { cx: number; cy: number }) {
 }
 
 /** Un camioncino: i trasporti. */
-function Camion({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
+export function Camion({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
   return (
     <g transform={`translate(${cx} ${cy}) scale(${s})`}>
       <rect x={-56} y={-44} width={70} height={62} rx={8} fill={TINTE.carta} stroke={TINTE.tratto} strokeWidth={6} />
@@ -81,7 +81,7 @@ function Camion({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
 }
 
 /** Una fabbrica con il tetto a denti e il camino: l'industria. */
-function Fabbrica({ cx, cy }: { cx: number; cy: number }) {
+export function Fabbrica({ cx, cy }: { cx: number; cy: number }) {
   return (
     <g>
       <rect x={cx + 22} y={cy - 62} width={18} height={50} rx={4} fill={TINTE.tratto} />
