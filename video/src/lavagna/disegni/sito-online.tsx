@@ -322,8 +322,8 @@ const sitoChiSei: Disegno = {
           <Pillola x={790} y={480} testo="Solo un modulo: non basta" corpo={24} fondo={TINTE.rischioTenue} colore={TINTE.rischio} bordo={TINTE.rischio} />
         </Compare>
         <Compare v={molla(locale, telefono, fps)} cx={790} cy={590}>
-          <Cornetta cx={628} cy={590} s={0.5} />
-          <Pillola x={826} y={590} testo="Telefono: consigliato" corpo={24} fondo={TINTE.tinta} colore={TINTE.tratto} bordo={TINTE.tratto} />
+          <Cornetta cx={642} cy={590} s={0.45} />
+          <Pillola x={850} y={590} testo="Telefono: consigliato" corpo={24} fondo={TINTE.tinta} colore={TINTE.tratto} bordo={TINTE.tratto} />
         </Compare>
       </Tela>
     );
