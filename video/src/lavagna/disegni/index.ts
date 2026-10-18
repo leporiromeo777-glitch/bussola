@@ -19,6 +19,7 @@ import { DISEGNI_RICONOSCIMENTO_AVS } from "./riconoscimento-avs";
 import { DISEGNI_AIUTO } from "./aiuto";
 import { DISEGNI_REGISTRO_COMMERCIO } from "./registro-commercio";
 import { DISEGNI_SITO_ONLINE } from "./sito-online";
+import { DISEGNI_ISCRIZIONE_IVA } from "./iscrizione-iva";
 import type { Disegno } from "./tipi";
 
 export const DISEGNI: Readonly<Record<string, Disegno>> = {
@@ -38,6 +39,7 @@ export const DISEGNI: Readonly<Record<string, Disegno>> = {
   ...DISEGNI_AIUTO,
   ...DISEGNI_REGISTRO_COMMERCIO,
   ...DISEGNI_SITO_ONLINE,
+  ...DISEGNI_ISCRIZIONE_IVA,
 };
 
 export type { ContestoDisegno, Disegno } from "./tipi";

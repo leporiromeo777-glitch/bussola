@@ -10,6 +10,7 @@ import {
   aliquoteIva,
   avsIndipendenti,
   chf,
+  dataSvizzera,
   fonti,
   fontiPercorso,
   percentuale,
@@ -18,6 +19,7 @@ import {
   regoleAlimenti,
   regoleEserciziPubblici,
   regoleInfortuni,
+  regoleIva,
   regolePercorso,
   regoleRegistro,
   regoleSanita,
@@ -37,6 +39,7 @@ import {
   VERIFICATO_AIUTO,
   VERIFICATO_REGISTRO,
   VERIFICATO_SITO_ONLINE,
+  VERIFICATO_IVA,
   type Fonte,
 } from "./svizzera";
 
@@ -73,6 +76,8 @@ export const VERIFICATO_IL = "2026-10-15";
 
 const SOGLIA_100K = chf(regole.sogliaRegistroCommercio.valore);
 const SOGLIA_IVA = chf(regole.sogliaIva.valore);
+/** «un periodo fiscale», «3 periodi fiscali». */
+const periodiFiscali = (n: number) => (n === 1 ? "un periodo fiscale" : `${n} periodi fiscali`);
 const tasseRc = tasseRegistroCommercio.valore;
 const avs2026 = avsIndipendenti[2026].valore;
 const avs2027 = avsIndipendenti[2027].valore;
@@ -514,26 +519,37 @@ export const PASSI = [
   {
     id: "iscrizione-iva",
     fase: "aprire l'attività",
-    titolo: "Annunciati all'IVA entro 30 giorni",
-    descrizione: `Chi realizza almeno ${SOGLIA_IVA} all'anno di cifra d'affari, in Svizzera e all'estero, è assoggettato all'IVA. Se all'avvio è presumibile superare la soglia entro ${regolePercorso.mesiPerIvaDaSubito.valore} mesi, sei assoggettato da subito. Ti devi annunciare all'AFC entro ${regole.termineAnnuncioIvaGiorni.valore} giorni dall'inizio dell'assoggettamento.`,
+    titolo: `Annunciati all'IVA entro ${regole.termineAnnuncioIvaGiorni.valore} giorni`,
+    descrizione: `Chi realizza almeno ${SOGLIA_IVA} all'anno di cifra d'affari, in Svizzera e all'estero, è assoggettato all'IVA. Se all'avvio è presumibile superare la soglia entro ${regolePercorso.mesiPerIvaDaSubito.valore} mesi, sei assoggettato da subito; altrimenti lo diventi alla fine dell'esercizio in cui raggiungi la soglia. Ti devi annunciare all'AFC entro ${regole.termineAnnuncioIvaGiorni.valore} giorni dall'inizio dell'assoggettamento.`,
     cosaFare: [
       "Annunciati online all'AFC (anche in italiano) oppure tramite EasyGov.",
       "Tieni pronti il tuo numero AVS e la cifra d'affari prevista per il primo esercizio.",
-      `Entro ${regolePercorso.termineMetodoIvaGiorni.valore} giorni dalla comunicazione del numero IVA puoi chiedere il metodo dell'aliquota saldo o il rendiconto annuale: se non lo chiedi in tempo, applichi il metodo effettivo per almeno tre periodi fiscali. Da valutare con un fiduciario.`,
-      `Aliquote in vigore: normale ${percentuale(aliquoteIva.valore.normale)}, ridotta ${percentuale(aliquoteIva.valore.ridotta)}, alloggio ${percentuale(aliquoteIva.valore.alloggio)}.`,
+      `Entro ${regolePercorso.termineMetodoIvaGiorni.valore} giorni dalla comunicazione del numero IVA puoi chiedere il metodo dell'aliquota saldo o il rendiconto annuale. Se perdi il termine, applichi il metodo effettivo per almeno ${periodiFiscali(regoleIva.periodiEffettivoSenzaAliquotaSaldo.valore)} interi prima di passare all'aliquota saldo, e il rendiconto annuale lo puoi chiedere al più presto dopo ${periodiFiscali(regoleIva.periodiAttesaRendicontoAnnuale.valore)}. Da valutare con un fiduciario.`,
+      `Aliquote in vigore dal ${dataSvizzera(regoleIva.aliquoteInVigoreDal.valore)}: normale ${percentuale(aliquoteIva.valore.normale)}, ridotta ${percentuale(aliquoteIva.valore.ridotta)}, alloggio ${percentuale(aliquoteIva.valore.alloggio)}.`,
+      `Sotto la soglia puoi iscriverti per scelta: secondo il Portale PMI conviene soprattutto se lavori per imprese iscritte all'IVA o per l'estero, o se all'inizio investi molto. Poi resti iscritto almeno ${periodiFiscali(regoleIva.periodiMinimiIscrizioneVolontaria.valore)}.`,
     ],
     link: { etichetta: "Iscrizione all'IVA (AFC)", url: fonti.afcIscrizione.url },
     fonti: [
       fonti.liva10,
+      fontiPercorso.liva21,
       fonti.liva14,
+      fontiPercorso.oiva9,
       fonti.liva66,
       fonti.afcAssoggettamento,
       fonti.afcIscrizione,
+      fontiPercorso.pmiIva,
+      fontiPercorso.liva11,
+      fontiPercorso.liva34,
+      fonti.afcAliquote,
+      fontiPercorso.liva25,
+      fontiPercorso.liva26,
+      fonti.liva27,
+      fontiPercorso.afcAliquoteSaldo,
       fontiPercorso.oiva78,
       fontiPercorso.oiva76a,
-      fonti.afcAliquote,
+      fontiPercorso.liva86a,
     ],
-    verificatoIl: VERIFICATO_IL,
+    verificatoIl: VERIFICATO_IVA,
     tempoStimato: "1 ora",
     domandaChat: "Come e quando devo annunciarmi all'IVA?",
   },

@@ -80,6 +80,8 @@ type Esito = { stato: StatoPasso; perche: string; note?: string[] };
 const SOGLIA_100K = chf(regole.sogliaRegistroCommercio.valore);
 const SOGLIA_CONTABILITA = chf(regole.sogliaContabilitaSemplificata.valore);
 const GIORNI_IVA = regole.termineAnnuncioIvaGiorni.valore;
+const SOGLIA_IVA = chf(regole.sogliaIva.valore);
+const MESI_IVA = regolePercorso.mesiPerIvaDaSubito.valore;
 
 const SOLO_DITTA =
   "Vale per chi apre una ditta individuale da solo. In una Sagl le regole sono diverse: da verificare con un notaio o un fiduciario autorizzato.";
@@ -397,7 +399,7 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
     if (prevedeAlmeno100k(r)) {
       return {
         stato: "da_fare",
-        perche: `Prevedi almeno ${SOGLIA_100K} entro 12 mesi: di regola sei assoggettato all'IVA da subito e hai ${GIORNI_IVA} giorni per annunciarti.`,
+        perche: `Prevedi almeno ${SOGLIA_IVA} entro ${MESI_IVA} mesi: di regola sei assoggettato all'IVA da subito e hai ${GIORNI_IVA} giorni per annunciarti.`,
         note: giaAvviata(r)
           ? [
               `Hai già iniziato: se i ${GIORNI_IVA} giorni sono passati, annunciati il prima possibile e verifica la tua situazione con l'AFC.`,
@@ -409,8 +411,8 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
       stato: "non_serve",
       perche:
         r.fatturato === "non_so"
-          ? `Finché la cifra d'affari annua resta sotto ${SOGLIA_100K} sei esentato dall'IVA: tienila d'occhio a fine anno.`
-          : `Sotto ${SOGLIA_100K} di cifra d'affari annua sei esentato dall'IVA. Ci si può iscrivere anche volontariamente (art. 11 LIVA): da valutare con un fiduciario.`,
+          ? `Finché la cifra d'affari annua resta sotto ${SOGLIA_IVA} sei esentato dall'IVA: tienila d'occhio a fine anno.`
+          : `Sotto ${SOGLIA_IVA} di cifra d'affari annua sei esentato dall'IVA. Ci si può iscrivere anche volontariamente (art. 11 LIVA): da valutare con un fiduciario.`,
     };
   },
 
@@ -588,9 +590,9 @@ function calcolaAvvisi(r: Risposte): Avviso[] {
     avvisi.push({
       id: "iva-da-subito",
       livello: "importante",
-      titolo: `Con almeno ${SOGLIA_100K} previsti, l'IVA ti riguarda da subito`,
+      titolo: `Con almeno ${SOGLIA_IVA} previsti, l'IVA ti riguarda da subito`,
       testo:
-        `Se all'avvio è presumibile che superi la soglia entro ${regolePercorso.mesiPerIvaDaSubito.valore} mesi, sei assoggettato all'IVA dall'inizio e devi annunciarti all'AFC entro ${GIORNI_IVA} giorni.` +
+        `Se all'avvio è presumibile che superi la soglia entro ${MESI_IVA} mesi, sei assoggettato all'IVA dall'inizio e devi annunciarti all'AFC entro ${GIORNI_IVA} giorni.` +
         (giaAvviata(r)
           ? " Hai già iniziato: se il termine è passato, annunciati il prima possibile e verifica la tua situazione con l'AFC."
           : ""),
@@ -726,7 +728,7 @@ function calcolaScadenze(r: Risposte): Scadenza[] {
       id: "annuncio-iva",
       titolo: "Annuncio all'IVA",
       quando: `Entro ${GIORNI_IVA} giorni dall'inizio dell'assoggettamento`,
-      dettaglio: "Se prevedi di superare la soglia entro 12 mesi, l'assoggettamento inizia con l'attività.",
+      dettaglio: `Se prevedi di superare la soglia entro ${MESI_IVA} mesi, l'assoggettamento inizia con l'attività.`,
       fonti: [fonti.liva66, fonti.liva14],
       calendario: { tipo: "dopo-inizio", giorni: GIORNI_IVA },
     });

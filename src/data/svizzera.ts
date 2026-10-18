@@ -26,6 +26,20 @@ function dato<T>(valore: T, fonte: Fonte, nota?: string): Dato<T> {
   return { valore, fonte, verificatoIl: VERIFICATO_IL, ...(nota ? { nota } : {}) };
 }
 
+/**
+ * Data dell'ultimo controllo delle fonti sull'IVA, per il passo e la lezione
+ * 14: LIVA artt. 10, 11, 14, 21, 25, 26, 27, 34, 35, 37 e 66 (stato
+ * 31.03.2025), OIVA artt. 9, 76a, 78 e 123 (stato 01.01.2025; gli artt. 9,
+ * 76a e 78 sono uguali nel testo in vigore dal 01.01.2027), pagine dell'AFC
+ * (assoggettamento, iscrizione, aliquote, aliquote saldo, numero IDI) e del
+ * Portale PMI («IVA: come funziona l'imposta sul valore aggiunto»).
+ */
+export const VERIFICATO_IVA = "2026-10-18";
+
+function datoIva<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_IVA };
+}
+
 const CO = "https://www.fedlex.admin.ch/eli/cc/27/317_321_377/it";
 const LIVA = "https://www.fedlex.admin.ch/eli/cc/2009/615/it";
 
@@ -146,8 +160,16 @@ export const fonti = {
 /** Soglie e regole stabili, scritte nella legge. */
 export const regole = {
   sogliaRegistroCommercio: dato(100_000, fonti.co931, "Cifra d'affari (non utile) dell'ultimo esercizio. Sotto la soglia l'iscrizione è facoltativa (art. 931 cpv. 3 CO)."),
-  sogliaIva: dato(100_000, fonti.liva10, "Cifra d'affari annua, in Svizzera e all'estero, da prestazioni non escluse dall'imposta."),
-  termineAnnuncioIvaGiorni: dato(30, fonti.liva66, "Giorni dall'inizio dell'assoggettamento per annunciarsi all'AFC."),
+  sogliaIva: datoIva(
+    100_000,
+    fonti.liva10,
+    "Cifra d'affari annua, in Svizzera e all'estero, da prestazioni non escluse dall'imposta (art. 21 LIVA), calcolata sulle controprestazioni convenute senza IVA (art. 10 cpv. 2bis LIVA). È esentato chi resta sotto: con CHF 100'000 esatti si è assoggettati (l'AFC scrive «almeno 100 000 franchi»).",
+  ),
+  termineAnnuncioIvaGiorni: datoIva(
+    30,
+    fonti.liva66,
+    "Giorni dall'inizio dell'assoggettamento per annunciarsi all'AFC, di propria iniziativa. Dal 01.01.2025 l'annuncio si fa per via elettronica (art. 123 OIVA); l'AFC assegna il numero IVA, che è il numero IDI.",
+  ),
   sogliaContabilitaSemplificata: dato(500_000, fonti.co957, "Con una cifra d'affari inferiore a questa nell'ultimo esercizio la ditta individuale può tenere solo entrate, uscite e situazione patrimoniale; da CHF 500'000 esatti serve la contabilità completa."),
   capitaleMinimoSagl: dato(20_000, fonti.co773),
   capitaleMinimoSa: dato(100_000, fonti.co621),
@@ -783,6 +805,24 @@ export const fontiPercorso = {
   liva26: { titolo: "Legge sull'IVA, art. 26", url: `${LIVA}#art_26`, ente: FEDLEX },
   oiva78: { titolo: "Ordinanza sull'IVA (OIVA), art. 78", url: `${OIVA}#art_78`, ente: FEDLEX },
   oiva76a: { titolo: "Ordinanza sull'IVA (OIVA), art. 76a", url: `${OIVA}#art_76_a`, ente: FEDLEX },
+  // Iscrizione all'IVA (passo e lezione 14): controllati il 18.10.2026, vedi
+  // VERIFICATO_IVA. Con quelli sopra e liva10, liva14, liva66 e le pagine
+  // dell'AFC in `fonti`.
+  liva21: { titolo: "Legge sull'IVA, art. 21: prestazioni escluse dall'imposta", url: `${LIVA}#art_21`, ente: FEDLEX },
+  liva25: { titolo: "Legge sull'IVA, art. 25: aliquote d'imposta", url: `${LIVA}#art_25`, ente: FEDLEX },
+  liva34: { titolo: "Legge sull'IVA, art. 34: periodo fiscale", url: `${LIVA}#art_34`, ente: FEDLEX },
+  oiva9: { titolo: "Ordinanza sull'IVA (OIVA), art. 9", url: `${OIVA}#art_9`, ente: FEDLEX },
+  liva86a: { titolo: "Legge sull'IVA, art. 86a: acconti con il rendiconto annuale", url: `${LIVA}#art_86_a`, ente: FEDLEX },
+  pmiIva: {
+    titolo: "IVA: come funziona l'imposta sul valore aggiunto",
+    url: "https://www.kmu.admin.ch/it/iva-come-funziona-limposta-sul-valore-aggiunto",
+    ente: PMI,
+  },
+  afcAliquoteSaldo: {
+    titolo: "Aliquote saldo e aliquote forfetarie in materia di IVA",
+    url: "https://www.estv.admin.ch/it/iva-aliquote-saldo-e-aliquote-forfetarie",
+    ente: "Amministrazione federale delle contribuzioni (AFC)",
+  },
   afcIdi: {
     titolo: "Numero d'identificazione delle imprese (IDI)",
     url: "https://www.estv.admin.ch/it/numero-identificazione-delle-imprese-idi",
@@ -1220,10 +1260,47 @@ export const regoleRegistro = {
  */
 export const VERIFICATO_SITO_ONLINE = "2026-10-18";
 
+/** IVA: date e periodi minimi (passo e lezione 14), con quelli in `regole` e `regolePercorso`. */
+export const regoleIva = {
+  aliquoteInVigoreDal: datoIva(
+    "2024-01-01",
+    fonti.afcAliquote,
+    "Le aliquote di `aliquoteIva` (normale 8,1%, ridotta 2,6%, alloggio 3,8%) si applicano dal 01.01.2024 (pagina dell'AFC e art. 25 LIVA).",
+  ),
+  periodiMinimiIscrizioneVolontaria: datoIva(
+    1,
+    fontiPercorso.liva11,
+    "Chi si iscrive all'IVA senza esservi obbligato (rinuncia all'esenzione) deve restare iscritto almeno per un periodo fiscale (art. 11 cpv. 2 LIVA), cioè un anno civile (art. 34 LIVA). L'iscrizione vale al più presto dall'inizio del periodo fiscale in corso (art. 14 cpv. 4 LIVA).",
+  ),
+  periodiEffettivoSenzaAliquotaSaldo: datoIva(
+    3,
+    fontiPercorso.oiva78,
+    "Se l'aliquota saldo non è chiesta entro il termine di regolePercorso.termineMetodoIvaGiorni giorni, si applica il metodo di rendiconto effettivo per almeno tre periodi fiscali interi prima di poterla chiedere (art. 78 cpv. 3 OIVA).",
+  ),
+  periodiAttesaRendicontoAnnuale: datoIva(
+    1,
+    fontiPercorso.oiva76a,
+    "Passato il termine, il rendiconto annuale si può chiedere al più presto dopo un periodo fiscale (art. 76a cpv. 3 OIVA).",
+  ),
+  mesiRendiconto: datoIva(
+    { effettivo: 3, aliquotaSaldo: 6 },
+    fontiPercorso.pmiIva,
+    "Di norma il rendiconto IVA si fa ogni trimestre; con il metodo dell'aliquota saldo ogni semestre (art. 35 cpv. 1 LIVA; Portale PMI e pagina dell'AFC sulle aliquote saldo). Su richiesta si può fare ogni mese o, con il rendiconto annuale, una volta all'anno.",
+  ),
+} as const;
+
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
-  mesiPerIvaDaSubito: dato(12, fonti.liva14, "Se all'avvio è presumibile superare la soglia IVA entro 12 mesi, si è assoggettati da subito."),
-  termineMetodoIvaGiorni: dato(60, fontiPercorso.oiva78, "Giorni dalla comunicazione del numero IVA per chiedere l'aliquota saldo (art. 78 OIVA) o il rendiconto annuale (art. 76a OIVA)."),
+  mesiPerIvaDaSubito: datoIva(
+    12,
+    fonti.liva14,
+    "Se all'avvio è presumibile superare la soglia IVA entro 12 mesi, si è assoggettati da subito (art. 14 cpv. 3 LIVA, art. 9 OIVA). Chi è già attivo ed esentato lo diventa allo scadere dell'esercizio in cui raggiunge la soglia; se l'attività non è durata tutto l'anno, la cifra d'affari è riportata su un anno intero (art. 9 cpv. 3 OIVA).",
+  ),
+  termineMetodoIvaGiorni: datoIva(
+    60,
+    fontiPercorso.oiva78,
+    "Giorni dalla comunicazione del numero IVA per chiedere l'aliquota saldo (art. 78 OIVA) o il rendiconto annuale (art. 76a OIVA).",
+  ),
   attivitaAccessoriaAvs: dato(2_500, fonti.avsPromemoria202, "Reddito annuo da attività indipendente accessoria fino al quale i contributi si pagano solo su richiesta."),
   accontiAvs: dato(
     { giorno: 10, mesi: [1, 4, 7, 10] },
