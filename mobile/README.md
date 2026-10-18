@@ -13,7 +13,9 @@ Cosa c'è:
   Nella versione di prova mostra "La chat arriva presto".
 - **Conti** (con l'accesso): fotografi una ricevuta o carichi un PDF, Bleo la
   legge e la mette «da confermare»; riepilogo dell'anno, fatture emesse da
-  incassare, indirizzo email personale per inoltrare le fatture. In fondo,
+  incassare, indirizzo email personale per inoltrare le fatture.
+  **Clienti e ore**: rubrica dei clienti, ore segnate in pochi tocchi e, a
+  fine mese, «Crea la fattura», che si apre sul sito già compilata. In fondo,
   **Calcoli e strumenti**: tariffa oraria e contributi AVS; budget, business
   plan, preventivo e fattura QR si aprono sul sito.
 - **Profilo**: vesti Bleo, account (esci, elimina account), privacy,

@@ -179,6 +179,14 @@ export default async function PaginaPrivacy() {
             carichi, con tutto quello che c&apos;è scritto.
           </li>
           <li>
+            <strong>Clienti e ore:</strong> i clienti che aggiungi (nome, indirizzo, email se la scrivi, tariffa
+            oraria) e le ore che segni per ognuno (giorno, durata, descrizione, tariffa, giorno in cui le hai
+            fatturate). Sono dati dei tuoi clienti: inseriscili solo per lavorare con loro. Quando crei la fattura
+            dalle ore, nome e indirizzo del cliente e le voci passano allo strumento fattura nell&apos;indirizzo della
+            pagina, dopo il «#»: quella parte il browser non la manda ai nostri server, e la fattura resta nel
+            browser come le altre.
+          </li>
+          <li>
             <strong>Email inoltrate</strong>
             <NonAttivo attivo={attivi.contiEmail} testo="non ancora attivo" />: se inoltri email al tuo indirizzo
             personale di Bleo, salviamo gli allegati (PDF e immagini) oppure, se non ce ne sono e l&apos;email sembra
@@ -191,8 +199,8 @@ export default async function PaginaPrivacy() {
             {luogoDati}, in una cartella privata che puoi vedere solo tu.
           </li>
           <li>
-            <strong>Perché:</strong> per tenere in ordine le tue entrate, uscite e fatture e mostrarti il riepilogo
-            dell&apos;anno. Bleo non fa la contabilità né le dichiarazioni d&apos;imposta per te: i conti li tieni tu.
+            <strong>Perché:</strong> per tenere in ordine le tue entrate, uscite e fatture, mostrarti il riepilogo
+            dell&apos;anno e preparare le fatture delle ore. Bleo non fa la contabilità né le dichiarazioni d&apos;imposta per te: i conti li tieni tu.
           </li>
           <li>
             <strong>Lettura automatica</strong>
@@ -353,7 +361,8 @@ export default async function PaginaPrivacy() {
             da 12 mesi. Se elimini l&apos;account cancelliamo anche tutte le chat.
           </li>
           <li>
-            <strong>I tuoi conti</strong> (voci, fatture, ricevute, allegati e dati delle email inoltrate): finché non
+            <strong>I tuoi conti</strong> (voci, fatture, ricevute, allegati, dati delle email inoltrate, clienti e
+            ore): finché non
             li cancelli tu o non elimini l&apos;account. Se elimini l&apos;account cancelliamo tutto, file compresi. La
             legge chiede di conservare i documenti della contabilità per {regolePercorso.conservazioneDocumentiAnni.valore}{" "}
             anni (

@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { dataSvizzera } from "@/data/svizzera";
+import { documentoDaPrecompilazione, leggiPrecompilazione, type LetturaLink } from "@/lib/clienti/fattura";
 import { CHIAVI_ARCHIVIO } from "@/lib/strumenti/archivio";
 import {
   calcolaTotali,
@@ -54,7 +55,15 @@ function mostraNellUrl(id: string | null) {
   const url = new URL(window.location.href);
   if (id) url.searchParams.set("doc", id);
   else url.searchParams.delete("doc");
+  // I dati arrivati dopo il «#» (ore da fatturare) non restano nell'indirizzo.
+  url.hash = "";
   window.history.replaceState(null, "", url);
+}
+
+/** Ore da fatturare arrivate nel link (#ore=…, da «Clienti e ore»): solo nel browser, letto una volta. */
+function letturaDalLink(): LetturaLink | null {
+  if (typeof window === "undefined") return null;
+  return leggiPrecompilazione(window.location.hash);
 }
 
 export function GestioneDocumenti({
@@ -70,9 +79,28 @@ export function GestioneDocumenti({
   const router = useRouter();
   const [documenti, aggiornaDocumenti] = useArchivio(CHIAVI_ARCHIVIO.documenti, schemaElencoDocumenti, nessunDocumento);
   const [profilo, aggiornaProfilo] = useArchivio(CHIAVI_ARCHIVIO.emittente, schemaEmittente, emittenteVuoto);
-  const [selezionato, setSelezionato] = useState<string | null>(idIniziale);
+  // Fattura dalle ore: il documento ha l'id della precompilazione, quindi si apre subito quello.
+  const [dalLink] = useState(() => (tipo === "fattura" ? letturaDalLink() : null));
+  const daOre = dalLink?.ok ? dalLink.dati : null;
+  const [selezionato, setSelezionato] = useState<string | null>(daOre?.id ?? idIniziale);
   const [daEliminare, setDaEliminare] = useState<string | null>(null);
   const [annuncio, setAnnuncio] = useState("");
+  const importata = useRef(false);
+
+  // Crea la fattura dalle ore (una volta sola: se c'è già, la riapre) e toglie i dati dall'indirizzo.
+  useEffect(() => {
+    if (!dalLink || !documenti || !profilo || importata.current) return;
+    importata.current = true;
+    if (dalLink.ok) {
+      const p = dalLink.dati;
+      aggiornaDocumenti((lista) =>
+        lista.some((d) => d.id === p.id) ? lista : [...lista, documentoDaPrecompilazione(p, profilo, lista, contesto())],
+      );
+      mostraNellUrl(p.id);
+    } else {
+      mostraNellUrl(idIniziale);
+    }
+  }, [dalLink, documenti, profilo, aggiornaDocumenti, idIniziale]);
 
   const nomi = NOMI_TIPO[tipo];
   const titoloElenco = nomi.elenco;
@@ -139,6 +167,26 @@ export function GestioneDocumenti({
       <p className="sr-only" role="status" aria-live="polite">
         {annuncio}
       </p>
+
+      {dalLink && !dalLink.ok ? (
+        <p role="alert" className="rounded-xl border border-danger/40 bg-card p-4 font-medium text-danger print:hidden">
+          Non riesco a leggere le ore da fatturare arrivate con il link. Torna a{" "}
+          <Link href="/conti/clienti" className={classeLink}>
+            Clienti e ore
+          </Link>{" "}
+          e crea di nuovo la fattura.
+        </p>
+      ) : null}
+      {daOre && doc?.id === daOre.id ? (
+        <p role="status" className="rounded-xl border border-brand bg-brand-soft p-4 print:hidden">
+          <span className="font-semibold">Fattura preparata dalle ore di {daOre.cliente.nome}.</span> Controlla le voci e
+          completa i tuoi dati se mancano: poi stampala o salvala in PDF. Le ore sono già segnate come fatturate in{" "}
+          <Link href="/conti/clienti" className={classeLink}>
+            Clienti e ore
+          </Link>
+          .
+        </p>
+      ) : null}
 
       <section aria-labelledby="titolo-elenco" className="print:hidden">
         <div className="flex flex-wrap items-center justify-between gap-3">

@@ -28,6 +28,7 @@ export default function Radice() {
         <Stack.Screen name="strumenti/index" options={{ title: "Calcoli e strumenti" }} />
         <Stack.Screen name="strumenti/tariffa" options={{ title: "Tariffa oraria" }} />
         <Stack.Screen name="strumenti/contributi" options={{ title: "Contributi AVS" }} />
+        <Stack.Screen name="clienti-ore" options={{ title: "Clienti e ore" }} />
         <Stack.Screen name="accedi" options={{ title: "Accedi", presentation: "modal" }} />
         <Stack.Screen
           name="chat-elenco"

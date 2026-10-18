@@ -163,7 +163,8 @@ export type IndirizzoStrutturato = {
 
 export type CampoIndirizzo = keyof IndirizzoStrutturato;
 
-const LUNGHEZZE: Record<CampoIndirizzo, number> = { nome: 70, via: 70, numero: 16, npa: 16, localita: 35, paese: 2 };
+/** Caratteri massimi di ogni campo dell'indirizzo strutturato (linee guida SIX, cap. 4.3.1). */
+export const LUNGHEZZE_INDIRIZZO_QR: Record<CampoIndirizzo, number> = { nome: 70, via: 70, numero: 16, npa: 16, localita: 35, paese: 2 };
 const NOMI_CAMPI: Record<CampoIndirizzo, string> = {
   nome: "il nome",
   via: "la via",
@@ -182,10 +183,10 @@ export function validaIndirizzoQr(ind: IndirizzoStrutturato): Partial<Record<Cam
   for (const campo of ["nome", "npa", "localita", "paese"] as const) {
     if (ind[campo].trim() === "") errori[campo] = `Manca ${NOMI_CAMPI[campo]}.`;
   }
-  for (const campo of Object.keys(LUNGHEZZE) as CampoIndirizzo[]) {
+  for (const campo of Object.keys(LUNGHEZZE_INDIRIZZO_QR) as CampoIndirizzo[]) {
     const valore = pulisciTestoQr(ind[campo].trim());
-    if (!errori[campo] && valore.length > LUNGHEZZE[campo]) {
-      errori[campo] = `Al massimo ${LUNGHEZZE[campo]} caratteri.`;
+    if (!errori[campo] && valore.length > LUNGHEZZE_INDIRIZZO_QR[campo]) {
+      errori[campo] = `Al massimo ${LUNGHEZZE_INDIRIZZO_QR[campo]} caratteri.`;
     }
     const fuori = caratteriNonAmmessi(valore);
     if (!errori[campo] && fuori.length > 0) {

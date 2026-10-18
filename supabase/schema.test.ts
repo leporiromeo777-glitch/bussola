@@ -3,10 +3,12 @@ import { PGlite } from "@electric-sql/pglite";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ID_PASSI } from "../src/data/passi";
 import { TITOLO_MASSIMO } from "../src/lib/chat/conversazioni";
+import { MINUTI_MASSIMI, TARIFFA_MASSIMA } from "../src/lib/clienti/limiti";
 import { DOMANDE_GRATIS_AL_MESE } from "../src/lib/chat/quota";
 import { LETTURE_AL_GIORNO } from "../src/lib/conti/limiti";
 import { CATEGORIE } from "../src/lib/conti/tipi";
 import { VERSIONE_REGOLE } from "../src/lib/percorso/regole";
+import { LUNGHEZZE_INDIRIZZO_QR } from "../src/lib/strumenti/qr";
 import {
   ATTIVITA,
   AVVII,
@@ -412,11 +414,13 @@ describe("eliminazione dell'account (src/lib/account/eliminazione.ts)", () => {
       "chat_conversazioni",
       "chat_messaggi",
       "conti_caselle",
+      "conti_clienti",
       "conti_documenti",
       "conti_email",
       "conti_fatture",
       "conti_letture",
       "conti_movimenti",
+      "conti_ore",
       "domande_chat",
       "passi_completati",
       "profili",
@@ -865,6 +869,167 @@ describe("chat salvate (chat_conversazioni e chat_messaggi)", () => {
       `select (select count(*) from public.chat_conversazioni where user_id = $1)
             + (select count(*) from public.chat_messaggi where user_id = $1) as righe`,
       [CHAT],
+    );
+    expect(Number(r.rows[0]?.righe)).toBe(0);
+  });
+});
+
+describe("«Clienti e ore» (conti_clienti e conti_ore)", () => {
+  const LIBERA = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+  const SPIONE = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+
+  beforeAll(async () => {
+    await db.exec(`insert into auth.users (id, email) values ('${LIBERA}', 'libera@example.ch'), ('${SPIONE}', 'spione@example.ch')`);
+  });
+
+  const nuovoCliente = (utente: string, campi: Record<string, string | number | null> = {}, come = utente) => {
+    const riga = { user_id: utente, nome: "Rossi SA", via: "Via Nassa", numero: "5", npa: "6900", localita: "Lugano", ...campi };
+    const colonne = Object.keys(riga);
+    return comeUtente(
+      () =>
+        db
+          .query<{ id: string }>(
+            `insert into public.conti_clienti (${colonne.join(", ")}) values (${colonne.map((_, i) => `$${i + 1}`).join(", ")}) returning id`,
+            Object.values(riga),
+          )
+          .then((r) => r.rows[0]!.id),
+      come,
+    );
+  };
+
+  const nuovaVoce = (utente: string, cliente: string, campi: Record<string, string | number | null> = {}, come = utente) => {
+    const riga = { user_id: utente, cliente_id: cliente, data: "2026-10-15", minuti: 90, descrizione: "Sviluppo del sito", ...campi };
+    const colonne = Object.keys(riga);
+    return comeUtente(
+      () =>
+        db
+          .query<{ id: string }>(
+            `insert into public.conti_ore (${colonne.join(", ")}) values (${colonne.map((_, i) => `$${i + 1}`).join(", ")}) returning id`,
+            Object.values(riga),
+          )
+          .then((r) => r.rows[0]!.id),
+      come,
+    );
+  };
+
+  it("i limiti nel database sono quelli di src/lib (indirizzo QR, durata, tariffa)", () => {
+    const sql = readFileSync(new URL("20261019000005_clienti_ore.sql", CARTELLA), "utf8");
+    for (const campo of ["via", "numero", "npa", "localita"] as const) {
+      expect(sql).toContain(`check (char_length(${campo}) <= ${LUNGHEZZE_INDIRIZZO_QR[campo]})`);
+    }
+    expect(sql).toContain(`check (char_length(nome) between 1 and ${LUNGHEZZE_INDIRIZZO_QR.nome})`);
+    expect(sql).toContain(`check (minuti between 1 and ${MINUTI_MASSIMI})`);
+    expect(sql.match(new RegExp(`tariffa_centesimi between 0 and ${TARIFFA_MASSIMA * 100}\\)`, "g"))).toHaveLength(2);
+  });
+
+  it("ognuno vede e cambia solo i propri clienti e le proprie ore", async () => {
+    const cliente = await nuovoCliente(LIBERA);
+    await nuovaVoce(LIBERA, cliente);
+    const viste = await comeUtente(
+      () =>
+        db.query<{ n: number }>(
+          "select (select count(*) from public.conti_clienti) + (select count(*) from public.conti_ore) as n",
+        ),
+      SPIONE,
+    );
+    expect(Number(viste.rows[0]?.n)).toBe(0);
+    const proprie = await comeUtente(
+      () => db.query<{ n: number }>("select count(*)::int as n from public.conti_ore where cliente_id = $1", [cliente]),
+      LIBERA,
+    );
+    expect(proprie.rows[0]?.n).toBe(1);
+
+    await expect(nuovoCliente(LIBERA, {}, SPIONE)).rejects.toThrow(/row-level security/);
+    await expect(nuovaVoce(LIBERA, cliente, {}, SPIONE)).rejects.toThrow(/row-level security/);
+    for (const sql of [
+      "update public.conti_clienti set nome = 'Rubato'",
+      "update public.conti_ore set fatturata_il = '2026-10-31'",
+      "delete from public.conti_ore",
+      "delete from public.conti_clienti",
+    ]) {
+      const r = await comeUtente(() => db.query(sql), SPIONE);
+      expect(r.affectedRows).toBe(0);
+    }
+    await expect(come("anon", "", () => db.query("select * from public.conti_clienti"))).rejects.toThrow(/permission denied/);
+    await expect(come("anon", "", () => db.query("select * from public.conti_ore"))).rejects.toThrow(/permission denied/);
+  });
+
+  it("nessuno attacca ore al cliente di un altro, nemmeno con il proprio user_id o dal server", async () => {
+    const altrui = await nuovoCliente(LIBERA);
+    await expect(nuovaVoce(SPIONE, altrui)).rejects.toThrow(/conti_ore_cliente_utente/);
+    await expect(
+      db.query("insert into public.conti_ore (user_id, cliente_id, data, minuti) values ($1, $2, '2026-10-15', 30)", [SPIONE, altrui]),
+    ).rejects.toThrow(/conti_ore_cliente_utente/);
+    // Spostare una propria voce sul cliente di un altro non passa.
+    const mio = await nuovoCliente(SPIONE);
+    const voce = await nuovaVoce(SPIONE, mio);
+    await expect(
+      comeUtente(() => db.query("update public.conti_ore set cliente_id = $1 where id = $2", [altrui, voce]), SPIONE),
+    ).rejects.toThrow(/conti_ore_cliente_utente/);
+  });
+
+  it("rifiuta durate, paesi, email e tariffe non validi", async () => {
+    const cliente = await nuovoCliente(LIBERA);
+    await expect(nuovaVoce(LIBERA, cliente, { minuti: 0 })).rejects.toThrow(/check/);
+    await expect(nuovaVoce(LIBERA, cliente, { minuti: MINUTI_MASSIMI + 1 })).rejects.toThrow(/check/);
+    await expect(nuovaVoce(LIBERA, cliente, { descrizione: "x".repeat(201) })).rejects.toThrow(/check/);
+    await expect(nuovaVoce(LIBERA, cliente, { tariffa_centesimi: -1 })).rejects.toThrow(/check/);
+    await expect(nuovoCliente(LIBERA, { paese: "ch" })).rejects.toThrow(/check/);
+    await expect(nuovoCliente(LIBERA, { nome: "" })).rejects.toThrow(/check/);
+    await expect(nuovoCliente(LIBERA, { localita: "x".repeat(LUNGHEZZE_INDIRIZZO_QR.localita + 1) })).rejects.toThrow(/check/);
+    await expect(nuovoCliente(LIBERA, { email: "non un'email" })).rejects.toThrow(/check/);
+    await expect(nuovoCliente(LIBERA, { tariffa_centesimi: TARIFFA_MASSIMA * 100 + 1 })).rejects.toThrow(/check/);
+    await nuovoCliente(LIBERA, { email: "info@rossi.ch", tariffa_centesimi: 12000, paese: "IT" });
+  });
+
+  it("le ore segnate come fatturate non si segnano una seconda volta", async () => {
+    const cliente = await nuovoCliente(LIBERA, { nome: "Fatture SA" });
+    for (const data of ["2026-10-01", "2026-10-31", "2026-11-01"]) await nuovaVoce(LIBERA, cliente, { data });
+    // La stessa modifica che fa POST /api/conti/ore/fattura.
+    const segna = () =>
+      comeUtente(
+        () =>
+          db.query<{ id: string }>(
+            `update public.conti_ore set fatturata_il = '2026-11-02'
+              where cliente_id = $1 and data >= '2026-10-01' and data <= '2026-10-31' and fatturata_il is null
+              returning id`,
+            [cliente],
+          ),
+        LIBERA,
+      );
+    expect((await segna()).rows).toHaveLength(2);
+    expect((await segna()).rows).toHaveLength(0);
+    const novembre = await db.query<{ fatturata_il: string | null }>(
+      "select fatturata_il::text from public.conti_ore where cliente_id = $1 and data = '2026-11-01'",
+      [cliente],
+    );
+    expect(novembre.rows).toEqual([{ fatturata_il: null }]);
+  });
+
+  it("cancellando un cliente spariscono le sue ore", async () => {
+    const cliente = await nuovoCliente(LIBERA, { nome: "Da cancellare" });
+    await nuovaVoce(LIBERA, cliente);
+    await nuovaVoce(LIBERA, cliente, { data: "2026-10-16" });
+    await comeUtente(() => db.query("delete from public.conti_clienti where id = $1", [cliente]), LIBERA);
+    const r = await db.query<{ n: number }>("select count(*)::int as n from public.conti_ore where cliente_id = $1", [cliente]);
+    expect(r.rows[0]?.n).toBe(0);
+  });
+
+  it("al massimo 2000 clienti per utente", async () => {
+    await db.query(
+      "insert into public.conti_clienti (user_id, nome) select $1, 'riempitivo' from generate_series(1, 2000 - (select count(*) from public.conti_clienti where user_id = $1))",
+      [SPIONE],
+    );
+    await expect(nuovoCliente(SPIONE)).rejects.toThrow(/troppe righe in conti_clienti/);
+    await db.query("delete from public.conti_clienti where user_id = $1", [SPIONE]);
+  });
+
+  it("cancellando l'utente spariscono tutti i suoi clienti e le sue ore", async () => {
+    await db.query("delete from auth.users where id = $1", [LIBERA]);
+    const r = await db.query<{ righe: number }>(
+      `select (select count(*) from public.conti_clienti where user_id = $1)
+            + (select count(*) from public.conti_ore where user_id = $1) as righe`,
+      [LIBERA],
     );
     expect(Number(r.rows[0]?.righe)).toBe(0);
   });
