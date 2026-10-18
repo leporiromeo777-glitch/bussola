@@ -36,6 +36,7 @@ import {
   VERIFICATO_PREVIDENZA,
   VERIFICATO_DICHIARAZIONE,
   VERIFICATO_SOGLIE,
+  VERIFICATO_SPESE_DITTA,
   type Fonte,
 } from "./svizzera";
 
@@ -584,6 +585,27 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fonti.albofiduciari,
     ],
     verificatoIl: VERIFICATO_DICHIARAZIONE,
+    approfondimenti: [
+      {
+        id: "dichiarazione-imposte-spese",
+        titolo: "Quali spese puoi dedurre",
+        video: "/corso/dichiarazione-imposte-spese.mp4",
+        poster: "/corso/dichiarazione-imposte-spese.jpg",
+        sottotitoli: "/corso/dichiarazione-imposte-spese.vtt",
+        durataSecondi: 142,
+        fonti: [
+          fontiPercorso.lifd27,
+          fontiPercorso.leggeTributariaTicino,
+          fontiPercorso.pmiImposteDitta,
+          fontiPercorso.modulo10,
+          fontiPercorso.lifd28,
+          fontiPercorso.istruzioniPf2025,
+          fontiPercorso.pmiSanzioniSpesePrivate,
+          fonti.albofiduciari,
+        ],
+        verificatoIl: VERIFICATO_SPESE_DITTA,
+      },
+    ],
   },
   {
     passoId: "soglie-annuali",

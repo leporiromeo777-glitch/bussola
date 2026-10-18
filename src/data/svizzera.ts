@@ -1037,6 +1037,22 @@ export const fontiPercorso = {
     url: "https://www4.ti.ch/dfe/dc/dichiarazione/dichiarazione-elettronica",
     ente: DC,
   },
+  // Spese deducibili della ditta (video facoltativo della lezione 22): ricontrollate il 18.10.2026, vedi VERIFICATO_SPESE_DITTA.
+  lifd27: {
+    titolo: "Legge sull'imposta federale diretta (LIFD), art. 27",
+    url: "https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/it#art_27",
+    ente: FEDLEX,
+  },
+  lifd28: {
+    titolo: "Legge sull'imposta federale diretta (LIFD), art. 28",
+    url: "https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/it#art_28",
+    ente: FEDLEX,
+  },
+  pmiSanzioniSpesePrivate: {
+    titolo: "Sanzioni nel caso di dissimulazioni",
+    url: "https://www.kmu.admin.ch/it/sanzioni-nel-caso-di-dissimulazioni",
+    ente: PMI,
+  },
   dcRichiestaAcconto: {
     titolo: "Acconti e rateazioni: richiesta d'acconto",
     url: "https://www4.ti.ch/dfe/dc/pagamenti/acconti-e-rateazioni/richiesta-acconto",
@@ -1636,6 +1652,49 @@ export const regoleDichiarazione = {
     7,
     fontiPercorso.istruzioniPf2025,
     "Dal reddito da attività indipendente si deducono le perdite dei sette esercizi che precedono il periodo fiscale, se non se ne è potuto tenere conto prima (art. 30 LT, art. 31 LIFD); per il 2025 quelle dal 2018 al 2024. La deduzione non va nella colonna dei redditi ma nello spazio a sinistra della cifra 2.",
+  ),
+} as const;
+
+/**
+ * Data dell'ultimo controllo delle fonti sulle spese deducibili della ditta
+ * individuale, per il video facoltativo della lezione 22 («Quali spese puoi
+ * dedurre»): LIFD artt. 27 e 28 (stato 02.09.2026) e LT artt. 26 e 27 (stato
+ * 01.01.2026): spese aziendali e professionali giustificate, ammortamenti
+ * giustificati dall'uso commerciale, con la contabilità semplificata in
+ * speciali tabelle di ammortamento; Istruzioni PF 2025, pagg. 14-15 (proventi
+ * e prelevamenti in natura al prezzo effettivo di vendita, quote private di
+ * auto e spese generali, giustificativi per dieci anni, imposte e spese
+ * private non deducibili, pilastro 3a solo alla cifra 11) e pag. 25 (cifra
+ * 10.1); Modulo 10 2025 (spese generali n. 8, contributi AVS/AI/IPG del
+ * contribuente, chilometri privati e quota privata dell'auto, tabella
+ * d'ammortamento n. 9); Portale PMI «La non imposizione fiscale di alcune
+ * società» (tutto ciò che è giustificato dall'uso commerciale, con i
+ * giustificativi; auto, installazioni e immobili ammortati su più anni;
+ * spese miste da dividere), «Sanzioni nel caso di dissimulazioni» e «Come
+ * risparmiare facilmente sulle imposte?» (il pilastro 3a è una spesa privata).
+ */
+export const VERIFICATO_SPESE_DITTA = "2026-10-18";
+
+function datoSpese<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_SPESE_DITTA };
+}
+
+/** Le spese della ditta individuale nella dichiarazione d'imposta (Ticino). */
+export const regoleSpeseDitta = {
+  cifraContributiLegge: datoSpese(
+    "10.1",
+    fontiPercorso.istruzioniPf2025,
+    "Alla cifra 10.1 vanno i contributi AVS, AI, IPG e AD, se non sono già stati dedotti alla cifra 1 o 2 (Istruzioni PF 2025, pag. 25). Senza contabilità commerciale i contributi AVS/AI/IPG/AD/AINP del contribuente sono tra le spese generali del Modulo 10 (n. 8 lett. c): si deducono una volta sola.",
+  ),
+  cifraPilastro3a: datoSpese(
+    "11",
+    fontiPercorso.istruzioniPf2025,
+    "I contributi dell'indipendente al pilastro 3a non si deducono dal reddito da attività indipendente, ma solo alla cifra 11.1 (contribuente) o 11.2 (coniuge) della dichiarazione (Istruzioni PF 2025, pag. 15). Anche per il Portale PMI (pagina «Come risparmiare facilmente sulle imposte?») il 3a è sempre una spesa privata, anche per gli indipendenti.",
+  ),
+  conservazioneGiustificativiAnni: datoSpese(
+    10,
+    fontiPercorso.istruzioniPf2025,
+    "I documenti giustificativi dell'attività indipendente (contratti, corrispondenza importante, fatture, documenti bancari e postali, ricevute, registrazioni di cassa) si conservano per dieci anni e si presentano su richiesta all'autorità fiscale (Istruzioni PF 2025, pag. 14); come l'art. 958f CO per i documenti contabili (regolePercorso.conservazioneDocumentiAnni).",
   ),
 } as const;
 

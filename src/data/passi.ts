@@ -834,6 +834,11 @@ export const PASSI = [
       fontiPercorso.leggeTributariaTicino,
       fontiPercorso.dcEtax,
       fonti.albofiduciari,
+      // Il video facoltativo «Quali spese puoi dedurre» (src/data/corso.ts).
+      fontiPercorso.lifd27,
+      fontiPercorso.lifd28,
+      fontiPercorso.pmiImposteDitta,
+      fontiPercorso.pmiSanzioniSpesePrivate,
     ],
     verificatoIl: VERIFICATO_DICHIARAZIONE,
     domandaChat: "Come dichiaro il reddito della mia ditta individuale?",

@@ -14,12 +14,14 @@ import {
   regolePercorso,
   regolePrevidenza,
   regoleRegistro,
+  regoleSpeseDitta,
   tasseRegistroCommercio,
   VERIFICATO_FORME,
   VERIFICATO_INFORTUNI,
   VERIFICATO_REGISTRO,
   VERIFICATO_FATTURE,
   VERIFICATO_PREVIDENZA,
+  VERIFICATO_SPESE_DITTA,
 } from "./svizzera";
 
 describe("formattazione svizzera", () => {
@@ -98,6 +100,16 @@ describe("dati ufficiali", () => {
     expect(percentuale(datiStrumenti.quotaMassimaPilastro3a.valore, 0)).toBe("20%");
     for (const d of [regolePrevidenza.etaIndennitaGiornaliera, datiStrumenti.quotaMassimaPilastro3a, pilastro3a[2026], pilastro3a[2027]]) {
       expect(d.verificatoIl).toBe(VERIFICATO_PREVIDENZA);
+    }
+  });
+
+  it("spese della ditta: cifre della dichiarazione e giustificativi dalle Istruzioni PF 2025, con la data di controllo", () => {
+    expect(regoleSpeseDitta.cifraContributiLegge.valore).toBe("10.1");
+    expect(regoleSpeseDitta.cifraPilastro3a.valore).toBe("11");
+    expect(regoleSpeseDitta.conservazioneGiustificativiAnni.valore).toBe(regolePercorso.conservazioneDocumentiAnni.valore);
+    for (const d of Object.values(regoleSpeseDitta)) {
+      expect(d.fonte).toBe(fontiPercorso.istruzioniPf2025);
+      expect(d.verificatoIl).toBe(VERIFICATO_SPESE_DITTA);
     }
   });
 });
