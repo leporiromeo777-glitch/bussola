@@ -27,6 +27,7 @@ import {
   VERIFICATO_REGISTRO,
   VERIFICATO_SITO_ONLINE,
   VERIFICATO_IVA,
+  VERIFICATO_FATTURE,
   type Fonte,
 } from "./svizzera";
 
@@ -428,6 +429,25 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.liva86a,
     ],
     verificatoIl: VERIFICATO_IVA,
+  },
+  {
+    passoId: "fatture",
+    numero: 17,
+    titolo: "Come fare una fattura corretta",
+    video: "/corso/fatture.mp4",
+    poster: "/corso/fatture.jpg",
+    sottotitoli: "/corso/fatture.vtt",
+    durataSecondi: 170,
+    fonti: [
+      fontiPercorso.liva26,
+      fontiPercorso.co954a,
+      fonti.liva27,
+      fontiPercorso.afcIdi,
+      fontiPercorso.ustIdi,
+      fonti.six,
+      fonti.co958f,
+    ],
+    verificatoIl: VERIFICATO_FATTURE,
   },
 ];
 

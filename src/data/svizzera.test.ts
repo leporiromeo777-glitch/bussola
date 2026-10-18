@@ -3,10 +3,12 @@ import {
   avsIndipendenti,
   chf,
   dataSvizzera,
+  datiStrumenti,
   fonti,
   fontiPercorso,
   percentuale,
   regole,
+  regoleFatture,
   regoleInfortuni,
   regolePercorso,
   regoleRegistro,
@@ -14,6 +16,7 @@ import {
   VERIFICATO_FORME,
   VERIFICATO_INFORTUNI,
   VERIFICATO_REGISTRO,
+  VERIFICATO_FATTURE,
 } from "./svizzera";
 
 describe("formattazione svizzera", () => {
@@ -76,6 +79,15 @@ describe("dati ufficiali", () => {
     expect(regoleRegistro.multaMancataIscrizioneFranchi.fonte).toBe(fontiPercorso.co940);
     expect(regoleRegistro.fallimentoDopoCancellazioneMesi.valore).toBe(6);
     for (const d of Object.values(regoleRegistro)) expect(d.verificatoIl).toBe(VERIFICATO_REGISTRO);
+  });
+  it("fatture: numero IVA nel formato dell'AFC, QR-fattura dal 01.10.2022, con la data di controllo", () => {
+    expect(regoleFatture.formatoNumeroIva.valore).toMatch(/^CHE-\d{3}\.\d{3}\.\d{3} IVA$/);
+    expect(regoleFatture.formatoNumeroIva.fonte).toBe(fontiPercorso.afcIdi);
+    expect(dataSvizzera(regoleFatture.qrFatturaDal.valore)).toBe("01.10.2022");
+    expect(regoleFatture.qrFatturaDal.fonte).toBe(fonti.six);
+    for (const d of Object.values(regoleFatture)) expect(d.verificatoIl).toBe(VERIFICATO_FATTURE);
+    expect(datiStrumenti.indirizzoStrutturatoQr.verificatoIl).toBe(VERIFICATO_FATTURE);
+    expect(regolePercorso.conservazioneDocumentiAnni.fonte).toBe(fonti.co958f);
   });
 });
 

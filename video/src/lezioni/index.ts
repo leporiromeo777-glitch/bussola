@@ -8,6 +8,7 @@ import { autorizzazioneSanitaria } from "./autorizzazione-sanitaria";
 import { autorizzazioni } from "./autorizzazioni";
 import { dittaIndividuale } from "./ditta-individuale";
 import { esercizioPubblico } from "./esercizio-pubblico";
+import { fatture } from "./fatture";
 import { iscrizioneRc } from "./iscrizione-rc";
 import { iscrizioneIva } from "./iscrizione-iva";
 import { nomeDitta } from "./nome-ditta";
@@ -22,7 +23,7 @@ import { statutoSuva } from "./statuto-suva";
 import type { Lezione } from "./tipi";
 
 /** Le lezioni e i loro video facoltativi (anche questi hanno una composizione). */
-export const LEZIONI: readonly Lezione[] = [dittaIndividuale, sociFormaGiuridica, statutoSagl, attoFondazioneSagl, autorizzazioni, esercizioPubblico, notificaAlimenti, autorizzazioneSanitaria, permessoLavoro, nomeDitta, statutoSuva, assicurazioneInfortuni, riconoscimentoAvs, aiuto, iscrizioneRc, sitoOnline, iscrizioneIva];
+export const LEZIONI: readonly Lezione[] = [dittaIndividuale, sociFormaGiuridica, statutoSagl, attoFondazioneSagl, autorizzazioni, esercizioPubblico, notificaAlimenti, autorizzazioneSanitaria, permessoLavoro, nomeDitta, statutoSuva, assicurazioneInfortuni, riconoscimentoAvs, aiuto, iscrizioneRc, sitoOnline, iscrizioneIva, fatture];
 
 export function trovaLezione(id: string): Lezione {
   const lezione = LEZIONI.find((l) => l.id === id);

@@ -828,6 +828,11 @@ export const fontiPercorso = {
     url: "https://www.estv.admin.ch/it/numero-identificazione-delle-imprese-idi",
     ente: "Amministrazione federale delle contribuzioni (AFC)",
   },
+  ustIdi: {
+    titolo: "L'IDI in generale",
+    url: "https://www.bfs.admin.ch/bfs/it/home/registri/registro-imprese/numero-identificazione-imprese/idi-generale.html",
+    ente: "Ufficio federale di statistica (UST)",
+  },
   lcsl3: {
     titolo: "Legge contro la concorrenza sleale (LCSl), art. 3",
     url: "https://www.fedlex.admin.ch/eli/cc/1988/223_223_223/it#art_3",
@@ -1289,6 +1294,36 @@ export const regoleIva = {
   ),
 } as const;
 
+/**
+ * Data dell'ultimo controllo delle fonti sulle fatture, per il passo e la
+ * lezione 17: LIVA artt. 26, 27 e 70 (stato 31.03.2025), CO artt. 954a, 957,
+ * 957a e 958f (testo in vigore dal 01.10.2026), pagine dell'AFC sul numero IVA
+ * (IDI) e dell'UST «L'IDI in generale», pagina della SIX sulla QR-fattura
+ * (polizze sostituite, sezione pagamento e ricevuta, come si paga, generatori
+ * gratuiti, solo indirizzo strutturato dal 22.11.2025) e linee guida SIX
+ * per la QR-fattura, versione 2.3 (QR-IID, importo, indirizzo strutturato).
+ * Anche i dati della QR-fattura in datiStrumenti corrispondono a queste fonti.
+ */
+export const VERIFICATO_FATTURE = "2026-10-18";
+
+function datoFatture<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_FATTURE };
+}
+
+/** Fatture: il numero IVA e la QR-fattura. */
+export const regoleFatture = {
+  formatoNumeroIva: datoFatture(
+    "CHE-123.456.789 IVA",
+    fontiPercorso.afcIdi,
+    "Il numero IVA è il numero IDI con il complemento «IVA»; al posto di IVA si può scrivere TVA o MWST, ma non l'inglese VAT. L'IDI è composto dalla sigla del Paese «CHE» e da nove cifre (UST, «L'IDI in generale»).",
+  ),
+  qrFatturaDal: datoFatture(
+    "2022-10-01",
+    fonti.six,
+    "La QR-fattura, in circolazione da giugno 2020, ha sostituito definitivamente le polizze di versamento svizzere il 01.10.2022.",
+  ),
+} as const;
+
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
   mesiPerIvaDaSubito: datoIva(
@@ -1451,17 +1486,17 @@ export const datiStrumenti = {
     fonti.opp3,
     "Senza cassa pensione il versamento 3a deducibile è al massimo il 20% del reddito da attività lucrativa, entro l'importo massimo dell'anno.",
   ),
-  qrIid: dato(
+  qrIid: datoFatture(
     { da: 30_000, a: 31_999 },
     fontiStrumenti.sixLineeGuidaQr,
     "I QR-IBAN hanno un QR-IID tra 30000 e 31999 (cap. 2.8) e si usano solo con il riferimento QR (QRR).",
   ),
-  importoQr: dato(
+  importoQr: datoFatture(
     { minimo: 0.01, massimo: 999_999_999.99 },
     fontiStrumenti.sixLineeGuidaQr,
-    "Importo ammesso nella sezione pagamento, in CHF o EUR (cap. 3).",
+    "Importo ammesso nella sezione pagamento, in CHF o EUR (cap. 3.5.3 e 3.6.3).",
   ),
-  indirizzoStrutturatoQr: dato(
+  indirizzoStrutturatoQr: datoFatture(
     "2025-11-22",
     fonti.six,
     "Dal 22.11.2025 nella QR-fattura è ammesso solo l'indirizzo strutturato (tipo S): NPA, località e paese obbligatori.",
