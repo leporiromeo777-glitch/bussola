@@ -54,10 +54,10 @@ export function Righe2({ x, y, righe, corpo = 30, colore = TINTE.tratto, passo =
 
 /* 2. Le quattro forme più comuni. */
 const FORME = [
-  { x: 135, nome: ["Ditta", "individuale"], chi: "una persona" },
-  { x: 380, nome: ["Società in", "nome collettivo"], chi: "due o più persone" },
-  { x: 625, nome: ["Sagl"], chi: "una società" },
-  { x: 870, nome: ["SA"], chi: "una società" },
+  { x: 135, nome: ["Ditta", "individuale"], chi: ["una persona"] },
+  { x: 380, nome: ["Società", "in nome", "collettivo"], chi: ["due o più", "persone"] },
+  { x: 625, nome: ["Sagl"], chi: ["una società"] },
+  { x: 870, nome: ["SA"], chi: ["una società"] },
 ];
 const quattroForme: Disegno = {
   chiave: (ctx) => cambio(ctx, 1, 0.6),
@@ -78,21 +78,19 @@ const quattroForme: Disegno = {
         {FORME.map((f, i) => {
           const v = molla(locale, tempi[i], fps);
           return (
-            <Compare key={f.chi + f.x} v={v} cx={f.x} cy={300}>
-              <rect x={f.x - 112} y={110} width={224} height={370} rx={28} fill={TINTE.carta} stroke={i < 2 ? TINTE.tratto : TINTE.accento} strokeWidth={6} />
-              {i === 0 ? <Persona x={f.x} y={300} s={0.8} /> : null}
+            <Compare key={f.x} v={v} cx={f.x} cy={300}>
+              <rect x={f.x - 114} y={90} width={228} height={392} rx={28} fill={TINTE.carta} stroke={i < 2 ? TINTE.tratto : TINTE.accento} strokeWidth={6} />
+              {i === 0 ? <Persona x={f.x} y={280} s={0.8} /> : null}
               {i === 1 ? (
                 <g>
-                  <Persona x={f.x - 34} y={300} s={0.72} />
-                  <Persona x={f.x + 34} y={300} s={0.72} colore={TEAL_CHIARO} />
+                  <Persona x={f.x - 34} y={280} s={0.72} />
+                  <Persona x={f.x + 34} y={280} s={0.72} colore={TEAL_CHIARO} />
                 </g>
               ) : null}
-              {i === 2 ? <Palazzo x={f.x} y={300} s={0.8} colore={TINTE.accento} /> : null}
-              {i === 3 ? <Palazzo x={f.x} y={300} s={0.95} colore={TINTE.accento} /> : null}
-              <Righe2 x={f.x} y={f.nome.length > 1 ? 345 : 360} righe={f.nome} corpo={f.nome.length > 1 ? 30 : 38} colore={i < 2 ? TINTE.tratto : TINTE.accento} />
-              <Testo x={f.x} y={445} corpo={i === 1 ? 26 : 28} peso={600} colore={COLORE_TENUE}>
-                {f.chi}
-              </Testo>
+              {i === 2 ? <Palazzo x={f.x} y={280} s={0.8} colore={TINTE.accento} /> : null}
+              {i === 3 ? <Palazzo x={f.x} y={280} s={0.95} colore={TINTE.accento} /> : null}
+              <Righe2 x={f.x} y={f.nome.length > 1 ? 312 : 340} righe={f.nome} corpo={f.nome.length > 1 ? 30 : 40} colore={i < 2 ? TINTE.tratto : TINTE.accento} passo={34} />
+              <Righe2 x={f.x} y={f.chi.length > 1 ? 426 : 440} righe={f.chi} corpo={30} colore={COLORE_TENUE} peso={600} passo={32} />
             </Compare>
           );
         })}
@@ -111,9 +109,9 @@ export const COLORE_TENUE = "#5d6470";
 
 /* 3. La ditta individuale: le tre cose da ricordare. */
 const PUNTI_DITTA = [
-  { x: 470, righe: ["Nasce quando", "inizi"] },
-  { x: 680, righe: ["Nessun capitale", "minimo"] },
-  { x: 890, righe: ["Il titolare", "sei solo tu"] },
+  { x: 415, righe: ["Nasce", "quando inizi"] },
+  { x: 650, righe: ["Nessun", "capitale", "minimo"] },
+  { x: 885, righe: ["Il titolare", "sei solo tu"] },
 ];
 function tempiDitta(ctx: ContestoDisegno): number[] {
   const c = cambio(ctx, 0, 0.55);
@@ -130,14 +128,14 @@ const dittaTrePunti: Disegno = {
     const tempi = tempiDitta(ctx);
     return (
       <Tela>
-        <Compare v={molla(locale, 2, fps)} cx={680} cy={70}>
-          <Pillola x={680} y={70} testo="Ditta individuale" corpo={38} fondo={TINTE.tratto} colore={TINTE.carta} />
+        <Compare v={molla(locale, 2, fps)} cx={650} cy={60}>
+          <Pillola x={650} y={60} testo="Ditta individuale" corpo={38} fondo={TINTE.tratto} colore={TINTE.carta} />
         </Compare>
         {PUNTI_DITTA.map((p, i) => {
           const v = molla(locale, tempi[i], fps);
           return (
             <Compare key={p.x} v={v} cx={p.x} cy={330}>
-              <rect x={p.x - 98} y={150} width={196} height={350} rx={26} fill={TINTE.carta} stroke={TINTE.tratto} strokeWidth={5} />
+              <rect x={p.x - 110} y={150} width={220} height={370} rx={26} fill={TINTE.carta} stroke={TINTE.tratto} strokeWidth={5} />
               <circle cx={p.x} cy={150} r={26} fill={TINTE.tratto} />
               <Testo x={p.x} y={151} corpo={30} titolo peso={800} colore={TINTE.carta}>
                 {String(i + 1)}
@@ -152,8 +150,8 @@ const dittaTrePunti: Disegno = {
               ) : null}
               {i === 1 ? (
                 <g>
-                  <Cassaforte x={p.x - 62} y={210} lato={110} apertura={tra(locale, tempi[1] + 6, tempi[1] + 20)} />
-                  <Spunta cx={p.x + 56} cy={210} r={26} p={tra(locale, tempi[1] + 16, tempi[1] + 28)} />
+                  <Cassaforte x={p.x - 24} y={226} lato={88} apertura={tra(locale, tempi[1] + 6, tempi[1] + 20)} />
+                  <Spunta cx={p.x + 70} cy={214} r={24} p={tra(locale, tempi[1] + 16, tempi[1] + 28)} />
                 </g>
               ) : null}
               {i === 2 ? (
@@ -162,7 +160,7 @@ const dittaTrePunti: Disegno = {
                   <path d={`M ${p.x - 30} 196 l 10 -24 l 20 14 l 20 -14 l 10 24 Z`} fill={TINTE.oro} stroke={TINTE.accento} strokeWidth={4} strokeLinejoin="round" />
                 </g>
               ) : null}
-              <Righe2 x={p.x} y={410} righe={p.righe} corpo={30} />
+              <Righe2 x={p.x} y={p.righe.length > 2 ? 400 : 420} righe={p.righe} corpo={30} passo={36} />
             </Compare>
           );
         })}
@@ -178,13 +176,14 @@ const nomeCollettivo: Disegno = {
     posto: { x: 880, y: 745 },
     azioni: [
       { tipo: "lancia", quando: cambio(ctx, 0, 0.35) + 4 },
-      { tipo: "lancia", quando: cambio(ctx, 1, 0.7) + 4 },
+      { tipo: "lancia", quando: cambio(ctx, 2, 0.7) + 4 },
     ],
   }),
   Figura: ({ locale, ctx }) => {
     const { fps } = ctx;
     const badge = cambio(ctx, 0, 0.35);
-    const debiti = cambio(ctx, 1, 0.7);
+    const registro = cambio(ctx, 1, 0.5);
+    const debiti = cambio(ctx, 2, 0.7);
     const soci = debiti + 30;
     const rossi = locale >= soci + 10;
     return (
@@ -201,7 +200,7 @@ const nomeCollettivo: Disegno = {
           <Spunta cx={712} cy={132} r={24} p={tra(locale, badge + 4, badge + 16)} />
           <Righe2 x={850} y={114} righe={["Nessun capitale", "minimo"]} corpo={30} colore={TINTE.ok} passo={34} />
         </Compare>
-        <Compare v={molla(locale, badge + 22, fps)} cx={820} cy={250}>
+        <Compare v={molla(locale, registro, fps)} cx={820} cy={250}>
           <rect x={670} y={200} width={320} height={110} rx={22} fill={TINTE.carta} stroke={TINTE.tratto} strokeWidth={5} />
           <Registro x={732} y={295} s={0.6} />
           <Righe2 x={860} y={236} righe={["Registro di", "commercio"]} corpo={30} passo={36} />
@@ -217,9 +216,9 @@ const nomeCollettivo: Disegno = {
         <Compare v={molla(locale, soci + 8, fps)} cx={470} cy={560}>
           <Righe2 x={470} y={540} righe={["poi i soci, con il", "loro patrimonio"]} corpo={30} colore={TINTE.rischio} passo={36} />
         </Compare>
-        <Compare v={molla(locale, debiti + 18, fps)} cx={650} cy={360}>
-          <Testo x={600} y={380} corpo={28} peso={700} colore={TINTE.rischio} ancora="end">
-            prima
+        <Compare v={molla(locale, debiti + 18, fps)} cx={690} cy={360}>
+          <Testo x={672} y={362} corpo={30} titolo peso={800} colore={TINTE.rischio} ancora="start">
+            prima la società
           </Testo>
         </Compare>
       </Tela>

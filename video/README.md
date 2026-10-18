@@ -43,7 +43,9 @@ Servono Node 22, `ffmpeg` e `curl`. La prima volta: `cd video && npm install`.
    scene (li scrive già `npm run voce`) e `clip-parla.mp4` (Bleo che parla,
    quadrato, senza audio; lo stesso clip va bene per tutte le lezioni). Le
    sorgenti restano nel repository, così la lezione si può rifare quando cambia
-   una regola. Esempio completo: `video/sorgenti/ditta-individuale/`. Poi:
+   una regola. Esempio completo: `video/sorgenti/ditta-individuale/` (le voci
+   della prima versione della lezione 1, 9 scene, sono in
+   `video/sorgenti/ditta-individuale/v1/`). Poi:
 
    ```sh
    npm run prepara -- <id-passo> sorgenti/<id-passo>
