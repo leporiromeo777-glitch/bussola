@@ -546,13 +546,14 @@ export function Valigetta({ x, y, s = 1 }: { x: number; y: number; s?: number })
 
 /** Un timbro rotondo con la spunta e una piccola persona: «è la tua». */
 export function Timbro({ cx, cy, r = 54 }: { cx: number; cy: number; r?: number }) {
+  // Disegnato per r = 54: con un raggio diverso si scala tutto, anche l'omino e la spunta.
   return (
-    <g transform={`rotate(-12 ${cx} ${cy})`}>
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke={TINTE.ok} strokeWidth={7} />
-      <circle cx={cx} cy={cy} r={r - 12} fill={TINTE.ok} opacity={0.12} />
-      <circle cx={cx - 12} cy={cy - 14} r={11} fill={TINTE.ok} />
-      <path d={`M ${cx - 30} ${cy + 24} q 18 -32 36 0`} fill={TINTE.ok} />
-      <path d={`M ${cx + 6} ${cy + 4} l 10 12 l 20 -26`} fill="none" stroke={TINTE.ok} strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" />
+    <g transform={`translate(${cx} ${cy}) rotate(-12) scale(${r / 54})`}>
+      <circle r={54} fill="none" stroke={TINTE.ok} strokeWidth={7} />
+      <circle r={42} fill={TINTE.ok} opacity={0.12} />
+      <circle cx={-12} cy={-14} r={11} fill={TINTE.ok} />
+      <path d="M -30 24 q 18 -32 36 0" fill={TINTE.ok} />
+      <path d="M 6 4 l 10 12 l 20 -26" fill="none" stroke={TINTE.ok} strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" />
     </g>
   );
 }
