@@ -62,7 +62,8 @@ describe("il corso di Bleo", () => {
     }
   });
 
-  it("la durata scritta è quella del video, e il video parte subito (moov prima di mdat)", () => {
+  // Legge tutti i video (centinaia di MB): con il disco occupato da un render ci mette più dei 5 s di default.
+  it("la durata scritta è quella del video, e il video parte subito (moov prima di mdat)", { timeout: 60_000 }, () => {
     for (const { video: l } of tuttiIVideo()) {
       const file = readFileSync(join(PUBLIC, l.video));
       expect(Math.round(durataMp4(file))).toBe(l.durataSecondi);
