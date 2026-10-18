@@ -20,6 +20,7 @@ import {
   VERIFICATO_SANITA,
   VERIFICATO_PERMESSI,
   VERIFICATO_NOME_DITTA,
+  VERIFICATO_SUVA,
   type Fonte,
 } from "./svizzera";
 
@@ -244,6 +245,24 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.co951,
     ],
     verificatoIl: VERIFICATO_NOME_DITTA,
+  },
+  {
+    passoId: "statuto-suva",
+    numero: 10,
+    titolo: "Edilizia e trasporti: decide anche la Suva",
+    video: "/corso/statuto-suva.mp4",
+    poster: "/corso/statuto-suva.jpg",
+    sottotitoli: "/corso/statuto-suva.vtt",
+    durataSecondi: 175,
+    fonti: [
+      fontiPercorso.lainf66,
+      fontiPercorso.oainf73,
+      fontiPercorso.suvaAccertamento,
+      fontiPercorso.suvaImprenditori,
+      fontiPercorso.avsIndipendenza,
+      fontiPercorso.suvaDecisione,
+    ],
+    verificatoIl: VERIFICATO_SUVA,
   },
 ];
 

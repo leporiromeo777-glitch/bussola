@@ -304,7 +304,7 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
   },
 
   "statuto-suva": (r) => {
-    if (!edileOTrasporti(r)) return { stato: "non_serve", perche: "Riguarda l'edilizia e i trasporti." };
+    if (!edileOTrasporti(r)) return { stato: "non_serve", perche: "Riguarda i settori assicurati dalla Suva, come l'edilizia e i trasporti." };
     if (conSoci(r)) return { stato: "non_serve", perche: SOLO_DITTA };
     return {
       stato: "da_fare",
