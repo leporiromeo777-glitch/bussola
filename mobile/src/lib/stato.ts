@@ -5,6 +5,7 @@
  */
 import { useMemo, useSyncExternalStore } from "react";
 import type { IdPasso } from "@/data/passi";
+import { CHIAVE_SCADENZE_DOCUMENTI } from "@/lib/cassetto/promemoria";
 import { analizzaBozza, CHIAVE_BOZZA, type BozzaSalvata } from "@/lib/percorso/bozza";
 import {
   analizzaPassiFatti,
@@ -100,9 +101,18 @@ export function impostaSettimana(attiva: boolean): void {
   scrivi(CHIAVE_SETTIMANA, attiva ? "si" : null);
 }
 
-/** Cancella dal telefono tutto quello che Bleo ha salvato. */
+/** Cancella dal telefono tutto quello che Bleo ha salvato (anche nomi e scadenze dei documenti del cassetto). */
 export function cancellaDatiLocali(): void {
-  for (const chiave of [CHIAVE_RISPOSTE, CHIAVE_PASSI_FATTI, CHIAVE_BOZZA, CHIAVE_VESTITO, CHIAVE_LOOK, CHIAVE_PROMEMORIA, CHIAVE_SETTIMANA]) {
+  for (const chiave of [
+    CHIAVE_RISPOSTE,
+    CHIAVE_PASSI_FATTI,
+    CHIAVE_BOZZA,
+    CHIAVE_VESTITO,
+    CHIAVE_LOOK,
+    CHIAVE_PROMEMORIA,
+    CHIAVE_SETTIMANA,
+    CHIAVE_SCADENZE_DOCUMENTI,
+  ]) {
     scrivi(chiave, null);
   }
 }

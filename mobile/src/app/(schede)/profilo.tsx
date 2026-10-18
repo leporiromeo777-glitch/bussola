@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, View } from "react-native";
 import { datiLook } from "@/lib/mascotte/look";
+import { RigaCassetto } from "~/components/cassetto/link-cassetto";
 import { ImmagineMascotte } from "~/components/mascotte";
 import { NotaInformazione, Pulsante, RigaMenu, Schermata, Scheda, Separatore, Testo } from "~/components/ui";
 import { eliminaAccount } from "~/lib/api";
@@ -23,6 +24,10 @@ export default function Profilo() {
       </Scheda>
 
       <Account />
+
+      <Scheda style={{ paddingVertical: SPAZIO.xs }}>
+        <RigaCassetto />
+      </Scheda>
 
       <Testo variante="sottotitolo">Informazioni</Testo>
       <Scheda>
@@ -68,7 +73,7 @@ function Account() {
   function confermaEliminazione() {
     Alert.alert(
       "Eliminare l'account?",
-      "Cancelliamo per sempre il tuo account con il questionario, i passi fatti, le domande alla chat, i tuoi conti e le ricevute salvate. Se ti servono, prima scaricali per il fiduciario dalla pagina Conti. Non si può tornare indietro.",
+      "Cancelliamo per sempre il tuo account con il questionario, i passi fatti, le domande alla chat, i tuoi conti, le ricevute salvate e il cassetto dei documenti con i suoi file. Se ti servono, prima scarica i conti per il fiduciario dalla pagina Conti e tieni una copia dei documenti. Non si può tornare indietro.",
       [
         { text: "Annulla", style: "cancel" },
         {
@@ -98,9 +103,9 @@ function Account() {
           />
           <Pulsante titolo="Elimina account" variante="testo" caricamento={attesa} onPress={confermaEliminazione} />
           <Testo variante="piccolo" colore={c.attenuato}>
-            Eliminando l&apos;account cancelli i dati salvati su Bleo, compresi i tuoi conti e le foto delle ricevute. Se
-            ti servono, prima scaricali per il fiduciario dalla pagina Conti. I dati su questo telefono li cancelli qui
-            sotto.
+            Eliminando l&apos;account cancelli i dati salvati su Bleo, compresi i tuoi conti, le foto delle ricevute e i
+            documenti del cassetto. Se ti servono, prima scaricali per il fiduciario dalla pagina Conti. I dati su questo
+            telefono li cancelli qui sotto.
           </Testo>
         </View>
       ) : (
@@ -117,7 +122,7 @@ function DatiSulTelefono() {
   function conferma() {
     Alert.alert(
       "Cancellare i dati da questo telefono?",
-      "Togliamo risposte al questionario, passi fatti, look di Bleo e promemoria. Il tuo account, se ce l'hai, resta.",
+      "Togliamo risposte al questionario, passi fatti, look di Bleo, promemoria e le scadenze dei documenti salvate per i promemoria. Il tuo account, se ce l'hai, resta.",
       [
         { text: "Annulla", style: "cancel" },
         {

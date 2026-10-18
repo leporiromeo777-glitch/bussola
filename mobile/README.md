@@ -16,6 +16,11 @@ Cosa c'è:
   incassare, indirizzo email personale per inoltrare le fatture. In fondo,
   **Calcoli e strumenti**: tariffa oraria e contributi AVS; budget, business
   plan, preventivo e fattura QR si aprono sul sito.
+- **Cassetto dei documenti** (con l'accesso, da Conti o Profilo): fotografi
+  o carichi in PDF decisione della cassa AVS, numero IVA, polizze, permesso,
+  contratti; vedi cosa è scaduto o scade presto e ricevi una notifica 30 e 7
+  giorni prima della scadenza (stesso interruttore dei promemoria del
+  percorso).
 - **Profilo**: vesti Bleo, account (esci, elimina account), privacy,
   impressum, cancella i dati dal telefono.
 

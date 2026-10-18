@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, RefreshControl, View } from "react-native";
 import { dataSvizzera } from "@/data/svizzera";
 import type { Casella, FatturaEmessa, Movimento, RispostaConti } from "@/lib/conti/tipi";
+import { RigaCassetto } from "~/components/cassetto/link-cassetto";
 import { SezioneCasella } from "~/components/conti/casella-email";
 import { SezioneFatture } from "~/components/conti/fatture";
 import { FoglioModifica } from "~/components/conti/foglio-modifica";
@@ -454,6 +455,10 @@ function ContiUtente() {
       ) : null}
 
       <SezioneCasella casella={casella} emailAttiva={dati.funzioni.email} attesa={attesaCasella} onRigenera={cambiaIndirizzo} />
+
+      <Scheda style={{ paddingVertical: SPAZIO.xs }}>
+        <RigaCassetto />
+      </Scheda>
 
       <View style={{ gap: SPAZIO.s }}>
         <Testo variante="sottotitolo">Scarica per il fiduciario</Testo>

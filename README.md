@@ -22,6 +22,7 @@ Il kit per le settimane 1-2 (interviste, messaggi, social, lettere) è in
 | Import delle fonti ufficiali | `scripts/importa-fonti.ts`, `supabase/fonti/elenco.json` | pronto, fonti da ricontrollare a mano |
 | Strumenti: tariffa oraria, budget, business plan, preventivo, fattura con QR | `/strumenti`, `src/lib/strumenti` | pronti (dati solo nel browser) |
 | «I tuoi conti»: entrate, uscite, fatture emesse, ricevute lette da Claude, email inoltrate, CSV | `/conti`, `src/app/api/conti`, `src/lib/conti` | fase 1 pronta (servono Supabase; Claude e Resend facoltativi) |
+| «Cassetto dei documenti»: AVS, IVA, registro di commercio, polizze, permesso, contratti, con le scadenze | `/documenti`, `src/app/api/documenti`, `src/lib/cassetto` | pronto (serve Supabase) |
 | Pagamenti (Stripe + TWINT), scadenzario via email | | settimane 12-13 del piano |
 
 Tutti i numeri ufficiali (soglie, aliquote, contributi, uffici) stanno in
@@ -159,6 +160,18 @@ iscrizioni vengono salvate lo stesso.
    dell'hosting lo consenta.
 3. Le app usano le stesse API con `Authorization: Bearer`. `DELETE
    /api/account` cancella anche i file dello Storage prima dell'utente.
+
+### «Cassetto dei documenti»
+
+Esegui la migrazione `20261019000004_cassetto_documenti.sql`: crea la tabella
+`cassetto_documenti` e il bucket privato `cassetto` dello Storage, con una
+cartella per utente e le sue regole. Non serve altro: sito e app caricano,
+modificano e cancellano con l'accesso dell'utente (RLS) e aprono i file con
+link temporanei di 60 secondi. `SUPABASE_SECRET_KEY` serve per il limite di
+caricamenti per connessione e per cancellare i file quando si elimina
+l'account (`src/lib/account/eliminazione.ts` svuota le cartelle di
+`ricevute` e `cassetto`). Nell'app i promemoria (30 e 7 giorni prima della
+scadenza, alle 9) usano lo stesso interruttore delle scadenze del percorso.
 
 ### Dati del titolare
 

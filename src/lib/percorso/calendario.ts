@@ -222,12 +222,17 @@ function istanteIcs(istante: Date): string {
     .replace(/\.\d{3}Z$/, "Z");
 }
 
-/** Il file .ics completo (righe CRLF, termina con CRLF). */
+/**
+ * Il file .ics completo (righe CRLF, termina con CRLF). Ogni evento ha un
+ * avviso `giorniPreavviso` giorni prima (7 se manca); con un elenco di giorni,
+ * un avviso per ognuno.
+ */
 export function generaIcs(
   eventi: readonly EventoCalendario[],
-  opzioni: { adesso: Date; nomeCalendario?: string; giorniPreavviso?: number },
+  opzioni: { adesso: Date; nomeCalendario?: string; giorniPreavviso?: number | readonly number[] },
 ): string {
-  const preavviso = opzioni.giorniPreavviso ?? 7;
+  const preavvisi: readonly number[] =
+    typeof opzioni.giorniPreavviso === "number" ? [opzioni.giorniPreavviso] : (opzioni.giorniPreavviso ?? [7]);
   const righe: string[] = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -249,11 +254,13 @@ export function generaIcs(
       `DESCRIPTION:${proteggiTesto(evento.descrizione)}`,
       ...(evento.url ? [`URL:${evento.url}`] : []),
       "TRANSP:TRANSPARENT",
-      "BEGIN:VALARM",
-      "ACTION:DISPLAY",
-      `DESCRIPTION:${proteggiTesto(evento.titolo)}`,
-      `TRIGGER:-P${preavviso}D`,
-      "END:VALARM",
+      ...preavvisi.flatMap((giorni) => [
+        "BEGIN:VALARM",
+        "ACTION:DISPLAY",
+        `DESCRIPTION:${proteggiTesto(evento.titolo)}`,
+        `TRIGGER:-P${giorni}D`,
+        "END:VALARM",
+      ]),
       "END:VEVENT",
     );
   }

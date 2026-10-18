@@ -282,6 +282,14 @@ describe("file .ics", () => {
     expect(righe.filter((r) => r === "END:VEVENT")).toHaveLength(1);
   });
 
+  it("con più giorni di preavviso mette un avviso per ognuno", () => {
+    const righe = spiega(generaIcs([evento], { adesso: ADESSO, giorniPreavviso: [30, 7] }));
+    expect(righe.filter((r) => r === "BEGIN:VALARM")).toHaveLength(2);
+    expect(righe).toContain("TRIGGER:-P30D");
+    expect(righe).toContain("TRIGGER:-P7D");
+    expect(spiega(generaIcs([evento], { adesso: ADESSO, giorniPreavviso: 3 }))).toContain("TRIGGER:-P3D");
+  });
+
   it("fine anno: l'evento del 31 dicembre finisce il 1° gennaio", () => {
     const righe = spiega(generaIcs([{ ...evento, data: "2027-12-31" }], { adesso: ADESSO }));
     expect(righe).toContain("DTEND;VALUE=DATE:20280101");
