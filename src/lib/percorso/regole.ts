@@ -275,7 +275,7 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
       ? {
           stato: "facoltativo",
           perche:
-            "Per una Sagl il nome è libero ma deve indicare la forma giuridica (art. 950 CO). Le regole di questo passo valgono per la ditta individuale.",
+            "Per una Sagl il nome è libero, ma deve indicare la forma giuridica (art. 950 CO) e distinguersi chiaramente da quelli delle società già iscritte in Svizzera (art. 951 CO). Le regole di questo passo valgono per la ditta individuale.",
         }
       : {
           stato: "da_fare",

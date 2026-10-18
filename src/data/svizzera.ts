@@ -329,6 +329,33 @@ export const fontiPercorso = {
   // Artt. 944 e 946 CO e pagine dell'IPI: testi ricontrollati il 16.10.2026 (strumento «Nome della ditta»).
   co944: { titolo: "Codice delle obbligazioni, art. 944", url: `${CO}#art_944`, ente: FEDLEX },
   co946: { titolo: "Codice delle obbligazioni, art. 946", url: `${CO}#art_946`, ente: FEDLEX },
+  // Nome della ditta (passo e lezione 8): ricontrollati il 18.10.2026, vedi VERIFICATO_NOME_DITTA.
+  co951: { titolo: "Codice delle obbligazioni, art. 951", url: `${CO}#art_951`, ente: FEDLEX },
+  direttivaDitteUfrc: {
+    titolo: "Istruzione e direttiva sulla formazione e sull'esame delle ditte e dei nomi (1° aprile 2021)",
+    url: "https://www.bj.admin.ch/dam/it/sd-web/R5zheIrURnT6/weisung-firmenrecht.pdf",
+    ente: "Ufficio federale del registro di commercio (UFRC)",
+  },
+  pmiIscrizioneNome: {
+    titolo: "Iscrizione di un'impresa e definizione del suo nome",
+    url: "https://www.kmu.admin.ch/it/iscrizione-di-unimpresa-e-definizione-del-suo-nome",
+    ente: PMI,
+  },
+  regixFaq: {
+    titolo: "REGIX, ricerca della ditta: domande frequenti",
+    url: "https://www.regix.ch/it/faq",
+    ente: "Ufficio federale del registro di commercio (UFRC)",
+  },
+  ipiFaqMarchi: {
+    titolo: "Marchi: domande frequenti",
+    url: "https://www.ige.ch/it/protezione/marchi/faq",
+    ente: "Istituto federale della proprietà intellettuale (IPI)",
+  },
+  ipiRicercaAutonoma: {
+    titolo: "Marchi: ricercare autonomamente",
+    url: "https://www.ige.ch/it/protezione/marchi/prima-del-deposito/condizioni-della-protezione/rischio-di-conflitto/ricercare-autonomamente",
+    ente: "Istituto federale della proprietà intellettuale (IPI)",
+  },
   ipiRicercaMarchi: {
     titolo: "Marchi: prima di tutto la ricerca",
     url: "https://www.ige.ch/it/proprieta-intellettuale/una-guida-per-creativi-e-innovatori/marchi/prima-di-tutto-la-ricerca",
@@ -797,6 +824,16 @@ export const VERIFICATO_CHECKLIST = "2026-10-17";
  * quote devono solo valere più di zero, art. 774 CO, e l'art. 776a è abrogato).
  */
 export const VERIFICATO_DOCUMENTI_SAGL = "2026-10-17";
+
+/**
+ * Data dell'ultimo controllo delle fonti sul nome della ditta, per il passo
+ * e la lezione 8: artt. 944-946, 950, 951 e 956 CO (testo in vigore dal
+ * 01.10.2026; quello dal 01.07.2027 è uguale), pagina del registro di
+ * commercio ticinese (iscrizione della ditta individuale), direttiva UFRC
+ * sulle ditte del 01.04.2021, Portale PMI, Zefix, REGIX e pagine dell'IPI
+ * sui marchi.
+ */
+export const VERIFICATO_NOME_DITTA = "2026-10-18";
 
 /**
  * Data dell'ultimo controllo delle fonti sulle autorizzazioni (Portale PMI,

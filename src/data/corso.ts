@@ -19,6 +19,7 @@ import {
   VERIFICATO_FORME,
   VERIFICATO_SANITA,
   VERIFICATO_PERMESSI,
+  VERIFICATO_NOME_DITTA,
   type Fonte,
 } from "./svizzera";
 
@@ -218,6 +219,31 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.grIndipendentiUeAels,
     ],
     verificatoIl: VERIFICATO_PERMESSI,
+  },
+  {
+    passoId: "nome-ditta",
+    numero: 8,
+    titolo: "Come chiamare la tua ditta",
+    video: "/corso/nome-ditta.mp4",
+    poster: "/corso/nome-ditta.jpg",
+    sottotitoli: "/corso/nome-ditta.vtt",
+    durataSecondi: 173,
+    fonti: [
+      fonti.co945,
+      fontiPercorso.co944,
+      fonti.rcTicinoIscrizione,
+      fontiPercorso.direttivaDitteUfrc,
+      fontiPercorso.co946,
+      fontiPercorso.pmiIscrizioneNome,
+      fontiPercorso.regixFaq,
+      fontiPercorso.zefix,
+      fontiPercorso.ipiFaqMarchi,
+      fontiPercorso.ipiRicercaAutonoma,
+      fonti.pmiDittaIndividuale,
+      fontiPercorso.co950,
+      fontiPercorso.co951,
+    ],
+    verificatoIl: VERIFICATO_NOME_DITTA,
   },
 ];
 
