@@ -16,6 +16,7 @@ import {
   fontiPercorso,
   percentuale,
   regole,
+  regoleImposte,
   regoleInfortuni,
   regolePercorso,
   supplementiTicino,
@@ -488,7 +489,7 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
     return {
       stato: "da_fare",
       perche:
-        "Il primo anno non ricevi le richieste di acconto: senza pagamenti durante l'anno, dopo la tassazione rischi di dover pagare tutto in 30 giorni.",
+        `Il primo anno non ricevi le richieste di acconto: senza pagamenti durante l'anno, dopo la tassazione rischi di dover pagare tutto in ${regoleImposte.terminePagamentoGiorni.valore} giorni.`,
     };
   },
 

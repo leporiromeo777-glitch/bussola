@@ -30,7 +30,7 @@ function Titolo({ locale, fps, testo }: { locale: number; fps: number; testo: st
 }
 
 /** Un tondo rosso con la croce a X: «no». */
-function No({ cx, cy, r = 22 }: { cx: number; cy: number; r?: number }) {
+export function No({ cx, cy, r = 22 }: { cx: number; cy: number; r?: number }) {
   const d = r * 0.42;
   return (
     <g>
@@ -44,7 +44,7 @@ function No({ cx, cy, r = 22 }: { cx: number; cy: number; r?: number }) {
 }
 
 /** Un calendario da muro, senza numeri: il giorno segnato è la scadenza. */
-function Calendario({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
+export function Calendario({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
   return (
     <g transform={`translate(${cx} ${cy}) scale(${s})`}>
       <rect x={-64} y={-60} width={128} height={124} rx={14} fill={TINTE.carta} stroke={TINTE.tratto} strokeWidth={6} />
@@ -57,7 +57,7 @@ function Calendario({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
 }
 
 /** Un computer portatile. */
-function Computer({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
+export function Computer({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
   return (
     <g transform={`translate(${cx} ${cy}) scale(${s})`}>
       <rect x={-80} y={-64} width={160} height={104} rx={12} fill={TINTE.carta} stroke={TINTE.tratto} strokeWidth={6} />
@@ -69,7 +69,7 @@ function Computer({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
 }
 
 /** Una clessidra: «per tanto tempo». */
-function Clessidra({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
+export function Clessidra({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
   return (
     <g transform={`translate(${cx} ${cy}) scale(${s})`}>
       <rect x={-34} y={-58} width={68} height={12} rx={6} fill={TINTE.accento} />
@@ -96,7 +96,7 @@ function Logo({ cx, cy, r = 30 }: { cx: number; cy: number; r?: number }) {
 }
 
 /** La bandiera svizzera. */
-function Bandiera({ cx, cy, lato = 52 }: { cx: number; cy: number; lato?: number }) {
+export function Bandiera({ cx, cy, lato = 52 }: { cx: number; cy: number; lato?: number }) {
   const b = lato * 0.2;
   const l = lato * 0.62;
   return (

@@ -14,6 +14,7 @@ import {
   datiStrumenti,
   fonti,
   fontiPercorso,
+  fontiStrumenti,
   percentuale,
   pilastro3a,
   regole,
@@ -21,6 +22,7 @@ import {
   regoleAlimenti,
   regoleEserciziPubblici,
   regoleFatture,
+  regoleImposte,
   regoleInfortuni,
   regoleIva,
   regoleLocali,
@@ -48,6 +50,7 @@ import {
   VERIFICATO_LOCALI,
   VERIFICATO_CONTABILITA,
   VERIFICATO_ACCONTI_AVS,
+  VERIFICATO_IMPOSTE,
   type Fonte,
 } from "./svizzera";
 
@@ -91,6 +94,11 @@ const avs2026 = avsIndipendenti[2026].valore;
 const avs2027 = avsIndipendenti[2027].valore;
 const fondo = regolePercorso.fondounimpresa.valore;
 const esazione = ufficiPercorso.esazioneCondoniTicino.valore;
+const giorniImposte = regoleImposte.terminePagamentoGiorni.valore;
+const interessi2026 = regoleImposte.interessiCantonali[2026]?.valore;
+const ifdRata = regolePercorso.ifdRataUnicaTicino.valore;
+const rateCantonali2026 = regolePercorso.accontiCantonaliTicino[2026]?.valore.length;
+const MESI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"];
 const fondounimpresa = ufficiPercorso.fondounimpresa.valore;
 const laboratorio = ufficiPercorso.laboratorioCantonaleTicino.valore;
 const ep = regoleEserciziPubblici;
@@ -724,12 +732,19 @@ export const PASSI = [
     id: "acconti-imposte",
     fase: "primi mesi",
     titolo: "Metti da parte i soldi per le imposte",
-    descrizione:
-      "La ditta individuale non paga imposte per conto suo: le paghi tu, sul tuo reddito. In Ticino chi compila la dichiarazione per la prima volta non riceve automaticamente le richieste di acconto, e rischia di dover pagare tutto in 30 giorni dopo la tassazione.",
+    descrizione: `La ditta individuale non paga imposte per conto suo: le paghi tu, sul tuo reddito e sulla tua sostanza. In Ticino chi compila la dichiarazione per la prima volta non riceve automaticamente le richieste di acconto, e rischia di dover pagare tutto in ${giorniImposte} giorni dopo la tassazione.`,
     cosaFare: [
-      "Chiedi all'Ufficio esazione e condoni le polizze per pagamenti volontari, indicando il reddito e la sostanza che prevedi.",
+      "Chiedi all'Ufficio esazione e condoni le polizze per pagamenti volontari, indicando i tuoi dati e il reddito e la sostanza che prevedi per l'anno.",
       `${esazione.nome}, ${esazione.indirizzo}, tel. ${esazione.telefono}, ${esazione.email}.`,
-      "Quanto mettere da parte dipende dal tuo reddito e dal tuo Comune: Bleo non calcola le tue imposte. Per una stima personale rivolgiti a un fiduciario autorizzato.",
+      "Ricevi già le richieste di acconto, per esempio perché hai lavorato da dipendente? Sono calcolate sull'ultima tassazione, senza il reddito della ditta: se il tuo reddito cambia molto puoi chiedere acconti adatti (acconti equi).",
+      ...(interessi2026
+        ? [
+            `Pagare prima conviene: sui pagamenti dell'imposta cantonale fatti prima della scadenza, anche volontari, ricevi un interesse (${percentuale(interessi2026.pagamentiAnticipati, 2)} nel 2026). Se non paghi entro ${giorniImposte} giorni dalla scadenza, paghi un interesse di ritardo (${percentuale(interessi2026.ritardo, 2)} nel 2026).`,
+          ]
+        : []),
+      `Dopo la prima tassazione arrivano le richieste ufficiali: per l'imposta cantonale ${rateCantonali2026 ? `${rateCantonali2026} rate` : "le rate"} d'acconto e un conguaglio, per l'imposta federale diretta una rata unica entro il ${ifdRata.giorno} ${MESI[ifdRata.mese - 1]} dell'anno dopo. L'imposta comunale la chiede il tuo Comune.`,
+      "Quanto mettere da parte dipende dal tuo reddito, dalla tua sostanza e dal tuo Comune: Bleo non calcola le tue imposte. Per farti un'idea c'è il calcolatore d'imposta dell'AFC; per una stima personale rivolgiti a un fiduciario autorizzato.",
+      "Con lo strumento «Budget del primo anno» di Bleo scegli una percentuale per le imposte e vedi quanto mettere da parte ogni mese; nella «Tariffa oraria» la stessa riserva entra nel prezzo della tua ora.",
     ],
     link: {
       etichetta: "Richiesta d'acconto (Divisione delle contribuzioni)",
@@ -739,9 +754,14 @@ export const PASSI = [
       fontiPercorso.pmiImposteDitta,
       fontiPercorso.istruzioniPf2025,
       fontiPercorso.dcRichiestaAcconto,
+      fontiPercorso.dcAccontoCantonale,
+      fontiPercorso.dcIfdProvvisorio,
+      fontiPercorso.decretoRiscossione2026,
+      fontiPercorso.leggeTributariaTicino,
+      fontiStrumenti.afcCalcolatoreImposte,
       fonti.albofiduciari,
     ],
-    verificatoIl: VERIFICATO_IL,
+    verificatoIl: VERIFICATO_IMPOSTE,
     tempoStimato: "Una e-mail o una telefonata",
     domandaChat: "Come pago le imposte il primo anno da indipendente in Ticino?",
   },
