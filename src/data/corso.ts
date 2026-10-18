@@ -25,6 +25,7 @@ import {
   VERIFICATO_AVS_INDIPENDENTI,
   VERIFICATO_AIUTO,
   VERIFICATO_REGISTRO,
+  VERIFICATO_SITO_ONLINE,
   type Fonte,
 } from "./svizzera";
 
@@ -374,6 +375,28 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.co954a,
     ],
     verificatoIl: VERIFICATO_REGISTRO,
+  },
+  {
+    passoId: "sito-online",
+    numero: 15,
+    titolo: "Vendere online: cosa mettere sul sito",
+    video: "/corso/sito-online.mp4",
+    poster: "/corso/sito-online.jpg",
+    sottotitoli: "/corso/sito-online.vtt",
+    durataSecondi: 173,
+    fonti: [
+      fontiPercorso.lcsl3,
+      fontiPercorso.secoAcquistiOnline,
+      fontiPercorso.pmiObblighiEcommerce,
+      fontiPercorso.co954a,
+      fontiPercorso.oip3,
+      fontiPercorso.oip4,
+      fontiPercorso.lpd19,
+      fontiPercorso.pmiProtezioneDatiEcommerce,
+      fontiPercorso.pmiDirittoRecesso,
+      fontiPercorso.pmiCondizioniGenerali,
+    ],
+    verificatoIl: VERIFICATO_SITO_ONLINE,
   },
 ];
 
