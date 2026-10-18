@@ -49,7 +49,8 @@ export default function PaginaCorso() {
                   lezione ? (
                     <li
                       key={passo.id}
-                      className="bordo-sfumato grid gap-5 rounded-3xl p-4 shadow-lg shadow-brand/10 sm:grid-cols-[minmax(0,20rem)_1fr] sm:p-6"
+                      id={`lezione-${passo.id}`}
+                      className="bordo-sfumato grid scroll-mt-32 gap-5 rounded-3xl p-4 shadow-lg shadow-brand/10 sm:grid-cols-[minmax(0,20rem)_1fr] sm:p-6"
                     >
                       <LezioneVideo lezione={lezione} />
                       <div className="flex flex-col gap-4">
@@ -75,7 +76,8 @@ export default function PaginaCorso() {
                   ) : (
                     <li
                       key={passo.id}
-                      className="flex items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-3 text-muted"
+                      id={`lezione-${passo.id}`}
+                      className="flex scroll-mt-32 items-center gap-3 rounded-2xl border border-dashed border-border px-4 py-3 text-muted"
                     >
                       <span
                         aria-hidden="true"

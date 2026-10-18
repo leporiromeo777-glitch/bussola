@@ -7,6 +7,7 @@ import { CaricaRicevuta, NuovaVoce } from "./aggiungi";
 import { chiama } from "./api";
 import { RiceviFatture } from "./casella";
 import { DaConfermare } from "./da-confermare";
+import { DaParte } from "./da-parte";
 import { FattureEmesse } from "./fatture";
 import { RiepilogoAnno } from "./riepilogo";
 import { Messaggio, Sezione, classeNo, classePiccolo } from "./ui-conti";
@@ -117,6 +118,14 @@ export function Conti({ oggi }: { oggi: string }) {
 
       <Sezione id="riepilogo" titolo={`Riepilogo ${anno}`} azioni={selettoreAnno}>
         <RiepilogoAnno riepilogo={dati.riepilogo} />
+      </Sezione>
+
+      <Sezione
+        id="da-parte"
+        titolo="Quanto mettere da parte"
+        descrizione={`Per i contributi AVS e le imposte del ${dati.riepilogo.anno}, che paghi dopo: una stima dai conti che hai confermato.`}
+      >
+        <DaParte riepilogo={dati.riepilogo} oggi={oggi} />
       </Sezione>
 
       <Sezione

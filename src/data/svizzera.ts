@@ -1775,6 +1775,12 @@ export const fontiStrumenti = {
     url: "https://www.fedlex.admin.ch/eli/cc/63/1185_1183_1185/it#art_21",
     ente: "Confederazione (Fedlex)",
   },
+  // «Quanto mettere da parte» in «I tuoi conti»: letto il 18.10.2026, vedi VERIFICATO_DA_PARTE.
+  oavs22: {
+    titolo: "Ordinanza sull'AVS (OAVS), art. 22: anno di contribuzione, il reddito non è convertito in reddito annuo",
+    url: `${OAVS}#art_22`,
+    ente: "Confederazione (Fedlex)",
+  },
   adeguamentiAvs2027: {
     titolo: "Ordinanze sugli adeguamenti AVS/AI/IPG dal 2027 (testo provvisorio)",
     url: "https://cms.news.admin.ch/fileservice/sdweb-docs-prod-nsbcch-files/files/2026/10/02/10735a88-7905-4354-9b3f-2b4a118acd39.pdf",
@@ -1808,6 +1814,21 @@ export const fontiStrumenti = {
     ente: "SIX",
   },
 } as const satisfies Record<string, Fonte>;
+
+/**
+ * Data dell'ultimo controllo delle fonti di «Quanto mettere da parte» in «I
+ * tuoi conti»: promemoria AVS 2.02 (stato 01.01.2026, punti 5-10: tassi,
+ * tavola scalare, contributo minimo, contributi sul reddito effettivo
+ * dell'anno, acconti sui redditi stimati, contributi definitivi dalla
+ * tassazione fiscale), OAVS art. 22 (anno civile; cpv. 5: «Il reddito non è
+ * convertito in reddito annuo») e art. 24 (acconti sul reddito presumibile),
+ * stato 01.01.2026, pagine dell'IAS sugli acconti (variazione del 25%) e
+ * sulla richiesta di adeguamento per indipendenti (chiede l'utile presumibile
+ * dell'anno, «fatturato meno spese») e pagina del calcolatore d'imposta
+ * dell'AFC. Le cifre della stima restano quelle di avsIndipendenti,
+ * tavoleScalari, supplementiTicino e regolePercorso, con le loro date.
+ */
+export const VERIFICATO_DA_PARTE = "2026-10-18";
 
 /** Dati usati dagli strumenti, oltre a quelli già sopra. */
 export const datiStrumenti = {

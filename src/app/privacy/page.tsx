@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const AGGIORNATO = { iso: "2026-10-16", testo: "16.10.2026" };
+const AGGIORNATO = { iso: "2026-10-18", testo: "18.10.2026" };
 
 // Regione del database, hosting, garanzie per gli USA e durata dei log:
 // src/lib/privacy.ts. Le parti tra parentesi quadre sono da completare.
@@ -193,6 +193,11 @@ export default async function PaginaPrivacy() {
           <li>
             <strong>Perché:</strong> per tenere in ordine le tue entrate, uscite e fatture e mostrarti il riepilogo
             dell&apos;anno. Bleo non fa la contabilità né le dichiarazioni d&apos;imposta per te: i conti li tieni tu.
+          </li>
+          <li>
+            <strong>«Quanto mettere da parte»:</strong> la percentuale per le imposte, gli acconti AVS, il mese in cui
+            hai iniziato e se l&apos;attività è principale o accessoria restano solo sul tuo dispositivo (nel browser o
+            nella memoria dell&apos;app). Non li riceviamo: la stima si calcola lì, dai conti che vedi.
           </li>
           <li>
             <strong>Lettura automatica</strong>
