@@ -63,6 +63,10 @@ describe("catalogo dei passi", () => {
     expect(trovaPasso("iscrizione-iva")?.cosaFare.join(" ")).toContain("normale 8,1%, ridotta 2,6%, alloggio 3,8%");
     expect(trovaPasso("soci-forma-giuridica")?.descrizione).toContain("CHF 20'000");
     expect(trovaPasso("aiuto")?.descrizione).toContain("15 ore in 2 anni");
+    const locali = trovaPasso("locali-pubblico")?.cosaFare.join(" ");
+    expect(locali).toContain("dalle 06.00 alle 19.00, il sabato fino alle 18.30");
+    expect(locali).toContain("almeno 30 giorni prima (tassa da CHF 300)");
+    expect(locali).toContain("fino a 0,5 m²");
     const sanitaria = trovaPasso("autorizzazione-sanitaria");
     expect(sanitaria?.costoNoto?.testo).toBe(
       "Tassa di autorizzazione: da CHF 400 a CHF 600; per le professioni con formazione accademica da CHF 600 a CHF 1'200",

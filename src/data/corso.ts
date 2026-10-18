@@ -28,6 +28,7 @@ import {
   VERIFICATO_SITO_ONLINE,
   VERIFICATO_IVA,
   VERIFICATO_FATTURE,
+  VERIFICATO_LOCALI,
   type Fonte,
 } from "./svizzera";
 
@@ -448,6 +449,27 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fonti.co958f,
     ],
     verificatoIl: VERIFICATO_FATTURE,
+  },
+  {
+    passoId: "locali-pubblico",
+    numero: 16,
+    titolo: "Aprire un negozio o uno studio",
+    video: "/corso/locali-pubblico.mp4",
+    poster: "/corso/locali-pubblico.jpg",
+    sottotitoli: "/corso/locali-pubblico.vtt",
+    durataSecondi: 172,
+    fonti: [
+      fontiPercorso.lan,
+      fontiPercorso.rlan,
+      fontiPercorso.leggeEdilizia,
+      fontiPercorso.impiantiPubblicitari,
+      fontiPercorso.regolamentoImpiantiPubblicitari,
+      fontiPercorso.oip,
+      fontiPercorso.poliziaDistillati,
+      fontiPercorso.lear,
+      fontiPercorso.poliziaAutorizzazioni,
+    ],
+    verificatoIl: VERIFICATO_LOCALI,
   },
 ];
 

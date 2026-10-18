@@ -512,6 +512,38 @@ export const fontiPercorso = {
     url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/688",
     ente: RACCOLTA_TI,
   },
+  // Locale aperto al pubblico (passo e lezione 16): ricontrollati il
+  // 18.10.2026, vedi VERIFICATO_LOCALI.
+  rlan: {
+    titolo: "Regolamento della legge sull'apertura dei negozi (RLAN), artt. 2, 4 e 5",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/694",
+    ente: RACCOLTA_TI,
+  },
+  leggeEdilizia: {
+    titolo: "Legge edilizia cantonale, artt. 1, 3 e 4",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/406",
+    ente: RACCOLTA_TI,
+  },
+  impiantiPubblicitari: {
+    titolo: "Legge sugli impianti pubblicitari, artt. 2-4",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/449",
+    ente: RACCOLTA_TI,
+  },
+  regolamentoImpiantiPubblicitari: {
+    titolo: "Regolamento d'esecuzione della legge sugli impianti pubblicitari, artt. 1-3",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/450",
+    ente: RACCOLTA_TI,
+  },
+  oip: {
+    titolo: "Ordinanza sull'indicazione dei prezzi (OIP), artt. 2-3, 7-8 e 10-11",
+    url: "https://www.fedlex.admin.ch/eli/cc/1978/2081_2081_2081/it",
+    ente: FEDLEX,
+  },
+  poliziaDistillati: {
+    titolo: "Come posso richiedere la patente di vendita distillati?",
+    url: "https://www4.ti.ch/index.php?id=144733",
+    ente: "Polizia cantonale ticinese, Servizio autorizzazioni, commercio e giochi",
+  },
   sanitaLiberoEsercizio: {
     titolo: "Procedure per le autorizzazioni di libero esercizio",
     url: "https://www4.ti.ch/dss/dsp/us/sportello/procedure-per-le-autorizzazioni-di-libero-esercizio",
@@ -1026,6 +1058,63 @@ export const regoleEserciziPubblici = {
   praticaDiplomaMesi: datoEserciziPubblici(5, fontiPercorso.rlear, "Oltre all'esame, pratica in Svizzera o all'estero, a tempo pieno o parziale, anche non consecutiva (art. 38 RLEAR)."),
   termineDomandaGiorni: datoEserciziPubblici(15, fontiPercorso.rlear, "La domanda di autorizzazione va presentata almeno 15 giorni prima dell'inizio dell'attività (art. 26 cpv. 2 RLEAR)."),
   tassaAutorizzazioneFranchi: datoEserciziPubblici({ min: 100, max: 500 }, fontiPercorso.rlear, "Tassa per il rilascio dell'autorizzazione (art. 60 RLEAR); per un aggiornamento CHF 100."),
+} as const;
+
+/**
+ * Data dell'ultimo controllo delle fonti sul locale aperto al pubblico, per il
+ * passo e la lezione 16: LAN (stato 01.10.2026: definizione di negozio, orari,
+ * domeniche e festivi, deroghe, multa), RLAN (competenze, istanza di deroga,
+ * tassa), legge edilizia (stato 01.01.2024: licenza edilizia anche per il
+ * cambiamento di destinazione, Municipio, domanda), legge sugli impianti
+ * pubblicitari e suo regolamento (insegne), OIP (stato 01.01.2025: indicazione
+ * dei prezzi di merci e servizi), pagina della Polizia cantonale sulla patente
+ * di vendita distillati e il suo elenco delle autorizzazioni, LEAR (art. 2:
+ * anche la vendita di bevande distillate).
+ */
+export const VERIFICATO_LOCALI = "2026-10-18";
+
+function datoLocali<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_LOCALI };
+}
+
+/** Regole per un negozio o un locale aperto al pubblico in Ticino. */
+export const regoleLocali = {
+  orariNegozi: datoLocali(
+    { apertura: "06.00", chiusuraFeriale: "19.00", chiusuraSabato: "18.30", chiusuraSerale: "21.00" },
+    fontiPercorso.lan,
+    "Dal lunedì al venerdì dalle 06.00 alle 19.00, il sabato dalle 06.00 alle 18.30 (art. 8 LAN). Apertura serale fino alle 21.00 ogni giovedì; se il giovedì è festivo, un altro giorno deciso dal Dipartimento a inizio anno, escluso il sabato (art. 9 LAN). La domenica e nei festivi ufficiali i negozi restano chiusi (art. 12 LAN), salvo le deroghe di legge (artt. 13-14).",
+  ),
+  chiusuraFestivaEccezioni: datoLocali(
+    "18.00",
+    fontiPercorso.lan,
+    "Deroga di legge per la domenica e i festivi: panetterie, pasticcerie, confetterie e gelaterie, negozi di piante e fiori, gallerie d'arte e atelier che vendono opere d'arte possono aprire dalle 06.00 alle 18.00 (art. 14 cpv. 2 LAN). Altri negozi (chioschi sotto i 50 mq, cibi da asporto, negozi dei camping, …) fino alle 22.30 (art. 14 cpv. 1).",
+  ),
+  multaMassimaFranchi: datoLocali(20_000, fontiPercorso.lan, "Chi contravviene alla legge sull'apertura dei negozi è punibile con una multa fino a 20'000 franchi (art. 17 LAN)."),
+  termineDerogaGiorni: datoLocali(
+    30,
+    fontiPercorso.rlan,
+    "L'istanza di deroga agli orari va presentata per scritto almeno 30 giorni prima dell'evento, con una motivazione succinta e i giorni e le ore (art. 4 RLAN). La decide l'Ufficio dell'ispettorato del lavoro per esposizioni, inaugurazioni, ricorrenze e anniversari, la Divisione dell'economia per le manifestazioni culturali, sportive o popolari (art. 2 RLAN).",
+  ),
+  tassaDerogaFranchi: datoLocali(
+    { base: 300, perGiornoInPiu: 20, max: 1_000 },
+    fontiPercorso.rlan,
+    "Tassa per l'autorizzazione di apertura in deroga: 300 franchi più 20 franchi per ogni giorno in più, al massimo 1000 franchi (art. 5 RLAN; art. 20 LAN).",
+  ),
+  targaSenzaAutorizzazioneMq: datoLocali(
+    0.5,
+    fontiPercorso.regolamentoImpiantiPubblicitari,
+    "Non sono impianti pubblicitari (e quindi non serve l'autorizzazione del Municipio) le targhe non luminose fino a 0,5 mq, sull'edificio dove ha sede l'attività, con solo il nome o la ragione sociale, la qualifica e il logo, e le scritte incollate o dipinte sulle vetrine riferite all'attività (art. 1 cpv. 2 del regolamento). Le altre insegne visibili dall'area pubblica richiedono l'autorizzazione del Municipio (art. 3 della legge), con il formulario ufficiale (art. 3 del regolamento).",
+  ),
+  gradazioneDistillati: datoLocali(
+    { bevande: 0.15, vini: 0.18 },
+    fontiPercorso.poliziaDistillati,
+    "Per vendere prodotti alcolici con più del 15% del volume (per i vini più del 18%) serve la patente di vendita distillati della Polizia cantonale. Per la birra non serve.",
+  ),
+  termineDistillatiGiorni: datoLocali(
+    15,
+    fontiPercorso.poliziaDistillati,
+    "La domanda di patente va presentata almeno 15 giorni prima dell'inizio della vendita. Tassa annua: CHF 175 per metro cubo di esposizione di vendita (art. 63 RLEAR); rilascio CHF 100.",
+  ),
 } as const;
 
 /**
