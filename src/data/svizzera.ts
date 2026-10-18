@@ -1324,6 +1324,41 @@ export const regoleFatture = {
   ),
 } as const;
 
+/**
+ * Data dell'ultimo controllo delle fonti sulle imposte del titolare, per il
+ * passo e la lezione 20 («Metti da parte i soldi per le imposte»): Portale
+ * PMI «La non imposizione fiscale di alcune società»; Istruzioni PF 2025,
+ * pp. 48-49 (riscossione, nuovi contribuenti senza richieste d'acconto,
+ * pagamenti volontari, interessi, imposta federale diretta e comunale);
+ * pagine della DC «Richiesta d'acconto / calcolo provvisorio», «Richiesta
+ * d'acconto imposta cantonale» e «Calcolo provvisorio imposta federale
+ * diretta»; decreto esecutivo sulla riscossione 2026 (artt. 1, 3 e 6); LT
+ * artt. 240-243 (stato 01.01.2026); LIFD artt. 161-164 (stato 02.09.2026);
+ * pagina del calcolatore d'imposta dell'AFC.
+ */
+export const VERIFICATO_IMPOSTE = "2026-10-18";
+
+function datoImposte<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_IMPOSTE };
+}
+
+/** Le imposte del titolare della ditta individuale in Ticino: quando si pagano. */
+export const regoleImposte = {
+  terminePagamentoGiorni: datoImposte(
+    30,
+    fontiPercorso.istruzioniPf2025,
+    "Chi compila la dichiarazione per la prima volta non riceve le richieste d'acconto: dopo la decisione di tassazione arriva la polizza per l'intera imposta, da pagare nel termine di 30 giorni (Istruzioni PF 2025, p. 48). Le imposte si pagano nei 30 giorni successivi alla scadenza (art. 242 cpv. 1 LT; per l'imposta federale diretta art. 163 cpv. 1 LIFD); il conguaglio scade alla data d'intimazione del conteggio (decreto esecutivo 2026, art. 1; pagine della DC sugli acconti).",
+  ),
+  /** Interessi dell'imposta cantonale, per anno civile. Il decreto dell'anno dopo esce di solito a novembre. */
+  interessiCantonali: {
+    2026: datoImposte(
+      { ritardo: 0.035, pagamentiAnticipati: 0.001 },
+      fontiPercorso.decretoRiscossione2026,
+      "Interesse di ritardo annuo se non si paga nei 30 giorni dopo la scadenza (art. 6) e interesse rimunerativo sui pagamenti fatti prima della scadenza (art. 3), anche liberi o volontari (Istruzioni PF 2025, p. 48). Tassi dell'anno civile 2026 (decreto esecutivo del 19.11.2025).",
+    ),
+  } as Partial<Record<number, Dato<{ ritardo: number; pagamentiAnticipati: number }>>>,
+} as const;
+
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
   mesiPerIvaDaSubito: datoIva(
@@ -1348,13 +1383,17 @@ export const regolePercorso = {
   termineConguaglioAvsGiorni: dato(30, fonti.avsPromemoria202),
   conservazioneDocumentiAnni: dato(10, fonti.co958f),
   autenticazioneFirmaRcTicino: dato(20, fontiPercorso.rcTicinoTasseCantonali, "Allo sportello dell'Ufficio RC (legalizzazione di una firma)."),
-  ifdRataUnicaTicino: dato({ giorno: 31, mese: 3 }, fontiPercorso.dcIfdProvvisorio, "Termine di pagamento della rata unica del calcolo provvisorio IFD."),
+  ifdRataUnicaTicino: datoImposte(
+    { giorno: 31, mese: 3 },
+    fontiPercorso.dcIfdProvvisorio,
+    "Termine di pagamento della rata unica del calcolo provvisorio IFD, che arriva l'anno dopo: per esempio l'IFD 2025 è scaduta il 01.03.2026 e il calcolo provvisorio è stato emesso entro febbraio 2026 (Istruzioni PF 2025, p. 49). Il calcolo definitivo si paga entro 30 giorni dall'intimazione del conteggio.",
+  ),
   /** Termini di pagamento degli acconti dell'imposta cantonale, per anno. Il decreto 2027 esce di solito a novembre. */
   accontiCantonaliTicino: {
-    2026: dato(
+    2026: datoImposte(
       ["2026-05-31", "2026-07-31", "2026-09-30"],
       fontiPercorso.dcAccontoCantonale,
-      "Scadenze 1.5, 1.7 e 1.9; si paga entro 30 giorni (decreto esecutivo del 19.11.2025).",
+      "Tre rate d'acconto e una quarta a conguaglio (decreto esecutivo del 19.11.2025, art. 1): scadenze 1.5, 1.7 e 1.9, si paga entro 30 giorni. Il conguaglio si paga entro 30 giorni dall'intimazione del conteggio.",
     ),
   } as Partial<Record<number, Dato<string[]>>>,
   termineDichiarazioneTicino2025: dato("2026-04-30", fontiPercorso.istruzioniPf2025, "Il termine vale per la dichiarazione 2025; quello della dichiarazione 2026 non è ancora pubblicato."),
@@ -1370,7 +1409,7 @@ export const regolePercorso = {
 
 /** Uffici e servizi citati nel percorso guidato. */
 export const ufficiPercorso = {
-  esazioneCondoniTicino: dato(
+  esazioneCondoniTicino: datoImposte(
     {
       nome: "Ufficio esazione e condoni",
       indirizzo: "Viale S. Franscini 6, Bellinzona",
@@ -1378,6 +1417,7 @@ export const ufficiPercorso = {
       email: "dfe-dc.uec@ti.ch",
     },
     fontiPercorso.dcRichiestaAcconto,
+    "Divisione delle contribuzioni. Riscuote l'imposta cantonale e l'imposta federale diretta; l'imposta comunale la riscuote il Comune (Istruzioni PF 2025, p. 48). A chi compila la dichiarazione per la prima volta manda, su richiesta, le polizze per pagamenti volontari. Come NPA le pagine della DC indicano sia 6500 sia 6501 Bellinzona (18.10.2026).",
   ),
   iasContributiPersonali: dato(
     {

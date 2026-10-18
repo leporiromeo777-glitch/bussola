@@ -11,6 +11,7 @@ import type { IdPasso } from "./passi";
 import {
   fonti,
   fontiPercorso,
+  fontiStrumenti,
   VERIFICATO_ALIMENTI,
   VERIFICATO_AUTORIZZAZIONI,
   VERIFICATO_CHECKLIST,
@@ -28,6 +29,7 @@ import {
   VERIFICATO_SITO_ONLINE,
   VERIFICATO_IVA,
   VERIFICATO_FATTURE,
+  VERIFICATO_IMPOSTE,
   type Fonte,
 } from "./svizzera";
 
@@ -448,6 +450,27 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fonti.co958f,
     ],
     verificatoIl: VERIFICATO_FATTURE,
+  },
+  {
+    passoId: "acconti-imposte",
+    numero: 20,
+    titolo: "Metti da parte i soldi per le imposte",
+    video: "/corso/acconti-imposte.mp4",
+    poster: "/corso/acconti-imposte.jpg",
+    sottotitoli: "/corso/acconti-imposte.vtt",
+    durataSecondi: 167,
+    fonti: [
+      fontiPercorso.pmiImposteDitta,
+      fontiPercorso.istruzioniPf2025,
+      fontiPercorso.dcRichiestaAcconto,
+      fontiPercorso.dcAccontoCantonale,
+      fontiPercorso.dcIfdProvvisorio,
+      fontiPercorso.decretoRiscossione2026,
+      fontiPercorso.leggeTributariaTicino,
+      fontiStrumenti.afcCalcolatoreImposte,
+      fonti.albofiduciari,
+    ],
+    verificatoIl: VERIFICATO_IMPOSTE,
   },
 ];
 

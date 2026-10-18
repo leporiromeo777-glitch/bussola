@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { eIdPasso, FASI, ID_PASSI, PASSI, TITOLI_FASI, trovaPasso } from "./passi";
-import { fonti, fontiPercorso, regolePercorso, ufficiPercorso } from "./svizzera";
+import { fonti, fontiPercorso, regoleImposte, regolePercorso, ufficiPercorso } from "./svizzera";
 
 describe("catalogo dei passi", () => {
   it("id unici, brevi e stabili (minuscole e trattini)", () => {
@@ -102,6 +102,9 @@ describe("dati aggiunti per il percorso in svizzera.ts", () => {
     expect(regolePercorso.ifdRataUnicaTicino.valore).toEqual({ giorno: 31, mese: 3 });
     expect(regolePercorso.accontiCantonaliTicino[2026]?.valore).toEqual(["2026-05-31", "2026-07-31", "2026-09-30"]);
     expect(regolePercorso.accontiCantonaliTicino[2027]).toBeUndefined();
+    expect(regoleImposte.terminePagamentoGiorni.valore).toBe(30);
+    expect(regoleImposte.interessiCantonali[2026]?.valore).toEqual({ ritardo: 0.035, pagamentiAnticipati: 0.001 });
+    expect(regoleImposte.interessiCantonali[2027]).toBeUndefined();
     expect(regolePercorso.conservazioneDocumentiAnni.valore).toBe(10);
     expect(regolePercorso.fondounimpresa.valore).toEqual({ oreMassime: 15, anniMassimi: 2 });
   });
