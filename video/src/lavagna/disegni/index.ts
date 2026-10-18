@@ -30,6 +30,7 @@ import { DISEGNI_ASSICURAZIONI_PREVIDENZA } from "./assicurazioni-previdenza";
 import { DISEGNI_DICHIARAZIONE_IMPOSTE } from "./dichiarazione-imposte";
 import { DISEGNI_SOGLIE_ANNUALI } from "./soglie-annuali";
 import { DISEGNI_SPESE_DITTA } from "./spese-ditta";
+import { DISEGNI_PRIMO_DIPENDENTE } from "./primo-dipendente";
 import type { Disegno } from "./tipi";
 
 export const DISEGNI: Readonly<Record<string, Disegno>> = {
@@ -60,6 +61,7 @@ export const DISEGNI: Readonly<Record<string, Disegno>> = {
   ...DISEGNI_SOGLIE_ANNUALI,
   ...DISEGNI_SPESE_DITTA,
   ...DISEGNI_FATTURE_MANCATO_PAGAMENTO,
+  ...DISEGNI_PRIMO_DIPENDENTE,
 };
 
 export type { ContestoDisegno, Disegno } from "./tipi";

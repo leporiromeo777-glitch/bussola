@@ -26,15 +26,15 @@ describe("il corso di Bleo", () => {
     expect(new Set(LEZIONI.map((l) => l.passoId)).size).toBe(LEZIONI.length);
   });
 
-  it("le fonti di ogni video sono fonti ufficiali del suo passo", () => {
+  it("ogni video cita fonti ufficiali; quelle di una lezione sono anche fonti del suo passo", () => {
     for (const { passoId, video: l } of tuttiIVideo()) {
-      const passo = PASSI.find((p) => p.id === passoId)!;
       expect(l.fonti.length).toBeGreaterThan(0);
-      for (const f of l.fonti) {
-        expect(f.url).toMatch(/^https:\/\//);
-        expect(passo.fonti.map((x) => x.url), `${l.titolo}: ${f.titolo}`).toContain(f.url);
-      }
+      for (const f of l.fonti) expect(f.url).toMatch(/^https:\/\//);
       expect(l.verificatoIl).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      // Un video facoltativo approfondisce un tema: le sue fonti possono andare oltre il passo.
+      if (!LEZIONI.some((lezione) => lezione === l)) continue;
+      const passo = PASSI.find((p) => p.id === passoId)!;
+      for (const f of l.fonti) expect(passo.fonti.map((x) => x.url), `${l.titolo}: ${f.titolo}`).toContain(f.url);
     }
   });
 

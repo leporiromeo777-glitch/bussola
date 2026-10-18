@@ -35,6 +35,7 @@ import {
   VERIFICATO_ACCONTI_AVS,
   VERIFICATO_IMPOSTE,
   VERIFICATO_PREVIDENZA,
+  VERIFICATO_DIPENDENTI,
   VERIFICATO_DICHIARAZIONE,
   VERIFICATO_SOGLIE,
   VERIFICATO_SPESE_DITTA,
@@ -57,7 +58,7 @@ export type VideoCorso = {
   verificatoIl: string;
 };
 
-/** Un video facoltativo di una lezione. Le sue fonti sono anche fonti del passo. */
+/** Un video facoltativo di una lezione. Le sue fonti sono quelle che cita (non per forza fonti del passo). */
 export type Approfondimento = VideoCorso & {
   /** Nome dei file in public/corso/ e della composizione in video/: «<passo>-<tema>». */
   id: string;
@@ -592,6 +593,41 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fonti.albofiduciari,
     ],
     verificatoIl: VERIFICATO_PREVIDENZA,
+    approfondimenti: [
+      {
+        id: "assicurazioni-previdenza-dipendenti",
+        titolo: "Assumere il primo dipendente",
+        video: "/corso/assicurazioni-previdenza-dipendenti.mp4",
+        poster: "/corso/assicurazioni-previdenza-dipendenti.jpg",
+        sottotitoli: "/corso/assicurazioni-previdenza-dipendenti.vtt",
+        durataSecondi: 151,
+        fonti: [
+          fontiPercorso.iasAnnunciareCollaboratori,
+          fontiPercorso.iasAffiliazioneDatori,
+          fontiPercorso.avsPromemoria201,
+          fontiPercorso.ladi3,
+          fontiPercorso.iasAliquoteDatori2026,
+          fontiPercorso.decretoAfDatori2026,
+          fontiPercorso.lainf1a,
+          fontiPercorso.lainf66,
+          fontiPercorso.lainf69,
+          fontiPercorso.lpp2,
+          fontiPercorso.lpp11,
+          fontiPercorso.lpp66,
+          fonti.ufasImporti2026,
+          fonti.ufasImporti2027,
+          fontiPercorso.co320,
+          fontiPercorso.co330b,
+          fontiPercorso.lsm,
+          fontiPercorso.decretoSalarioMinimo2026,
+          fontiPercorso.lsmModifica2027,
+          fontiPercorso.dcImpostaFonte,
+          fontiPercorso.dcImpostaFonteFaq,
+          fonti.albofiduciari,
+        ],
+        verificatoIl: VERIFICATO_DIPENDENTI,
+      },
+    ],
   },
   {
     passoId: "dichiarazione-imposte",

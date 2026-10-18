@@ -74,8 +74,9 @@ Una lezione può avere dei video facoltativi che spiegano meglio un punto
 vedono sotto il video della lezione, ognuno con le sue fonti.
 
 1. Aggiungilo in `approfondimenti` della lezione in `src/data/corso.ts`, con
-   un id `<id-passo>-<tema>` (è anche il nome dei file). Le sue fonti devono
-   essere anche fonti del passo in `src/data/passi.ts` (il test lo controlla).
+   un id `<id-passo>-<tema>` (è anche il nome dei file). Le sue fonti sono
+   quelle che il video cita: non serve che siano anche fonti del passo, ma
+   ogni cifra ha il suo dato con fonte in `src/data/svizzera.ts`.
 2. Crea `video/src/lezioni/<id>.ts` come una lezione, con
    `approfondimentoPerId("<id>")`, `prossimoPasso: <titolo della lezione>` e
    `etichettaFine: "Torna alla lezione"`; aggiungilo in
