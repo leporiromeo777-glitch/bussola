@@ -3,7 +3,7 @@
  * I video si fanno con Remotion nella cartella video/ (vedi video/README.md),
  * che legge da qui titolo, numero e fonti di ogni lezione.
  *
- * Per ora ci sono le lezioni da 1 a 4; gli altri passi appaiono come «In arrivo».
+ * Non tutti i passi hanno già la lezione: quelli senza appaiono come «In arrivo».
  * Una lezione può avere dei video facoltativi (`approfondimenti`), che
  * spiegano meglio un punto: si vedono sotto il video della lezione.
  */
@@ -16,6 +16,7 @@ import {
   VERIFICATO_DOCUMENTI_SAGL,
   VERIFICATO_ESERCIZI_PUBBLICI,
   VERIFICATO_FORME,
+  VERIFICATO_NOME_DITTA,
   type Fonte,
 } from "./svizzera";
 
@@ -146,6 +147,31 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.diplomaEsercenteCorso,
     ],
     verificatoIl: VERIFICATO_ESERCIZI_PUBBLICI,
+  },
+  {
+    passoId: "nome-ditta",
+    numero: 8,
+    titolo: "Come chiamare la tua ditta",
+    video: "/corso/nome-ditta.mp4",
+    poster: "/corso/nome-ditta.jpg",
+    sottotitoli: "/corso/nome-ditta.vtt",
+    durataSecondi: 173,
+    fonti: [
+      fonti.co945,
+      fontiPercorso.co944,
+      fonti.rcTicinoIscrizione,
+      fontiPercorso.direttivaDitteUfrc,
+      fontiPercorso.co946,
+      fontiPercorso.pmiIscrizioneNome,
+      fontiPercorso.regixFaq,
+      fontiPercorso.zefix,
+      fontiPercorso.ipiFaqMarchi,
+      fontiPercorso.ipiRicercaAutonoma,
+      fonti.pmiDittaIndividuale,
+      fontiPercorso.co950,
+      fontiPercorso.co951,
+    ],
+    verificatoIl: VERIFICATO_NOME_DITTA,
   },
 ];
 
