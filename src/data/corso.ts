@@ -30,6 +30,7 @@ import {
   VERIFICATO_FATTURE,
   VERIFICATO_LOCALI,
   VERIFICATO_CONTABILITA,
+  VERIFICATO_DICHIARAZIONE,
   type Fonte,
 } from "./svizzera";
 
@@ -491,6 +492,24 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fonti.albofiduciari,
     ],
     verificatoIl: VERIFICATO_CONTABILITA,
+  },
+  {
+    passoId: "dichiarazione-imposte",
+    numero: 22,
+    titolo: "Come dichiarare il reddito della ditta",
+    video: "/corso/dichiarazione-imposte.mp4",
+    poster: "/corso/dichiarazione-imposte.jpg",
+    sottotitoli: "/corso/dichiarazione-imposte.vtt",
+    durataSecondi: 181,
+    fonti: [
+      fontiPercorso.istruzioniPf2025,
+      fontiPercorso.modulo10,
+      fontiPercorso.dcModuliPf,
+      fontiPercorso.leggeTributariaTicino,
+      fontiPercorso.dcEtax,
+      fonti.albofiduciari,
+    ],
+    verificatoIl: VERIFICATO_DICHIARAZIONE,
   },
 ];
 
