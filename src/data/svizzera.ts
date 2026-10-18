@@ -292,6 +292,7 @@ const LAINF = "https://www.fedlex.admin.ch/eli/cc/1982/1676_1676_1676/it";
 const OAINF = "https://www.fedlex.admin.ch/eli/cc/1983/38_38_38/it";
 const ODERR = "https://www.fedlex.admin.ch/eli/cc/2017/63/it";
 const LSTRI = "https://www.fedlex.admin.ch/eli/cc/2007/758/it";
+const OIP = "https://www.fedlex.admin.ch/eli/cc/1978/2081_2081_2081/it";
 const LABORATORIO_TI = "Cantone Ticino, Laboratorio cantonale";
 const PMI = "Portale PMI (SECO)";
 const FEDLEX = "Confederazione (Fedlex)";
@@ -775,6 +776,40 @@ export const fontiPercorso = {
     url: "https://www.fedlex.admin.ch/eli/cc/1988/223_223_223/it#art_3",
     ente: FEDLEX,
   },
+  // Vendita online (passo e lezione 15): ricontrollati il 18.10.2026, vedi VERIFICATO_SITO_ONLINE.
+  secoAcquistiOnline: {
+    titolo: "Acquisti online",
+    url: "https://www.seco.admin.ch/it/acquisti-online",
+    ente: "Segreteria di Stato dell'economia (SECO)",
+  },
+  pmiObblighiEcommerce: {
+    titolo: "E-commerce: obblighi legali in Svizzera e nell'UE",
+    url: "https://www.kmu.admin.ch/it/obblighi-legali-in-svizzera-e-nellue",
+    ente: PMI,
+  },
+  oip3: { titolo: "Ordinanza sull'indicazione dei prezzi (OIP), art. 3", url: `${OIP}#art_3`, ente: FEDLEX },
+  oip4: { titolo: "Ordinanza sull'indicazione dei prezzi (OIP), art. 4", url: `${OIP}#art_4`, ente: FEDLEX },
+  oip10: { titolo: "Ordinanza sull'indicazione dei prezzi (OIP), art. 10", url: `${OIP}#art_10`, ente: FEDLEX },
+  lpd19: {
+    titolo: "Legge sulla protezione dei dati (LPD), art. 19",
+    url: "https://www.fedlex.admin.ch/eli/cc/2022/491/it#art_19",
+    ente: FEDLEX,
+  },
+  pmiProtezioneDatiEcommerce: {
+    titolo: "Siti e-commerce e protezione dei dati personali",
+    url: "https://www.kmu.admin.ch/it/siti-e-commerce-e-protezione-dei-dati-personali",
+    ente: PMI,
+  },
+  pmiDirittoRecesso: {
+    titolo: "E-commerce: che cos'è il diritto di recesso?",
+    url: "https://www.kmu.admin.ch/it/che-cose-il-diritto-di-recesso",
+    ente: PMI,
+  },
+  pmiCondizioniGenerali: {
+    titolo: "E-commerce: condizioni generali di vendita",
+    url: "https://www.kmu.admin.ch/it/condizioni-generali-di-vendita",
+    ente: PMI,
+  },
 
   // Imposte e contabilità
   pmiImposteDitta: {
@@ -1096,6 +1131,16 @@ export const regoleInfortuni = {
  * uffici.cassaCompensazioneTicino) corrispondono a queste fonti.
  */
 export const VERIFICATO_AVS_INDIPENDENTI = "2026-10-18";
+
+/**
+ * Data dell'ultimo controllo delle fonti sulla vendita online, per il passo e
+ * la lezione 15: art. 3 cpv. 1 lett. s e cpv. 2 LCSl (stato 01.01.2025),
+ * artt. 3, 4 e 10 OIP (stato 01.01.2025), art. 19 LPD (stato 07.07.2025),
+ * art. 954a CO (stato 01.10.2026), pagina «Acquisti online» della SECO e
+ * pagine del Portale PMI sull'e-commerce (obblighi legali, protezione dei
+ * dati, diritto di recesso, condizioni generali). Nessuna cifra: solo regole.
+ */
+export const VERIFICATO_SITO_ONLINE = "2026-10-18";
 
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
