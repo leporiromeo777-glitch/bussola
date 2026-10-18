@@ -143,12 +143,31 @@ export const fonti = {
   },
 } as const satisfies Record<string, Fonte>;
 
+/**
+ * Data dell'ultimo controllo delle fonti sulla contabilità della ditta
+ * individuale, per il passo e la lezione 18: CO artt. 957, 957a e 958f
+ * (testo in vigore dal 01.10.2026), LIFD art. 125 (stato 02.09.2026), Olc
+ * art. 9 (stato 01.01.2013), LFid art. 3, albo dei fiduciari autorizzati e
+ * pagine del Portale PMI (rendiconto annuale della ditta individuale,
+ * conservazione elettronica dei libri di commercio, tenere da soli la
+ * contabilità o delegare). Valgono per regole.sogliaContabilitaSemplificata
+ * e regolePercorso.conservazioneDocumentiAnni.
+ */
+export const VERIFICATO_CONTABILITA = "2026-10-18";
+
 /** Soglie e regole stabili, scritte nella legge. */
 export const regole = {
   sogliaRegistroCommercio: dato(100_000, fonti.co931, "Cifra d'affari (non utile) dell'ultimo esercizio. Sotto la soglia l'iscrizione è facoltativa (art. 931 cpv. 3 CO)."),
   sogliaIva: dato(100_000, fonti.liva10, "Cifra d'affari annua, in Svizzera e all'estero, da prestazioni non escluse dall'imposta."),
   termineAnnuncioIvaGiorni: dato(30, fonti.liva66, "Giorni dall'inizio dell'assoggettamento per annunciarsi all'AFC."),
-  sogliaContabilitaSemplificata: dato(500_000, fonti.co957, "Con una cifra d'affari inferiore a questa nell'ultimo esercizio la ditta individuale può tenere solo entrate, uscite e situazione patrimoniale; da CHF 500'000 esatti serve la contabilità completa."),
+  sogliaContabilitaSemplificata: {
+    ...dato(
+      500_000,
+      fonti.co957,
+      "Con una cifra d'affari inferiore a questa nell'ultimo esercizio la ditta individuale deve tenere soltanto la contabilità delle entrate e delle uscite e la contabilità del patrimonio (art. 957 cpv. 2 CO); da CHF 500'000 esatti serve la contabilità completa (cpv. 1). Le persone giuridiche, come la Sagl, tengono sempre quella completa.",
+    ),
+    verificatoIl: VERIFICATO_CONTABILITA,
+  },
   capitaleMinimoSagl: dato(20_000, fonti.co773),
   capitaleMinimoSa: dato(100_000, fonti.co621),
   versamentoMinimoSa: dato(50_000, fonti.co632, "Alla costituzione della SA va versato almeno il 20% del valore nominale di ogni azione e in totale almeno CHF 50'000. Nella Sagl invece il capitale va versato per intero (art. 777c CO)."),
@@ -839,6 +858,23 @@ export const fontiPercorso = {
     url: "https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/it#art_125",
     ente: FEDLEX,
   },
+  // Contabilità (passo e lezione 18): ricontrollate il 18.10.2026, vedi VERIFICATO_CONTABILITA.
+  co957a: { titolo: "Codice delle obbligazioni, art. 957a", url: `${CO}#art_957_a`, ente: FEDLEX },
+  pmiRendicontoDitta: {
+    titolo: "Rendiconto annuale presso la ditta individuale",
+    url: "https://www.kmu.admin.ch/it/rendiconto-annuale-presso-la-ditta-individuale",
+    ente: PMI,
+  },
+  pmiConservazioneElettronica: {
+    titolo: "Conservazione elettronica dei libri di commercio",
+    url: "https://www.kmu.admin.ch/it/conservazione-elettronica-dei-libri-di-commercio",
+    ente: PMI,
+  },
+  pmiContabilitaDelegare: {
+    titolo: "Tenere da soli la contabilità o delegare?",
+    url: "https://www.kmu.admin.ch/it/tenere-da-soli-la-contabilita-o-delegare",
+    ente: PMI,
+  },
   leggeTributariaTicino: { titolo: "Legge tributaria del Cantone Ticino (LT)", url: LT_TICINO, ente: RACCOLTA_TI },
   istruzioniPf2025: {
     titolo: "Istruzioni per la dichiarazione d'imposta delle persone fisiche 2025",
@@ -1234,7 +1270,14 @@ export const regolePercorso = {
   interesseMoraAvs: dato(0.05, fontiPercorso.oavs42),
   variazioneRedditoIas: dato(0.25, fontiPercorso.iasAcconti, "Variazione del reddito, in più o in meno, da segnalare alla cassa."),
   termineConguaglioAvsGiorni: dato(30, fonti.avsPromemoria202),
-  conservazioneDocumentiAnni: dato(10, fonti.co958f),
+  conservazioneDocumentiAnni: {
+    ...dato(
+      10,
+      fonti.co958f,
+      "Libri di commercio e documenti contabili, dalla fine dell'esercizio (art. 958f cpv. 1 CO); su carta, su supporto elettronico o in forma analoga, se restano conformi alle operazioni e leggibili in ogni momento (cpv. 3). Le regole sui supporti sono nell'Olc (art. 9).",
+    ),
+    verificatoIl: VERIFICATO_CONTABILITA,
+  },
   autenticazioneFirmaRcTicino: dato(20, fontiPercorso.rcTicinoTasseCantonali, "Allo sportello dell'Ufficio RC (legalizzazione di una firma)."),
   ifdRataUnicaTicino: dato({ giorno: 31, mese: 3 }, fontiPercorso.dcIfdProvvisorio, "Termine di pagamento della rata unica del calcolo provvisorio IFD."),
   /** Termini di pagamento degli acconti dell'imposta cantonale, per anno. Il decreto 2027 esce di solito a novembre. */

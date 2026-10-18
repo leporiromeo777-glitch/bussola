@@ -26,6 +26,7 @@ import {
   VERIFICATO_AIUTO,
   VERIFICATO_REGISTRO,
   VERIFICATO_SITO_ONLINE,
+  VERIFICATO_CONTABILITA,
   type Fonte,
 } from "./svizzera";
 
@@ -397,6 +398,26 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.pmiCondizioniGenerali,
     ],
     verificatoIl: VERIFICATO_SITO_ONLINE,
+  },
+  {
+    passoId: "contabilita",
+    numero: 18,
+    titolo: "Come tenere la contabilità",
+    video: "/corso/contabilita.mp4",
+    poster: "/corso/contabilita.jpg",
+    sottotitoli: "/corso/contabilita.vtt",
+    durataSecondi: 171,
+    fonti: [
+      fonti.co957,
+      fontiPercorso.co957a,
+      fontiPercorso.pmiRendicontoDitta,
+      fontiPercorso.lifd125,
+      fonti.co958f,
+      fontiPercorso.pmiConservazioneElettronica,
+      fontiPercorso.pmiContabilitaDelegare,
+      fonti.albofiduciari,
+    ],
+    verificatoIl: VERIFICATO_CONTABILITA,
   },
 ];
 
