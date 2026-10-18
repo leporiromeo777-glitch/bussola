@@ -292,6 +292,7 @@ const LAINF = "https://www.fedlex.admin.ch/eli/cc/1982/1676_1676_1676/it";
 const OAINF = "https://www.fedlex.admin.ch/eli/cc/1983/38_38_38/it";
 const ODERR = "https://www.fedlex.admin.ch/eli/cc/2017/63/it";
 const LSTRI = "https://www.fedlex.admin.ch/eli/cc/2007/758/it";
+const LEF = "https://www.fedlex.admin.ch/eli/cc/11/529_488_529/it";
 const LABORATORIO_TI = "Cantone Ticino, Laboratorio cantonale";
 const PMI = "Portale PMI (SECO)";
 const FEDLEX = "Confederazione (Fedlex)";
@@ -392,6 +393,22 @@ export const fontiPercorso = {
     titolo: "Registro di commercio: tasse cantonali",
     url: "https://www4.ti.ch/di/dg/rf/sportello/tasse-cantonali",
     ente: "Cantone Ticino, Ufficio del registro di commercio",
+  },
+  // Registro di commercio (passo e lezione 13): ricontrollati il 18.10.2026,
+  // vedi VERIFICATO_REGISTRO, come rcTicinoTasseCantonali, easygovDittaIndividuale,
+  // pmiIscrizioneNome, pmiDittaIndividualeLanciarsi, co946 e co954a qui e
+  // fonti.co931, co957, oemolRc, rcTicinoIscrizione e rcTicinoContatti.
+  co936: { titolo: "Codice delle obbligazioni, art. 936", url: `${CO}#art_936`, ente: FEDLEX },
+  co936a: { titolo: "Codice delle obbligazioni, art. 936a", url: `${CO}#art_936_a`, ente: FEDLEX },
+  co938: { titolo: "Codice delle obbligazioni, art. 938", url: `${CO}#art_938`, ente: FEDLEX },
+  co940: { titolo: "Codice delle obbligazioni, art. 940", url: `${CO}#art_940`, ente: FEDLEX },
+  lef39: { titolo: "Legge sull'esecuzione e sul fallimento (LEF), artt. 39-40", url: `${LEF}#art_39`, ente: FEDLEX },
+  lef42: { titolo: "Legge sull'esecuzione e sul fallimento (LEF), artt. 42 e 97", url: `${LEF}#art_42`, ente: FEDLEX },
+  lef197: { titolo: "Legge sull'esecuzione e sul fallimento (LEF), art. 197", url: `${LEF}#art_197`, ente: FEDLEX },
+  tariffaNotarile: {
+    titolo: "Legge sulla tariffa notarile (Ticino), art. 17",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/148",
+    ente: RACCOLTA_TI,
   },
   pmiMettersiInProprio: {
     titolo: "Mettersi in proprio: istruzioni",
@@ -1124,6 +1141,40 @@ export const VERIFICATO_AVS_INDIPENDENTI = "2026-10-18";
  */
 export const VERIFICATO_AIUTO = "2026-10-18";
 
+/**
+ * Data dell'ultimo controllo delle fonti sul registro di commercio, per il
+ * passo e la lezione 13: CO artt. 931, 936, 936a, 938, 940, 946, 954a e 957
+ * (testo in vigore dal 01.10.2026), OEmol-RC (stato 01.01.2021, ultimo
+ * testo: allegato n. 1.1), LEF artt. 39-40, 42, 97 e 197 (stato 01.01.2026),
+ * pagine dell'Ufficio del registro di commercio ticinese (iscrizione della
+ * ditta individuale, tasse cantonali, contatti), tariffa notarile ticinese
+ * (art. 17), EasyGov e Portale PMI (iscrizione e nome, ditta individuale).
+ */
+export const VERIFICATO_REGISTRO = "2026-10-18";
+
+function datoRegistro<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_REGISTRO };
+}
+
+/** Registro di commercio: cosa succede se non ti iscrivi, i debiti, la firma dal notaio. */
+export const regoleRegistro = {
+  multaMancataIscrizioneFranchi: datoRegistro(
+    5_000,
+    fontiPercorso.co940,
+    "Chi deve iscriversi e non lo fa riceve dall'ufficio del registro di commercio un termine; se non lo rispetta, l'ufficio lo iscrive d'ufficio (art. 938 CO) e, se l'aveva diffidato con questa comminatoria, può punirlo con un'ammenda fino a CHF 5'000 (art. 940 CO).",
+  ),
+  fallimentoDopoCancellazioneMesi: datoRegistro(
+    6,
+    fontiPercorso.lef39,
+    "Chi è iscritto come titolare di una ditta è soggetto all'esecuzione in via di fallimento (art. 39 LEF), e lo resta per sei mesi dalla pubblicazione della cancellazione nel Foglio ufficiale svizzero di commercio (art. 40 LEF).",
+  ),
+  autenticazioneFirmaNotaioMassimoFranchi: datoRegistro(
+    30,
+    fontiPercorso.tariffaNotarile,
+    "Onorario massimo del notaio ticinese per autenticare le firme; per ogni firma oltre la seconda al massimo CHF 20 (art. 17 della tariffa notarile).",
+  ),
+} as const;
+
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
   mesiPerIvaDaSubito: dato(12, fonti.liva14, "Se all'avvio è presumibile superare la soglia IVA entro 12 mesi, si è assoggettati da subito."),
@@ -1139,7 +1190,7 @@ export const regolePercorso = {
   variazioneRedditoIas: dato(0.25, fontiPercorso.iasAcconti, "Variazione del reddito, in più o in meno, da segnalare alla cassa."),
   termineConguaglioAvsGiorni: dato(30, fonti.avsPromemoria202),
   conservazioneDocumentiAnni: dato(10, fonti.co958f),
-  autenticazioneFirmaRcTicino: dato(20, fontiPercorso.rcTicinoTasseCantonali, "Allo sportello dell'Ufficio RC; dal notaio al massimo CHF 30."),
+  autenticazioneFirmaRcTicino: dato(20, fontiPercorso.rcTicinoTasseCantonali, "Allo sportello dell'Ufficio RC (legalizzazione di una firma)."),
   ifdRataUnicaTicino: dato({ giorno: 31, mese: 3 }, fontiPercorso.dcIfdProvvisorio, "Termine di pagamento della rata unica del calcolo provvisorio IFD."),
   /** Termini di pagamento degli acconti dell'imposta cantonale, per anno. Il decreto 2027 esce di solito a novembre. */
   accontiCantonaliTicino: {

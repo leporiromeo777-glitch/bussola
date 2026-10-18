@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { fonti, fontiStrumenti, regole, regolePercorso, tasseRegistroCommercio } from "@/data/svizzera";
+import { fonti, fontiStrumenti, regole, regolePercorso, regoleRegistro, tasseRegistroCommercio } from "@/data/svizzera";
 import { CHIAVI_ARCHIVIO } from "@/lib/strumenti/archivio";
 import {
   calcolaBudget,
@@ -135,7 +135,10 @@ export function BudgetAnno() {
                 individuale (<FonteLink fonte={tasseRegistroCommercio.fonte} />) +{" "}
                 {importo(regolePercorso.autenticazioneFirmaRcTicino.valore, 0)} per l&apos;autenticazione della firma (
                 <FonteLink fonte={regolePercorso.autenticazioneFirmaRcTicino.fonte} />
-                ). {regolePercorso.autenticazioneFirmaRcTicino.nota}
+                ). {regolePercorso.autenticazioneFirmaRcTicino.nota} Dal notaio al massimo{" "}
+                {importo(regoleRegistro.autenticazioneFirmaNotaioMassimoFranchi.valore, 0)} (
+                <FonteLink fonte={regoleRegistro.autenticazioneFirmaNotaioMassimoFranchi.fonte} />
+                ).
               </>
             }
           />
