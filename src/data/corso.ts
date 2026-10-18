@@ -592,7 +592,7 @@ export const LEZIONI: readonly LezioneCorso[] = [
     video: "/corso/soglie-annuali.mp4",
     poster: "/corso/soglie-annuali.jpg",
     sottotitoli: "/corso/soglie-annuali.vtt",
-    durataSecondi: 171,
+    durataSecondi: 176,
     fonti: [
       fonti.co931,
       fonti.liva10,

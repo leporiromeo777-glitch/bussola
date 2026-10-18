@@ -243,7 +243,7 @@ export const soglieAnnuali: Lezione = {
         "Il corso è finito, ma Bleo resta con te: ti segue in tutto quello che fai con la tua impresa. Spese e ricevute, fatture, scadenze: ti aiuta ogni giorno, e per ogni dubbio c'è la chat. Per il tuo caso, rivolgiti a un fiduciario autorizzato.",
       schermo: {
         tipo: "punto",
-        titolo: "Bleo resta con te",
+        titolo: "Bleo è con te",
         testo: "«I tuoi conti», «Preventivo e fattura», le scadenze del tuo percorso e la chat. Per il tuo caso, un fiduciario autorizzato.",
         fonte: fonti.albofiduciari,
       },
