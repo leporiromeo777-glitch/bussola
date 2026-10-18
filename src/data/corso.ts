@@ -18,6 +18,7 @@ import {
   VERIFICATO_ESERCIZI_PUBBLICI,
   VERIFICATO_FORME,
   VERIFICATO_SANITA,
+  VERIFICATO_PERMESSI,
   type Fonte,
 } from "./svizzera";
 
@@ -191,6 +192,32 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.lamal36,
     ],
     verificatoIl: VERIFICATO_SANITA,
+  },
+  {
+    passoId: "permesso-lavoro",
+    numero: 7,
+    titolo: "Il permesso per lavorare in proprio",
+    video: "/corso/permesso-lavoro.mp4",
+    poster: "/corso/permesso-lavoro.jpg",
+    sottotitoli: "/corso/permesso-lavoro.vtt",
+    durataSecondi: 161,
+    fonti: [
+      fontiPercorso.lstri38,
+      fontiPercorso.pmiMettersiInProprio,
+      fontiPercorso.semSoggiornoAttivita,
+      fontiPercorso.umIndipendentiUeAelsB,
+      fontiPercorso.semFrontalieri,
+      fontiPercorso.umIndipendentiUeAels,
+      fontiPercorso.semFaqLiberaCircolazione,
+      fontiPercorso.umModificaPermessoB,
+      fontiPercorso.lstri19,
+      fontiPercorso.semIstruzioniOlcp,
+      fontiPercorso.grPromemoriaIndipendenti,
+      fontiPercorso.umRichiestaPermessoB,
+      fontiPercorso.umRichiestaPermessoG,
+      fontiPercorso.grIndipendentiUeAels,
+    ],
+    verificatoIl: VERIFICATO_PERMESSI,
   },
 ];
 

@@ -289,12 +289,16 @@ const LAVS = "https://www.fedlex.admin.ch/eli/cc/63/837_843_843/it";
 const OAVS = "https://www.fedlex.admin.ch/eli/cc/63/1185_1183_1185/it";
 const LAMAL = "https://www.fedlex.admin.ch/eli/cc/1995/1328_1328_1328/it";
 const ODERR = "https://www.fedlex.admin.ch/eli/cc/2017/63/it";
+const LSTRI = "https://www.fedlex.admin.ch/eli/cc/2007/758/it";
 const LABORATORIO_TI = "Cantone Ticino, Laboratorio cantonale";
 const PMI = "Portale PMI (SECO)";
 const FEDLEX = "Confederazione (Fedlex)";
 const IAS = "Istituto delle assicurazioni sociali (IAS), Ticino";
 const DC = "Cantone Ticino, Divisione delle contribuzioni";
 const RACCOLTA_TI = "Cantone Ticino, Raccolta delle leggi";
+const UM_TI = "Cantone Ticino, Ufficio della migrazione";
+const SEM = "Segreteria di Stato della migrazione (SEM)";
+const UMDC_GR = "Cantone dei Grigioni, Ufficio della migrazione e del diritto civile";
 
 export const fontiPercorso = {
   // Forma giuridica, nome e registro di commercio
@@ -539,10 +543,73 @@ export const fontiPercorso = {
     url: "https://www.gr.ch/IT/istituzioni/amministrazione/dvs/alt/derratealimentari/derratealimentari/Seiten/default.aspx",
     ente: "Cantone dei Grigioni, Ufficio per la sicurezza delle derrate alimentari e la salute degli animali",
   },
+  // Permesso per lavorare in proprio (passo e lezione 7): ricontrollati il
+  // 18.10.2026, vedi VERIFICATO_PERMESSI. Il PDF qui sotto è quello per i
+  // frontalieri (permesso G); quello per il permesso B è umIndipendentiUeAelsB.
   umIndipendentiUeAels: {
-    titolo: "Avvertenze per cittadini UE/AELS indipendenti",
+    titolo: "Avvertenze per i frontalieri UE/AELS indipendenti (permesso G)",
     url: "https://www4.ti.ch/fileadmin/DI/DI_DI/SEZPOP/documentazione/avvertenze/2017/G_Avvertenze_Cittadini_UE-AELS_indipendenti.pdf",
-    ente: "Cantone Ticino, Ufficio della migrazione",
+    ente: UM_TI,
+  },
+  umIndipendentiUeAelsB: {
+    titolo: "Avvertenze per i cittadini UE/AELS indipendenti con permesso di dimora (permesso B)",
+    url: "https://www4.ti.ch/fileadmin/DI/DI_DI/SEZPOP/documentazione/avvertenze/2017/B_Avvertenze_Cittadini_UE-AELS_indipendenti.pdf",
+    ente: UM_TI,
+  },
+  umRichiestaPermessoB: {
+    titolo: "Richiesta nuovo permesso di dimora (B) per cittadini UE/AELS",
+    url: "https://www4.ti.ch/index.php?id=130308",
+    ente: UM_TI,
+  },
+  umRichiestaPermessoG: {
+    titolo: "Richiesta nuovo permesso per frontalieri (G)",
+    url: "https://www4.ti.ch/index.php?id=122090",
+    ente: UM_TI,
+  },
+  umModificaPermessoB: {
+    titolo: "Richiesta rinnovo e/o modifica del permesso di dimora (B)",
+    url: "https://www4.ti.ch/index.php?id=130259",
+    ente: UM_TI,
+  },
+  semSoggiornoAttivita: {
+    titolo: "Scheda: soggiorno in Svizzera in vista di esercitare un'attività lucrativa (UE/AELS)",
+    url: "https://www.sem.admin.ch/dam/sem/it/data/eu/fza/personenfreizuegigkeit/factsheets/fs-bew-aufenthalt.pdf.download.pdf/fs-bew-aufenthalt.pdf",
+    ente: SEM,
+  },
+  semFrontalieri: {
+    titolo: "Scheda: frontalieri (UE/AELS)",
+    url: "https://www.sem.admin.ch/dam/sem/it/data/eu/fza/personenfreizuegigkeit/factsheets/fs-grenzgaenger.pdf.download.pdf/fs-grenzgaenger.pdf",
+    ente: SEM,
+  },
+  semFaqLiberaCircolazione: {
+    titolo: "FAQ: libera circolazione delle persone (attività indipendente, permessi, mobilità)",
+    url: "https://www.sem.admin.ch/sem/it/home/themen/fza_schweiz-eu-efta/eu-efta_buerger_schweiz/faq.html",
+    ente: SEM,
+  },
+  semIstruzioniOlcp: {
+    titolo: "Istruzioni OLCP (01/2026), n. II 4.3: attività lucrativa indipendente",
+    url: "https://www.sem.admin.ch/dam/sem/it/data/rechtsgrundlagen/weisungen/fza/weisungen-fza-i.pdf",
+    ente: SEM,
+  },
+  lstri19: {
+    titolo: "Legge federale sugli stranieri e la loro integrazione (LStrI), art. 19",
+    url: `${LSTRI}#art_19`,
+    ente: FEDLEX,
+  },
+  lstri38: {
+    titolo: "Legge federale sugli stranieri e la loro integrazione (LStrI), art. 38",
+    url: `${LSTRI}#art_38`,
+    ente: FEDLEX,
+  },
+  grIndipendentiUeAels: {
+    titolo: "Dimoranti e frontalieri con attività lucrativa indipendente (UE/AELS)",
+    url: "https://www.gr.ch/IT/istituzioni/amministrazione/djsg/afm/servizi/Einreise_Aufenthalt/eu-efta/Seiten/Selbst%C3%A4ndig-erwerbende.aspx",
+    ente: UMDC_GR,
+  },
+  grPromemoriaIndipendenti: {
+    titolo: "Promemoria dimoranti e frontalieri con attività lucrativa indipendente (UE/AELS)",
+    url: "https://www.gr.ch/DE/institutionen/verwaltung/djsg/afm/Dokumentenliste%20APZ1/107%20-%20Merkblatt%20selbst%c3%a4ndig%20erwerbende%20Aufenthalter%20und%20Grenzg%c3%a4nger%20EU-26%20EFTA-3_IT.pdf",
+    ente: UMDC_GR,
   },
 
   // AVS e assicurazioni
@@ -819,6 +886,28 @@ export const ufficioSanitaTicino = datoSanita(
   "La documentazione per il libero esercizio si invia su carta (A4, senza fermagli, punti metallici o nastro adesivo).",
 );
 
+/**
+ * Data dell'ultimo controllo delle fonti sul permesso per lavorare in proprio,
+ * per il passo e la lezione 7: avvertenze (09.2024) e pagine dell'Ufficio della
+ * migrazione ticinese, schede, FAQ e Istruzioni OLCP (01/2026) della SEM, LStrI
+ * artt. 19 e 38 (stato 12.06.2026, uguali nella versione dal 01.11.2026),
+ * Portale PMI («Mettersi in proprio», punti 6 e 7), pagina e promemoria
+ * dell'Ufficio della migrazione e del diritto civile dei Grigioni.
+ */
+export const VERIFICATO_PERMESSI = "2026-10-18";
+
+function datoPermessi<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_PERMESSI };
+}
+
+/** Permessi per lavorare in proprio (cittadini UE/AELS e frontalieri). */
+export const regolePermessi = {
+  durataPermessoIndipendentiAnni: datoPermessi(5, fontiPercorso.semSoggiornoAttivita, "Primo permesso B UE/AELS per chi si stabilisce in Svizzera come indipendente, se dimostra l'attività già con la domanda. Anche il permesso G UE/AELS per i frontalieri indipendenti vale 5 anni (scheda SEM «Frontalieri»; avvertenze dell'Ufficio della migrazione per i permessi B e G)."),
+  rientroFrontalieri: datoPermessi("almeno una volta alla settimana", fontiPercorso.semFrontalieri, "Il frontaliere torna al suo domicilio all'estero di norma ogni giorno, o almeno una volta alla settimana."),
+  notificaCambiamentiGiorni: datoPermessi(14, fontiPercorso.umIndipendentiUeAelsB, "Cambiamenti di indirizzo, nazionalità, nome, Comune o Cantone, stato civile o famiglia: da notificare all'Ufficio della migrazione entro 14 giorni (lo stesso termine vale con il permesso G)."),
+  rinnovoPrimaDellaScadenzaGiorni: datoPermessi(14, fontiPercorso.umIndipendentiUeAelsB, "Il rinnovo del permesso va chiesto all'Ufficio della migrazione almeno 14 giorni prima della scadenza (anche con il permesso G)."),
+} as const;
+
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
   mesiPerIvaDaSubito: dato(12, fonti.liva14, "Se all'avvio è presumibile superare la soglia IVA entro 12 mesi, si è assoggettati da subito."),
@@ -881,6 +970,11 @@ export const ufficiPercorso = {
     },
     fontiPercorso.laboratorioCantonaleNotifica,
     "Riceve le notifiche delle attività alimentari (art. 20 ODerr). Non manda una conferma: dopo circa 2 settimane la registrazione si controlla sul suo sito.",
+  ),
+  migrazioneTicino: datoPermessi(
+    { nome: "Ufficio della migrazione", sezione: "Sezione della popolazione", telefono: "+41 91 814 55 00", email: "di-sp.migrazione@ti.ch" },
+    fontiPercorso.umRichiestaPermessoB,
+    "Contact center dei permessi per stranieri, dal lunedì al venerdì 08:00-12:00 e 13:30-17:00. La domanda si presenta con la procedura online della pagina.",
   ),
   fondounimpresa: dato(
     { nome: "Fondounimpresa", luogo: "Camorino", telefono: "+41 91 814 16 71", email: "fondounimpresa@edu.ti.ch" },
