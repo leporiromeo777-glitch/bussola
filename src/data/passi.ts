@@ -18,6 +18,7 @@ import {
   regoleAlimenti,
   regoleEserciziPubblici,
   regoleInfortuni,
+  regoleLocali,
   regolePercorso,
   regoleSanita,
   regolePermessi,
@@ -34,6 +35,7 @@ import {
   VERIFICATO_INFORTUNI,
   VERIFICATO_AVS_INDIPENDENTI,
   VERIFICATO_AIUTO,
+  VERIFICATO_LOCALI,
   type Fonte,
 } from "./svizzera";
 
@@ -84,6 +86,8 @@ const perm = regolePermessi;
 const migrazione = ufficiPercorso.migrazioneTicino.valore;
 const suva = regoleSuva;
 const inf = regoleInfortuni;
+const loc = regoleLocali;
+const orari = loc.orariNegozi.valore;
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -539,14 +543,29 @@ export const PASSI = [
     fase: "aprire l'attività",
     titolo: "Locale aperto al pubblico: verifica le regole",
     descrizione:
-      "Per un locale aperto al pubblico possono servire procedure specifiche. Per ristoranti e bar serve l'autorizzazione prevista dalla LEAR. Per i negozi, la legge ticinese sull'apertura dei negozi prevede un'autorizzazione solo per le deroghe agli orari.",
+      "Per un locale aperto al pubblico possono servire procedure specifiche. Per ristoranti e bar serve l'autorizzazione prevista dalla LEAR. Per i negozi, la legge ticinese sull'apertura dei negozi fissa gli orari e prevede un'autorizzazione solo per le deroghe agli orari. Il cambiamento di destinazione del locale e le insegne passano dal Municipio.",
     cosaFare: [
-      "Controlla l'elenco delle autorizzazioni della Polizia cantonale.",
-      "Chiedi al tuo Comune se ci sono procedure per il tuo locale.",
+      `Negozio: rispetta gli orari, dal lunedì al venerdì dalle ${orari.apertura} alle ${orari.chiusuraFeriale}, il sabato fino alle ${orari.chiusuraSabato}, un giorno alla settimana fino alle ${orari.chiusuraSerale} (il giovedì, o un altro giorno se è festivo). La domenica e nei festivi si resta chiusi, salvo le eccezioni previste dalla legge.`,
+      `Per aprire fuori orario per un'inaugurazione o una manifestazione chiedi la deroga per scritto almeno ${loc.termineDerogaGiorni.valore} giorni prima (tassa da ${chf(loc.tassaDerogaFranchi.valore.base)}).`,
+      "Se cambi la destinazione del locale (per esempio da appartamento a negozio) o lo trasformi in modo importante, serve la licenza edilizia del Municipio.",
+      `Per un'insegna visibile dalla strada chiedi l'autorizzazione al Municipio. Non serve per le scritte sulla vetrina o per una targa non luminosa fino a ${String(loc.targaSenzaAutorizzazioneMq.valore).replace(".", ",")} m² con solo il nome e il logo.`,
+      "Indica il prezzo in franchi di ogni merce, ben leggibile anche in vetrina; per servizi come parrucchiere, estetista o corsi indica i prezzi delle prestazioni.",
+      `Se vendi superalcolici chiedi la patente di vendita distillati alla Polizia cantonale, almeno ${loc.termineDistillatiGiorni.valore} giorni prima.`,
+      "Controlla l'elenco delle autorizzazioni della Polizia cantonale e chiedi al tuo Comune se ci sono altre procedure per il tuo locale.",
     ],
     link: { etichetta: "Autorizzazioni della Polizia cantonale", url: fontiPercorso.poliziaAutorizzazioni.url },
-    fonti: [fontiPercorso.lear, fontiPercorso.lan, fontiPercorso.poliziaAutorizzazioni],
-    verificatoIl: VERIFICATO_IL,
+    fonti: [
+      fontiPercorso.lear,
+      fontiPercorso.lan,
+      fontiPercorso.rlan,
+      fontiPercorso.leggeEdilizia,
+      fontiPercorso.impiantiPubblicitari,
+      fontiPercorso.regolamentoImpiantiPubblicitari,
+      fontiPercorso.oip,
+      fontiPercorso.poliziaDistillati,
+      fontiPercorso.poliziaAutorizzazioni,
+    ],
+    verificatoIl: VERIFICATO_LOCALI,
     domandaChat: "Che autorizzazioni servono per aprire un negozio in Ticino?",
   },
 

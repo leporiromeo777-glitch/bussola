@@ -17,6 +17,7 @@ import { DISEGNI_STATUTO_SUVA } from "./statuto-suva";
 import { DISEGNI_ASSICURAZIONE_INFORTUNI } from "./assicurazione-infortuni";
 import { DISEGNI_RICONOSCIMENTO_AVS } from "./riconoscimento-avs";
 import { DISEGNI_AIUTO } from "./aiuto";
+import { DISEGNI_LOCALI_PUBBLICO } from "./locali-pubblico";
 import type { Disegno } from "./tipi";
 
 export const DISEGNI: Readonly<Record<string, Disegno>> = {
@@ -34,6 +35,7 @@ export const DISEGNI: Readonly<Record<string, Disegno>> = {
   ...DISEGNI_ASSICURAZIONE_INFORTUNI,
   ...DISEGNI_RICONOSCIMENTO_AVS,
   ...DISEGNI_AIUTO,
+  ...DISEGNI_LOCALI_PUBBLICO,
 };
 
 export type { ContestoDisegno, Disegno } from "./tipi";
