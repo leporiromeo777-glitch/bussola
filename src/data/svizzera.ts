@@ -686,6 +686,27 @@ export const fontiPercorso = {
     url: "https://www.suva.ch/it-ch/assicurazione/assicurazione-contro-gli-infortuni/assicurazione-per-imprenditori-per-lavoratori-indipendenti",
     ente: "Suva",
   },
+  // Statuto Suva (passo e lezione 10): ricontrollati il 18.10.2026, vedi VERIFICATO_SUVA.
+  suvaDecisione: {
+    titolo: "Decisione statuto di dipendente o indipendente: e ora?",
+    url: "https://www.suva.ch/it-ch/assicurazione/assicurazione-contro-gli-infortuni/accertamento-indipendente-dipendente/decisione",
+    ente: "Suva",
+  },
+  lainf66: {
+    titolo: "Legge sull'assicurazione contro gli infortuni (LAINF), art. 66: settore di competenza della Suva",
+    url: "https://www.fedlex.admin.ch/eli/cc/1982/1676_1676_1676/it#art_66",
+    ente: FEDLEX,
+  },
+  oainf73: {
+    titolo: "Ordinanza sull'assicurazione contro gli infortuni (OAINF), art. 73: industria edilizia e installazioni",
+    url: "https://www.fedlex.admin.ch/eli/cc/1983/38_38_38/it#art_73",
+    ente: FEDLEX,
+  },
+  avsIndipendenza: {
+    titolo: "Cosa significa indipendenza?",
+    url: "https://selbststaendig-erwerbend.ch/it/indipendenza",
+    ente: "Centro d'informazione AVS/AI",
+  },
   pmiInfortuni: {
     titolo: "Assicurazione contro gli infortuni professionali e non professionali",
     url: "https://www.kmu.admin.ch/it/assicurazione-contro-gli-infortuni-professionali-e-assicurazione-contro-gli-infortuni-non-professionali",
@@ -943,6 +964,34 @@ export const regolePermessi = {
   rientroFrontalieri: datoPermessi("almeno una volta alla settimana", fontiPercorso.semFrontalieri, "Il frontaliere torna al suo domicilio all'estero di norma ogni giorno, o almeno una volta alla settimana."),
   notificaCambiamentiGiorni: datoPermessi(14, fontiPercorso.umIndipendentiUeAelsB, "Cambiamenti di indirizzo, nazionalità, nome, Comune o Cantone, stato civile o famiglia: da notificare all'Ufficio della migrazione entro 14 giorni (lo stesso termine vale con il permesso G)."),
   rinnovoPrimaDellaScadenzaGiorni: datoPermessi(14, fontiPercorso.umIndipendentiUeAelsB, "Il rinnovo del permesso va chiesto all'Ufficio della migrazione almeno 14 giorni prima della scadenza (anche con il permesso G)."),
+} as const;
+
+/**
+ * Data dell'ultimo controllo delle fonti sullo statuto di indipendente nei
+ * settori della Suva, per il passo e la lezione 10: pagine della Suva
+ * (accertamento, decisione, assicurazione per imprenditori), LAINF art. 66 e
+ * OAINF art. 73 (stato 01.01.2026), pagina «Cosa significa indipendenza?» e
+ * «Presentare una domanda» di indipendente.ch, Promemoria AVS 2.02 (stato
+ * 01.01.2026).
+ */
+export const VERIFICATO_SUVA = "2026-10-18";
+
+function datoSuva<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_SUVA };
+}
+
+/** L'accertamento della Suva: indipendente o dipendente. */
+export const regoleSuva = {
+  termineDocumentiGiorni: datoSuva(
+    30,
+    fontiPercorso.suvaAccertamento,
+    "Quando la Suva chiede la documentazione ci sono 30 giorni per mandarla. Se manca qualche documento si mandano quelli che si hanno; se necessario la Suva proroga il termine.",
+  ),
+  termineOpposizioneGiorni: datoSuva(
+    30,
+    fontiPercorso.suvaDecisione,
+    "Contro una decisione della Suva (per esempio sullo statuto di dipendente) si può fare opposizione scritta entro 30 giorni. La Suva consiglia di parlarne prima con la sua agenzia.",
+  ),
 } as const;
 
 /** Regole e importi usati dal percorso guidato. */

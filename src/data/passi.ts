@@ -20,6 +20,7 @@ import {
   regolePercorso,
   regoleSanita,
   regolePermessi,
+  regoleSuva,
   tasseRegistroCommercio,
   ufficioSanitaTicino,
   ufficiPercorso,
@@ -28,6 +29,7 @@ import {
   VERIFICATO_SANITA,
   VERIFICATO_PERMESSI,
   VERIFICATO_NOME_DITTA,
+  VERIFICATO_SUVA,
   type Fonte,
 } from "./svizzera";
 
@@ -76,6 +78,7 @@ const sanita = regoleSanita;
 const ufficioSanita = ufficioSanitaTicino.valore;
 const perm = regolePermessi;
 const migrazione = ufficiPercorso.migrazioneTicino.valore;
+const suva = regoleSuva;
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -354,15 +357,26 @@ export const PASSI = [
     fase: "aprire l'attività",
     titolo: "Edilizia o trasporti: la Suva verifica il tuo statuto",
     descrizione:
-      "Anche nell'edilizia e nei trasporti (per esempio imbianchini, muratori, tassisti) la domanda di riconoscimento si presenta alla cassa AVS. La cassa la inoltra alla Suva, che decide d'accordo con la cassa se sei indipendente, dipendente o entrambe le cose.",
+      "Nei settori in cui la Suva assicura per legge i lavoratori (per esempio edilizia e installazioni, pulizia di edifici, trasporti, industria, lavori forestali) la Suva verifica se sei davvero indipendente. La domanda di riconoscimento si presenta comunque alla cassa AVS: la cassa la inoltra alla Suva, che decide d'accordo con la cassa se sei indipendente, dipendente o entrambe le cose (doppio statuto).",
     cosaFare: [
       "Presenta la domanda alla cassa AVS come tutti (passo seguente): non serve un passaggio separato alla Suva.",
-      "Se lavori in subappalto o a cottimo per un'altra impresa, di regola sei considerato dipendente di quell'impresa.",
-      "Prepara le prove della tua indipendenza: più committenti, offerte e fatture a tuo nome, investimenti, rischio economico a tuo carico.",
+      "Se lavori in subappalto o a cottimo per un'altra impresa, di regola sei considerato dipendente di quell'impresa. Sei indipendente solo in via eccezionale: se hai una tua organizzazione (posto di lavoro attrezzato, macchine o veicoli, materiale pagato da te, dipendenti fissi) o se lavori regolarmente anche per clienti tuoi.",
+      `Prepara le prove della tua indipendenza: contratti, offerte e fatture a tuo nome a più clienti, sito o biglietti da visita, fatture di attrezzi e materiale, contratto del veicolo. Quando la Suva ti chiede i documenti hai ${suva.termineDocumentiGiorni.valore} giorni per mandarli.`,
+      "Finché la Suva non ha deciso, spiega ai committenti che la domanda è in esame e fatti confermare gli incarichi per iscritto.",
+      `Se la Suva ti considera dipendente, i committenti devono assicurarti anche per i lavori già fatti. Se non sei d'accordo, parlane con l'agenzia Suva: contro la decisione puoi fare opposizione scritta entro ${suva.termineOpposizioneGiorni.valore} giorni.`,
     ],
     link: { etichetta: "Suva: indipendente o dipendente?", url: fontiPercorso.suvaAccertamento.url },
-    fonti: [fontiPercorso.suvaAccertamento, fonti.avsPromemoria202],
-    verificatoIl: VERIFICATO_IL,
+    fonti: [
+      fontiPercorso.suvaAccertamento,
+      fontiPercorso.suvaDecisione,
+      fontiPercorso.suvaImprenditori,
+      fontiPercorso.lainf66,
+      fontiPercorso.oainf73,
+      fontiPercorso.avsIndipendenza,
+      fonti.avsDomandaIndipendente,
+      fonti.avsPromemoria202,
+    ],
+    verificatoIl: VERIFICATO_SUVA,
     domandaChat: "Lavoro nell'edilizia: chi decide se sono indipendente?",
   },
   {
