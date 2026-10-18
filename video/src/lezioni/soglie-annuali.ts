@@ -95,8 +95,8 @@ export const soglieAnnuali: Lezione = {
   titolo: corso.titolo,
   stile: "misto",
   clip: "clip.mp4",
-  // Non c'è un passo dopo: la scheda finale fa i complimenti.
-  prossimoPasso: "Hai finito il corso di Bleo",
+  // Non c'è un passo dopo: la scheda finale fa i complimenti e dice che Bleo continua a seguirti.
+  prossimoPasso: "Ora Bleo ti segue nella tua attività",
   etichettaFine: "Complimenti!",
   scene: [
     {
@@ -240,11 +240,11 @@ export const soglieAnnuali: Lezione = {
       disegno: "fiduciario",
       stile: "presentatore",
       testo:
-        "Ecco fatto: hai finito il corso di Bleo! Torna qui ogni anno, a fine esercizio, per questo controllo. Hai un dubbio? Chiedi a Bleo nella chat. E per il tuo caso, rivolgiti a un fiduciario autorizzato.",
+        "Il corso è finito, ma Bleo resta con te: ti segue in tutto quello che fai con la tua impresa. Spese e ricevute, fatture, scadenze: ti aiuta ogni giorno, e per ogni dubbio c'è la chat. Per il tuo caso, rivolgiti a un fiduciario autorizzato.",
       schermo: {
         tipo: "punto",
-        titolo: "Hai finito il corso!",
-        testo: "Torna ogni anno per questo controllo. Dubbi? Chiedi a Bleo in chat. Per il tuo caso, un fiduciario autorizzato.",
+        titolo: "Bleo resta con te",
+        testo: "«I tuoi conti», «Preventivo e fattura», le scadenze del tuo percorso e la chat. Per il tuo caso, un fiduciario autorizzato.",
         fonte: fonti.albofiduciari,
       },
     },
@@ -252,7 +252,7 @@ export const soglieAnnuali: Lezione = {
       audio: "scena-13.mp3",
       disegno: "fonte",
       stile: "presentatore",
-      testo: "Le fonti ufficiali le trovi qui sotto. Complimenti, e buon lavoro con la tua attività!",
+      testo: "Le fonti ufficiali le trovi qui sotto. Complimenti! E da qui in avanti, ci vediamo ogni giorno nella tua attività.",
       schermo: { tipo: "fonte", fonte: fonti.afcAssoggettamento, verificatoIl: corso.verificatoIl },
     },
   ],
