@@ -29,7 +29,7 @@ export function EliminaAccount() {
           className="mt-3"
         >
           <p>
-            Sei sicuro? Cancelliamo il tuo account con il questionario, i passi fatti, le domande alla chat e «I tuoi conti» con tutte le ricevute salvate. Se ti servono, scarica prima i conti dalla pagina «I tuoi conti».{" "}
+            Sei sicuro? Cancelliamo il tuo account con il questionario, i passi fatti, le domande alla chat, «I tuoi conti» con tutte le ricevute salvate e il cassetto dei documenti con i suoi file. Se ti servono, scarica prima i conti dalla pagina «I tuoi conti» e tieni una copia dei documenti.{" "}
             <strong className="font-semibold">Non si può tornare indietro.</strong>
           </p>
           {stato.stato === "errore" ? (

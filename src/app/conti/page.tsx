@@ -38,6 +38,12 @@ export default async function PaginaConti() {
         Fotografa le ricevute o inoltrale per email: Bleo le legge e te le prepara. Tu controlli e confermi, una per
         una. Così a fine anno hai tutto pronto per il fiduciario.
       </p>
+      <p className="mt-3 text-sm">
+        <Link href="/documenti" className={`${classeLink} font-medium`}>
+          Cassetto dei documenti
+        </Link>
+        : decisione della cassa AVS, numero IVA, polizze e permesso in un posto solo, con le scadenze.
+      </p>
 
       {!attivo ? <NonAncoraAttivo /> : user ? <Conti oggi={oggi} /> : <Presentazione />}
 

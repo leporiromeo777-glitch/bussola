@@ -23,6 +23,7 @@ Il kit per le settimane 1-2 (interviste, messaggi, social, lettere) è in
 | Strumenti: tariffa oraria, budget, business plan, preventivo, fattura con QR | `/strumenti`, `src/lib/strumenti` | pronti (dati solo nel browser) |
 | «I tuoi conti»: entrate, uscite, fatture emesse, ricevute lette da Claude, email inoltrate, CSV | `/conti`, `src/app/api/conti`, `src/lib/conti` | fase 1 pronta (servono Supabase; Claude e Resend facoltativi) |
 | «Clienti e ore»: rubrica dei clienti con indirizzo per la QR-fattura, ore per cliente, fattura del mese già compilata | `/conti/clienti`, `src/app/api/conti/clienti`, `src/app/api/conti/ore`, `src/lib/clienti` | pronta (serve Supabase) |
+| «Cassetto dei documenti»: AVS, IVA, registro di commercio, polizze, permesso, contratti, con le scadenze | `/documenti`, `src/app/api/documenti`, `src/lib/cassetto` | pronto (serve Supabase) |
 | «Calendario sempre aggiornato»: link personale con scadenze e votazioni per Google Calendar e Apple Calendario | `/percorso`, `src/app/api/calendario`, `src/lib/percorso/abbonamento.ts` | pronto (servono Supabase e la chiave segreta) |
 | Pagamenti (Stripe + TWINT), scadenzario via email | | settimane 12-13 del piano |
 
@@ -168,6 +169,18 @@ iscrizioni vengono salvate lo stesso.
    (`/strumenti/fattura#ore=…`): il browser non manda quella parte al server
    e la fattura resta nel browser come le altre. L'app apre lo stesso link
    nel browser.
+
+### «Cassetto dei documenti»
+
+Esegui la migrazione `20261019000004_cassetto_documenti.sql`: crea la tabella
+`cassetto_documenti` e il bucket privato `cassetto` dello Storage, con una
+cartella per utente e le sue regole. Non serve altro: sito e app caricano,
+modificano e cancellano con l'accesso dell'utente (RLS) e aprono i file con
+link temporanei di 60 secondi. `SUPABASE_SECRET_KEY` serve per il limite di
+caricamenti per connessione e per cancellare i file quando si elimina
+l'account (`src/lib/account/eliminazione.ts` svuota le cartelle di
+`ricevute` e `cassetto`). Nell'app i promemoria (30 e 7 giorni prima della
+scadenza, alle 9) usano lo stesso interruttore delle scadenze del percorso.
 
 ### «Calendario sempre aggiornato» (link personale per il calendario)
 

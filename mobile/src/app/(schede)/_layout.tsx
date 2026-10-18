@@ -3,8 +3,9 @@ import { Tabs } from "expo-router";
 import { useEffect } from "react";
 import type { ColorValue } from "react-native";
 import type { NomeIcona } from "~/components/ui";
+import { aggiornaScadenzeDocumenti, dimenticaScadenzeDocumenti } from "~/lib/cassetto";
 import { aggiornaContatore, impostaDaConfermare, useDaConfermare } from "~/lib/conti";
-import { togliPromemoriaFatture } from "~/lib/notifiche";
+import { riprogrammaNotifiche, togliPromemoriaFatture } from "~/lib/notifiche";
 import { useSessione } from "~/lib/sessione";
 import { useColori } from "~/lib/tema";
 
@@ -30,6 +31,19 @@ export default function Schede() {
       if (pronta) void togliPromemoriaFatture().catch(() => {});
     }
   }, [utente, pronta]);
+
+  // Promemoria dei documenti del cassetto: con l'accesso si rileggono le scadenze
+  // (anche dei documenti caricati dal sito); uscendo dall'account si tolgono.
+  useEffect(() => {
+    if (!pronta) return;
+    if (utente) {
+      void aggiornaScadenzeDocumenti()
+        .then((cambiate) => (cambiate ? riprogrammaNotifiche() : undefined))
+        .catch(() => {});
+    } else if (dimenticaScadenzeDocumenti()) {
+      void riprogrammaNotifiche().catch(() => {});
+    }
+  }, [pronta, utente]);
   return (
     <Tabs
       screenOptions={{

@@ -18,6 +18,8 @@ export const LIMITI_RICHIESTE = {
   lettera: { massimo: 5, finestraSecondi: 60 * 60 },
   /** «I tuoi conti»: ricevute fotografate (con accesso; c'è anche il limite al giorno per utente). */
   ricevute: { massimo: 30, finestraSecondi: 60 * 60 },
+  /** «Cassetto dei documenti»: documenti caricati (con accesso; al massimo 100 per persona nel database). */
+  cassetto: { massimo: 30, finestraSecondi: 60 * 60 },
   /** «Testi pronti»: si provano più versioni. */
   testi: { massimo: 10, finestraSecondi: 60 * 60 },
   /** «Nome della ditta»: proposte di nomi. */

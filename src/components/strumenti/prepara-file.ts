@@ -85,13 +85,16 @@ export async function preparaFoto(file: File): Promise<FilePronto> {
   }
 }
 
-export async function preparaPdf(file: File): Promise<FilePronto> {
+/** `controllaPagine: false` per i PDF che Bleo non legge (cassetto dei documenti): conta solo il peso. */
+export type OpzioniFile = { controllaPagine?: boolean };
+
+export async function preparaPdf(file: File, opzioni: OpzioniFile = {}): Promise<FilePronto> {
   if (file.size > PESO_MASSIMO_PDF) throw new ErroreFile(MESSAGGI_LETTERA.pdfGrande);
   const byte = new Uint8Array(await file.arrayBuffer());
   if (riconosciTipo(byte.subarray(0, 12)) !== "application/pdf") {
     throw new ErroreFile("Questo file non sembra un PDF valido.");
   }
-  const pagine = stimaPaginePdf(byte);
+  const pagine = opzioni.controllaPagine === false ? null : stimaPaginePdf(byte);
   if (pagine !== null && pagine > PAGINE_MASSIME_PDF) throw new ErroreFile(MESSAGGI_LETTERA.pdfLungo);
   return { tipo: "application/pdf", dati: await leggiComeBase64(file), anteprima: null, nome: file.name, byte: file.size };
 }
@@ -101,8 +104,8 @@ export function ePdf(file: File): boolean {
 }
 
 /** Prepara una foto o un PDF; lancia ErroreFile con un messaggio da mostrare. */
-export async function preparaFile(file: File): Promise<FilePronto> {
-  if (ePdf(file)) return preparaPdf(file);
+export async function preparaFile(file: File, opzioni: OpzioniFile = {}): Promise<FilePronto> {
+  if (ePdf(file)) return preparaPdf(file, opzioni);
   if (file.type.startsWith("image/") || file.type === "") return preparaFoto(file);
   throw new ErroreFile(MESSAGGI_LETTERA.tipoNonValido);
 }

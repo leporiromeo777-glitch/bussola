@@ -5,6 +5,7 @@ import { AccessibilityInfo, ActivityIndicator, Pressable, RefreshControl, View }
 import { dataSvizzera } from "@/data/svizzera";
 import { NOMI_LIVELLO } from "@/lib/conti/sollecito";
 import type { Casella, FatturaEmessa, Movimento, RispostaConti, Sollecito } from "@/lib/conti/tipi";
+import { RigaCassetto } from "~/components/cassetto/link-cassetto";
 import { SezioneCasella } from "~/components/conti/casella-email";
 import { SezioneDaParte } from "~/components/conti/da-parte";
 import { SezioneFatture } from "~/components/conti/fatture";
@@ -502,6 +503,10 @@ function ContiUtente() {
       ) : null}
 
       <SezioneCasella casella={casella} emailAttiva={dati.funzioni.email} attesa={attesaCasella} onRigenera={cambiaIndirizzo} />
+
+      <Scheda style={{ paddingVertical: SPAZIO.xs }}>
+        <RigaCassetto />
+      </Scheda>
 
       <View style={{ gap: SPAZIO.s }}>
         <Testo variante="sottotitolo">Scarica per il fiduciario</Testo>

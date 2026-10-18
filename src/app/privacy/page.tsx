@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { Avviso, PaginaLegale } from "@/components/landing/pagina-legale";
 import { DatiTitolare, EmailTitolare } from "@/components/landing/titolare";
 import { SCAMBI_PRECEDENTI_MASSIMI } from "@/lib/chat/limiti";
+import { DURATA_LINK_CASSETTO, GIORNI_AVVISO_DOCUMENTI } from "@/lib/cassetto/limiti";
 import { DURATA_LINK_DOCUMENTO, LETTURE_AL_GIORNO } from "@/lib/conti/limiti";
 import { calendarioAttivo } from "@/lib/percorso/abbonamento-server";
 import { dataSvizzera, fonti, regolePercorso } from "@/data/svizzera";
@@ -77,7 +78,7 @@ export default async function PaginaPrivacy() {
             <li>
               Il sito e il suo server girano su Netlify {hosting.server}: i dati che mandi con i moduli (lista
               d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, ricevute di «I tuoi
-              conti») passano da lì prima di arrivare al database.
+              conti», documenti del cassetto) passano da lì prima di arrivare al database.
             </li>
           ) : null}
           <li>
@@ -256,6 +257,35 @@ export default async function PaginaPrivacy() {
           </li>
         </ul>
 
+        <h3 id="cassetto">
+          Cassetto dei documenti
+          <NonAttivo attivo={attivi.conti} />
+        </h3>
+        <ul>
+          <li>
+            <strong>Dati:</strong> le foto e i PDF dei documenti che metti nel cassetto (per esempio la decisione della
+            cassa AVS, una polizza, un contratto o il permesso di soggiorno), con tutto quello che c&apos;è scritto; il
+            nome e il tipo che scegli, la data di scadenza, la nota e il nome del file. Sono dati che possono essere
+            delicati: mettici solo quello che ti serve.
+          </li>
+          <li>
+            <strong>Dove:</strong> nel database e nell&apos;archivio dei file (Storage) di Supabase, su server{" "}
+            {luogoDati}, in una cartella privata che puoi vedere solo tu, separata da quella delle ricevute.
+          </li>
+          <li>
+            <strong>Perché:</strong> per tenere i documenti della tua attività in un posto solo e mostrarti quando
+            scadono. Non li facciamo leggere all&apos;intelligenza artificiale e non li controlliamo.
+          </li>
+          <li>
+            <strong>Nell&apos;app:</strong> con l&apos;accesso, l&apos;app salva sul telefono il nome e la data di
+            scadenza dei documenti che scadono (non i file né le note). Servono per mostrarti quali documenti scadono
+            presto e, se attivi i promemoria delle scadenze, per programmare le notifiche{" "}
+            {GIORNI_AVVISO_DOCUMENTI.join(" e ")} giorni prima. La notifica mostra il nome del documento, anche sullo
+            schermo bloccato se il telefono è impostato così. Nome e data spariscono dal telefono quando esci
+            dall&apos;account o cancelli i dati dal telefono.
+          </li>
+        </ul>
+
         <h3>
           Domande alla chat
           <NonAttivo attivo={attivi.chat} testo="non ancora attiva" />
@@ -421,6 +451,11 @@ export default async function PaginaPrivacy() {
             contatori delle letture automatiche li cancelliamo dopo 2 giorni.
           </li>
           <li>
+            <strong>Cassetto dei documenti</strong> (file, nomi, scadenze e note): finché non elimini il documento o
+            l&apos;account. Quando elimini un documento cancelliamo subito anche il suo file; se elimini l&apos;account
+            cancelliamo tutto il cassetto. Gli originali tienili tu: il cassetto è solo una copia.
+          </li>
+          <li>
             <strong>Dati tecnici:</strong> {durataDatiTecnici}.
           </li>
         </ul>
@@ -439,7 +474,7 @@ export default async function PaginaPrivacy() {
         <ul>
           <li>
             <strong>Supabase Pte. Ltd. (Singapore)</strong>: database, archivio dei file (le ricevute di «I tuoi
-            conti») e accesso all&apos;account (compresa l&apos;email con il link di accesso). I dati sono salvati su server {luogoDati}; per assistenza e
+            conti» e i documenti del cassetto) e accesso all&apos;account (compresa l&apos;email con il link di accesso). I dati sono salvati su server {luogoDati}; per assistenza e
             manutenzione possono essere consultati da Supabase a Singapore e da suoi fornitori negli Stati Uniti,
             tra cui Supabase, Inc.
             <GaranziaUsa testo={GARANZIE_USA.supabase} />
@@ -450,7 +485,7 @@ export default async function PaginaPrivacy() {
               <>
                 {" "}
                 Su Netlify gira anche il server del sito, {hosting.server}: riceve i dati che mandi con i moduli
-                (lista d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, strumenti con l&apos;AI, «I tuoi conti»)
+                (lista d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, strumenti con l&apos;AI, «I tuoi conti», cassetto dei documenti)
                 e li passa al database.
               </>
             ) : null}
@@ -564,7 +599,8 @@ export default async function PaginaPrivacy() {
         <p>
           Il sito usa solo connessioni cifrate (HTTPS). Nel database ogni persona può leggere solo i propri dati; la
           lista d&apos;attesa è accessibile solo dal server. Le ricevute di «I tuoi conti» stanno in un archivio
-          privato: si aprono solo con un link temporaneo che vale {DURATA_LINK_DOCUMENTO / 60} minuti. L&apos;indirizzo personale per inoltrare
+          privato: si aprono solo con un link temporaneo che vale {DURATA_LINK_DOCUMENTO / 60} minuti. I documenti del
+          cassetto stanno in un altro archivio privato e il loro link vale {DURATA_LINK_CASSETTO} secondi. L&apos;indirizzo personale per inoltrare
           le email contiene un codice casuale che nessuno può indovinare; se finisce in giro puoi cambiarlo. Anche il
           link del calendario sempre aggiornato contiene un codice casuale: nel database ne teniamo solo
           un&apos;impronta e, se finisce in giro, puoi rigenerarlo. Solo il titolare ha accesso amministrativo.

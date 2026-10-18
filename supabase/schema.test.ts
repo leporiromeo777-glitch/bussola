@@ -2,6 +2,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ID_PASSI } from "../src/data/passi";
+import { DOCUMENTI_MASSIMI } from "../src/lib/cassetto/limiti";
+import { TIPI_DOCUMENTO } from "../src/lib/cassetto/tipi";
 import { TITOLO_MASSIMO } from "../src/lib/chat/conversazioni";
 import { MINUTI_MASSIMI, TARIFFA_MASSIMA } from "../src/lib/clienti/limiti";
 import { DOMANDE_GRATIS_AL_MESE } from "../src/lib/chat/quota";
@@ -414,6 +416,7 @@ describe("eliminazione dell'account (src/lib/account/eliminazione.ts)", () => {
        where c.contype = 'f' and c.confrelid = 'auth.users'::regclass
        order by 1`);
     expect(r.rows.map((x) => x.tabella)).toEqual([
+      "cassetto_documenti",
       "chat_conversazioni",
       "chat_messaggi",
       "conti_caselle",
@@ -1088,6 +1091,153 @@ describe("«Clienti e ore» (conti_clienti e conti_ore)", () => {
       [LIBERA],
     );
     expect(Number(r.rows[0]?.righe)).toBe(0);
+  });
+});
+
+describe("«Cassetto dei documenti» (cassetto_documenti e bucket cassetto)", () => {
+  const TITOLARE = "c4550000-0000-4000-8000-000000000001";
+  const CURIOSA = "c4550000-0000-4000-8000-000000000002";
+  const percorso = (utente: string, n = 1, estensione = "pdf") =>
+    `${utente}/${String(n).padStart(8, "0")}-2222-3333-4444-555555555555.${estensione}`;
+
+  beforeAll(async () => {
+    await db.exec(
+      `insert into auth.users (id, email) values ('${TITOLARE}', 'cassetto@example.ch'), ('${CURIOSA}', 'curiosa@example.ch')`,
+    );
+  });
+
+  const documento = (utente: string, campi: Record<string, string | number | null> = {}, come = utente) => {
+    const riga = {
+      user_id: utente,
+      titolo: "Permesso B",
+      tipo: "permesso",
+      scade_il: "2027-05-31",
+      percorso: percorso(utente),
+      tipo_file: "application/pdf",
+      byte: 120000,
+      ...campi,
+    };
+    const colonne = Object.keys(riga);
+    return comeUtente(
+      () =>
+        db.query<{ id: string }>(
+          `insert into public.cassetto_documenti (${colonne.join(", ")}) values (${colonne.map((_, i) => `$${i + 1}`).join(", ")}) returning id`,
+          Object.values(riga),
+        ),
+      come,
+    );
+  };
+
+  it("i tipi e il numero massimo nel database sono quelli di src/lib/cassetto", () => {
+    const sql = readFileSync(new URL("20261019000004_cassetto_documenti.sql", CARTELLA), "utf8");
+    const elenco = /tipo in \(([^)]*)\)\),/.exec(sql)?.[1] ?? "";
+    expect([...elenco.matchAll(/'([a-z_]+)'/g)].map((m) => m[1])).toEqual(TIPI_DOCUMENTO.map((t) => t.id));
+    expect(sql).toContain(`limita_righe_conti('${DOCUMENTI_MASSIMI}')`);
+  });
+
+  it("ognuno vede, cambia e cancella solo i propri documenti", async () => {
+    const id = (await documento(TITOLARE)).rows[0]!.id;
+    const proprie = await comeUtente(() => db.query<{ n: number }>("select count(*)::int as n from public.cassetto_documenti"), TITOLARE);
+    expect(proprie.rows[0]?.n).toBe(1);
+    const altrui = await comeUtente(() => db.query<{ n: number }>("select count(*)::int as n from public.cassetto_documenti"), CURIOSA);
+    expect(altrui.rows[0]?.n).toBe(0);
+    await expect(documento(TITOLARE, { percorso: percorso(TITOLARE, 2) }, CURIOSA)).rejects.toThrow(/row-level security/);
+    const cambiate = await comeUtente(
+      () => db.query("update public.cassetto_documenti set titolo = 'rubato' where id = $1", [id]),
+      CURIOSA,
+    );
+    expect(cambiate.affectedRows).toBe(0);
+    const cancellate = await comeUtente(() => db.query("delete from public.cassetto_documenti where id = $1", [id]), CURIOSA);
+    expect(cancellate.affectedRows).toBe(0);
+    await expect(come("anon", "", () => db.query("select * from public.cassetto_documenti"))).resolves.toMatchObject({ rows: [] });
+  });
+
+  it("dopo il caricamento si cambiano nome, tipo, scadenza e nota, non il file", async () => {
+    const id = (await documento(TITOLARE, { percorso: percorso(TITOLARE, 3) })).rows[0]!.id;
+    await comeUtente(
+      () =>
+        db.query(
+          "update public.cassetto_documenti set titolo = 'Permesso B rinnovato', tipo = 'altro', scade_il = null, nota = 'ok', aggiornato_il = now() where id = $1",
+          [id],
+        ),
+      TITOLARE,
+    );
+    for (const colonna of ["percorso = percorso", "byte = 1", "tipo_file = 'image/png'", `user_id = '${CURIOSA}'`]) {
+      await expect(
+        comeUtente(() => db.query(`update public.cassetto_documenti set ${colonna} where id = $1`, [id]), TITOLARE),
+      ).rejects.toThrow(/permission denied/);
+    }
+    const r = await db.query<{ titolo: string; scade_il: string | null }>(
+      "select titolo, scade_il from public.cassetto_documenti where id = $1",
+      [id],
+    );
+    expect(r.rows).toEqual([{ titolo: "Permesso B rinnovato", scade_il: null }]);
+  });
+
+  it("rifiuta tipi sconosciuti, titoli vuoti, date strane, file troppo grandi e percorsi fuori dalla cartella", async () => {
+    await expect(documento(TITOLARE, { tipo: "ricevuta", percorso: percorso(TITOLARE, 4) })).rejects.toThrow(/check/);
+    await expect(documento(TITOLARE, { titolo: "", percorso: percorso(TITOLARE, 4) })).rejects.toThrow(/check/);
+    await expect(documento(TITOLARE, { scade_il: "1999-12-31", percorso: percorso(TITOLARE, 4) })).rejects.toThrow(/check/);
+    await expect(documento(TITOLARE, { byte: 3_500_001, percorso: percorso(TITOLARE, 4) })).rejects.toThrow(/check/);
+    await expect(documento(TITOLARE, { tipo_file: "text/plain", percorso: percorso(TITOLARE, 4) })).rejects.toThrow(/check/);
+    await expect(documento(TITOLARE, { percorso: percorso(CURIOSA, 4) })).rejects.toThrow(/cassetto_documenti_percorso_utente/);
+    await expect(documento(TITOLARE, { percorso: `${TITOLARE}/../x.pdf` })).rejects.toThrow(/cassetto_documenti_percorso_utente/);
+  });
+
+  it(`al massimo ${DOCUMENTI_MASSIMI} documenti per utente`, async () => {
+    await db.query(
+      `insert into public.cassetto_documenti (user_id, titolo, tipo, percorso, tipo_file, byte)
+       select $1::uuid, 'riempitivo', 'altro', $1::text || '/' || lpad(n::text, 8, '0') || '-0000-4000-8000-000000000000.pdf', 'application/pdf', 10
+         from generate_series(1, ${DOCUMENTI_MASSIMI}) as n`,
+      [CURIOSA],
+    );
+    await expect(documento(CURIOSA, { percorso: percorso(CURIOSA, 999) })).rejects.toThrow(/troppe righe in cassetto_documenti/);
+    await db.query("delete from public.cassetto_documenti where user_id = $1", [CURIOSA]);
+  });
+
+  it("nello Storage il bucket cassetto è privato e ognuno usa solo la sua cartella", async () => {
+    const r = await db.query<{ public: boolean; file_size_limit: string; allowed_mime_types: string[] }>(
+      "select public, file_size_limit::text, allowed_mime_types from storage.buckets where id = 'cassetto'",
+    );
+    expect(r.rows).toEqual([
+      { public: false, file_size_limit: "3500000", allowed_mime_types: ["image/jpeg", "image/png", "image/webp", "application/pdf"] },
+    ]);
+    await comeUtente(
+      () => db.query("insert into storage.objects (bucket_id, name) values ('cassetto', $1)", [percorso(TITOLARE)]),
+      TITOLARE,
+    );
+    await expect(
+      comeUtente(
+        () => db.query("insert into storage.objects (bucket_id, name) values ('cassetto', $1)", [percorso(TITOLARE, 2)]),
+        CURIOSA,
+      ),
+    ).rejects.toThrow(/row-level security/);
+    const visti = await comeUtente(
+      () => db.query("select name from storage.objects where bucket_id = 'cassetto'"),
+      CURIOSA,
+    );
+    expect(visti.rows).toEqual([]);
+    const propri = await comeUtente(
+      () => db.query<{ name: string }>("select name from storage.objects where bucket_id = 'cassetto'"),
+      TITOLARE,
+    );
+    expect(propri.rows).toEqual([{ name: percorso(TITOLARE) }]);
+    const cancellati = await comeUtente(
+      () => db.query("delete from storage.objects where bucket_id = 'cassetto' and name = $1", [percorso(TITOLARE)]),
+      CURIOSA,
+    );
+    expect(cancellati.affectedRows).toBe(0);
+    await comeUtente(
+      () => db.query("delete from storage.objects where bucket_id = 'cassetto' and name = $1", [percorso(TITOLARE)]),
+      TITOLARE,
+    );
+  });
+
+  it("cancellando l'utente spariscono tutti i suoi documenti", async () => {
+    await documento(TITOLARE, { percorso: percorso(TITOLARE, 5) });
+    await db.query("delete from auth.users where id = $1", [TITOLARE]);
+    const r = await db.query<{ n: number }>("select count(*)::int as n from public.cassetto_documenti where user_id = $1", [TITOLARE]);
+    expect(r.rows[0]?.n).toBe(0);
   });
 });
 

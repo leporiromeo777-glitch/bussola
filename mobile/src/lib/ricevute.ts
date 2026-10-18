@@ -55,42 +55,42 @@ async function comprimi(uri: string, larghezza: number, altezza: number, lato: n
   }
 }
 
-async function daImmagine(asset: ImagePicker.ImagePickerAsset): Promise<SceltaFile> {
+async function daImmagine(asset: ImagePicker.ImagePickerAsset, nomeFile: string): Promise<SceltaFile> {
   try {
     let dati = await comprimi(asset.uri, asset.width, asset.height, LATO_MASSIMO, QUALITA);
     // Ancora troppo grande: un secondo tentativo più leggero.
     if (dati && byteBase64(dati) > MASSIMO_IMMAGINE) dati = await comprimi(asset.uri, asset.width, asset.height, 1600, 0.5);
     if (!dati) return errore("Non riesco a preparare la foto. Riprova.");
     if (byteBase64(dati) > MASSIMO_IMMAGINE) return errore("La foto è troppo grande anche dopo averla ridotta. Prova a rifarla.");
-    return { ok: true, file: { tipo: "image/jpeg", dati, nomeFile: "ricevuta.jpg" } };
+    return { ok: true, file: { tipo: "image/jpeg", dati, nomeFile } };
   } catch {
     return errore("Non riesco a preparare la foto. Riprova.");
   }
 }
 
-/** Apre la fotocamera. */
-export async function scattaFoto(): Promise<SceltaFile> {
+/** Apre la fotocamera. `nomeFile` è il nome con cui si salva la foto (ricevuta o documento del cassetto). */
+export async function scattaFoto(nomeFile = "ricevuta.jpg"): Promise<SceltaFile> {
   if (Platform.OS !== "web") {
     const permesso = await ImagePicker.requestCameraPermissionsAsync();
     if (!permesso.granted) {
-      return errore("Per fotografare le ricevute, permetti a Bleo di usare la fotocamera nelle impostazioni del telefono.");
+      return errore("Per fotografare ricevute e documenti, permetti a Bleo di usare la fotocamera nelle impostazioni del telefono.");
     }
   }
   try {
     const esito = await ImagePicker.launchCameraAsync({ mediaTypes: ["images"], quality: 1, exif: false });
     if (esito.canceled || !esito.assets[0]) return ANNULLATO;
-    return daImmagine(esito.assets[0]);
+    return daImmagine(esito.assets[0], nomeFile);
   } catch {
     return errore("Non riesco ad aprire la fotocamera. Prova a scegliere la foto dalla galleria.");
   }
 }
 
 /** Sceglie una foto già fatta. */
-export async function scegliFoto(): Promise<SceltaFile> {
+export async function scegliFoto(nomeFile = "ricevuta.jpg"): Promise<SceltaFile> {
   try {
     const esito = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 1, exif: false });
     if (esito.canceled || !esito.assets[0]) return ANNULLATO;
-    return daImmagine(esito.assets[0]);
+    return daImmagine(esito.assets[0], nomeFile);
   } catch {
     return errore("Non riesco ad aprire la galleria. Riprova.");
   }

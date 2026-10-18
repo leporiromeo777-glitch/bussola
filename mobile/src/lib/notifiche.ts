@@ -2,22 +2,35 @@
  * Promemoria come notifiche locali: niente server, niente token push.
  * - Scadenze e votazioni: si riprogrammano tutti ogni volta che cambia il
  *   percorso.
+ * - Documenti del cassetto (src/lib/cassetto/promemoria.ts): 30 e 7 giorni
+ *   prima della scadenza, alle 9; insieme a scadenze e votazioni restano
+ *   entro MASSIMO_PROMEMORIA (i più vicini). Le scadenze dei documenti sono
+ *   salvate sul telefono (mobile/src/lib/cassetto.ts).
  * - Fatture emesse non pagate (src/lib/conti/promemoria.ts): un avviso il
- *   mattino dopo la scadenza; si riprogrammano ogni volta che l'app legge i
- *   conti. Valgono con lo stesso interruttore dei promemoria delle scadenze.
+ *   mattino dopo la scadenza (al massimo MASSIMO_PROMEMORIA_FATTURE); si
+ *   riprogrammano ogni volta che l'app legge i conti.
+ * Tutti valgono con lo stesso interruttore dei promemoria delle scadenze.
+ * Con il riassunto del lunedì si resta sotto le 64 notifiche che iOS tiene.
  * Un lavoro alla volta (inFila) e id stabili: niente notifiche doppie.
  */
 import * as Notifications from "expo-notifications";
 import { AndroidImportance } from "expo-notifications";
 import { Platform } from "react-native";
 import { VOTAZIONI } from "@/data/votazioni";
+import {
+  PREFISSO_PROMEMORIA_DOCUMENTO,
+  pianificaPromemoriaDocumenti,
+  unisciPromemoria,
+  type ScadenzaDocumento,
+} from "@/lib/cassetto/promemoria";
 import { PREFISSO_PROMEMORIA_FATTURA, pianificaPromemoriaFatture } from "@/lib/conti/promemoria";
 import type { FatturaEmessa } from "@/lib/conti/tipi";
 import { annoScadenzario, eventiDaScadenze } from "@/lib/percorso/calendario";
-import { pianificaPromemoria } from "@/lib/percorso/promemoria";
+import { pianificaPromemoria, type Promemoria } from "@/lib/percorso/promemoria";
 import type { Percorso, Scadenza } from "@/lib/percorso/regole";
 import { prossimiLunedi, riassuntoSettimana } from "@/lib/percorso/settimana";
 import { eventiVotazioni, votazioniInArrivo } from "@/lib/votazioni";
+import { leggiScadenzeDocumenti } from "./cassetto";
 import { leggiStatoNotifiche, oggiLocale, promemoriaAttivi } from "./stato";
 
 const CANALE = "scadenze";
@@ -96,23 +109,46 @@ async function cancellaProgrammate(scegli: (id: string) => boolean): Promise<voi
   }
 }
 
-/**
- * Cancella le notifiche programmate e rifà quelle scelte: i promemoria delle
- * scadenze e delle fatture (con `scadenze`) e il riassunto del lunedì alle 9.
- * Restituisce quante scadenze ha programmato.
- */
-export function programmaNotifiche(opzioni: {
+export type OpzioniNotifiche = {
+  /** null se il questionario non è fatto: niente scadenze del percorso né riassunto del lunedì. */
   percorso: Percorso | null;
   fatti: ReadonlySet<string>;
+  /** Promemoria delle scadenze: percorso, votazioni, documenti del cassetto e fatture (un solo interruttore). */
   scadenze: boolean;
   settimana: boolean;
-}): Promise<number> {
-  if (Platform.OS === "web") return Promise.resolve(0);
+  /** Scadenze dei documenti; se mancano, quelle salvate sul telefono. */
+  documenti?: readonly ScadenzaDocumento[];
+};
+
+/** Quanti promemoria sono stati programmati: scadenze del percorso (con le votazioni) e documenti. */
+export type EsitoNotifiche = { scadenze: number; documenti: number };
+
+/**
+ * Cancella le notifiche programmate e rifà quelle scelte: con `scadenze` i
+ * promemoria delle scadenze, delle votazioni e dei documenti (i più vicini,
+ * entro il massimo) e quelli delle fatture; con `settimana` il riassunto del
+ * lunedì alle 9.
+ */
+export function programmaTutte(opzioni: OpzioniNotifiche): Promise<EsitoNotifiche> {
+  if (Platform.OS === "web") return Promise.resolve({ scadenze: 0, documenti: 0 });
   return inFila(async () => {
     // Fatture non ancora lette: i loro promemoria restano, gli altri si rifanno.
     if (opzioni.scadenze && fattureDaRicordare === null) await cancellaProgrammate((id) => !eFattura(id));
     else await Notifications.cancelAllScheduledNotificationsAsync();
-    const quante = opzioni.scadenze ? await programmaPromemoria(opzioni.percorso?.scadenze ?? []) : 0;
+    const adesso = new Date();
+    const piano = opzioni.scadenze
+      ? unisciPromemoria([
+          promemoriaPercorso(opzioni.percorso?.scadenze ?? [], adesso),
+          pianificaPromemoriaDocumenti(opzioni.documenti ?? leggiScadenzeDocumenti(), adessoLocale(adesso)),
+        ])
+      : [];
+    for (const p of piano) {
+      await Notifications.scheduleNotificationAsync({
+        identifier: p.id,
+        content: { title: p.titolo, body: p.testo, data: { scadenza: p.scadenza } },
+        trigger: allaData(p.quando),
+      });
+    }
     if (opzioni.settimana && opzioni.percorso) {
       for (const lunedi of prossimiLunedi(oggiLocale(), LUNEDI_IN_ANTICIPO)) {
         const { testo } = riassuntoSettimana(opzioni.percorso, opzioni.fatti, lunedi);
@@ -124,18 +160,27 @@ export function programmaNotifiche(opzioni: {
       }
     }
     if (opzioni.scadenze && fattureDaRicordare) await programmaFatture(fattureDaRicordare);
-    return quante;
+    const documenti = piano.filter((p) => p.id.startsWith(PREFISSO_PROMEMORIA_DOCUMENTO)).length;
+    return { scadenze: piano.length - documenti, documenti };
   });
 }
 
-/** Riprogramma tutto con quello che è salvato sul telefono (per esempio dopo l'interruttore nei conti). */
-export function riprogrammaNotifiche(): Promise<number> {
-  return programmaNotifiche(leggiStatoNotifiche());
+/** Come programmaTutte; restituisce quante scadenze del percorso (e votazioni) ha programmato. */
+export async function programmaNotifiche(opzioni: OpzioniNotifiche): Promise<number> {
+  return (await programmaTutte(opzioni)).scadenze;
 }
 
-/** Programma i promemoria delle scadenze e delle votazioni da seguire (senza cancellare gli altri). Restituisce quanti. */
-async function programmaPromemoria(scadenze: readonly Scadenza[]): Promise<number> {
-  const adesso = new Date();
+/**
+ * Riprogramma tutto con quello che è salvato sul telefono: risposte, passi
+ * fatti, interruttori e scadenze dei documenti (per esempio dopo
+ * l'interruttore nei conti o nel cassetto, o uscendo dall'account).
+ */
+export function riprogrammaNotifiche(): Promise<EsitoNotifiche> {
+  return programmaTutte(leggiStatoNotifiche());
+}
+
+/** I promemoria delle scadenze del percorso e delle votazioni da seguire. */
+function promemoriaPercorso(scadenze: readonly Scadenza[], adesso: Date): Promemoria[] {
   const anno = annoScadenzario(adesso);
   const eventi = [
     ...eventiDaScadenze(scadenze, { anno: anno - 1 }),
@@ -143,15 +188,7 @@ async function programmaPromemoria(scadenze: readonly Scadenza[]): Promise<numbe
     ...eventiDaScadenze(scadenze, { anno: anno + 1 }),
     ...eventiVotazioni(votazioniInArrivo(VOTAZIONI, oggiLocale(adesso))),
   ];
-  const piano = pianificaPromemoria(eventi, oggiLocale(adesso));
-  for (const p of piano) {
-    await Notifications.scheduleNotificationAsync({
-      identifier: p.id,
-      content: { title: p.titolo, body: p.testo, data: { scadenza: p.scadenza } },
-      trigger: allaData(p.quando),
-    });
-  }
-  return piano.length;
+  return pianificaPromemoria(eventi, oggiLocale(adesso));
 }
 
 /** Programma i promemoria delle fatture (senza cancellare gli altri). */

@@ -35,6 +35,7 @@ export default function Radice() {
           options={{ title: "Le tue chat", presentation: "modal", headerBackVisible: false, headerLeft: () => null }}
         />
         <Stack.Screen name="guardaroba" options={{ title: "Vesti Bleo" }} />
+        <Stack.Screen name="documenti" options={{ title: "Cassetto dei documenti" }} />
       </Stack>
     </>
   );

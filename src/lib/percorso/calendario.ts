@@ -225,13 +225,17 @@ function istanteIcs(istante: Date): string {
 /** Durate accettate per aggiornaOgni: giorni ("P1D") o ore ("PT12H"). */
 const DURATA_ISO = /^P(?:\d{1,3}D|T\d{1,3}H)$/;
 
-/** Il file .ics completo (righe CRLF, termina con CRLF). */
+/**
+ * Il file .ics completo (righe CRLF, termina con CRLF). Ogni evento ha un
+ * avviso `giorniPreavviso` giorni prima (7 se manca); con un elenco di giorni,
+ * un avviso per ognuno.
+ */
 export function generaIcs(
   eventi: readonly EventoCalendario[],
   opzioni: {
     adesso: Date;
     nomeCalendario?: string;
-    giorniPreavviso?: number;
+    giorniPreavviso?: number | readonly number[];
     /** Descrizione del calendario (X-WR-CALDESC), per i calendari a cui ci si iscrive con un link. */
     descrizioneCalendario?: string;
     /**
@@ -242,7 +246,8 @@ export function generaIcs(
     aggiornaOgni?: string;
   },
 ): string {
-  const preavviso = opzioni.giorniPreavviso ?? 7;
+  const preavvisi: readonly number[] =
+    typeof opzioni.giorniPreavviso === "number" ? [opzioni.giorniPreavviso] : (opzioni.giorniPreavviso ?? [7]);
   const aggiorna = opzioni.aggiornaOgni && DURATA_ISO.test(opzioni.aggiornaOgni) ? opzioni.aggiornaOgni : null;
   const righe: string[] = [
     "BEGIN:VCALENDAR",
@@ -267,11 +272,13 @@ export function generaIcs(
       `DESCRIPTION:${proteggiTesto(evento.descrizione)}`,
       ...(evento.url ? [`URL:${evento.url}`] : []),
       "TRANSP:TRANSPARENT",
-      "BEGIN:VALARM",
-      "ACTION:DISPLAY",
-      `DESCRIPTION:${proteggiTesto(evento.titolo)}`,
-      `TRIGGER:-P${preavviso}D`,
-      "END:VALARM",
+      ...preavvisi.flatMap((giorni) => [
+        "BEGIN:VALARM",
+        "ACTION:DISPLAY",
+        `DESCRIPTION:${proteggiTesto(evento.titolo)}`,
+        `TRIGGER:-P${giorni}D`,
+        "END:VALARM",
+      ]),
       "END:VEVENT",
     );
   }
