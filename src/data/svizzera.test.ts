@@ -11,6 +11,7 @@ import {
   regole,
   regoleFatture,
   regoleInfortuni,
+  regoleMancatoPagamento,
   regolePercorso,
   regolePrevidenza,
   regoleRegistro,
@@ -20,6 +21,7 @@ import {
   VERIFICATO_INFORTUNI,
   VERIFICATO_REGISTRO,
   VERIFICATO_FATTURE,
+  VERIFICATO_MANCATO_PAGAMENTO,
   VERIFICATO_PREVIDENZA,
   VERIFICATO_SPESE_DITTA,
 } from "./svizzera";
@@ -93,6 +95,16 @@ describe("dati ufficiali", () => {
     for (const d of Object.values(regoleFatture)) expect(d.verificatoIl).toBe(VERIFICATO_FATTURE);
     expect(datiStrumenti.indirizzoStrutturatoQr.verificatoIl).toBe(VERIFICATO_FATTURE);
     expect(regolePercorso.conservazioneDocumentiAnni.fonte).toBe(fonti.co958f);
+  });
+  it("cliente che non paga: interessi di mora, termini del precetto e tassa dell'OTLEF, con la data di controllo", () => {
+    const mp = regoleMancatoPagamento;
+    expect(percentuale(mp.interesseMora.valore, 0)).toBe("5%");
+    expect(mp.interesseMora.fonte).toBe(fontiPercorso.co104);
+    expect(mp.terminePagamentoPrecettoGiorni.valore).toBe(20);
+    expect(mp.termineOpposizioneGiorni.valore).toBe(10);
+    expect(mp.tassaPrecetto.valore).toEqual({ oltreFranchi: 1_000, finoAFranchi: 10_000, tassaFranchi: 60 });
+    expect(mp.tassaPrecetto.fonte).toBe(fontiPercorso.otlef16);
+    for (const d of Object.values(mp)) expect(d.verificatoIl).toBe(VERIFICATO_MANCATO_PAGAMENTO);
   });
   it("previdenza: indennità giornaliera dai 15 ai 65 anni (LAMal) e pilastro 3a con la data di controllo", () => {
     expect(regolePrevidenza.etaIndennitaGiornaliera.valore).toEqual({ da: 15, primaDi: 65 });

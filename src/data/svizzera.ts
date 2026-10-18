@@ -370,6 +370,8 @@ const ODERR = "https://www.fedlex.admin.ch/eli/cc/2017/63/it";
 const LSTRI = "https://www.fedlex.admin.ch/eli/cc/2007/758/it";
 const LEF = "https://www.fedlex.admin.ch/eli/cc/11/529_488_529/it";
 const OIP = "https://www.fedlex.admin.ch/eli/cc/1978/2081_2081_2081/it";
+const OTLEF = "https://www.fedlex.admin.ch/eli/cc/1996/2937_2937_2937/it";
+const SEF_TI = "Cantone Ticino, Sezione di esecuzione e fallimento";
 const LABORATORIO_TI = "Cantone Ticino, Laboratorio cantonale";
 const PMI = "Portale PMI (SECO)";
 const FEDLEX = "Confederazione (Fedlex)";
@@ -1116,6 +1118,39 @@ export const fontiPercorso = {
     url: "https://www.gr.ch/IT/istituzioni/amministrazione/dvs/awt/wirtschaftsstandort/Seiten/Gruendung_und_Startups.aspx",
     ente: "Cantone dei Grigioni, Ufficio dell'economia e del turismo",
   },
+  // Se il cliente non paga (passo fatture, video facoltativo della lezione 17):
+  // ricontrollate il 18.10.2026, vedi VERIFICATO_MANCATO_PAGAMENTO.
+  co102: { titolo: "Codice delle obbligazioni, art. 102", url: `${CO}#art_102`, ente: FEDLEX },
+  co104: { titolo: "Codice delle obbligazioni, art. 104", url: `${CO}#art_104`, ente: FEDLEX },
+  lef46: { titolo: "Legge sull'esecuzione e sul fallimento (LEF), art. 46", url: `${LEF}#art_46`, ente: FEDLEX },
+  lef67: { titolo: "Legge sull'esecuzione e sul fallimento (LEF), artt. 67-69", url: `${LEF}#art_67`, ente: FEDLEX },
+  lef74: { titolo: "Legge sull'esecuzione e sul fallimento (LEF), artt. 74-82", url: `${LEF}#art_74`, ente: FEDLEX },
+  otlef16: { titolo: "Ordinanza sulle tasse riscosse in applicazione della LEF (OTLEF), art. 16", url: `${OTLEF}#art_16`, ente: FEDLEX },
+  chEsecuzioni: {
+    titolo: "Esecuzioni: precetto, opposizione, pignoramento",
+    url: "https://www.ch.ch/it/imposte-e-finanze/esecuzioni--debiti--fallimenti/procedure-d-esecuzione/",
+    ente: "ch.ch (Confederazione, Cantoni e Comuni)",
+  },
+  easygovEsecuzioni: {
+    titolo: "Informazioni su procedimenti esecutivi e domande d'esecuzione",
+    url: "https://esecuzioni.easygov.swiss/",
+    ente: "EasyGov (SECO)",
+  },
+  tiEsecuzioniOnline: {
+    titolo: "Sezione di esecuzione e fallimento: servizi online",
+    url: "https://www4.ti.ch/di/dg/sezione-di-esecuzione-e-fallimento/servizi-online/servizi-online",
+    ente: SEF_TI,
+  },
+  tiUfficiEsecuzione: {
+    titolo: "Uffici di esecuzione: contatti",
+    url: "https://www4.ti.ch/di/dg/sezione-di-esecuzione-e-fallimento/chi-siamo/uffici-esecuzione",
+    ente: SEF_TI,
+  },
+  tiRigettoOpposizione: {
+    titolo: "Procedura di rigetto dell'opposizione",
+    url: "https://www4.ti.ch/di/dg/sezione-di-esecuzione-e-fallimento/procedura-interattiva/procedura-di-rigetto",
+    ente: SEF_TI,
+  },
 } as const satisfies Record<string, Fonte>;
 
 /**
@@ -1591,6 +1626,51 @@ export const regoleFatture = {
     "2022-10-01",
     fonti.six,
     "La QR-fattura, in circolazione da giugno 2020, ha sostituito definitivamente le polizze di versamento svizzere il 01.10.2022.",
+  ),
+} as const;
+
+/**
+ * Data dell'ultimo controllo delle fonti su cosa fare se il cliente non paga,
+ * per il passo fatture e il suo video facoltativo (lezione 17): CO artt. 102
+ * e 104 (testo in vigore dal 01.10.2026; nel testo tedesco dell'art. 102 la
+ * richiesta di pagare è la «Mahnung», il sollecito, e il giorno dell'art. 102
+ * cpv. 2 è un «Verfalltag» concordato, «verabredet»); LEF artt. 38, 39, 46,
+ * 67-69, 71-72, 74-83 e 88 (stato 01.01.2026); OTLEF art. 16 (stato
+ * 01.01.2026); pagina di ch.ch sulle procedure d'esecuzione (sollecito
+ * consueto ma non obbligatorio, domanda all'ufficio del domicilio del
+ * debitore, sportello online, spese anticipate dal creditore e uguali in
+ * tutta la Svizzera); pagina di EasyGov sulle esecuzioni; pagine della
+ * Sezione di esecuzione e fallimento del Ticino (servizi online, contatti
+ * degli uffici di esecuzione, domanda di esecuzione, precetto con i costi,
+ * opposizione, procedura di rigetto).
+ */
+export const VERIFICATO_MANCATO_PAGAMENTO = "2026-10-18";
+
+function datoMancatoPagamento<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_MANCATO_PAGAMENTO };
+}
+
+/** Se il cliente non paga: mora, interessi, precetto esecutivo e opposizione. */
+export const regoleMancatoPagamento = {
+  interesseMora: datoMancatoPagamento(
+    0.05,
+    fontiPercorso.co104,
+    "Il debitore in mora al pagamento di una somma di denaro deve gli interessi moratori del 5% all'anno, anche se gli interessi pattuiti erano più bassi; interessi più alti pattuiti nel contratto si possono chiedere anche durante la mora (art. 104 cpv. 1 e 2 CO). Quando il debito è scaduto, il debitore è in mora con l'interpellazione del creditore; se il giorno del pagamento era stabilito, già quando quel giorno passa (art. 102 CO).",
+  ),
+  terminePagamentoPrecettoGiorni: datoMancatoPagamento(
+    20,
+    fontiPercorso.lef67,
+    "Il precetto esecutivo ingiunge di pagare il credito e le spese d'esecuzione entro venti giorni (art. 69 cpv. 2 n. 2 LEF).",
+  ),
+  termineOpposizioneGiorni: datoMancatoPagamento(
+    10,
+    fontiPercorso.lef74,
+    "L'opposizione si fa a voce o per scritto, subito a chi consegna il precetto o entro dieci giorni dalla notificazione all'ufficio d'esecuzione (art. 74 cpv. 1 LEF); non va motivata (art. 75 cpv. 1 LEF) e sospende l'esecuzione (art. 78 cpv. 1 LEF).",
+  ),
+  tassaPrecetto: datoMancatoPagamento(
+    { oltreFranchi: 1_000, finoAFranchi: 10_000, tassaFranchi: 60 },
+    fontiPercorso.otlef16,
+    "Tassa per stesura, duplicazione, registrazione e notificazione del precetto secondo il credito (art. 16 cpv. 1 OTLEF): fino a CHF 100: 7; fino a 500: 20; fino a 1'000: 40; fino a 10'000: 60; fino a 100'000: 90; fino a 1'000'000: 190; oltre: 400. In più CHF 7 per ogni tentativo di notificazione (art. 16 cpv. 3) e le spese, per esempio postali (art. 13). La pagina ticinese sul precetto esecutivo (https://www4.ti.ch/di/dg/sezione-di-esecuzione-e-fallimento/procedura-interattiva/precetto-esecutivo) indica per un credito oltre CHF 1'000 fino a CHF 10'000 CHF 74 per l'esemplare del debitore, con eventuali altre tasse e spese. Le spese le anticipa il creditore e sono a carico del debitore (art. 68 LEF).",
   ),
 } as const;
 
