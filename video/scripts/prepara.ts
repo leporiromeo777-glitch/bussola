@@ -1,6 +1,6 @@
 /**
  * Prepara i file di una lezione in video/public/<id>/ prima del render:
- * copia gli audio delle scene, fa il loop avanti e indietro del video di
+ * copia gli audio delle scene portandoli allo stesso volume, fa il loop avanti e indietro del video di
  * Bleo che parla, copia le immagini della mascotte, scarica i caratteri e
  * misura le durate.
  *
@@ -59,6 +59,41 @@ function durata(file: string): number {
   return Number(ffprobe(file, "-show_entries", "format=duration"));
 }
 
+/**
+ * Volume della voce: ElevenLabs genera ogni scena a un volume medio un po'
+ * diverso (fino a 9 dB nella lezione 6), e nel video si sente la voce che
+ * cala. Ogni scena viene portata allo stesso volume medio (EBU R128) con un
+ * guadagno fisso, senza toccare tempi e dinamica; il guadagno si ferma
+ * prima che il picco superi PICCO_MASSIMO_DBTP.
+ */
+const VOLUME_VOCE_LUFS = -24;
+const PICCO_MASSIMO_DBTP = -1.5;
+
+function misuraVolume(file: string): { integrato: number; picco: number } {
+  const { stderr } = spawnSync(
+    "ffmpeg",
+    ["-hide_banner", "-nostats", "-i", file, "-af", "ebur128=peak=true:framelog=quiet", "-f", "null", "-"],
+    { encoding: "utf8" },
+  );
+  const riepilogo = stderr.split("Summary:").at(-1) ?? "";
+  const integrato = Number(/I:\s+(-?[\d.]+) LUFS/.exec(riepilogo)?.[1]);
+  const picco = Number(/Peak:\s+(-?[\d.]+) dBFS/.exec(riepilogo)?.[1]);
+  if (!Number.isFinite(integrato) || !Number.isFinite(picco)) throw new Error(`Volume non misurabile: ${file}`);
+  return { integrato, picco };
+}
+
+/** Copia l'audio della scena portandolo al volume comune; restituisce il guadagno in dB. */
+function normalizzaVoce(file: string, uscita: string): number {
+  const { integrato, picco } = misuraVolume(file);
+  const guadagno = arrotonda(Math.min(VOLUME_VOCE_LUFS - integrato, PICCO_MASSIMO_DBTP - picco));
+  execFileSync(
+    "ffmpeg",
+    ["-v", "error", "-y", "-i", file, "-af", `volume=${guadagno}dB`, "-c:a", "libmp3lame", "-b:a", "192k", "-ar", "44100", uscita],
+    { stdio: "inherit" },
+  );
+  return guadagno;
+}
+
 /** Le pause della voce, con silencedetect di ffmpeg. */
 function pause(file: string): [number, number][] {
   // silencedetect scrive i risultati su stderr.
@@ -76,11 +111,12 @@ function arrotonda(n: number): number {
   return Math.round(n * 1000) / 1000;
 }
 
-// 1. Audio delle scene.
+// 1. Audio delle scene, tutte allo stesso volume. Durate e pause si misurano sul file normalizzato.
 const scene = lezione.scene.map((scena) => {
-  const file = richiedi(scena.audio);
-  copyFileSync(file, join(destinazione, scena.audio));
-  return { audio: scena.audio, durata: arrotonda(durata(file)), pause: pause(file) };
+  const uscita = join(destinazione, scena.audio);
+  const guadagno = normalizzaVoce(richiedi(scena.audio), uscita);
+  console.log(`${scena.audio}: ${guadagno >= 0 ? "+" : ""}${guadagno} dB`);
+  return { audio: scena.audio, durata: arrotonda(durata(uscita)), pause: pause(uscita) };
 });
 
 // 2. Bleo che parla: avanti e poi indietro, così il loop non ha salti.
