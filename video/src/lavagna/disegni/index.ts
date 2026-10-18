@@ -21,6 +21,7 @@ import { DISEGNI_REGISTRO_COMMERCIO } from "./registro-commercio";
 import { DISEGNI_SITO_ONLINE } from "./sito-online";
 import { DISEGNI_ISCRIZIONE_IVA } from "./iscrizione-iva";
 import { DISEGNI_FATTURE } from "./fatture";
+import { DISEGNI_FATTURE_MANCATO_PAGAMENTO } from "./fatture-mancato-pagamento";
 import { DISEGNI_LOCALI_PUBBLICO } from "./locali-pubblico";
 import { DISEGNI_CONTABILITA } from "./contabilita";
 import { DISEGNI_ACCONTI_AVS } from "./acconti-avs";
@@ -56,6 +57,7 @@ export const DISEGNI: Readonly<Record<string, Disegno>> = {
   ...DISEGNI_ASSICURAZIONI_PREVIDENZA,
   ...DISEGNI_DICHIARAZIONE_IMPOSTE,
   ...DISEGNI_SOGLIE_ANNUALI,
+  ...DISEGNI_FATTURE_MANCATO_PAGAMENTO,
 };
 
 export type { ContestoDisegno, Disegno } from "./tipi";
