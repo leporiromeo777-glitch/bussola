@@ -257,10 +257,28 @@ export const anniSupplementiTicino = {
   guadagnoMassimoAssegniFamiliari: 2025,
 } as const;
 
+/**
+ * Data dell'ultimo controllo delle fonti su malattia, pensione e
+ * disoccupazione degli indipendenti, per il passo e la lezione 21: LAMal
+ * artt. 67, 69 e 72 (stato 01.07.2026), LPP artt. 2-4, 44-46 e 60 (stato
+ * 01.01.2025), OPP 3 artt. 1 e 7 (stato 01.01.2025), LADI artt. 2, 8, 9, 9a e
+ * 13 (stato 01.01.2026), promemoria AVS 2.02 (stato 01.01.2026, punto 2),
+ * importi UFAS dal 01.01.2026 e dal 01.01.2027 (pilastro 3a), pagine del
+ * Portale PMI (assicurazioni sociali, indennità giornaliera per malattia,
+ * disoccupazione, assicurazione malattie, 2° e 3° pilastro).
+ * I valori usati (pilastro3a, datiStrumenti.quotaMassimaPilastro3a,
+ * regolePrevidenza) corrispondono a queste fonti.
+ */
+export const VERIFICATO_PREVIDENZA = "2026-10-18";
+
+function datoPrevidenza<T>(valore: T, fonte: Fonte, nota?: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_PREVIDENZA };
+}
+
 /** Pilastro 3a: importo massimo deducibile. */
 export const pilastro3a = {
-  2026: dato({ senzaCassaPensione: 36_288, conCassaPensione: 7_258 }, fonti.ufasImporti2026, "Senza cassa pensione: 20% del reddito da attività lucrativa, al massimo questo importo."),
-  2027: dato({ senzaCassaPensione: 36_864, conCassaPensione: 7_373 }, fonti.ufasImporti2027),
+  2026: datoPrevidenza({ senzaCassaPensione: 36_288, conCassaPensione: 7_258 }, fonti.ufasImporti2026, "Senza cassa pensione: 20% del reddito da attività lucrativa, al massimo questo importo."),
+  2027: datoPrevidenza({ senzaCassaPensione: 36_864, conCassaPensione: 7_373 }, fonti.ufasImporti2027),
 } as const;
 
 /** Uffici ticinesi citati nel percorso. */
@@ -862,6 +880,14 @@ export const fontiPercorso = {
     url: "https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/it#art_4",
     ente: FEDLEX,
   },
+  // Malattia, pensione e disoccupazione (passo e lezione 21): controllate il
+  // 18.10.2026, vedi VERIFICATO_PREVIDENZA. Con quelle sopra: lamal1a, lamal67, lpp4,
+  // pmiAssicurazioniSociali, pmiIndennitaGiornaliera, pmiDisoccupazione.
+  lpp44: {
+    titolo: "Legge sulla previdenza professionale (LPP), art. 44: diritto all'assicurazione degli indipendenti",
+    url: "https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/it#art_44",
+    ente: FEDLEX,
+  },
 
   // IVA e fatture
   liva11: { titolo: "Legge sull'IVA, art. 11", url: `${LIVA}#art_11`, ente: FEDLEX },
@@ -1332,6 +1358,15 @@ export const regoleInfortuni = {
     ),
   },
 } as const;
+
+/** Malattia e previdenza degli indipendenti (LAMal), oltre a pilastro3a. */
+export const regolePrevidenza = {
+  etaIndennitaGiornaliera: datoPrevidenza(
+    { da: 15, primaDi: 65 },
+    fontiPercorso.lamal67,
+    "Possono stipulare un'assicurazione d'indennità giornaliera le persone domiciliate o che lavorano in Svizzera che hanno compiuto i 15 anni ma non ancora i 65 (art. 67 cpv. 1 LAMal), anche con un assicuratore diverso da quello dell'assicurazione delle cure (cpv. 2).",
+  ),
+} as const;
 /**
  * Data dell'ultimo controllo delle fonti sul riconoscimento come indipendente
  * presso la cassa AVS, per il passo e la lezione 11: promemoria 2.02 (stato
@@ -1716,7 +1751,7 @@ export const datiStrumenti = {
     fonti.avsPromemoria202,
     "Attività indipendente accessoria: fino a questo reddito annuo i contributi AVS/AI/IPG si pagano solo se li chiedi tu (punto 6).",
   ),
-  quotaMassimaPilastro3a: dato(
+  quotaMassimaPilastro3a: datoPrevidenza(
     0.2,
     fonti.opp3,
     "Senza cassa pensione il versamento 3a deducibile è al massimo il 20% del reddito da attività lucrativa, entro l'importo massimo dell'anno.",

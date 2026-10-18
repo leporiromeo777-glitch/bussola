@@ -405,6 +405,8 @@ describe("regole: assicurazioni", () => {
     expect(p.stato).toBe("facoltativo");
     const testo = p.passo.cosaFare.join(" ");
     for (const importo of ["CHF 36'288", "CHF 36'864", "CHF 7'258", "CHF 7'373"]) expect(testo).toContain(importo);
+    expect(testo).toContain("fino al 20% del reddito da attività lucrativa");
+    expect(testo).toContain("almeno 15 anni e non ancora 65");
   });
 });
 

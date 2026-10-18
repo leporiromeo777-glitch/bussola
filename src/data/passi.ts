@@ -30,6 +30,7 @@ import {
   regoleRegistro,
   regoleSanita,
   regolePermessi,
+  regolePrevidenza,
   regoleSuva,
   tasseRegistroCommercio,
   ufficioSanitaTicino,
@@ -51,6 +52,7 @@ import {
   VERIFICATO_CONTABILITA,
   VERIFICATO_ACCONTI_AVS,
   VERIFICATO_IMPOSTE,
+  VERIFICATO_PREVIDENZA,
   type Fonte,
 } from "./svizzera";
 
@@ -112,6 +114,8 @@ const reg = regoleRegistro;
 const loc = regoleLocali;
 const orari = loc.orariNegozi.valore;
 const aavs = regoleAccontiAvs;
+const etaIndennita = regolePrevidenza.etaIndennitaGiornaliera.valore;
+const quota3a = percentuale(datiStrumenti.quotaMassimaPilastro3a.valore, 0);
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -770,25 +774,31 @@ export const PASSI = [
     fase: "primi mesi",
     titolo: "Pensa a malattia, pensione e disoccupazione",
     descrizione:
-      "Da indipendente non sei assicurato contro la disoccupazione e la cassa pensione (LPP) non è obbligatoria. Decidi tu come proteggerti.",
+      "Da indipendente non sei assicurato contro la disoccupazione, la cassa pensione (LPP) non è obbligatoria e il guadagno che perdi se ti ammali non te lo paga nessuno in automatico. Decidi tu come proteggerti.",
     cosaFare: [
-      "Indennità giornaliera per malattia: è facoltativa, si può stipulare tra i 15 e i 65 anni, anche con un assicuratore diverso dalla tua cassa malati.",
-      "Cassa pensione (LPP): puoi assicurarti facoltativamente, presso l'istituto della tua professione oppure l'istituto collettore.",
-      `Pilastro 3a senza cassa pensione: puoi dedurre fino al 20% del reddito da attività lucrativa, al massimo ${chf(pilastro3a[2026].valore.senzaCassaPensione)} nel 2026 e ${chf(pilastro3a[2027].valore.senzaCassaPensione)} nel 2027. Con cassa pensione al massimo ${chf(pilastro3a[2026].valore.conCassaPensione)} nel 2026 e ${chf(pilastro3a[2027].valore.conCassaPensione)} nel 2027.`,
-      "Disoccupazione: da indipendente non puoi assicurarti, nemmeno volontariamente.",
+      `Indennità giornaliera per malattia: copre il guadagno che perdi se ti ammali ed è facoltativa; il Portale PMI la consiglia a chi lavora in proprio. Puoi stipularla se hai almeno ${etaIndennita.da} anni e non ancora ${etaIndennita.primaDi}, anche con un assicuratore diverso dalla tua cassa malati.`,
+      "Cassa pensione (LPP): puoi assicurarti facoltativamente presso l'istituto di previdenza della tua professione o dei tuoi dipendenti; se non puoi, presso l'istituto collettore.",
+      `Pilastro 3a senza cassa pensione: puoi dedurre fino al ${quota3a} del reddito da attività lucrativa, al massimo ${chf(pilastro3a[2026].valore.senzaCassaPensione)} nel 2026 e ${chf(pilastro3a[2027].valore.senzaCassaPensione)} nel 2027. Con cassa pensione al massimo ${chf(pilastro3a[2026].valore.conCassaPensione)} nel 2026 e ${chf(pilastro3a[2027].valore.conCassaPensione)} nel 2027.`,
+      "Disoccupazione: da indipendente non puoi assicurarti, nemmeno volontariamente. Se l'attività va male, l'indennità di disoccupazione ti spetta solo se prima, come dipendente, hai pagato i contributi abbastanza a lungo.",
+      "Nello strumento «Tariffa oraria» di Bleo metti i premi fra le assicurazioni e il versamento nel pilastro 3a; il «Budget del primo anno» ti mostra quanta riserva ti serve per i mesi difficili.",
+      "Quale assicurazione scegliere e quanto risparmiare dipende da te: Bleo non consiglia prodotti. Per un consiglio personale rivolgiti a un fiduciario autorizzato o a un consulente indipendente.",
     ],
     link: { etichetta: "Portale PMI: indennità giornaliera", url: fontiPercorso.pmiIndennitaGiornaliera.url },
     fonti: [
       fonti.avsPromemoria202,
+      fontiPercorso.pmiAssicurazioniSociali,
+      fontiPercorso.lamal1a,
       fontiPercorso.lamal67,
       fontiPercorso.pmiIndennitaGiornaliera,
       fontiPercorso.lpp4,
+      fontiPercorso.lpp44,
       fonti.opp3,
       fonti.ufasImporti2026,
       fonti.ufasImporti2027,
       fontiPercorso.pmiDisoccupazione,
+      fonti.albofiduciari,
     ],
-    verificatoIl: VERIFICATO_IL,
+    verificatoIl: VERIFICATO_PREVIDENZA,
     domandaChat: "Da indipendente come mi assicuro per malattia e pensione?",
   },
 
