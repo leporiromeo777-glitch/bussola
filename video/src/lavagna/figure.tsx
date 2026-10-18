@@ -423,13 +423,26 @@ export function Auto({ x, y, s = 1, colore = TINTE.tratto }: { x: number; y: num
 export function Salvadanaio({ x, y, s = 1, colore = TINTE.tratto }: { x: number; y: number; s?: number; colore?: string }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <rect x={-40} y={-24} width={14} height={20} rx={6} fill={colore} />
-      <rect x={22} y={-24} width={14} height={20} rx={6} fill={colore} />
-      <ellipse cx={0} cy={-52} rx={60} ry={42} fill={TINTE.carta} stroke={colore} strokeWidth={6} />
-      <path d="M -26 -92 L -18 -112 L -6 -94" fill={TINTE.carta} stroke={colore} strokeWidth={5} strokeLinejoin="round" />
-      <ellipse cx={58} cy={-52} rx={12} ry={15} fill={TINTE.tinta} stroke={colore} strokeWidth={5} />
-      <circle cx={30} cy={-64} r={4} fill={colore} />
-      <line x1={-14} y1={-92} x2={10} y2={-92} stroke={colore} strokeWidth={6} strokeLinecap="round" />
+      {/* zampe */}
+      {[-46, -26, 16, 36].map((zx) => (
+        <rect key={zx} x={zx} y={-28} width={15} height={28} rx={6} fill={colore} />
+      ))}
+      {/* codina arricciata */}
+      <path d="M -64 -62 c -14 -4 -20 -20 -8 -24 c 10 -3 12 10 2 12 c -6 1 -8 -4 -6 -7" fill="none" stroke={colore} strokeWidth={5} strokeLinecap="round" />
+      {/* corpo */}
+      <ellipse cx={0} cy={-60} rx={66} ry={46} fill={TINTE.crema} stroke={colore} strokeWidth={6} />
+      {/* fessura per le monete */}
+      <rect x={-24} y={-109} width={36} height={9} rx={4.5} fill={colore} />
+      {/* orecchio */}
+      <path d="M 22 -100 L 36 -126 L 50 -96 Z" fill={TINTE.crema} stroke={colore} strokeWidth={5} strokeLinejoin="round" />
+      {/* occhio e guancia */}
+      <circle cx={38} cy={-72} r={5.5} fill={colore} />
+      <circle cx={40} cy={-74} r={1.8} fill={TINTE.carta} />
+      <circle cx={42} cy={-50} r={8} fill={TINTE.accento} opacity={0.3} />
+      {/* muso */}
+      <ellipse cx={68} cy={-56} rx={15} ry={19} fill={TINTE.tinta} stroke={colore} strokeWidth={5} />
+      <ellipse cx={64} cy={-56} rx={3} ry={4.5} fill={colore} />
+      <ellipse cx={72} cy={-56} rx={3} ry={4.5} fill={colore} />
     </g>
   );
 }
