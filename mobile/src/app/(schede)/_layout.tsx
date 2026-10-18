@@ -5,7 +5,7 @@ import type { ColorValue } from "react-native";
 import type { NomeIcona } from "~/components/ui";
 import { aggiornaScadenzeDocumenti, dimenticaScadenzeDocumenti } from "~/lib/cassetto";
 import { aggiornaContatore, impostaDaConfermare, useDaConfermare } from "~/lib/conti";
-import { riprogrammaNotifiche } from "~/lib/notifiche";
+import { riprogrammaNotifiche, togliPromemoriaFatture } from "~/lib/notifiche";
 import { useSessione } from "~/lib/sessione";
 import { useColori } from "~/lib/tema";
 
@@ -23,10 +23,14 @@ export default function Schede() {
   const utente = sessione?.user.id ?? null;
 
   // Il pallino su «Conti»: quante voci aspettano la conferma (solo con l'accesso).
+  // Leggendo i conti si aggiornano anche i promemoria delle fatture; senza accesso si tolgono.
   useEffect(() => {
     if (utente) void aggiornaContatore();
-    else impostaDaConfermare(null);
-  }, [utente]);
+    else {
+      impostaDaConfermare(null);
+      if (pronta) void togliPromemoriaFatture().catch(() => {});
+    }
+  }, [utente, pronta]);
 
   // Promemoria dei documenti del cassetto: con l'accesso si rileggono le scadenze
   // (anche dei documenti caricati dal sito); uscendo dall'account si tolgono.

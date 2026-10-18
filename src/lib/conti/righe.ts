@@ -4,13 +4,22 @@
  */
 import { daCentesimi, inCentesimi } from "./importi";
 import { statoFattura } from "./riepilogo";
-import type { CategoriaId, FatturaEmessa, Movimento, OrigineMovimento, StatoMovimento, TipoMovimento } from "./tipi";
+import type {
+  CategoriaId,
+  FatturaEmessa,
+  Movimento,
+  OrigineMovimento,
+  Sollecito,
+  StatoMovimento,
+  TipoMovimento,
+} from "./tipi";
 import type { DatiLetti } from "./lettura";
 import type { ModificaMovimento, NuovaFattura, NuovoMovimento } from "./validazione";
 
 export const COLONNE_MOVIMENTO =
   "id, tipo, data, importo_centesimi, descrizione, controparte, categoria, stato, origine, fattura_id, documento_id, nota";
-export const COLONNE_FATTURA = "id, numero, cliente, data, scadenza, importo_centesimi, pagata_il";
+export const COLONNE_FATTURA =
+  "id, numero, cliente, data, scadenza, importo_centesimi, pagata_il, riferimento, sollecito_il, sollecito_livello";
 
 export type RigaMovimento = {
   id: string;
@@ -35,6 +44,9 @@ export type RigaFattura = {
   scadenza: string | null;
   importo_centesimi: number | string;
   pagata_il: string | null;
+  riferimento: string | null;
+  sollecito_il: string | null;
+  sollecito_livello: number | null;
 };
 
 export function movimentoDaRiga(r: RigaMovimento): Movimento {
@@ -66,6 +78,23 @@ export function fatturaDaRiga(r: RigaFattura, oggi: string): FatturaEmessa {
     importo: daCentesimi(r.importo_centesimi),
     stato: statoFattura({ pagataIl, scadenza }, oggi),
     pagataIl,
+    riferimento: r.riferimento ?? null,
+    sollecito: sollecitoDaRiga(r),
+  };
+}
+
+function sollecitoDaRiga(r: Pick<RigaFattura, "sollecito_il" | "sollecito_livello">): Sollecito | null {
+  if (!r.sollecito_il) return null;
+  const livello = Number(r.sollecito_livello);
+  return livello === 1 || livello === 2 ? { livello, inviatoIl: r.sollecito_il.slice(0, 10) } : null;
+}
+
+/** Colonne da aggiornare quando l'utente segna (o toglie) il sollecito inviato. */
+export function aggiornamentoSollecito(sollecito: Sollecito | null, adesso: string) {
+  return {
+    sollecito_il: sollecito?.inviatoIl ?? null,
+    sollecito_livello: sollecito?.livello ?? null,
+    aggiornato_il: adesso,
   };
 }
 

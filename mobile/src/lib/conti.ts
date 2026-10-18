@@ -11,10 +11,12 @@ import {
   type FatturaEmessa,
   type Movimento,
   type RispostaConti,
+  type Sollecito,
   type TipoMovimento,
 } from "@/lib/conti/tipi";
 import { tokenAttuale } from "./api";
 import { SITO_URL } from "./config";
+import { aggiornaPromemoriaFatture } from "./notifiche";
 
 export type Esito<T> = { ok: true; dati: T } | { ok: false; messaggio: string; stato: number | null };
 
@@ -126,6 +128,17 @@ export async function segnaFattura(id: string, pagataIl: string | null): Promise
   );
 }
 
+/** Segna il sollecito mandato al cliente (livello e giorno), o lo toglie con null. */
+export async function segnaSollecito(id: string, sollecito: Sollecito | null): Promise<Esito<FatturaEmessa>> {
+  return estrai(
+    await chiama<{ fattura: FatturaEmessa }>(`/api/conti/fatture/${encodeURIComponent(id)}`, {
+      metodo: "PATCH",
+      corpo: { sollecito },
+    }),
+    "fattura",
+  );
+}
+
 export function leggiCasella(): Promise<Esito<Casella>> {
   return chiama<Casella>("/api/conti/casella");
 }
@@ -178,13 +191,17 @@ export function useDaConfermare(): number | null {
 
 let contatoreInCorso = false;
 
-/** Rilegge il numero di voci da confermare (per il pallino), senza mostrare errori. */
+/**
+ * Rilegge il numero di voci da confermare (per il pallino), senza mostrare
+ * errori, e intanto aggiorna i promemoria delle fatture non pagate.
+ */
 export async function aggiornaContatore(): Promise<void> {
   if (contatoreInCorso) return;
   contatoreInCorso = true;
   try {
     const esito = await caricaConti(annoCorrente());
     impostaDaConfermare(esito.ok ? contaDaConfermare(esito.dati.movimenti) : null);
+    if (esito.ok) void aggiornaPromemoriaFatture(esito.dati.fatture).catch(() => {});
   } finally {
     contatoreInCorso = false;
   }

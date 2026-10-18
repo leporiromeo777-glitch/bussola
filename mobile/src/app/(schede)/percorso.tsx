@@ -16,6 +16,7 @@ import { DOMANDE, etichettaRisposta } from "@/lib/percorso/domande";
 import { avanzamento, prossimoPasso, type Avviso, type PassoPercorso, type Percorso } from "@/lib/percorso/regole";
 import type { IdDomanda, Risposte } from "@/lib/percorso/risposte";
 import { etichettaLivello, votazioniInArrivo } from "@/lib/votazioni";
+import { CalendarioAggiornato } from "~/components/calendario-aggiornato";
 import { ImmagineMascotte } from "~/components/mascotte";
 import {
   BarraProgresso,
@@ -82,6 +83,10 @@ export default function SchermataPercorso() {
 
       <NonServono percorso={percorso} />
       <Scadenze percorso={percorso} fatti={fatti} />
+      <CalendarioAggiornato
+        risposte={risposte}
+        conInizio={percorso.scadenze.some((s) => s.calendario.tipo === "dopo-inizio")}
+      />
       <Votazioni />
       <RiepilogoRisposte risposte={risposte} />
       <Testo variante="piccolo" attenuato>
@@ -236,8 +241,8 @@ function Scadenze({ percorso, fatti }: { percorso: Percorso; fatti: ReadonlySet<
         <View style={{ flex: 1 }}>
           <Testo variante="forte">Promemoria sul telefono</Testo>
           <Testo variante="piccolo" attenuato>
-            Una notifica alle 9, una settimana prima di ogni scadenza e di ogni votazione da seguire. Vale anche per i
-            documenti del cassetto.
+            Una notifica alle 9, una settimana prima di ogni scadenza e di ogni votazione da seguire, il mattino
+            dopo la scadenza di una tua fattura non pagata e 30 e 7 giorni prima che scada un documento del cassetto.
           </Testo>
         </View>
         <Switch

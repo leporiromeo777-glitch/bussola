@@ -50,6 +50,21 @@ export function dataIsoValida(iso: unknown): iso is string {
   return giorno <= new Date(Date.UTC(anno, mese, 0)).getUTCDate();
 }
 
+/** Data ISO più (o meno) un numero di giorni: 2026-10-31 + 1 → 2026-11-01. */
+export function aggiungiGiorni(iso: string, giorni: number): string {
+  const [anno, mese, giorno] = iso.slice(0, 10).split("-").map(Number);
+  return new Date(Date.UTC(anno, mese - 1, giorno + giorni)).toISOString().slice(0, 10);
+}
+
+/** Giorni da `da` ad `a` (date ISO): positivi se `a` viene dopo. */
+export function giorniTra(da: string, a: string): number {
+  const utc = (iso: string) => {
+    const [anno, mese, giorno] = iso.slice(0, 10).split("-").map(Number);
+    return Date.UTC(anno, mese - 1, giorno);
+  };
+  return Math.round((utc(a) - utc(da)) / 86_400_000);
+}
+
 /** Data di oggi a Zurigo, AAAA-MM-GG. */
 export function oggiZurigo(adesso: Date = new Date()): string {
   // en-CA scrive le date come AAAA-MM-GG.

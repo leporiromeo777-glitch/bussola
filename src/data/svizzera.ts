@@ -370,6 +370,8 @@ const ODERR = "https://www.fedlex.admin.ch/eli/cc/2017/63/it";
 const LSTRI = "https://www.fedlex.admin.ch/eli/cc/2007/758/it";
 const LEF = "https://www.fedlex.admin.ch/eli/cc/11/529_488_529/it";
 const OIP = "https://www.fedlex.admin.ch/eli/cc/1978/2081_2081_2081/it";
+const OTLEF = "https://www.fedlex.admin.ch/eli/cc/1996/2937_2937_2937/it";
+const SEF_TI = "Cantone Ticino, Sezione di esecuzione e fallimento";
 const LABORATORIO_TI = "Cantone Ticino, Laboratorio cantonale";
 const PMI = "Portale PMI (SECO)";
 const FEDLEX = "Confederazione (Fedlex)";
@@ -1037,6 +1039,22 @@ export const fontiPercorso = {
     url: "https://www4.ti.ch/dfe/dc/dichiarazione/dichiarazione-elettronica",
     ente: DC,
   },
+  // Spese deducibili della ditta (video facoltativo della lezione 22): ricontrollate il 18.10.2026, vedi VERIFICATO_SPESE_DITTA.
+  lifd27: {
+    titolo: "Legge sull'imposta federale diretta (LIFD), art. 27",
+    url: "https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/it#art_27",
+    ente: FEDLEX,
+  },
+  lifd28: {
+    titolo: "Legge sull'imposta federale diretta (LIFD), art. 28",
+    url: "https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/it#art_28",
+    ente: FEDLEX,
+  },
+  pmiSanzioniSpesePrivate: {
+    titolo: "Sanzioni nel caso di dissimulazioni",
+    url: "https://www.kmu.admin.ch/it/sanzioni-nel-caso-di-dissimulazioni",
+    ente: PMI,
+  },
   dcRichiestaAcconto: {
     titolo: "Acconti e rateazioni: richiesta d'acconto",
     url: "https://www4.ti.ch/dfe/dc/pagamenti/acconti-e-rateazioni/richiesta-acconto",
@@ -1099,6 +1117,39 @@ export const fontiPercorso = {
     titolo: "Costituzione e start up (Grigioni)",
     url: "https://www.gr.ch/IT/istituzioni/amministrazione/dvs/awt/wirtschaftsstandort/Seiten/Gruendung_und_Startups.aspx",
     ente: "Cantone dei Grigioni, Ufficio dell'economia e del turismo",
+  },
+  // Se il cliente non paga (passo fatture, video facoltativo della lezione 17):
+  // ricontrollate il 18.10.2026, vedi VERIFICATO_MANCATO_PAGAMENTO.
+  co102: { titolo: "Codice delle obbligazioni, art. 102", url: `${CO}#art_102`, ente: FEDLEX },
+  co104: { titolo: "Codice delle obbligazioni, art. 104", url: `${CO}#art_104`, ente: FEDLEX },
+  lef46: { titolo: "Legge sull'esecuzione e sul fallimento (LEF), art. 46", url: `${LEF}#art_46`, ente: FEDLEX },
+  lef67: { titolo: "Legge sull'esecuzione e sul fallimento (LEF), artt. 67-69", url: `${LEF}#art_67`, ente: FEDLEX },
+  lef74: { titolo: "Legge sull'esecuzione e sul fallimento (LEF), artt. 74-82", url: `${LEF}#art_74`, ente: FEDLEX },
+  otlef16: { titolo: "Ordinanza sulle tasse riscosse in applicazione della LEF (OTLEF), art. 16", url: `${OTLEF}#art_16`, ente: FEDLEX },
+  chEsecuzioni: {
+    titolo: "Esecuzioni: precetto, opposizione, pignoramento",
+    url: "https://www.ch.ch/it/imposte-e-finanze/esecuzioni--debiti--fallimenti/procedure-d-esecuzione/",
+    ente: "ch.ch (Confederazione, Cantoni e Comuni)",
+  },
+  easygovEsecuzioni: {
+    titolo: "Informazioni su procedimenti esecutivi e domande d'esecuzione",
+    url: "https://esecuzioni.easygov.swiss/",
+    ente: "EasyGov (SECO)",
+  },
+  tiEsecuzioniOnline: {
+    titolo: "Sezione di esecuzione e fallimento: servizi online",
+    url: "https://www4.ti.ch/di/dg/sezione-di-esecuzione-e-fallimento/servizi-online/servizi-online",
+    ente: SEF_TI,
+  },
+  tiUfficiEsecuzione: {
+    titolo: "Uffici di esecuzione: contatti",
+    url: "https://www4.ti.ch/di/dg/sezione-di-esecuzione-e-fallimento/chi-siamo/uffici-esecuzione",
+    ente: SEF_TI,
+  },
+  tiRigettoOpposizione: {
+    titolo: "Procedura di rigetto dell'opposizione",
+    url: "https://www4.ti.ch/di/dg/sezione-di-esecuzione-e-fallimento/procedura-interattiva/procedura-di-rigetto",
+    ente: SEF_TI,
   },
 } as const satisfies Record<string, Fonte>;
 
@@ -1579,6 +1630,51 @@ export const regoleFatture = {
 } as const;
 
 /**
+ * Data dell'ultimo controllo delle fonti su cosa fare se il cliente non paga,
+ * per il passo fatture e il suo video facoltativo (lezione 17): CO artt. 102
+ * e 104 (testo in vigore dal 01.10.2026; nel testo tedesco dell'art. 102 la
+ * richiesta di pagare è la «Mahnung», il sollecito, e il giorno dell'art. 102
+ * cpv. 2 è un «Verfalltag» concordato, «verabredet»); LEF artt. 38, 39, 46,
+ * 67-69, 71-72, 74-83 e 88 (stato 01.01.2026); OTLEF art. 16 (stato
+ * 01.01.2026); pagina di ch.ch sulle procedure d'esecuzione (sollecito
+ * consueto ma non obbligatorio, domanda all'ufficio del domicilio del
+ * debitore, sportello online, spese anticipate dal creditore e uguali in
+ * tutta la Svizzera); pagina di EasyGov sulle esecuzioni; pagine della
+ * Sezione di esecuzione e fallimento del Ticino (servizi online, contatti
+ * degli uffici di esecuzione, domanda di esecuzione, precetto con i costi,
+ * opposizione, procedura di rigetto).
+ */
+export const VERIFICATO_MANCATO_PAGAMENTO = "2026-10-18";
+
+function datoMancatoPagamento<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_MANCATO_PAGAMENTO };
+}
+
+/** Se il cliente non paga: mora, interessi, precetto esecutivo e opposizione. */
+export const regoleMancatoPagamento = {
+  interesseMora: datoMancatoPagamento(
+    0.05,
+    fontiPercorso.co104,
+    "Il debitore in mora al pagamento di una somma di denaro deve gli interessi moratori del 5% all'anno, anche se gli interessi pattuiti erano più bassi; interessi più alti pattuiti nel contratto si possono chiedere anche durante la mora (art. 104 cpv. 1 e 2 CO). Quando il debito è scaduto, il debitore è in mora con l'interpellazione del creditore; se il giorno del pagamento era stabilito, già quando quel giorno passa (art. 102 CO).",
+  ),
+  terminePagamentoPrecettoGiorni: datoMancatoPagamento(
+    20,
+    fontiPercorso.lef67,
+    "Il precetto esecutivo ingiunge di pagare il credito e le spese d'esecuzione entro venti giorni (art. 69 cpv. 2 n. 2 LEF).",
+  ),
+  termineOpposizioneGiorni: datoMancatoPagamento(
+    10,
+    fontiPercorso.lef74,
+    "L'opposizione si fa a voce o per scritto, subito a chi consegna il precetto o entro dieci giorni dalla notificazione all'ufficio d'esecuzione (art. 74 cpv. 1 LEF); non va motivata (art. 75 cpv. 1 LEF) e sospende l'esecuzione (art. 78 cpv. 1 LEF).",
+  ),
+  tassaPrecetto: datoMancatoPagamento(
+    { oltreFranchi: 1_000, finoAFranchi: 10_000, tassaFranchi: 60 },
+    fontiPercorso.otlef16,
+    "Tassa per stesura, duplicazione, registrazione e notificazione del precetto secondo il credito (art. 16 cpv. 1 OTLEF): fino a CHF 100: 7; fino a 500: 20; fino a 1'000: 40; fino a 10'000: 60; fino a 100'000: 90; fino a 1'000'000: 190; oltre: 400. In più CHF 7 per ogni tentativo di notificazione (art. 16 cpv. 3) e le spese, per esempio postali (art. 13). La pagina ticinese sul precetto esecutivo (https://www4.ti.ch/di/dg/sezione-di-esecuzione-e-fallimento/procedura-interattiva/precetto-esecutivo) indica per un credito oltre CHF 1'000 fino a CHF 10'000 CHF 74 per l'esemplare del debitore, con eventuali altre tasse e spese. Le spese le anticipa il creditore e sono a carico del debitore (art. 68 LEF).",
+  ),
+} as const;
+
+/**
  * Data dell'ultimo controllo delle fonti sulle imposte del titolare, per il
  * passo e la lezione 20 («Metti da parte i soldi per le imposte»): Portale
  * PMI «La non imposizione fiscale di alcune società»; Istruzioni PF 2025,
@@ -1636,6 +1732,49 @@ export const regoleDichiarazione = {
     7,
     fontiPercorso.istruzioniPf2025,
     "Dal reddito da attività indipendente si deducono le perdite dei sette esercizi che precedono il periodo fiscale, se non se ne è potuto tenere conto prima (art. 30 LT, art. 31 LIFD); per il 2025 quelle dal 2018 al 2024. La deduzione non va nella colonna dei redditi ma nello spazio a sinistra della cifra 2.",
+  ),
+} as const;
+
+/**
+ * Data dell'ultimo controllo delle fonti sulle spese deducibili della ditta
+ * individuale, per il video facoltativo della lezione 22 («Quali spese puoi
+ * dedurre»): LIFD artt. 27 e 28 (stato 02.09.2026) e LT artt. 26 e 27 (stato
+ * 01.01.2026): spese aziendali e professionali giustificate, ammortamenti
+ * giustificati dall'uso commerciale, con la contabilità semplificata in
+ * speciali tabelle di ammortamento; Istruzioni PF 2025, pagg. 14-15 (proventi
+ * e prelevamenti in natura al prezzo effettivo di vendita, quote private di
+ * auto e spese generali, giustificativi per dieci anni, imposte e spese
+ * private non deducibili, pilastro 3a solo alla cifra 11) e pag. 25 (cifra
+ * 10.1); Modulo 10 2025 (spese generali n. 8, contributi AVS/AI/IPG del
+ * contribuente, chilometri privati e quota privata dell'auto, tabella
+ * d'ammortamento n. 9); Portale PMI «La non imposizione fiscale di alcune
+ * società» (tutto ciò che è giustificato dall'uso commerciale, con i
+ * giustificativi; auto, installazioni e immobili ammortati su più anni;
+ * spese miste da dividere), «Sanzioni nel caso di dissimulazioni» e «Come
+ * risparmiare facilmente sulle imposte?» (il pilastro 3a è una spesa privata).
+ */
+export const VERIFICATO_SPESE_DITTA = "2026-10-18";
+
+function datoSpese<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_SPESE_DITTA };
+}
+
+/** Le spese della ditta individuale nella dichiarazione d'imposta (Ticino). */
+export const regoleSpeseDitta = {
+  cifraContributiLegge: datoSpese(
+    "10.1",
+    fontiPercorso.istruzioniPf2025,
+    "Alla cifra 10.1 vanno i contributi AVS, AI, IPG e AD, se non sono già stati dedotti alla cifra 1 o 2 (Istruzioni PF 2025, pag. 25). Senza contabilità commerciale i contributi AVS/AI/IPG/AD/AINP del contribuente sono tra le spese generali del Modulo 10 (n. 8 lett. c): si deducono una volta sola.",
+  ),
+  cifraPilastro3a: datoSpese(
+    "11",
+    fontiPercorso.istruzioniPf2025,
+    "I contributi dell'indipendente al pilastro 3a non si deducono dal reddito da attività indipendente, ma solo alla cifra 11.1 (contribuente) o 11.2 (coniuge) della dichiarazione (Istruzioni PF 2025, pag. 15). Anche per il Portale PMI (pagina «Come risparmiare facilmente sulle imposte?») il 3a è sempre una spesa privata, anche per gli indipendenti.",
+  ),
+  conservazioneGiustificativiAnni: datoSpese(
+    10,
+    fontiPercorso.istruzioniPf2025,
+    "I documenti giustificativi dell'attività indipendente (contratti, corrispondenza importante, fatture, documenti bancari e postali, ricevute, registrazioni di cassa) si conservano per dieci anni e si presentano su richiesta all'autorità fiscale (Istruzioni PF 2025, pag. 14); come l'art. 958f CO per i documenti contabili (regolePercorso.conservazioneDocumentiAnni).",
   ),
 } as const;
 
@@ -1775,6 +1914,12 @@ export const fontiStrumenti = {
     url: "https://www.fedlex.admin.ch/eli/cc/63/1185_1183_1185/it#art_21",
     ente: "Confederazione (Fedlex)",
   },
+  // «Quanto mettere da parte» in «I tuoi conti»: letto il 18.10.2026, vedi VERIFICATO_DA_PARTE.
+  oavs22: {
+    titolo: "Ordinanza sull'AVS (OAVS), art. 22: anno di contribuzione, il reddito non è convertito in reddito annuo",
+    url: `${OAVS}#art_22`,
+    ente: "Confederazione (Fedlex)",
+  },
   adeguamentiAvs2027: {
     titolo: "Ordinanze sugli adeguamenti AVS/AI/IPG dal 2027 (testo provvisorio)",
     url: "https://cms.news.admin.ch/fileservice/sdweb-docs-prod-nsbcch-files/files/2026/10/02/10735a88-7905-4354-9b3f-2b4a118acd39.pdf",
@@ -1808,6 +1953,21 @@ export const fontiStrumenti = {
     ente: "SIX",
   },
 } as const satisfies Record<string, Fonte>;
+
+/**
+ * Data dell'ultimo controllo delle fonti di «Quanto mettere da parte» in «I
+ * tuoi conti»: promemoria AVS 2.02 (stato 01.01.2026, punti 5-10: tassi,
+ * tavola scalare, contributo minimo, contributi sul reddito effettivo
+ * dell'anno, acconti sui redditi stimati, contributi definitivi dalla
+ * tassazione fiscale), OAVS art. 22 (anno civile; cpv. 5: «Il reddito non è
+ * convertito in reddito annuo») e art. 24 (acconti sul reddito presumibile),
+ * stato 01.01.2026, pagine dell'IAS sugli acconti (variazione del 25%) e
+ * sulla richiesta di adeguamento per indipendenti (chiede l'utile presumibile
+ * dell'anno, «fatturato meno spese») e pagina del calcolatore d'imposta
+ * dell'AFC. Le cifre della stima restano quelle di avsIndipendenti,
+ * tavoleScalari, supplementiTicino e regolePercorso, con le loro date.
+ */
+export const VERIFICATO_DA_PARTE = "2026-10-18";
 
 /** Dati usati dagli strumenti, oltre a quelli già sopra. */
 export const datiStrumenti = {
@@ -1845,5 +2005,33 @@ export const datiStrumenti = {
     "2025-11-22",
     fonti.six,
     "Dal 22.11.2025 nella QR-fattura è ammesso solo l'indirizzo strutturato (tipo S): NPA, località e paese obbligatori.",
+  ),
+} as const;
+
+// ---------------------------------------------------------------------------
+// «I tuoi conti»: il sollecito di pagamento delle fatture emesse scadute.
+// Mora e interessi moratori (CO artt. 102 e 104) sono in
+// regoleMancatoPagamento, con le fonti fontiPercorso.co102 e co104.
+// ---------------------------------------------------------------------------
+
+/**
+ * Data dell'ultimo controllo della pagina «Procedure d'esecuzione» di ch.ch
+ * per il sollecito di pagamento (sollecito consueto ma non obbligatorio,
+ * domanda d'esecuzione all'Ufficio di esecuzione del domicilio del
+ * debitore). Lo stesso giorno sono stati riletti su Fedlex anche gli artt.
+ * 102 e 104 CO (testo in vigore dal 01.10.2026).
+ */
+export const VERIFICATO_SOLLECITI = "2026-10-18";
+
+function datoSolleciti<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_SOLLECITI };
+}
+
+/** Se dopo i solleciti il cliente non paga: la via ufficiale. */
+export const regoleSolleciti = {
+  esecuzione: datoSolleciti(
+    { ufficio: "Ufficio di esecuzione", dove: "del luogo di domicilio del debitore" },
+    fontiPercorso.chEsecuzioni,
+    "Mandare prima un sollecito è consuetudine, ma non è obbligatorio. Se anche dopo il sollecito il debitore non paga, il creditore può presentare una domanda d'esecuzione all'Ufficio di esecuzione del luogo di domicilio del debitore, anche con lo sportello delle esecuzioni online; le spese le anticipa il creditore (ch.ch, «Procedure d'esecuzione»).",
   ),
 } as const;

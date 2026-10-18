@@ -80,3 +80,12 @@ export function IconaPlay(props: PropsIcona) {
     </Icona>
   );
 }
+
+/** Due frecce in cerchio: il calendario che si aggiorna da solo. */
+export function IconaAggiornamento(props: PropsIcona) {
+  return (
+    <Icona {...props}>
+      <path d="M20 11a8 8 0 0 0-14.6-4.5M4 4v3h3M4 13a8 8 0 0 0 14.6 4.5M20 20v-3h-3" />
+    </Icona>
+  );
+}

@@ -6,6 +6,7 @@ import { DatiTitolare, EmailTitolare } from "@/components/landing/titolare";
 import { SCAMBI_PRECEDENTI_MASSIMI } from "@/lib/chat/limiti";
 import { DURATA_LINK_CASSETTO, GIORNI_AVVISO_DOCUMENTI } from "@/lib/cassetto/limiti";
 import { DURATA_LINK_DOCUMENTO, LETTURE_AL_GIORNO } from "@/lib/conti/limiti";
+import { calendarioAttivo } from "@/lib/percorso/abbonamento-server";
 import { dataSvizzera, fonti, regolePercorso } from "@/data/svizzera";
 import { ELENCO_DPF, GARANZIE_USA, informativaPrivacy, OPDA, trattamentiAttivi } from "@/lib/privacy";
 import { listaAttesaAttiva } from "@/lib/lista-attesa/stato";
@@ -49,6 +50,7 @@ export default async function PaginaPrivacy() {
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     NEXT_PUBLIC_PLAUSIBLE_DOMAIN: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN,
   });
+  const calendario = calendarioAttivo();
 
   return (
     <PaginaLegale
@@ -151,6 +153,29 @@ export default async function PaginaPrivacy() {
           </li>
         </ul>
 
+        <h3 id="calendario">
+          Calendario sempre aggiornato
+          <NonAttivo attivo={calendario} />
+        </h3>
+        <ul>
+          <li>
+            <strong>Dati:</strong> se crei il link personale del calendario, salviamo nel tuo account un&apos;impronta
+            del link (un codice calcolato dal link, da cui il link non si può ricostruire), quando l&apos;hai creato e
+            quando un calendario l&apos;ha letto l&apos;ultima volta. Il link intero resta solo nel browser o nel
+            telefono dove l&apos;hai creato.
+          </li>
+          <li>
+            <strong>Perché:</strong> per dare al calendario che scegli (per esempio Google Calendar o Apple
+            Calendario) le tue scadenze e le votazioni da seguire, calcolate a ogni lettura dalle risposte al
+            questionario salvate nell&apos;account. Nel calendario non mettiamo il tuo nome né la tua email.
+          </li>
+          <li>
+            <strong>Chi le riceve:</strong> il servizio di calendario che scegli legge il link dai suoi server e tiene
+            gli eventi secondo le sue regole. Chi ha il link vede le tue scadenze: non condividerlo. Puoi rigenerarlo o
+            disattivarlo quando vuoi dalla pagina del percorso.
+          </li>
+        </ul>
+
         <h3>Strumenti (tariffa, budget, business plan, preventivi e fatture)</h3>
         <ul>
           <li>
@@ -176,7 +201,8 @@ export default async function PaginaPrivacy() {
           <li>
             <strong>Dati:</strong> le entrate e le uscite che registri (data, importo, descrizione, fornitore o
             cliente, categoria, se è della ditta o privata); le fatture emesse che registri (numero, nome del cliente,
-            date, importo, riferimento di pagamento, data del pagamento); le foto e i PDF di ricevute e fatture che
+            date, importo, riferimento di pagamento, data del pagamento e, se lo segni, giorno e livello
+            dell&apos;ultimo sollecito mandato); le foto e i PDF di ricevute e fatture che
             carichi, con tutto quello che c&apos;è scritto.
           </li>
           <li>
@@ -194,6 +220,24 @@ export default async function PaginaPrivacy() {
           <li>
             <strong>Perché:</strong> per tenere in ordine le tue entrate, uscite e fatture e mostrarti il riepilogo
             dell&apos;anno. Bleo non fa la contabilità né le dichiarazioni d&apos;imposta per te: i conti li tieni tu.
+          </li>
+          <li>
+            <strong>«Quanto mettere da parte»:</strong> la percentuale per le imposte, gli acconti AVS, il mese in cui
+            hai iniziato e se l&apos;attività è principale o accessoria restano solo sul tuo dispositivo (nel browser o
+            nella memoria dell&apos;app). Non li riceviamo: la stima si calcola lì, dai conti che vedi.
+          </li>
+          <li>
+            <strong>Solleciti di pagamento:</strong> il testo del sollecito per una fattura scaduta lo prepara il tuo
+            browser o l&apos;app, e lo mandi tu con la tua email o un&apos;altra app: noi non lo riceviamo e non lo
+            mandiamo. L&apos;IBAN e il nome che scrivi nel sollecito non li salviamo; sul sito li prendiamo, se ci sono,
+            dallo strumento fattura salvato nel tuo browser. Salviamo solo, quando lo segni, il giorno e il livello
+            del sollecito.
+          </li>
+          <li>
+            <strong>Promemoria nell&apos;app:</strong> se attivi i promemoria sul telefono, l&apos;app programma sul
+            telefono stesso un avviso per il mattino dopo la scadenza di ogni fattura non pagata, con numero, nome
+            del cliente e scadenza. È una notifica locale: non passa dai nostri server e la togli spegnendo i
+            promemoria o uscendo dall&apos;account.
           </li>
           <li>
             <strong>Lettura automatica</strong>
@@ -374,6 +418,10 @@ export default async function PaginaPrivacy() {
             cancelliamo anche questi dati.
           </li>
           <li>
+            <strong>Link del calendario</strong> (impronta e date): finché non lo disattivi o lo rigeneri, o finché
+            non elimini l&apos;account.
+          </li>
+          <li>
             <strong>Domande alla chat:</strong> 12 mesi: le domande più vecchie vengono cancellate automaticamente
             ogni notte.
           </li>
@@ -544,7 +592,9 @@ export default async function PaginaPrivacy() {
           lista d&apos;attesa è accessibile solo dal server. Le ricevute di «I tuoi conti» stanno in un archivio
           privato: si aprono solo con un link temporaneo che vale {DURATA_LINK_DOCUMENTO / 60} minuti. I documenti del
           cassetto stanno in un altro archivio privato e il loro link vale {DURATA_LINK_CASSETTO} secondi. L&apos;indirizzo personale per inoltrare
-          le email contiene un codice casuale che nessuno può indovinare; se finisce in giro puoi cambiarlo. Solo il titolare ha accesso amministrativo.
+          le email contiene un codice casuale che nessuno può indovinare; se finisce in giro puoi cambiarlo. Anche il
+          link del calendario sempre aggiornato contiene un codice casuale: nel database ne teniamo solo
+          un&apos;impronta e, se finisce in giro, puoi rigenerarlo. Solo il titolare ha accesso amministrativo.
         </p>
       </section>
 

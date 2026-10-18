@@ -15,6 +15,8 @@ export const CHIAVI_ARCHIVIO = {
   documenti: "bussola.strumenti.documenti",
   emittente: "bussola.strumenti.emittente",
   fondazioneSagl: "bussola.strumenti.fondazione-sagl",
+  /** «Quanto mettere da parte» in «I tuoi conti»: percentuale per le imposte, acconti AVS, mese di inizio. */
+  daParte: "bussola.strumenti.da-parte",
 } as const;
 
 export type ChiaveArchivio = (typeof CHIAVI_ARCHIVIO)[keyof typeof CHIAVI_ARCHIVIO];

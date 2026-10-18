@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { dimenticaPercorsoLocale } from "@/lib/percorso/archivio";
+import { CHIAVE_LINK_CALENDARIO, dimenticaPercorsoLocale, scriviGrezzo } from "@/lib/percorso/archivio";
 import { cancellaBozza } from "@/lib/percorso/bozza";
 import { eliminaIlMioAccount, type StatoEliminazione } from "./azioni";
 
@@ -24,6 +24,7 @@ export function EliminaAccount() {
             // Anche la copia del percorso salvata in questo browser.
             dimenticaPercorsoLocale();
             cancellaBozza();
+            scriviGrezzo(CHIAVE_LINK_CALENDARIO, null);
           }}
           className="mt-3"
         >
