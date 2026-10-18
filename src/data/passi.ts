@@ -15,9 +15,11 @@ import {
   percentuale,
   pilastro3a,
   regole,
+  regoleEserciziPubblici,
   regolePercorso,
   tasseRegistroCommercio,
   ufficiPercorso,
+  VERIFICATO_ESERCIZI_PUBBLICI,
   type Fonte,
 } from "./svizzera";
 
@@ -61,6 +63,7 @@ const fondo = regolePercorso.fondounimpresa.valore;
 const esazione = ufficiPercorso.esazioneCondoniTicino.valore;
 const fondounimpresa = ufficiPercorso.fondounimpresa.valore;
 const laboratorio = ufficiPercorso.laboratorioCantonaleTicino.valore;
+const ep = regoleEserciziPubblici;
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -154,16 +157,28 @@ export const PASSI = [
     id: "autorizzazione-esercizio-pubblico",
     fase: "prima di iniziare",
     titolo: "Ristorante o bar: chiedi l'autorizzazione prima di aprire",
-    descrizione:
-      "In Ticino un esercizio pubblico (per esempio un ristorante, un bar o un albergo) può essere aperto e gestito soltanto dopo aver ottenuto l'autorizzazione (LEAR, art. 5). Di regola serve anche un gerente con il diploma cantonale di esercente oppure, senza un certificato riconosciuto, con almeno tre anni di pratica come esercente in un altro Cantone (LEAR, art. 9); il regolamento prevede eccezioni.",
+    descrizione: `In Ticino un esercizio pubblico (per esempio un ristorante, un bar o un albergo) può essere aperto e gestito soltanto dopo aver ottenuto l'autorizzazione (LEAR, art. 5). Di regola serve anche un gerente con il diploma cantonale di esercente oppure, senza un certificato riconosciuto, con almeno tre anni di pratica come esercente in un altro Cantone (LEAR, art. 9); il regolamento prevede eccezioni. Se apri da solo, come persona fisica, il gerente puoi essere tu (LEAR, art. 4).`,
     cosaFare: [
       "Non aprire il locale prima di avere l'autorizzazione: senza, non puoi né aprirlo né gestirlo (LEAR, art. 5).",
-      "Chiedi l'autorizzazione con la procedura per gli esercizi pubblici della Polizia cantonale.",
-      "Decidi chi farà da gerente. Nel regolamento (RLEAR) trovi le attività per cui il diploma di esercente non serve.",
+      `Chiedi al Municipio l'attestazione che i locali sono idonei e stipula un'assicurazione di responsabilità civile di almeno ${chf(ep.rcMinimaFranchi.valore)} per sinistro (LEAR, art. 9; RLEAR, art. 32).`,
+      `Decidi chi farà da gerente: per il diploma cantonale di esercente servono un esame e ${ep.praticaDiplomaMesi.valore} mesi di pratica (RLEAR, art. 38).`,
+      `Presenta la domanda con la procedura della Polizia cantonale almeno ${ep.termineDomandaGiorni.valore} giorni prima di aprire (RLEAR, art. 26).`,
     ],
-    link: { etichetta: "Autorizzazioni della Polizia cantonale", url: fontiPercorso.poliziaAutorizzazioni.url },
-    fonti: [fontiPercorso.lear, fontiPercorso.rlear, fontiPercorso.poliziaAutorizzazioni],
-    verificatoIl: VERIFICATO_IL,
+    link: { etichetta: "Polizia cantonale: autorizzazione per esercizi pubblici", url: fontiPercorso.poliziaEserciziPubbliciPersona.url },
+    fonti: [
+      fontiPercorso.lear,
+      fontiPercorso.rlear,
+      fontiPercorso.poliziaEserciziPubbliciPersona,
+      fontiPercorso.poliziaEserciziPubbliciSocieta,
+      fontiPercorso.diplomaEsercente,
+      fontiPercorso.diplomaEsercenteCorso,
+      fontiPercorso.poliziaAutorizzazioni,
+    ],
+    verificatoIl: VERIFICATO_ESERCIZI_PUBBLICI,
+    costoNoto: {
+      testo: `Tassa di autorizzazione: da ${chf(ep.tassaAutorizzazioneFranchi.valore.min)} a ${chf(ep.tassaAutorizzazioneFranchi.valore.max)}`,
+      fonte: fontiPercorso.rlear,
+    },
     domandaChat: "Cosa serve in Ticino per aprire un bar o un ristorante?",
   },
   {

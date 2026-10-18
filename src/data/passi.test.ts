@@ -48,7 +48,7 @@ describe("catalogo dei passi", () => {
 
   it("i costi noti hanno una fonte", () => {
     const conCosto = PASSI.filter((p) => "costoNoto" in p);
-    expect(conCosto.map((p) => p.id)).toEqual(["iscrizione-rc"]);
+    expect(conCosto.map((p) => p.id)).toEqual(["autorizzazione-esercizio-pubblico", "iscrizione-rc"]);
     for (const p of conCosto) {
       if ("costoNoto" in p) expect(p.costoNoto.fonte.url).toMatch(/^https:\/\//);
     }

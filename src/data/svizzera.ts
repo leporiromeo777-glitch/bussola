@@ -405,7 +405,7 @@ export const fontiPercorso = {
     ente: "Polizia cantonale ticinese",
   },
   lear: {
-    titolo: "Legge sugli esercizi alberghieri e sulla ristorazione (LEAR), artt. 5 e 9",
+    titolo: "Legge sugli esercizi alberghieri e sulla ristorazione (LEAR), artt. 3-9 e 27",
     url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/792",
     ente: RACCOLTA_TI,
   },
@@ -413,6 +413,26 @@ export const fontiPercorso = {
     titolo: "Regolamento sugli esercizi alberghieri e sulla ristorazione (RLEAR)",
     url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/793",
     ente: RACCOLTA_TI,
+  },
+  poliziaEserciziPubbliciPersona: {
+    titolo: "Autorizzazione per esercizi pubblici: persona fisica",
+    url: "https://www4.ti.ch/index.php?id=139975",
+    ente: "Polizia cantonale ticinese, Servizio autorizzazioni, commercio e giochi",
+  },
+  poliziaEserciziPubbliciSocieta: {
+    titolo: "Autorizzazione per esercizi pubblici: persona giuridica (società)",
+    url: "https://www4.ti.ch/index.php?id=146712",
+    ente: "Polizia cantonale ticinese, Servizio autorizzazioni, commercio e giochi",
+  },
+  diplomaEsercente: {
+    titolo: "Diploma cantonale di esercente",
+    url: "https://www4.ti.ch/decs/dfp/diploma-esercente/home",
+    ente: "Cantone Ticino, Divisione della formazione professionale",
+  },
+  diplomaEsercenteCorso: {
+    titolo: "Diploma cantonale di esercente: il corso di formazione",
+    url: "https://www4.ti.ch/decs/dfp/diploma-esercente/corso-di-formazione/il-corso-di-formazione",
+    ente: "Cantone Ticino, Divisione della formazione professionale",
   },
   lan: {
     titolo: "Legge sull'apertura dei negozi (LAN)",
@@ -646,6 +666,27 @@ export const VERIFICATO_DOCUMENTI_SAGL = "2026-10-17";
  * note informative della SEFRI, Polizia cantonale), per la lezione 3.
  */
 export const VERIFICATO_AUTORIZZAZIONI = "2026-10-17";
+
+/**
+ * Data dell'ultimo controllo di LEAR (testo del 15.03.2023, stato 15.06.2023),
+ * RLEAR e pagine della Polizia cantonale e della DFP sugli esercizi pubblici,
+ * per il passo e la lezione 4.
+ */
+export const VERIFICATO_ESERCIZI_PUBBLICI = "2026-10-18";
+
+function datoEserciziPubblici<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_ESERCIZI_PUBBLICI };
+}
+
+/** Regole ticinesi sugli esercizi pubblici (LEAR e RLEAR). */
+export const regoleEserciziPubblici = {
+  alloggioSenzaLearPersone: datoEserciziPubblici(6, fontiPercorso.lear, "La LEAR non si applica alle strutture che offrono l'alloggio fino a 6 persone (art. 3 cpv. 1 lett. b LEAR)."),
+  praticaGerenteAltroCantoneAnni: datoEserciziPubblici(3, fontiPercorso.lear, "Senza certificato di capacità riconosciuto, il gerente può attestare una pratica d'esercente di almeno tre anni svolta in un altro Cantone (art. 9 cpv. 2 lett. b LEAR)."),
+  rcMinimaFranchi: datoEserciziPubblici(3_000_000, fontiPercorso.rlear, "Garanzia globale minima per sinistro, per lesioni corporali e danni materiali (art. 32 RLEAR)."),
+  praticaDiplomaMesi: datoEserciziPubblici(5, fontiPercorso.rlear, "Oltre all'esame, pratica in Svizzera o all'estero, a tempo pieno o parziale, anche non consecutiva (art. 38 RLEAR)."),
+  termineDomandaGiorni: datoEserciziPubblici(15, fontiPercorso.rlear, "La domanda di autorizzazione va presentata almeno 15 giorni prima dell'inizio dell'attività (art. 26 cpv. 2 RLEAR)."),
+  tassaAutorizzazioneFranchi: datoEserciziPubblici({ min: 100, max: 500 }, fontiPercorso.rlear, "Tassa per il rilascio dell'autorizzazione (art. 60 RLEAR); per un aggiornamento CHF 100."),
+} as const;
 
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {

@@ -116,7 +116,7 @@ describe("regole: autorizzazioni di settore", () => {
     expect(p.passo.cosaFare[0]).toMatch(/^Non aprire il locale prima di avere l'autorizzazione.*\(LEAR, art\. 5\)\.$/);
     expect(p.passo.cosaFare.some((c) => /^Leggi\b/.test(c))).toBe(false);
     expect(p.passo.fonti).toEqual(expect.arrayContaining([fontiPercorso.lear, fontiPercorso.rlear]));
-    expect(fontiPercorso.lear.titolo).toContain("artt. 5 e 9");
+    expect(fontiPercorso.lear.titolo).toContain("artt. 3-9");
     const avviso = percorso.avvisi.find((a) => a.id === "autorizzazione-ristorazione");
     expect(avviso?.testo).toMatch(/di regola serve un gerente/);
     expect(avviso?.testo).toMatch(/eccezioni/);

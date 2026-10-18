@@ -3,7 +3,7 @@
  * I video si fanno con Remotion nella cartella video/ (vedi video/README.md),
  * che legge da qui titolo, numero e fonti di ogni lezione.
  *
- * Per ora ci sono le lezioni 1, 2 e 3; gli altri passi appaiono come «In arrivo».
+ * Per ora ci sono le lezioni da 1 a 4; gli altri passi appaiono come «In arrivo».
  * Una lezione può avere dei video facoltativi (`approfondimenti`), che
  * spiegano meglio un punto: si vedono sotto il video della lezione.
  */
@@ -14,6 +14,7 @@ import {
   VERIFICATO_AUTORIZZAZIONI,
   VERIFICATO_CHECKLIST,
   VERIFICATO_DOCUMENTI_SAGL,
+  VERIFICATO_ESERCIZI_PUBBLICI,
   VERIFICATO_FORME,
   type Fonte,
 } from "./svizzera";
@@ -127,6 +128,24 @@ export const LEZIONI: readonly LezioneCorso[] = [
     durataSecondi: 110,
     fonti: [fontiPercorso.pmiMettersiInProprio, fontiPercorso.sefriProfessioniRegolamentate, fontiPercorso.poliziaAutorizzazioni],
     verificatoIl: VERIFICATO_AUTORIZZAZIONI,
+  },
+  {
+    passoId: "autorizzazione-esercizio-pubblico",
+    numero: 4,
+    titolo: "Aprire un bar o un ristorante",
+    video: "/corso/autorizzazione-esercizio-pubblico.mp4",
+    poster: "/corso/autorizzazione-esercizio-pubblico.jpg",
+    sottotitoli: "/corso/autorizzazione-esercizio-pubblico.vtt",
+    durataSecondi: 160,
+    fonti: [
+      fontiPercorso.lear,
+      fontiPercorso.rlear,
+      fontiPercorso.poliziaEserciziPubbliciPersona,
+      fontiPercorso.poliziaEserciziPubbliciSocieta,
+      fontiPercorso.diplomaEsercente,
+      fontiPercorso.diplomaEsercenteCorso,
+    ],
+    verificatoIl: VERIFICATO_ESERCIZI_PUBBLICI,
   },
 ];
 

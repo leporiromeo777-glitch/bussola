@@ -4,13 +4,14 @@
  */
 import { autorizzazioni } from "./autorizzazioni";
 import { dittaIndividuale } from "./ditta-individuale";
+import { esercizioPubblico } from "./esercizio-pubblico";
 import { sociFormaGiuridica } from "./soci-forma-giuridica";
 import { attoFondazioneSagl } from "./soci-forma-giuridica-atto";
 import { statutoSagl } from "./soci-forma-giuridica-statuto";
 import type { Lezione } from "./tipi";
 
 /** Le lezioni e i loro video facoltativi (anche questi hanno una composizione). */
-export const LEZIONI: readonly Lezione[] = [dittaIndividuale, sociFormaGiuridica, statutoSagl, attoFondazioneSagl, autorizzazioni];
+export const LEZIONI: readonly Lezione[] = [dittaIndividuale, sociFormaGiuridica, statutoSagl, attoFondazioneSagl, autorizzazioni, esercizioPubblico];
 
 export function trovaLezione(id: string): Lezione {
   const lezione = LEZIONI.find((l) => l.id === id);
