@@ -4,9 +4,9 @@
  * I messaggi d'errore sono in italiano semplice, pronti da mostrare.
  */
 import { z } from "zod";
-import { categoriaPerTipo, dataIsoValida, eCategoria, haDueDecimali, tipoCategoria } from "./importi";
+import { aggiungiGiorni, categoriaPerTipo, dataIsoValida, eCategoria, haDueDecimali, tipoCategoria } from "./importi";
 import { IMPORTO_MASSIMO, LUNGHEZZE } from "./limiti";
-import type { CategoriaId, TipoMovimento } from "./tipi";
+import type { CategoriaId, Sollecito, TipoMovimento } from "./tipi";
 
 export const MESSAGGI_CONTI = {
   richiestaNonValida: "La richiesta non è valida. Ricarica la pagina e riprova.",
@@ -30,6 +30,8 @@ export const MESSAGGI_CONTI = {
     "Questo file non sembra una ricevuta o una fattura. Se lo è, prova con una foto più nitida, con tutto il foglio, oppure scrivi la voce a mano.",
   documentoNonDisponibile: "Non riesco ad aprire il documento in questo momento. Riprova tra poco.",
   casellaNonAttiva: "La ricezione delle fatture via email non è ancora attiva.",
+  sollecitoFuturo: "Il sollecito non può essere segnato come inviato in un giorno che deve ancora venire.",
+  sollecitoPrima: "Il sollecito non può essere prima della data della fattura.",
 } as const;
 
 type Esito<T> = { ok: true; dati: T } | { ok: false; messaggio: string };
@@ -183,6 +185,33 @@ export const schemaPagamentoFattura = z.object({ pagataIl: data.nullable() }).st
 /** PATCH /api/conti/fatture/[id] */
 export function leggiPagamentoFattura(corpo: unknown): Esito<{ pagataIl: string | null }> {
   return esito(schemaPagamentoFattura.safeParse(corpo));
+}
+
+export const schemaSollecitoFattura = z
+  .object({
+    sollecito: z
+      .object({
+        livello: z.union([z.literal(1), z.literal(2)], { message: MESSAGGI_CONTI.richiestaNonValida }),
+        inviatoIl: data,
+      })
+      .strict()
+      .nullable(),
+  })
+  .strict();
+
+/**
+ * PATCH /api/conti/fatture/[id] con { sollecito }: l'ultimo sollecito segnato
+ * come inviato, oppure null per toglierlo. La data può essere al massimo
+ * domani rispetto a `oggi` (ora di Zurigo): un telefono in un altro fuso
+ * orario può essere già al giorno dopo. Che non sia prima della fattura lo
+ * controlla il database.
+ */
+export function leggiSollecitoFattura(corpo: unknown, oggi: string): Esito<{ sollecito: Sollecito | null }> {
+  const letto = esito(schemaSollecitoFattura.safeParse(corpo));
+  if (!letto.ok) return letto;
+  const { sollecito } = letto.dati;
+  if (sollecito && sollecito.inviatoIl > aggiungiGiorni(oggi, 1)) return { ok: false, messaggio: MESSAGGI_CONTI.sollecitoFuturo };
+  return { ok: true, dati: { sollecito } };
 }
 
 /* ------------------------------------------------------------------ */

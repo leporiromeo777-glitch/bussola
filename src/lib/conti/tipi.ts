@@ -58,6 +58,14 @@ export type Movimento = {
 
 export type StatoFattura = "aperta" | "scaduta" | "pagata";
 
+/** 1: promemoria gentile; 2: sollecito più deciso, con gli interessi di mora. */
+export type LivelloSollecito = 1 | 2;
+/** Gli stessi del vincolo nel database (lo verifica supabase/schema.test.ts). */
+export const LIVELLI_SOLLECITO = [1, 2] as const satisfies readonly LivelloSollecito[];
+
+/** L'ultimo sollecito che l'utente ha segnato come inviato. */
+export type Sollecito = { livello: LivelloSollecito; /** AAAA-MM-GG */ inviatoIl: string };
+
 export type FatturaEmessa = {
   id: string;
   numero: string;
@@ -67,6 +75,9 @@ export type FatturaEmessa = {
   importo: number;
   stato: StatoFattura;
   pagataIl: string | null;
+  /** Riferimento della sezione pagamento (QR o SCOR), come registrato dallo strumento fattura. */
+  riferimento: string | null;
+  sollecito: Sollecito | null;
 };
 
 export type Fonte = { titolo: string; url: string };

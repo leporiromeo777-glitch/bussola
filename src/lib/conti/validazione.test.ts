@@ -6,6 +6,7 @@ import {
   leggiNuovaFattura,
   leggiNuovoMovimento,
   leggiPagamentoFattura,
+  leggiSollecitoFattura,
   nomeFilePulito,
   unisciModifica,
 } from "./validazione";
@@ -120,6 +121,32 @@ describe("fatture", () => {
     expect(leggiPagamentoFattura({ pagataIl: null })).toEqual({ ok: true, dati: { pagataIl: null } });
     expect(leggiPagamentoFattura({}).ok).toBe(false);
     expect(leggiPagamentoFattura({ pagataIl: "ieri" }).ok).toBe(false);
+  });
+});
+
+describe("sollecito di una fattura", () => {
+  const OGGI = "2026-10-18";
+  it("accetta livello 1 o 2 con la data di invio, oppure null per toglierlo", () => {
+    expect(leggiSollecitoFattura({ sollecito: { livello: 1, inviatoIl: OGGI } }, OGGI)).toEqual({
+      ok: true,
+      dati: { sollecito: { livello: 1, inviatoIl: OGGI } },
+    });
+    expect(leggiSollecitoFattura({ sollecito: { livello: 2, inviatoIl: "2026-10-01" } }, OGGI).ok).toBe(true);
+    expect(leggiSollecitoFattura({ sollecito: null }, OGGI)).toEqual({ ok: true, dati: { sollecito: null } });
+  });
+
+  it("rifiuta livelli sconosciuti, date strane, campi in più e date nel futuro (un giorno di margine)", () => {
+    expect(leggiSollecitoFattura({ sollecito: { livello: 3, inviatoIl: OGGI } }, OGGI).ok).toBe(false);
+    expect(leggiSollecitoFattura({ sollecito: { livello: "1", inviatoIl: OGGI } }, OGGI).ok).toBe(false);
+    expect(leggiSollecitoFattura({ sollecito: { livello: 1, inviatoIl: "2026-02-31" } }, OGGI).ok).toBe(false);
+    expect(leggiSollecitoFattura({ sollecito: { livello: 1, inviatoIl: OGGI, testo: "..." } }, OGGI).ok).toBe(false);
+    expect(leggiSollecitoFattura({ sollecito: { livello: 1, inviatoIl: OGGI }, pagataIl: null }, OGGI).ok).toBe(false);
+    expect(leggiSollecitoFattura({}, OGGI).ok).toBe(false);
+    expect(leggiSollecitoFattura({ sollecito: { livello: 1, inviatoIl: "2026-10-19" } }, OGGI).ok).toBe(true);
+    expect(leggiSollecitoFattura({ sollecito: { livello: 1, inviatoIl: "2026-10-20" } }, OGGI)).toEqual({
+      ok: false,
+      messaggio: MESSAGGI_CONTI.sollecitoFuturo,
+    });
   });
 });
 

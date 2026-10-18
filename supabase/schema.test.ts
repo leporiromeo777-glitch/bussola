@@ -5,7 +5,7 @@ import { ID_PASSI } from "../src/data/passi";
 import { TITOLO_MASSIMO } from "../src/lib/chat/conversazioni";
 import { DOMANDE_GRATIS_AL_MESE } from "../src/lib/chat/quota";
 import { LETTURE_AL_GIORNO } from "../src/lib/conti/limiti";
-import { CATEGORIE } from "../src/lib/conti/tipi";
+import { CATEGORIE, LIVELLI_SOLLECITO } from "../src/lib/conti/tipi";
 import { VERSIONE_REGOLE } from "../src/lib/percorso/regole";
 import {
   ATTIVITA,
@@ -554,6 +554,58 @@ describe("«I tuoi conti»", () => {
         [CONTI],
       ),
     ).rejects.toThrow(/unique|duplicate/);
+  });
+
+  it("i livelli del sollecito nel database sono quelli di src/lib/conti/tipi.ts", () => {
+    const sql = readFileSync(new URL("20261019000001_solleciti_fatture.sql", CARTELLA), "utf8");
+    const elenco = /sollecito_livello in \(([^)]*)\)/.exec(sql)?.[1] ?? "";
+    expect(elenco.split(",").map((v) => Number(v.trim()))).toEqual([...LIVELLI_SOLLECITO]);
+  });
+
+  it("il sollecito si segna solo sulle proprie fatture: data e livello insieme, mai prima della fattura", async () => {
+    const fattura = await comeUtente(
+      () =>
+        db.query<{ id: string }>(
+          `insert into public.conti_fatture (user_id, numero, cliente, data, scadenza, importo_centesimi)
+           values ($1, 'F-2026-050', 'Verdi Sagl', '2026-09-01', '2026-09-30', 50000) returning id`,
+          [CONTI],
+        ),
+      CONTI,
+    );
+    const id = fattura.rows[0]!.id;
+    const segna = (il: string | null, livello: number | null, utente = CONTI) =>
+      comeUtente(
+        () => db.query("update public.conti_fatture set sollecito_il = $2, sollecito_livello = $3 where id = $1", [id, il, livello]),
+        utente,
+      );
+
+    expect((await segna("2026-10-05", 1)).affectedRows).toBe(1);
+    const letta = await comeUtente(
+      () =>
+        db.query<{ il: string; livello: number }>(
+          "select sollecito_il::text as il, sollecito_livello as livello from public.conti_fatture where id = $1",
+          [id],
+        ),
+      CONTI,
+    );
+    expect(letta.rows).toEqual([{ il: "2026-10-05", livello: 1 }]);
+    // Segnare il sollecito non crea entrate: la fattura non è pagata.
+    const entrate = await db.query("select 1 from public.conti_movimenti where fattura_id = $1", [id]);
+    expect(entrate.rows).toEqual([]);
+
+    await expect(segna("2026-10-05", null)).rejects.toThrow(/conti_fatture_sollecito/);
+    await expect(segna(null, 2)).rejects.toThrow(/conti_fatture_sollecito/);
+    await expect(segna("2026-10-05", 3)).rejects.toThrow(/conti_fatture_sollecito/);
+    await expect(segna("2026-08-31", 1)).rejects.toThrow(/conti_fatture_sollecito/);
+    expect((await segna(null, null)).affectedRows).toBe(1);
+
+    // Un altro utente non vede la fattura e non può segnarci niente.
+    expect((await segna("2026-10-10", 2, INTRUSO)).affectedRows).toBe(0);
+    const altrui = await comeUtente(
+      () => db.query<{ n: number }>("select count(*)::int as n from public.conti_fatture where id = $1", [id]),
+      INTRUSO,
+    );
+    expect(altrui.rows[0]?.n).toBe(0);
   });
 
   it("la casella si legge ma non si scrive dall'utente; il token ha la forma giusta", async () => {

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import type { ColorValue } from "react-native";
 import type { NomeIcona } from "~/components/ui";
 import { aggiornaContatore, impostaDaConfermare, useDaConfermare } from "~/lib/conti";
+import { togliPromemoriaFatture } from "~/lib/notifiche";
 import { useSessione } from "~/lib/sessione";
 import { useColori } from "~/lib/tema";
 
@@ -16,15 +17,19 @@ function icona(nome: NomeIcona, nomeAttivo: NomeIcona) {
 
 export default function Schede() {
   const c = useColori();
-  const { sessione } = useSessione();
+  const { pronta, sessione } = useSessione();
   const daConfermare = useDaConfermare();
   const utente = sessione?.user.id ?? null;
 
   // Il pallino su «Conti»: quante voci aspettano la conferma (solo con l'accesso).
+  // Leggendo i conti si aggiornano anche i promemoria delle fatture; senza accesso si tolgono.
   useEffect(() => {
     if (utente) void aggiornaContatore();
-    else impostaDaConfermare(null);
-  }, [utente]);
+    else {
+      impostaDaConfermare(null);
+      if (pronta) void togliPromemoriaFatture().catch(() => {});
+    }
+  }, [utente, pronta]);
   return (
     <Tabs
       screenOptions={{
