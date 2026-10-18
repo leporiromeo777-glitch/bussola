@@ -535,6 +535,13 @@ const REGOLE_PASSI: Record<IdPasso, (r: Risposte) => Esito> = {
   },
 
   "soglie-annuali": (r) => {
+    if (conSoci(r)) {
+      return {
+        stato: "facoltativo",
+        perche:
+          "Una Sagl è sempre iscritta nel registro di commercio e tiene sempre la contabilità completa: a fine anno resta da controllare la soglia dell'IVA. Da verificare con un fiduciario autorizzato.",
+      };
+    }
     switch (r.fatturato) {
       case "da_60k_a_100k":
         return {

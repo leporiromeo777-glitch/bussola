@@ -29,6 +29,7 @@ import {
   regolePercorso,
   regoleRegistro,
   regoleSanita,
+  regoleSoglie,
   regolePermessi,
   regolePrevidenza,
   regoleSuva,
@@ -55,6 +56,7 @@ import {
   VERIFICATO_PREVIDENZA,
   VERIFICATO_DICHIARAZIONE,
   regoleDichiarazione,
+  VERIFICATO_SOGLIE,
   type Fonte,
 } from "./svizzera";
 
@@ -119,6 +121,9 @@ const aavs = regoleAccontiAvs;
 const etaIndennita = regolePrevidenza.etaIndennitaGiornaliera.valore;
 const quota3a = percentuale(datiStrumenti.quotaMassimaPilastro3a.valore, 0);
 const tassazione = ufficiPercorso.tassazioneTicino.valore;
+/** L'esempio dell'anno incompleto: metà anno con metà soglia, riportata su un anno intero (art. 9 cpv. 3 OIVA). */
+const MESI_META_ANNO = regoleSoglie.mesiAnnoIntero.valore / 2;
+const META_SOGLIA_IVA = regole.sogliaIva.valore / 2;
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -837,16 +842,31 @@ export const PASSI = [
     id: "soglie-annuali",
     fase: "ogni anno",
     titolo: "A fine anno controlla le soglie",
-    descrizione: `Con almeno ${SOGLIA_100K} di cifra d'affari nell'ultimo esercizio l'iscrizione al registro di commercio diventa obbligatoria. Per l'IVA, se non eri assoggettato dall'inizio, lo diventi alla fine dell'esercizio in cui hai raggiunto ${SOGLIA_IVA}, e hai ${regole.termineAnnuncioIvaGiorni.valore} giorni per annunciarti. Da ${chf(regole.sogliaContabilitaSemplificata.valore)} serve la contabilità completa.`,
+    descrizione: `Alla fine di ogni esercizio somma la cifra d'affari e confrontala con le soglie. Con almeno ${SOGLIA_100K} nell'ultimo esercizio l'iscrizione al registro di commercio diventa obbligatoria. Per l'IVA, se non eri assoggettato dall'inizio, lo diventi alla fine dell'esercizio in cui hai raggiunto ${SOGLIA_IVA}, e hai ${regole.termineAnnuncioIvaGiorni.valore} giorni per annunciarti. Da ${chf(regole.sogliaContabilitaSemplificata.valore)} nell'ultimo esercizio serve la contabilità completa.`,
     cosaFare: [
-      "Somma la cifra d'affari dell'anno: tutto quello che hai fatturato, in Svizzera e all'estero, senza IVA.",
-      "Se hai raggiunto una soglia, segui i passi su registro di commercio e IVA.",
+      "Somma la cifra d'affari dell'esercizio: tutto quello che hai fatturato, in Svizzera e all'estero, senza IVA. Conta la cifra d'affari, non l'utile: le spese non si tolgono.",
+      `Per la soglia dell'IVA non contano le prestazioni escluse dall'imposta, come molte cure mediche e l'insegnamento, e nemmeno doni e sussidi. Se l'attività non è durata tutto l'esercizio, la cifra d'affari si riporta su un anno intero: per esempio ${chf(META_SOGLIA_IVA)} in ${MESI_META_ANNO} mesi valgono come ${SOGLIA_IVA}.`,
+      "Se hai raggiunto una soglia, segui i passi su registro di commercio e IVA. Per passare alla contabilità completa rivolgiti a un fiduciario autorizzato.",
+      `Se sei iscritto all'IVA e la cifra d'affari scende sotto ${SOGLIA_IVA}, e prevedi che resti sotto anche l'anno dopo, puoi chiedere all'AFC la radiazione entro ${regoleSoglie.termineRadiazioneIvaGiorni.valore} giorni dalla fine dell'anno: se non la chiedi, resti iscritto.`,
+      "Nello strumento «I tuoi conti» di Bleo il riepilogo dell'anno mostra le entrate che hai confermato, e Bleo ti avvisa quando si avvicinano alla soglia dell'IVA. Conta però la cifra d'affari vera: controlla che ci siano tutte le fatture.",
     ],
     link: { etichetta: "Assoggettamento all'IVA (AFC)", url: fonti.afcAssoggettamento.url },
-    fonti: [fonti.co931, fonti.liva10, fonti.liva14, fonti.liva66, fonti.co957],
-    verificatoIl: VERIFICATO_IL,
+    fonti: [
+      fonti.co931,
+      fonti.liva10,
+      fontiPercorso.liva21,
+      fonti.afcAssoggettamento,
+      fonti.liva14,
+      fontiPercorso.oiva9,
+      fontiPercorso.afcInfoIva02,
+      fonti.liva66,
+      fontiPercorso.liva34,
+      fonti.co957,
+      fonti.albofiduciari,
+    ],
+    verificatoIl: VERIFICATO_SOGLIE,
     tempoStimato: "15 minuti",
-    domandaChat: "Quando devo iscrivermi all'IVA e al registro di commercio?",
+    domandaChat: "A fine anno come controllo le soglie di registro di commercio, IVA e contabilità?",
   },
 ] as const satisfies readonly Passo[];
 

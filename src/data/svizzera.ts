@@ -169,9 +169,26 @@ export const fonti = {
  */
 export const VERIFICATO_CONTABILITA = "2026-10-18";
 
+/**
+ * Data dell'ultimo controllo delle fonti sul controllo delle soglie a fine
+ * anno, per il passo e la lezione 23: CO artt. 931 e 957 (testo in vigore dal
+ * 01.10.2026), LIVA artt. 10, 14, 34 e 66 (stato 31.03.2025), OIVA art. 9
+ * (stato 01.01.2025), pagina dell'AFC sull'assoggettamento e info IVA 02
+ * «Assoggettamento» (cifre 2.1.2, 5.2.1.1, 5.2.1.2, 5.3 e 6.2). Valgono per
+ * regole.sogliaRegistroCommercio e regoleSoglie.
+ */
+export const VERIFICATO_SOGLIE = "2026-10-18";
+
 /** Soglie e regole stabili, scritte nella legge. */
 export const regole = {
-  sogliaRegistroCommercio: dato(100_000, fonti.co931, "Cifra d'affari (non utile) dell'ultimo esercizio. Sotto la soglia l'iscrizione è facoltativa (art. 931 cpv. 3 CO)."),
+  sogliaRegistroCommercio: {
+    ...dato(
+      100_000,
+      fonti.co931,
+      "Cifra d'affari (non utile) dell'ultimo esercizio: con almeno CHF 100'000 l'iscrizione è obbligatoria, sotto è facoltativa (art. 931 cpv. 1 e 3 CO). Sono dispensati i liberi professionisti e gli agricoltori che non gestiscono un'impresa in forma commerciale.",
+    ),
+    verificatoIl: VERIFICATO_SOGLIE,
+  },
   sogliaIva: datoIva(
     100_000,
     fonti.liva10,
@@ -901,6 +918,13 @@ export const fontiPercorso = {
   liva25: { titolo: "Legge sull'IVA, art. 25: aliquote d'imposta", url: `${LIVA}#art_25`, ente: FEDLEX },
   liva34: { titolo: "Legge sull'IVA, art. 34: periodo fiscale", url: `${LIVA}#art_34`, ente: FEDLEX },
   oiva9: { titolo: "Ordinanza sull'IVA (OIVA), art. 9", url: `${OIVA}#art_9`, ente: FEDLEX },
+  // Controllo delle soglie a fine anno (passo e lezione 23): letta il
+  // 18.10.2026, vedi VERIFICATO_SOGLIE.
+  afcInfoIva02: {
+    titolo: "Info IVA 02: Assoggettamento",
+    url: "https://www.gate.estv.admin.ch/mwst-webpublikationen/public/II/02",
+    ente: "Amministrazione federale delle contribuzioni (AFC)",
+  },
   liva86a: { titolo: "Legge sull'IVA, art. 86a: acconti con il rendiconto annuale", url: `${LIVA}#art_86_a`, ente: FEDLEX },
   pmiIva: {
     titolo: "IVA: come funziona l'imposta sul valore aggiunto",
@@ -1474,6 +1498,24 @@ export const regoleAccontiAvs = {
     { min: 20, max: 200 },
     fontiPercorso.oavs34a,
     "Chi non paga i contributi entro i termini riceve subito una diffida scritta dalla cassa, con una tassa da CHF 20 a CHF 200 (art. 34a OAVS). In difficoltà finanziarie si può chiedere una dilazione con acconti regolari (art. 34b OAVS); gli interessi di mora restano dovuti (promemoria 2.02, punto 10).",
+  ),
+} as const;
+
+function datoSoglie<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_SOGLIE };
+}
+
+/** Il controllo delle soglie a fine anno (passo e lezione 23), con le soglie in `regole`. */
+export const regoleSoglie = {
+  termineRadiazioneIvaGiorni: datoSoglie(
+    60,
+    fonti.afcAssoggettamento,
+    "Se la cifra d'affari determinante non raggiunge più la soglia IVA ed è presumibile che non la raggiunga nemmeno nel periodo fiscale successivo, il contribuente può chiedere la radiazione dal registro dei contribuenti IVA, al più presto per la fine del periodo fiscale (l'anno civile, art. 34 LIVA). La richiesta è tempestiva se arriva all'AFC entro 60 giorni dalla fine del periodo fiscale; se non la fa, vale come rinuncia all'esenzione e resta iscritto (art. 14 cpv. 5 LIVA; info IVA 02, cifra 6.2).",
+  ),
+  mesiAnnoIntero: datoSoglie(
+    12,
+    fontiPercorso.afcInfoIva02,
+    "Per l'IVA, se l'attività non è durata tutto l'esercizio, la cifra d'affari è riportata su un anno intero (art. 9 cpv. 3 OIVA), cioè su 12 mesi: nell'esempio dell'AFC CHF 85'000 in dieci mesi diventano CHF 102'000 (info IVA 02, cifra 5.3, caso A).",
   ),
 } as const;
 
