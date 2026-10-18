@@ -288,6 +288,8 @@ const OIVA = "https://www.fedlex.admin.ch/eli/cc/2009/828/it";
 const LAVS = "https://www.fedlex.admin.ch/eli/cc/63/837_843_843/it";
 const OAVS = "https://www.fedlex.admin.ch/eli/cc/63/1185_1183_1185/it";
 const LAMAL = "https://www.fedlex.admin.ch/eli/cc/1995/1328_1328_1328/it";
+const LAINF = "https://www.fedlex.admin.ch/eli/cc/1982/1676_1676_1676/it";
+const OAINF = "https://www.fedlex.admin.ch/eli/cc/1983/38_38_38/it";
 const ODERR = "https://www.fedlex.admin.ch/eli/cc/2017/63/it";
 const LSTRI = "https://www.fedlex.admin.ch/eli/cc/2007/758/it";
 const LABORATORIO_TI = "Cantone Ticino, Laboratorio cantonale";
@@ -691,6 +693,33 @@ export const fontiPercorso = {
     url: "https://www.kmu.admin.ch/it/assicurazione-contro-gli-infortuni-professionali-e-assicurazione-contro-gli-infortuni-non-professionali",
     ente: PMI,
   },
+  // Assicurazione infortuni (passo e lezione 12): ricontrollati il 18.10.2026,
+  // vedi VERIFICATO_INFORTUNI. Con quelli sopra: lainf4, lamal1a, lamal8,
+  // suvaImprenditori e pmiInfortuni.
+  lainf1a: { titolo: "Legge sull'assicurazione contro gli infortuni (LAINF), art. 1a", url: `${LAINF}#art_1_a`, ente: FEDLEX },
+  lainf3: { titolo: "Legge sull'assicurazione contro gli infortuni (LAINF), art. 3", url: `${LAINF}#art_3`, ente: FEDLEX },
+  lainf17: { titolo: "Legge sull'assicurazione contro gli infortuni (LAINF), artt. 16-17", url: `${LAINF}#art_17`, ente: FEDLEX },
+  lainf91: { titolo: "Legge sull'assicurazione contro gli infortuni (LAINF), art. 91", url: `${LAINF}#art_91`, ente: FEDLEX },
+  oainf13: { titolo: "Ordinanza sull'assicurazione contro gli infortuni (OAINF), art. 13", url: `${OAINF}#art_13`, ente: FEDLEX },
+  oainf135: { titolo: "Ordinanza sull'assicurazione contro gli infortuni (OAINF), artt. 134-135", url: `${OAINF}#art_135`, ente: FEDLEX },
+  oainf138: { titolo: "Ordinanza sull'assicurazione contro gli infortuni (OAINF), artt. 22 e 138", url: `${OAINF}#art_138`, ente: FEDLEX },
+  oainfModifica2027: {
+    titolo: "Modifica dell'OAINF del 26.08.2026 (art. 138, in vigore dal 01.01.2027)",
+    url: "https://www.fedlex.admin.ch/eli/oc/2026/432/it",
+    ente: FEDLEX,
+  },
+  lamal28: { titolo: "Legge sull'assicurazione malattie (LAMal), artt. 28 e 64", url: `${LAMAL}#art_28`, ente: FEDLEX },
+  lamal10: { titolo: "Legge sull'assicurazione malattie (LAMal), art. 10", url: `${LAMAL}#art_10`, ente: FEDLEX },
+  suvaPremiImprenditori: {
+    titolo: "Assicurazione per imprenditori: i premi",
+    url: "https://www.suva.ch/it-ch/assicurazione/assicurazione-contro-gli-infortuni/assicurazione-per-imprenditori-per-lavoratori-indipendenti/premi-assicurativi-dell-assicurazione-infortuni-per-lavoratori-indipendenti",
+    ente: "Suva",
+  },
+  ufspObbligoInfortuni: {
+    titolo: "Assicurazione infortuni: chi è soggetto all'obbligo di assicurazione?",
+    url: "https://www.bag.admin.ch/it/assicurazione-infortuni-chi-e-soggetto-allobbligo-di-assicurazione",
+    ente: "Ufficio federale della sanità pubblica (UFSP)",
+  },
   pmiIndennitaGiornaliera: {
     titolo: "Assicurazione d'indennità giornaliera per malattia",
     url: "https://www.kmu.admin.ch/it/assicurazione-di-indennita-giornaliera-per-malattiaassicurazione-in-caso-di-incapacita-di-guadagno-risp-di-perdita-di-guadagno",
@@ -943,6 +972,63 @@ export const regolePermessi = {
   rientroFrontalieri: datoPermessi("almeno una volta alla settimana", fontiPercorso.semFrontalieri, "Il frontaliere torna al suo domicilio all'estero di norma ogni giorno, o almeno una volta alla settimana."),
   notificaCambiamentiGiorni: datoPermessi(14, fontiPercorso.umIndipendentiUeAelsB, "Cambiamenti di indirizzo, nazionalità, nome, Comune o Cantone, stato civile o famiglia: da notificare all'Ufficio della migrazione entro 14 giorni (lo stesso termine vale con il permesso G)."),
   rinnovoPrimaDellaScadenzaGiorni: datoPermessi(14, fontiPercorso.umIndipendentiUeAelsB, "Il rinnovo del permesso va chiesto all'Ufficio della migrazione almeno 14 giorni prima della scadenza (anche con il permesso G)."),
+} as const;
+
+/**
+ * Data dell'ultimo controllo delle fonti sull'assicurazione infortuni, per il
+ * passo e la lezione 12: LAINF artt. 1a, 3, 4, 16-17, 66, 69 e 91 (stato
+ * 01.01.2026), OAINF artt. 8, 13, 22 e 134-139 (stato 01.01.2026, e testo in
+ * vigore dal 01.01.2027 con la modifica del 26.08.2026), LAMal artt. 1a, 8,
+ * 10, 28, 64 e 67 (stato 01.07.2026), pagine della Suva (assicurazione per
+ * imprenditori, prestazioni e premi), del Portale PMI e dell'UFSP, promemoria
+ * AVS 2.02 (stato 01.01.2026).
+ */
+export const VERIFICATO_INFORTUNI = "2026-10-18";
+
+function datoInfortuni<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_INFORTUNI };
+}
+
+/** Assicurazione contro gli infortuni (LAINF e OAINF). */
+export const regoleInfortuni = {
+  oreSettimanaliNonProfessionali: datoInfortuni(
+    8,
+    fontiPercorso.oainf13,
+    "Chi lavora almeno 8 ore alla settimana per lo stesso datore di lavoro è assicurato anche contro gli infortuni non professionali (art. 13 OAINF, pagina dell'UFSP). Sotto questo minimo è infortunio professionale anche quello sul tragitto per il lavoro.",
+  ),
+  coperturaDopoImpiegoGiorni: datoInfortuni(
+    31,
+    fontiPercorso.lainf3,
+    "L'assicurazione del datore di lavoro termina allo spirare del 31° giorno dopo quello in cui cessa il diritto almeno a metà del salario (art. 3 cpv. 2 LAINF).",
+  ),
+  prolungamentoMesi: datoInfortuni(
+    6,
+    fontiPercorso.lainf3,
+    "L'assicuratore deve offrire di prolungare l'assicurazione, con un accordo speciale, fino a 6 mesi (art. 3 cpv. 3 LAINF). Vale per gli infortuni non professionali e l'accordo va concluso prima che l'assicurazione finisca (art. 8 OAINF).",
+  ),
+  indennitaGiornaliera: datoInfortuni(
+    0.8,
+    fontiPercorso.lainf17,
+    "Con un'incapacità lavorativa totale l'indennità giornaliera è l'80% del guadagno assicurato, dal terzo giorno dopo l'infortunio (artt. 16-17 LAINF). Nell'assicurazione per imprenditori della Suva si può scegliere di riceverla dal 15° o dal 30° giorno, con uno sconto sul premio.",
+  ),
+  guadagnoMassimoAssicurato: datoInfortuni(
+    148_200,
+    fontiPercorso.oainf138,
+    "Importo massimo del guadagno assicurato all'anno (art. 22 cpv. 1 OAINF); uguale nel testo in vigore dal 01.01.2027.",
+  ),
+  /** Guadagno assicurato minimo di un indipendente nell'assicurazione facoltativa, per anno. */
+  guadagnoMinimoIndipendenti: {
+    2026: datoInfortuni(
+      66_690,
+      fontiPercorso.oainf138,
+      "Il 45% del guadagno massimo assicurato (art. 138 OAINF, testo in vigore nel 2026). Lo stesso importo è sulla pagina dei premi della Suva.",
+    ),
+    2027: datoInfortuni(
+      44_460,
+      fontiPercorso.oainfModifica2027,
+      "Dal 01.01.2027 il minimo è il 30% del guadagno massimo assicurato, e gli assicuratori possono adeguarlo al grado di occupazione (art. 138 OAINF, modifica del 26.08.2026).",
+    ),
+  },
 } as const;
 
 /** Regole e importi usati dal percorso guidato. */
