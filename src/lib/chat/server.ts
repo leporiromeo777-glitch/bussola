@@ -1,17 +1,23 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
+import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { createClient } from "@/lib/supabase/server";
 import { chiaveAnthropic, URL_API_ANTHROPIC } from "./chiave";
 import { dettagliErrore, messaggioErrore } from "./errori";
 import type { DipendenzeChat } from "./flusso";
 import { FRAMMENTI_PER_DOMANDA, leggiFrammenti } from "./frammenti";
-import { scegliModello, supportaFallback } from "./modello";
+import { scegliModello, scegliModelloFunzione, supportaFallback } from "./modello";
+import { ISTRUZIONI_PAROLE_RICERCA, messaggioParoleRicerca, schemaParoleRicerca } from "./parole-ricerca";
 import { calcolaQuota, inizioMese, type ProfiloPiano, type Quota } from "./quota";
 
 type ClientSupabase = NonNullable<Awaited<ReturnType<typeof createClient>>>;
 
 const MAX_TOKENS = 8_000;
+const MAX_TOKENS_PAROLE = 2_000;
+/** Le parole di ricerca non devono far aspettare: oltre questo tempo si cerca con la sola domanda. */
+const TEMPO_MASSIMO_PAROLE_MS = 8_000;
+const FORMATO_PAROLE = betaZodOutputFormat(schemaParoleRicerca);
 
 /** true se la nostra chiave di Claude è impostata; senza, la chat è in modalità demo. */
 export function anthropicConfigurato(): boolean {
@@ -85,6 +91,21 @@ export function dipendenzeChat(opzioni: {
 }): DipendenzeChat {
   const { supabase, userId, idDomanda, anthropic, segnale } = opzioni;
   return {
+    async paroleRicerca(domanda, cronologia) {
+      const modello = scegliModelloFunzione("ricerca");
+      const risposta = await anthropic.beta.messages.parse(
+        {
+          model: modello,
+          max_tokens: MAX_TOKENS_PAROLE,
+          output_config: { effort: "low", format: FORMATO_PAROLE },
+          system: [{ type: "text", text: ISTRUZIONI_PAROLE_RICERCA, cache_control: { type: "ephemeral" } }],
+          messages: [{ role: "user", content: messaggioParoleRicerca(domanda, cronologia) }],
+        },
+        { signal: segnale, timeout: TEMPO_MASSIMO_PAROLE_MS, maxRetries: 0 },
+      );
+      return risposta.parsed_output?.parole ?? [];
+    },
+
     async cerca(testo) {
       const { data, error } = await supabase.rpc("cerca_frammenti", {
         domanda: testo,

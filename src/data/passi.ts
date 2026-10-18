@@ -148,7 +148,7 @@ export const PASSI = [
     ],
     verificatoIl: VERIFICATO_IL,
     tempoStimato: "15-30 minuti",
-    domandaChat: "La mia attività ha bisogno di un'autorizzazione per iniziare?",
+    domandaChat: "Mi occupo di … (scrivi qui la tua attività). Mi serve un'autorizzazione per iniziare?",
   },
   {
     id: "autorizzazione-esercizio-pubblico",

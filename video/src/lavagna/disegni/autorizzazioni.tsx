@@ -53,6 +53,69 @@ function CroceMedica({ cx, cy }: { cx: number; cy: number }) {
   );
 }
 
+/** Tre puntini che saltano: Bleo sta scrivendo. */
+function Puntini({ x, y, locale }: { x: number; y: number; locale: number }) {
+  return (
+    <g>
+      {[0, 1, 2].map((i) => (
+        <circle key={i} cx={x + i * 30} cy={y - Math.max(0, Math.sin((locale - i * 5) / 4)) * 8} r={9} fill={TINTE.tratto} />
+      ))}
+    </g>
+  );
+}
+
+/* 9. «Se vuoi, scrivimi in chat: dimmi di cosa ti occupi e chiedimi se ti serve un'autorizzazione. Cerco nelle fonti ufficiali e ti rispondo con il link.» */
+const autChat: Disegno = {
+  chiave: (ctx) => fra(ctx, 1, null, 0.7, 0.85),
+  bussolina: (ctx) => ({
+    posto: { x: 200, y: 450 },
+    azioni: [
+      { tipo: "lancia", quando: fra(ctx, 0, 1, 0.2, 0.3) },
+      { tipo: "festeggia", quando: fra(ctx, 1, null, 0.7, 0.85) + 4 },
+    ],
+  }),
+  Figura: ({ locale, ctx }) => {
+    const { fps } = ctx;
+    const domanda = fra(ctx, 0, 1, 0.15, 0.3);
+    const risposta = fra(ctx, 1, null, 0, 0.65);
+    const righe = fra(ctx, 1, null, 0.4, 0.75);
+    const link = fra(ctx, 1, null, 0.7, 0.85);
+    return (
+      <Tela>
+        <Compare v={molla(locale, 2, fps, true)} cx={650} cy={360}>
+          <rect x={340} y={60} width={620} height={600} rx={30} fill={TINTE.carta} stroke={TINTE.tinta} strokeWidth={6} />
+          <Pillola x={650} y={115} testo="Chat con Bleo" corpo={30} fondo={TINTE.tratto} colore={TINTE.carta} />
+        </Compare>
+        {/* La domanda di chi scrive: a destra, come in una chat. */}
+        <Compare v={molla(locale, domanda, fps)} cx={800} cy={240}>
+          <path d="M 880 300 L 925 330 L 905 290 Z" fill={TINTE.tratto} />
+          <rect x={430} y={175} width={500} height={130} rx={28} fill={TINTE.tratto} />
+          <Testo x={680} y={218} corpo={30} titolo peso={800} colore={TINTE.carta}>
+            Voglio aprire un bar.
+          </Testo>
+          <Testo x={680} y={262} corpo={30} titolo peso={800} colore={TINTE.carta}>
+            Mi serve un&apos;autorizzazione?
+          </Testo>
+        </Compare>
+        {/* La risposta di Bleo: prima i puntini, poi il testo e il link alla fonte. */}
+        <Compare v={molla(locale, risposta, fps)} cx={520} cy={460}>
+          <path d="M 400 600 L 375 635 L 425 600 Z" fill={TINTE.carta} stroke={TINTE.tratto} strokeWidth={5} strokeLinejoin="round" />
+          <rect x={370} y={355} width={460} height={250} rx={28} fill={TINTE.carta} stroke={TINTE.tratto} strokeWidth={5} />
+          <g opacity={1 - tra(locale, righe - 4, righe + 4)}>
+            <Puntini x={415} y={410} locale={locale} />
+          </g>
+          <g opacity={tra(locale, righe, righe + 8)}>
+            <Righe x={405} y={410} w={380} n={3} passo={38} />
+          </g>
+          <Compare v={molla(locale, link, fps)} cx={540} cy={555}>
+            <Pillola x={540} y={555} testo="Fonte ufficiale" corpo={28} fondo={TINTE.accento} colore={TINTE.carta} />
+          </Compare>
+        </Compare>
+      </Tela>
+    );
+  },
+};
+
 /* 3. «Professioni regolamentate, come il notaio o il medico: serve una formazione specifica o un'esperienza dimostrata.» */
 const autProfessioni: Disegno = {
   chiave: (ctx) => cambio(ctx, 0, 0.5),
@@ -159,4 +222,5 @@ export const DISEGNI_AUTORIZZAZIONI: Record<string, Disegno> = {
   "aut-livelli": autLivelli,
   "aut-sefri": autSefri,
   "aut-polizia": autPolizia,
+  "aut-chat": autChat,
 };

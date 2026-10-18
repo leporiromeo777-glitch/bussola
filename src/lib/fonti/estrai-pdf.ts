@@ -4,6 +4,11 @@ import { haContenuto, normalizzaSpazi, type Blocco } from "./blocchi";
 const DOMANDA_NUMERATA = /^\d{1,2}\s+[A-ZÀ-ÖØ-Ý«"“].{4,160}$/u;
 const PUNTO_ELENCO = /^[•▪●◦–-]\s+/u;
 const NUMERO_PAGINA = /^\d{1,3}$/;
+/** Le note a piè di pagina citano leggi e gazzette: «RS 935.01», «GU L 255». */
+const RIMANDO_NORMATIVO = /\b(?:RS|GU|RU|FF)\s\d/u;
+const LUNGHEZZA_MASSIMA_DOMANDA = 160;
+/** Una riga che finisce con un articolo o una preposizione continua sulla riga dopo. */
+const PAROLA_DI_LEGAME = /\s(?:e|o|la|il|lo|le|i|gli|un|una|di|del|dello|della|dei|degli|delle|a|al|alla|ai|alle|da|dal|dalla|in|nel|nella|con|su|sul|sulla|per|tra|fra|che)$/u;
 
 /**
  * Trasforma il testo di un PDF (una stringa per pagina, righe separate da
@@ -35,15 +40,26 @@ export function pagineInBlocchi(pagine: string[]): Blocco[] {
     const successiva = righe[i + 1] ?? "";
 
     if (eDomandaNumerata(riga)) {
-      chiudi();
-      // Una domanda lunga può continuare sulla riga dopo ("...per tutte" + "le categorie di reddito?").
+      // Una domanda lunga può continuare sulla riga dopo ("...per tutte" + "le categorie di reddito?");
+      // una nota anche con una parentesi ("... a rischio" + "(RS 935.911)").
       let domanda = riga;
-      while (!domanda.endsWith("?") && /^\p{Ll}/u.test(righe[i + 1] ?? "") && domanda.length < 200) {
-        domanda = unisciRighe(domanda, righe[i + 1] ?? "");
-        i++;
+      let fine = i;
+      while (
+        !domanda.endsWith("?") &&
+        fine + 1 < righe.length &&
+        (/^[\p{Ll}(]/u.test(righe[fine + 1] ?? "") || PAROLA_DI_LEGAME.test(domanda)) &&
+        domanda.length < 200
+      ) {
+        domanda = unisciRighe(domanda, righe[fine + 1] ?? "");
+        fine++;
       }
-      blocchi.push({ tipo: "titolo", livello: 3, testo: domanda });
-      continue;
+      // Una nota a piè di pagina ("1 Accordo del 21 giugno 1999 ... RS 0.142.112.681.") resta testo.
+      if (!eNotaAPie(domanda)) {
+        chiudi();
+        blocchi.push({ tipo: "titolo", livello: 3, testo: domanda });
+        i = fine;
+        continue;
+      }
     }
     if (eTitoloDiSezione(riga, successiva)) {
       chiudi();
@@ -68,9 +84,14 @@ function eDomandaNumerata(riga: string): boolean {
   return !/[.,;:]$/.test(riga);
 }
 
+/** Una riga numerata che finisce come una frase, è troppo lunga o cita una legge: una nota, non una domanda. */
+function eNotaAPie(testo: string): boolean {
+  return /[.,;:]$/.test(testo) || testo.length > LUNGHEZZA_MASSIMA_DOMANDA || RIMANDO_NORMATIVO.test(testo);
+}
+
 /** Riga breve senza punteggiatura finale, seguita da una domanda numerata: è il titolo della sezione. */
 function eTitoloDiSezione(riga: string, successiva: string): boolean {
-  if (riga.length > 70 || /[.,;:?!]$/.test(riga) || !/^\p{Lu}/u.test(riga)) return false;
+  if (riga.length > 70 || /[.,;:?!]$/.test(riga) || !/^\p{Lu}/u.test(riga) || RIMANDO_NORMATIVO.test(riga)) return false;
   return eDomandaNumerata(successiva);
 }
 

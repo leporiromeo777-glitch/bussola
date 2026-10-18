@@ -38,6 +38,29 @@ describe("pagineInBlocchi", () => {
     ]);
   });
 
+  it("non scambia le note a piè di pagina per domande numerate", () => {
+    const pagine = [
+      [
+        "1",
+        "Accordo del 21 giugno 1999 tra la Confederazione Svizzera e la Comunità europea",
+        "1 Accordo del 21 giugno 1999 tra la Confederazione Svizzera, da una parte, e la",
+        "Comunità europea, dall'altra, sulla libera circolazione delle persone (RS 0.142.112.681).",
+        "3 Ordinanza del 30 marzo 1994 sugli impianti elettrici a corrente forte (RS 734.2)",
+        "4 Ordinanza concernente l'attività di guida alpina",
+        "(RS 935.911; di seguito: ordinanza sulle attività a rischio)",
+        "5 Quali attività sono regolamentate?",
+      ].join("\n"),
+    ];
+    expect(pagineInBlocchi(pagine)).toEqual([
+      {
+        tipo: "paragrafo",
+        testo:
+          "Accordo del 21 giugno 1999 tra la Confederazione Svizzera e la Comunità europea 1 Accordo del 21 giugno 1999 tra la Confederazione Svizzera, da una parte, e la Comunità europea, dall'altra, sulla libera circolazione delle persone (RS 0.142.112.681). 3 Ordinanza del 30 marzo 1994 sugli impianti elettrici a corrente forte (RS 734.2) 4 Ordinanza concernente l'attività di guida alpina (RS 935.911; di seguito: ordinanza sulle attività a rischio)",
+      },
+      { tipo: "titolo", livello: 3, testo: "5 Quali attività sono regolamentate?" },
+    ]);
+  });
+
   it("non scambia righe di tabelle o frasi per titoli", () => {
     const pagine = ["2016 0,0 %\n10 100 17 600 5,371\n64 anni e 3 mesi\n12 Interessi di mora sul successivo utile."];
     expect(pagineInBlocchi(pagine).every((b) => b.tipo === "paragrafo")).toBe(true);

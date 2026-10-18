@@ -14,6 +14,8 @@
  *   (fontiPercorso.poliziaAutorizzazioni).
  * Nessun elenco unico ticinese e i passi dedicati (ristoranti e bar,
  * alimenti, sanità, permesso di lavoro): dati del percorso (src/data/passi.ts).
+ * La scena 9 invita a chiedere alla chat, che risponde dalle stesse fonti
+ * (supabase/fonti/elenco.json).
  */
 import { lezionePerPasso } from "../../../src/data/corso";
 import { fontiPercorso, VERIFICATO_AUTORIZZAZIONI } from "../../../src/data/svizzera";
@@ -122,6 +124,18 @@ export const autorizzazioni: Lezione = {
     },
     {
       audio: "scena-9.mp3",
+      disegno: "aut-chat",
+      stile: "lavagna",
+      testo:
+        "Se vuoi, scrivimi in chat: dimmi di cosa ti occupi e chiedimi se ti serve un'autorizzazione. Cerco nelle fonti ufficiali e ti rispondo con il link.",
+      schermo: {
+        tipo: "punto",
+        titolo: "Chiedi a Bleo in chat",
+        testo: "Scrivi di cosa ti occupi: Bleo cerca nelle fonti ufficiali e ti risponde con il link.",
+      },
+    },
+    {
+      audio: "scena-10.mp3",
       disegno: "fonte",
       stile: "presentatore",
       testo: "Le fonti ufficiali le trovi qui sotto. Ci vediamo al prossimo passo!",

@@ -124,7 +124,7 @@ export const LEZIONI: readonly LezioneCorso[] = [
     video: "/corso/autorizzazioni.mp4",
     poster: "/corso/autorizzazioni.jpg",
     sottotitoli: "/corso/autorizzazioni.vtt",
-    durataSecondi: 99,
+    durataSecondi: 110,
     fonti: [fontiPercorso.pmiMettersiInProprio, fontiPercorso.sefriProfessioniRegolamentate, fontiPercorso.poliziaAutorizzazioni],
     verificatoIl: VERIFICATO_AUTORIZZAZIONI,
   },

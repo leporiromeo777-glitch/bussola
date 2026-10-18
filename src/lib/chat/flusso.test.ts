@@ -5,11 +5,13 @@ import type { DipendenzeChat, RegistroDomanda, RichiestaModello } from "./flusso
 import { rispondi } from "./flusso";
 import type { FrammentoTrovato } from "./frammenti";
 import { MESSAGGI } from "./messaggi";
-import type { EventoChat, QuotaPubblica } from "./tipi";
+import type { EventoChat, QuotaPubblica, ScambioPrecedente } from "./tipi";
 
 type Finale = Pick<BetaMessage, "stop_reason" | "content">;
 
 function finte(opzioni: {
+  parole?: string[];
+  erroreParole?: unknown;
   trovati?: FrammentoTrovato[] | ((testo: string) => FrammentoTrovato[]);
   pezzi?: string[];
   finale?: Finale;
@@ -18,12 +20,18 @@ function finte(opzioni: {
   erroreSalvataggio?: unknown;
   erroreAnnullamento?: unknown;
 }) {
+  const perParole: { domanda: string; cronologia: ScambioPrecedente[] }[] = [];
   const ricerche: string[] = [];
   const richieste: RichiestaModello[] = [];
   const registri: RegistroDomanda[] = [];
   const annullate: number[] = [];
   const errori: string[] = [];
   const dip: DipendenzeChat = {
+    async paroleRicerca(domanda, cronologia) {
+      perParole.push({ domanda, cronologia });
+      if (opzioni.erroreParole) throw opzioni.erroreParole;
+      return opzioni.parole ?? [];
+    },
     async cerca(testo) {
       ricerche.push(testo);
       if (opzioni.erroreRicerca) throw opzioni.erroreRicerca;
@@ -51,7 +59,7 @@ function finte(opzioni: {
     descriviErrore: (errore) => (errore === "interrotta" ? null : "Messaggio per l'utente"),
     registraErrore: (contesto) => errori.push(contesto),
   };
-  return { dip, ricerche, richieste, registri, annullate, errori };
+  return { dip, perParole, ricerche, richieste, registri, annullate, errori };
 }
 
 async function tutti(eventi: AsyncGenerator<EventoChat>) {
@@ -97,6 +105,33 @@ describe("rispondi", () => {
     );
     expect(f.ricerche).toEqual(["E per i Grigioni?", "Quando scatta l'IVA? E per i Grigioni?"]);
     expect(f.richieste).toHaveLength(1);
+  });
+
+  it("cerca con la domanda più le parole di ricerca, pulite", async () => {
+    const cronologia = [{ domanda: "Apro una ditta individuale", risposta: "…" }];
+    const f = finte({ parole: ["istruttore sportivo", '"attività sportive"', "istruttore sportivo"] });
+    await tutti(rispondi(f.dip, { domanda: " Faccio il personal trainer ", cronologia }));
+    expect(f.perParole).toEqual([{ domanda: "Faccio il personal trainer", cronologia }]);
+    expect(f.ricerche[0]).toBe("Faccio il personal trainer istruttore sportivo attività sportive");
+  });
+
+  it("se le parole di ricerca non arrivano cerca con la sola domanda e risponde lo stesso", async () => {
+    const f = finte({
+      erroreParole: new Error("timeout"),
+      trovati: [frammento({ frammento_id: 1, fonte_id: "a" })],
+      finale: { stop_reason: "end_turn", content: [testoCitato("Sì.", [0])] },
+    });
+    const eventi = await tutti(rispondi(f.dip, { domanda: "Mi serve un'autorizzazione?", cronologia: [] }));
+    expect(f.ricerche).toEqual(["Mi serve un'autorizzazione?"]);
+    expect(f.errori).toEqual(["parole di ricerca"]);
+    expect(eventi.at(-1)?.t).toBe("fine");
+    expect(f.annullate).toEqual([]);
+  });
+
+  it("se chi chiede interrompe durante le parole di ricerca non registra un errore", async () => {
+    const f = finte({ erroreParole: "interrotta" });
+    await tutti(rispondi(f.dip, { domanda: "Domanda?", cronologia: [] }));
+    expect(f.errori).toEqual([]);
   });
 
   it("trasmette il testo man mano e chiude con risposta, fonti citate e registro", async () => {

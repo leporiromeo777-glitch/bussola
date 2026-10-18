@@ -12,8 +12,12 @@ Come funziona, in breve:
 2. `npm run fonti:importa` scarica ogni pagina, ne estrae il testo utile, lo
    divide in frammenti di circa 1'000-1'500 caratteri e li salva nelle tabelle
    `fonti` e `frammenti_fonti` di Supabase.
-3. A ogni domanda, la chat cerca i frammenti più pertinenti con la funzione
-   `public.cerca_frammenti` e li passa a Claude, che risponde citandoli.
+3. A ogni domanda, un modello veloce trasforma la domanda in parole di
+   ricerca (per esempio «faccio il personal trainer» → «istruttore sportivo»,
+   «attività sportive», «autorizzazione»: `src/lib/chat/parole-ricerca.ts`);
+   poi la chat cerca i frammenti più pertinenti con la funzione
+   `public.cerca_frammenti` e li passa a Claude, che risponde citandoli. Se le
+   parole non arrivano entro 8 secondi, cerca con la sola domanda.
 4. Ogni domanda finisce in `domande_chat`, con le fonti citate e il segno
    `senza_risposta` quando una fonte mancava.
 
@@ -23,6 +27,17 @@ Come funziona, in breve:
 > Una fonte nuova si aggiunge con `"verificato_da": "import automatico - da
 > ricontrollare a mano"`: finché resta così, `npm run fonti:importa` la salva
 > con `attiva = false` e senza scaricarla, e la chat non la usa.
+>
+> Il 18.10.2026 sono state aggiunte 24 fonti sulle autorizzazioni, perché
+> la chat possa dire a chi descrive la sua attività se gli serve
+> un'autorizzazione: il Portale PMI «Mettersi in proprio», le pagine della
+> Polizia cantonale (elenco delle autorizzazioni, agenzie di sicurezza,
+> esercizi pubblici, agriturismo, commercio ambulante, distillati, canapa,
+> baracconisti, pernottamenti), l'Ufficio di sanità, il Laboratorio cantonale
+> e 10 note informative della SEFRI sulle professioni regolamentate. Le note
+> SEFRI sono scritte per chi ha un titolo estero: le istruzioni della chat
+> (regola 12) le usano solo per dire se un'attività è regolamentata. La nota
+> sulla psicologia è rimasta fuori perché è aggiornata al 2017.
 >
 > Revisione del 15.10.2026: `pmi-ditta-individuale-lanciarsi` è disattivata
 > (`"attiva": false`) perché dice che si chiede prima lo statuto alla Suva e

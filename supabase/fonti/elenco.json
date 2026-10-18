@@ -220,5 +220,420 @@
     "verificato_il": "2026-10-16",
     "verificato_da": "Claude per Romeo Lepori (lettura del contenuto e confronto con docs/ricerca)",
     "attiva": true
+  },
+  {
+    "id": "pmi-mettersi-in-proprio",
+    "url": "https://www.kmu.admin.ch/it/mettersi-in-proprio-istruzioni",
+    "titolo": "Mettersi in proprio: istruzioni",
+    "ente": "SECO – Portale PMI",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": [
+      "autorizzazioni",
+      "professioni regolamentate",
+      "mettersi in proprio"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-polizia-autorizzazioni",
+    "url": "https://www4.ti.ch/index.php?id=117316",
+    "titolo": "Polizia cantonale: servizi online e autorizzazioni",
+    "ente": "Polizia cantonale ticinese",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "autorizzazioni",
+      "polizia cantonale",
+      "elenco"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-polizia-sicurezza-persona",
+    "url": "https://www4.ti.ch/index.php?id=140165",
+    "titolo": "Agenzie di sicurezza e investigazione: autorizzazione per una persona",
+    "ente": "Polizia cantonale ticinese, Servizio armi, esplosivi e sicurezza privata",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "autorizzazioni",
+      "sicurezza",
+      "investigazione",
+      "agente di sicurezza"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-polizia-sicurezza-agenzia",
+    "url": "https://www4.ti.ch/index.php?id=140167",
+    "titolo": "Agenzie di sicurezza e investigazione: autorizzazione per un'agenzia",
+    "ente": "Polizia cantonale ticinese, Servizio armi, esplosivi e sicurezza privata",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "autorizzazioni",
+      "sicurezza",
+      "investigazione",
+      "agenzia"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-polizia-esercizi-pubblici-persona",
+    "url": "https://www4.ti.ch/index.php?id=139975",
+    "titolo": "Esercizi pubblici: autorizzazione per una persona",
+    "ente": "Polizia cantonale ticinese, Servizio autorizzazioni, commercio e giochi",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "autorizzazioni",
+      "esercizi pubblici",
+      "ristorante",
+      "bar",
+      "LEAR"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-polizia-esercizi-pubblici-societa",
+    "url": "https://www4.ti.ch/index.php?id=146712",
+    "titolo": "Esercizi pubblici: autorizzazione per una società",
+    "ente": "Polizia cantonale ticinese, Servizio autorizzazioni, commercio e giochi",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "autorizzazioni",
+      "esercizi pubblici",
+      "ristorante",
+      "bar",
+      "LEAR",
+      "società"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-polizia-agriturismo",
+    "url": "https://www4.ti.ch/index.php?id=139979",
+    "titolo": "Agriturismo: autorizzazione per ristorazione e alloggio",
+    "ente": "Polizia cantonale ticinese, Servizio autorizzazioni, commercio e giochi",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "autorizzazioni",
+      "agriturismo",
+      "LEAR"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-polizia-commercio-ambulante",
+    "url": "https://www4.ti.ch/index.php?id=139987",
+    "titolo": "Commercio ambulante: autorizzazione per chi vive in Svizzera",
+    "ente": "Polizia cantonale ticinese, Servizio autorizzazioni, commercio e giochi",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "autorizzazioni",
+      "commercio ambulante",
+      "mercati",
+      "vendita itinerante"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-polizia-distillati",
+    "url": "https://www4.ti.ch/index.php?id=144733",
+    "titolo": "Patente di vendita distillati",
+    "ente": "Polizia cantonale ticinese, Servizio autorizzazioni, commercio e giochi",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "autorizzazioni",
+      "alcol",
+      "distillati",
+      "vendita online"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-polizia-canapa",
+    "url": "https://www4.ti.ch/index.php?id=139967",
+    "titolo": "Vendita di prodotti a base di canapa",
+    "ente": "Polizia cantonale ticinese, Servizio autorizzazioni, commercio e giochi",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "autorizzazioni",
+      "canapa",
+      "CBD",
+      "negozio"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-polizia-baracconisti",
+    "url": "https://www4.ti.ch/index.php?id=146698",
+    "titolo": "Baracconisti e impresari circensi: autorizzazione",
+    "ente": "Polizia cantonale ticinese, Servizio autorizzazioni, commercio e giochi",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "autorizzazioni",
+      "baracconisti",
+      "circo",
+      "giostre"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-polizia-pernottamenti-no-lear",
+    "url": "https://www4.ti.ch/index.php?id=146709",
+    "titolo": "Notifica dei pernottamenti nelle strutture non soggette ad autorizzazione",
+    "ente": "Polizia cantonale ticinese, Servizio autorizzazioni, commercio e giochi",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "alloggio",
+      "affitto di camere",
+      "pernottamenti",
+      "notifica"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "sefri-terapie-complementari",
+    "url": "https://www.sbfi.admin.ch/dam/it/sd-web/MxoTsi-KhYn1/Alternativmedizin%20oder%20Komplement%C3%A4rtherapie_it.pdf",
+    "titolo": "Professioni regolamentate: Medicina alternativa e terapie complementari (nota informativa SEFRI)",
+    "ente": "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": [
+      "professioni regolamentate",
+      "autorizzazioni",
+      "terapie complementari",
+      "massaggi",
+      "naturopatia"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "sefri-protezione-animali",
+    "url": "https://www.sbfi.admin.ch/dam/it/sd-web/g8oHYf4pNZya/Tierschutz_it.pdf",
+    "titolo": "Professioni regolamentate: Protezione degli animali (nota informativa SEFRI)",
+    "ente": "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": [
+      "professioni regolamentate",
+      "autorizzazioni",
+      "animali",
+      "cani",
+      "pensione per animali"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "sefri-insegnamento-musica",
+    "url": "https://www.sbfi.admin.ch/dam/it/sd-web/U7m8FfLHpo0-/Musikunterricht_it.pdf",
+    "titolo": "Professioni regolamentate: Insegnamento della musica (nota informativa SEFRI)",
+    "ente": "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": [
+      "professioni regolamentate",
+      "autorizzazioni",
+      "musica",
+      "insegnante"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "sefri-accompagnatore-escursionismo",
+    "url": "https://www.sbfi.admin.ch/dam/it/sd-web/-9luuvmtdLcA/WanderleiterIn_it.pdf",
+    "titolo": "Professioni regolamentate: Accompagnatore di escursionismo (nota informativa SEFRI)",
+    "ente": "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": [
+      "professioni regolamentate",
+      "autorizzazioni",
+      "escursioni",
+      "attività a rischio",
+      "sport"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "sefri-maestro-sport-neve",
+    "url": "https://www.sbfi.admin.ch/dam/it/sd-web/mmUmK3q843iz/SchneesportlehrerIn_it.pdf",
+    "titolo": "Professioni regolamentate: Maestro di sport sulla neve (nota informativa SEFRI)",
+    "ente": "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": [
+      "professioni regolamentate",
+      "autorizzazioni",
+      "sci",
+      "snowboard",
+      "attività a rischio",
+      "sport"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "sefri-architetto",
+    "url": "https://www.sbfi.admin.ch/dam/it/sd-web/FIAAM1R6mF-u/Architektenberuf_it.pdf",
+    "titolo": "Professioni regolamentate: Architetto (nota informativa SEFRI)",
+    "ente": "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": [
+      "professioni regolamentate",
+      "autorizzazioni",
+      "architetto",
+      "edilizia",
+      "OTIA"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "sefri-gruista-macchinista",
+    "url": "https://www.sbfi.admin.ch/dam/it/sd-web/xaEROAC4OreN/Kranf%C3%BChrerIn%2C%20StaplerfahrerIn%20und%20Baumaschinenf%C3%BChrerIn_it.pdf",
+    "titolo": "Professioni regolamentate: Gruista, carrellista e macchinista di cantiere (nota informativa SEFRI)",
+    "ente": "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": [
+      "professioni regolamentate",
+      "autorizzazioni",
+      "cantiere",
+      "gru",
+      "edilizia"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "sefri-impresario-costruttore",
+    "url": "https://www.sbfi.admin.ch/dam/it/sd-web/or9gyELKSHVQ/BauunternehmerIn_it.pdf",
+    "titolo": "Professioni regolamentate: Impresario costruttore (nota informativa SEFRI)",
+    "ente": "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": [
+      "professioni regolamentate",
+      "autorizzazioni",
+      "impresa di costruzioni",
+      "edilizia"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "sefri-elettricita",
+    "url": "https://www.sbfi.admin.ch/dam/it/sd-web/JhOsc23yBE6S/Elektrizit%C3%A4t_it.pdf",
+    "titolo": "Professioni regolamentate: Settore elettricità (nota informativa SEFRI)",
+    "ente": "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": [
+      "professioni regolamentate",
+      "autorizzazioni",
+      "elettricista",
+      "installazioni elettriche"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "sefri-sicurezza-sorveglianza",
+    "url": "https://www.sbfi.admin.ch/dam/it/sd-web/nsHwZEr0VkGv/Sicherheit%20und%20Bewachung_IT_23.7.26.pdf",
+    "titolo": "Professioni regolamentate: Sicurezza e sorveglianza (nota informativa SEFRI)",
+    "ente": "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+    "livello": "federale",
+    "cantone": null,
+    "argomenti": [
+      "professioni regolamentate",
+      "autorizzazioni",
+      "sicurezza",
+      "sorveglianza",
+      "investigazione"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-us-attivita-sanitaria",
+    "url": "https://www4.ti.ch/dss/dsp/us/sportello/procedure-per-le-autorizzazioni-di-libero-esercizio",
+    "titolo": "Autorizzazioni per l'esercizio di un'attività sanitaria",
+    "ente": "Cantone Ticino, Ufficio di sanità",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "autorizzazioni",
+      "attività sanitaria",
+      "libero esercizio"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
+  },
+  {
+    "id": "ti-lc-notifica-derrate",
+    "url": "https://www4.ti.ch/dss/dsp/lc/informazioni-e-servizi/dettaglio?tx_tichdsslabcantonale_lcschede%5Baction%5D=show&tx_tichdsslabcantonale_lcschede%5Bcontroller%5D=Scheda&tx_tichdsslabcantonale_lcschede%5Bidc%5D=13&tx_tichdsslabcantonale_lcschede%5Bscheda%5D=1&cHash=309da7cd28df37ae6eb122061dc5e6ea",
+    "titolo": "Annunciare la propria attività di commercio di derrate alimentari",
+    "ente": "Cantone Ticino, Laboratorio cantonale",
+    "livello": "cantonale",
+    "cantone": "TI",
+    "argomenti": [
+      "alimenti",
+      "notifica",
+      "autorizzazioni",
+      "catering"
+    ],
+    "verificato_il": "2026-10-18",
+    "verificato_da": "Claude per Romeo Lepori (lettura del contenuto)",
+    "attiva": true
   }
 ]

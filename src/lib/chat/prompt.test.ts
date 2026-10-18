@@ -19,6 +19,12 @@ describe("istruzioni di sistema", () => {
     expect(ISTRUZIONI_SISTEMA).toContain("Se due documenti si contraddicono");
     expect(ISTRUZIONI_SISTEMA).toContain("rispetto alle pagine riassuntive come il Portale PMI");
   });
+
+  it("sulle autorizzazioni non dice mai che non servono solo perché manca una fonte", () => {
+    expect(ISTRUZIONI_SISTEMA).toContain("non dire che non gli serve nessuna autorizzazione");
+    expect(ISTRUZIONI_SISTEMA).toContain("nelle tue fonti verificate non risulta");
+    expect(ISTRUZIONI_SISTEMA).toContain("chi ha un titolo di studio estero");
+  });
 });
 
 describe("documentoDaFrammento", () => {

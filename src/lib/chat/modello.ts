@@ -28,6 +28,8 @@ export const MODELLI_FUNZIONI = {
   testi: { variabile: "ANTHROPIC_MODEL_TESTI", predefinito: "claude-haiku-5-5" },
   nomeDitta: { variabile: "ANTHROPIC_MODEL_NOME", predefinito: "claude-haiku-5-5" },
   ricevuta: { variabile: "ANTHROPIC_MODEL_RICEVUTE", predefinito: MODELLO_RACCONTO_PREDEFINITO },
+  /** Le parole di ricerca della chat: un passaggio breve prima di ogni risposta, conta la velocità. */
+  ricerca: { variabile: "ANTHROPIC_MODEL_RICERCA", predefinito: "claude-haiku-5-5" },
 } as const;
 
 export type FunzioneAi = keyof typeof MODELLI_FUNZIONI;

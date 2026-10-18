@@ -2,6 +2,7 @@ import type { BetaContentBlockParam, BetaMessage } from "@anthropic-ai/sdk/resou
 import { interpretaRisposta } from "./citazioni";
 import { raggruppaPerFonte, type FrammentoTrovato } from "./frammenti";
 import { MESSAGGI } from "./messaggi";
+import { pulisciParole, testoDaCercare } from "./parole-ricerca";
 import { ISTRUZIONI_SISTEMA, costruisciContenuto } from "./prompt";
 import type { EventoChat, QuotaPubblica, ScambioPrecedente } from "./tipi";
 
@@ -22,6 +23,8 @@ export type RegistroDomanda = { fonti_citate: string[]; senza_risposta: boolean 
 
 /** Dipendenze esterne della chat: si sostituiscono nei test. */
 export type DipendenzeChat = {
+  /** Parole con cui cercare la domanda nelle fonti (vedi parole-ricerca.ts). */
+  paroleRicerca(domanda: string, cronologia: ScambioPrecedente[]): Promise<string[]>;
   cerca(testo: string): Promise<FrammentoTrovato[]>;
   genera(richiesta: RichiestaModello): FlussoModello;
   /** Completa la domanda prenotata con le fonti citate. */
@@ -44,7 +47,8 @@ export type DomandaChat = {
 };
 
 /**
- * Risponde a una domanda: cerca i frammenti delle fonti, e solo se ne trova
+ * Risponde a una domanda: la trasforma in parole di ricerca, cerca i
+ * frammenti delle fonti, e solo se ne trova
  * chiede a Claude una risposta con citazioni; trasmette il testo man mano e
  * alla fine la risposta con le fonti. La domanda è già prenotata (e contata):
  * qui si completa con le fonti citate, oppure si annulla dopo un errore vero.
@@ -52,9 +56,11 @@ export type DomandaChat = {
 export async function* rispondi(dip: DipendenzeChat, input: DomandaChat): AsyncGenerator<EventoChat, void, undefined> {
   const domanda = input.domanda.trim();
 
+  const parole = await paroleSenzaBloccare(dip, domanda, input.cronologia);
+
   let trovati: FrammentoTrovato[];
   try {
-    trovati = await dip.cerca(domanda);
+    trovati = await dip.cerca(testoDaCercare(domanda, parole));
     const ultima = input.cronologia.at(-1);
     // Domanda di seguito ("e nei Grigioni?"): se da sola non trova nulla, si unisce alla precedente.
     if (trovati.length === 0 && ultima) trovati = await dip.cerca(`${ultima.domanda} ${domanda}`);
@@ -105,6 +111,17 @@ export async function* rispondi(dip: DipendenzeChat, input: DomandaChat): AsyncG
     senza_risposta: esito.senza_risposta,
   });
   yield { t: "fine", ...esito, ...(input.quotaDopo ? { quota: input.quotaDopo } : {}) };
+}
+
+/** Senza parole di ricerca si cerca con la sola domanda, come prima: un errore qui non blocca la risposta. */
+async function paroleSenzaBloccare(dip: DipendenzeChat, domanda: string, cronologia: ScambioPrecedente[]) {
+  try {
+    return pulisciParole(await dip.paroleRicerca(domanda, cronologia));
+  } catch (errore) {
+    // Interrotta da chi chiede: niente da registrare, la ricerca e la risposta si fermano da sole.
+    if (dip.descriviErrore(errore) !== null) dip.registraErrore("parole di ricerca", errore);
+    return [];
+  }
 }
 
 /** Il registro serve a trovare le fonti mancanti, ma non deve bloccare la risposta. */
