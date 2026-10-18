@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Alert, Pressable, Switch, View } from "react-native";
 import { FASI, TITOLI_FASI, VERIFICATO_IL, type IdPasso } from "@/data/passi";
 import { dataSvizzera } from "@/data/svizzera";
+import { VOTAZIONI } from "@/data/votazioni";
 import {
   annoScadenzario,
   dateFisseDaOggi,
@@ -14,6 +15,7 @@ import {
 import { DOMANDE, etichettaRisposta } from "@/lib/percorso/domande";
 import { avanzamento, prossimoPasso, type Avviso, type PassoPercorso, type Percorso } from "@/lib/percorso/regole";
 import type { IdDomanda, Risposte } from "@/lib/percorso/risposte";
+import { etichettaLivello, votazioniInArrivo } from "@/lib/votazioni";
 import { ImmagineMascotte } from "~/components/mascotte";
 import {
   BarraProgresso,
@@ -80,6 +82,7 @@ export default function SchermataPercorso() {
 
       <NonServono percorso={percorso} />
       <Scadenze percorso={percorso} fatti={fatti} />
+      <Votazioni />
       <RiepilogoRisposte risposte={risposte} />
       <Testo variante="piccolo" attenuato>
         Testi controllati sulle fonti ufficiali il {dataSvizzera(VERIFICATO_IL)}.
@@ -233,7 +236,7 @@ function Scadenze({ percorso, fatti }: { percorso: Percorso; fatti: ReadonlySet<
         <View style={{ flex: 1 }}>
           <Testo variante="forte">Promemoria sul telefono</Testo>
           <Testo variante="piccolo" attenuato>
-            Una notifica una settimana prima di ogni scadenza, alle 9.
+            Una notifica alle 9, una settimana prima di ogni scadenza e di ogni votazione da seguire.
           </Testo>
         </View>
         <Switch
@@ -289,6 +292,35 @@ function Scadenze({ percorso, fatti }: { percorso: Percorso; fatti: ReadonlySet<
           </Scheda>
         );
       })}
+    </View>
+  );
+}
+
+/** Gli oggetti in votazione che possono cambiare qualcosa per un'impresa (src/data/votazioni.ts). */
+function Votazioni() {
+  const c = useColori();
+  const votazioni = votazioniInArrivo(VOTAZIONI, oggiLocale());
+  if (votazioni.length === 0) return null;
+  return (
+    <View style={{ gap: SPAZIO.s }}>
+      <Testo variante="sottotitolo">Votazioni da seguire</Testo>
+      <Testo variante="piccolo" attenuato>
+        Oggetti in votazione che possono cambiare qualcosa per la tua impresa. Bleo ti informa con le fonti
+        ufficiali: come votare lo decidi tu.
+      </Testo>
+      {votazioni.map((v) => (
+        <Scheda key={v.id}>
+          <Testo variante="etichetta" colore={c.marchio}>
+            {etichettaLivello(v.livello)} · {dataSvizzera(v.data)}
+          </Testo>
+          <Testo variante="forte">{v.oggetto}</Testo>
+          <Testo>{v.cosaCambia}</Testo>
+          <Testo variante="piccolo" attenuato>
+            {v.chiRiguarda}
+          </Testo>
+          <ElencoFonti fonti={v.fonti} verificatoIl={v.verificatoIl} />
+        </Scheda>
+      ))}
     </View>
   );
 }

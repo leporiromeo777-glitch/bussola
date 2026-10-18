@@ -30,6 +30,15 @@ export function IconaCalendario(props: PropsIcona) {
   );
 }
 
+/** Un'urna con la scheda che entra: le votazioni. */
+export function IconaUrna(props: PropsIcona) {
+  return (
+    <Icona {...props}>
+      <path d="M4 12h16v8H4zM8 12V5h8v7M10 8h4" />
+    </Icona>
+  );
+}
+
 export function IconaLinkEsterno(props: PropsIcona) {
   return (
     <Icona {...props}>

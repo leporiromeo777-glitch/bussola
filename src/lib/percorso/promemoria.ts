@@ -48,7 +48,7 @@ export function pianificaPromemoria(eventi: readonly EventoCalendario[], oggi: s
       id: evento.uid,
       quando: `${giorno}T${ORA_PROMEMORIA}`,
       titolo: evento.titolo,
-      testo: `Scadenza ${mancano} (${dataSvizzera(evento.data)}). Apri Bleo per i dettagli e la fonte ufficiale.`,
+      testo: `${evento.genere === "votazione" ? "Si vota" : "Scadenza"} ${mancano} (${dataSvizzera(evento.data)}). Apri Bleo per i dettagli e la fonte ufficiale.`,
       scadenza: evento.data,
     });
     if (promemoria.length >= MASSIMO_PROMEMORIA) break;

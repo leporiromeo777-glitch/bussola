@@ -16,6 +16,8 @@ export type EventoCalendario = {
   titolo: string;
   descrizione: string;
   url?: string;
+  /** Per il testo dei promemoria; se manca è una scadenza. */
+  genere?: "scadenza" | "votazione";
 };
 
 const DATA_ISO = /^(\d{4})-(\d{2})-(\d{2})$/;

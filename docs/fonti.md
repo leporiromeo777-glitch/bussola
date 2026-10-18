@@ -202,6 +202,18 @@ tavola scalare) cambiano spesso il 1° gennaio. Per il 2027:
   solito in autunno), aggiungi la nuova scheda UFAS e, dal 1° gennaio,
   metti `"attiva": false` a quella vecchia.
 
+**Votazioni da seguire.** Il riquadro «Votazioni da seguire» (percorso del
+sito e dell'app, con il calendario .ics e i promemoria del telefono) legge
+`src/data/votazioni.ts`. Durante il controllo mensile apri l'elenco del
+Cantone (`https://www.ti.ch/can/votazioni`): il Consiglio federale fissa gli
+oggetti circa quattro mesi prima del voto. Per ogni oggetto con un effetto
+diretto su chi ha un'impresa leggi il testo ufficiale (Fedlex, Foglio
+federale; per il Cantone la Raccolta delle leggi o il messaggio) e aggiungi
+una voce con la fonte e `VERIFICATO_VOTAZIONI` aggiornato. Scrivi solo cosa
+cambierebbe secondo il testo, senza indicazioni di voto. Le votazioni passate
+spariscono da sole; dopo il voto, se un oggetto è accettato, aggiorna i dati
+che cambia (per l'IVA: `aliquoteIva` e la lezione 14).
+
 Per disattivare subito una fonte sbagliata, senza aspettare l'import:
 
 ```sql

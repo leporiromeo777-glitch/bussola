@@ -5,10 +5,12 @@
 import * as Notifications from "expo-notifications";
 import { AndroidImportance } from "expo-notifications";
 import { Platform } from "react-native";
+import { VOTAZIONI } from "@/data/votazioni";
 import { annoScadenzario, eventiDaScadenze } from "@/lib/percorso/calendario";
 import { pianificaPromemoria } from "@/lib/percorso/promemoria";
 import type { Percorso, Scadenza } from "@/lib/percorso/regole";
 import { prossimiLunedi, riassuntoSettimana } from "@/lib/percorso/settimana";
+import { eventiVotazioni, votazioniInArrivo } from "@/lib/votazioni";
 import { oggiLocale } from "./stato";
 
 const CANALE = "scadenze";
@@ -75,7 +77,7 @@ export async function programmaNotifiche(opzioni: {
   return quante;
 }
 
-/** Programma i promemoria delle scadenze (senza cancellare gli altri). Restituisce quanti. */
+/** Programma i promemoria delle scadenze e delle votazioni da seguire (senza cancellare gli altri). Restituisce quanti. */
 async function programmaPromemoria(scadenze: readonly Scadenza[]): Promise<number> {
   const adesso = new Date();
   const anno = annoScadenzario(adesso);
@@ -83,6 +85,7 @@ async function programmaPromemoria(scadenze: readonly Scadenza[]): Promise<numbe
     ...eventiDaScadenze(scadenze, { anno: anno - 1 }),
     ...eventiDaScadenze(scadenze, { anno }),
     ...eventiDaScadenze(scadenze, { anno: anno + 1 }),
+    ...eventiVotazioni(votazioniInArrivo(VOTAZIONI, oggiLocale(adesso))),
   ];
   const piano = pianificaPromemoria(eventi, oggiLocale(adesso));
   for (const p of piano) {

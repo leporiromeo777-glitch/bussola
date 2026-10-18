@@ -12,6 +12,7 @@ import { NotaInformazione } from "@/components/percorso/nota-informazione";
 import { ProssimoPasso, type UltimoFatto } from "@/components/percorso/prossimo-passo";
 import { RiquadroScadenze } from "@/components/percorso/riquadro-scadenze";
 import { RiquadroSettimana } from "@/components/percorso/riquadro-settimana";
+import { RiquadroVotazioni } from "@/components/percorso/riquadro-votazioni";
 import { SchedaPasso } from "@/components/percorso/scheda-passo";
 import { classeLink, classePulsantePrincipale, classePulsanteSecondario } from "@/components/percorso/stili";
 import {
@@ -343,9 +344,10 @@ export function Percorso({
           <RiepilogoRisposte risposte={risposte} />
         </div>
 
-        <aside className="space-y-6 print:mt-10 lg:sticky lg:top-24 lg:self-start" aria-label="Scadenze e aiuto">
+        <aside className="space-y-6 print:mt-10 lg:sticky lg:top-24 lg:self-start" aria-label="Scadenze, votazioni e aiuto">
           <RiquadroSettimana percorso={percorso} fatti={insiemeFatti} />
           <RiquadroScadenze scadenze={percorso.scadenze} anno={annoScadenze} verificatoIl={VERIFICATO_IL} />
+          <RiquadroVotazioni />
           <section aria-labelledby="titolo-aiuto" className="rounded-2xl border border-border bg-card p-5 print:hidden">
             <h2 id="titolo-aiuto" className="text-lg font-bold">
               Hai un dubbio?
