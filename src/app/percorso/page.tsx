@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { leggiDatiAccount } from "@/lib/percorso/account";
+import { calendarioAttivo } from "@/lib/percorso/abbonamento-server";
 import { annoScadenzario } from "@/lib/percorso/calendario";
 import { supabaseConfigured } from "@/lib/supabase/env";
 import { Percorso } from "./percorso";
@@ -17,6 +18,11 @@ export default async function PaginaPercorso() {
   await connection();
   const account = await leggiDatiAccount();
   return (
-    <Percorso account={account} accessoDisponibile={supabaseConfigured()} annoScadenze={annoScadenzario(new Date())} />
+    <Percorso
+      account={account}
+      accessoDisponibile={supabaseConfigured()}
+      calendarioDisponibile={calendarioAttivo()}
+      annoScadenze={annoScadenzario(new Date())}
+    />
   );
 }

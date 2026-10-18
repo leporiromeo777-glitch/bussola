@@ -6,6 +6,7 @@ import { TITOLO_MASSIMO } from "../src/lib/chat/conversazioni";
 import { DOMANDE_GRATIS_AL_MESE } from "../src/lib/chat/quota";
 import { LETTURE_AL_GIORNO } from "../src/lib/conti/limiti";
 import { CATEGORIE, LIVELLI_SOLLECITO } from "../src/lib/conti/tipi";
+import { improntaToken, nuovoTokenCalendario } from "../src/lib/percorso/abbonamento";
 import { VERSIONE_REGOLE } from "../src/lib/percorso/regole";
 import {
   ATTIVITA,
@@ -67,8 +68,10 @@ beforeAll(async () => {
   `);
   // Come in Supabase: le tabelle nuove di public sono accessibili ad anon e
   // authenticated (la RLS decide le righe), finché una migrazione non revoca.
+  // Anche auth.uid() si può chiamare da loro (serve alle funzioni security invoker).
   await db.exec(`
     grant usage on schema public to anon, authenticated;
+    grant usage on schema auth to anon, authenticated;
     alter default privileges in schema public grant select, insert, update, delete on tables to anon, authenticated;
   `);
   for (const nome of MIGRAZIONI) {
@@ -418,6 +421,7 @@ describe("eliminazione dell'account (src/lib/account/eliminazione.ts)", () => {
       "conti_letture",
       "conti_movimenti",
       "domande_chat",
+      "link_calendario",
       "passi_completati",
       "profili",
       "questionari",
@@ -919,5 +923,145 @@ describe("chat salvate (chat_conversazioni e chat_messaggi)", () => {
       [CHAT],
     );
     expect(Number(r.rows[0]?.righe)).toBe(0);
+  });
+});
+
+describe("«Calendario sempre aggiornato» (link_calendario)", () => {
+  const CALENDARIO = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+  const SPIONE = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+
+  beforeAll(async () => {
+    await db.exec(
+      `insert into auth.users (id, email) values ('${CALENDARIO}', 'calendario@example.ch'), ('${SPIONE}', 'spione@example.ch')`,
+    );
+  });
+
+  const impronta = () => improntaToken(nuovoTokenCalendario());
+
+  const nuovoLink = (utente: string, valore: string) =>
+    comeUtente(
+      () =>
+        db
+          .query<{ id: string; creato_il: string }>("select * from public.nuovo_link_calendario($1)", [valore])
+          .then((r) => r.rows[0]!),
+      utente,
+    );
+
+  const linkDi = (utente: string) =>
+    db
+      .query<{ id: string; impronta: string; letto_il: string | null }>(
+        "select id, impronta, letto_il from public.link_calendario where user_id = $1",
+        [utente],
+      )
+      .then((r) => r.rows);
+
+  it("ognuno crea e vede solo il proprio link; senza accesso non si vede niente", async () => {
+    const mio = await nuovoLink(CALENDARIO, await impronta());
+    expect(mio.id).toMatch(/^[0-9a-f-]{36}$/);
+    const visti = await comeUtente(
+      () => db.query<{ user_id: string }>("select user_id from public.link_calendario"),
+      CALENDARIO,
+    );
+    expect(visti.rows).toEqual([{ user_id: CALENDARIO }]);
+    const dallaSpia = await comeUtente(() => db.query("select * from public.link_calendario"), SPIONE);
+    expect(dallaSpia.rows).toEqual([]);
+    await expect(come("anon", "", () => db.query("select * from public.link_calendario"))).rejects.toThrow(
+      /permission denied/,
+    );
+  });
+
+  it("«Rigenera il link»: il vecchio sparisce, resta un solo link per utente", async () => {
+    const primo = await nuovoLink(CALENDARIO, await impronta());
+    const nuovaImpronta = await impronta();
+    const secondo = await nuovoLink(CALENDARIO, nuovaImpronta);
+    expect(secondo.id).not.toBe(primo.id);
+    const righe = await linkDi(CALENDARIO);
+    expect(righe.map((r) => r.id)).toEqual([secondo.id]);
+    expect(righe[0]?.impronta).toBe(nuovaImpronta);
+    // Un secondo link accanto al primo, senza passare dalla funzione, non entra.
+    await expect(
+      comeUtente(
+        async () =>
+          db.query("insert into public.link_calendario (user_id, impronta) values ($1, $2)", [CALENDARIO, await impronta()]),
+        CALENDARIO,
+      ),
+    ).rejects.toThrow(/link_calendario_user_id_key/);
+  });
+
+  it("nel database c'è solo l'impronta SHA-256 (64 cifre esadecimali), mai il token", async () => {
+    const token = nuovoTokenCalendario();
+    await nuovoLink(CALENDARIO, await improntaToken(token));
+    const [riga] = await linkDi(CALENDARIO);
+    expect(riga?.impronta).toMatch(/^[0-9a-f]{64}$/);
+    expect(riga?.impronta).not.toContain(token);
+    for (const sbagliata of [token, "A".repeat(64), "a".repeat(63), ""]) {
+      await expect(nuovoLink(CALENDARIO, sbagliata)).rejects.toThrow(/check/);
+    }
+    // La funzione è atomica: con un'impronta sbagliata il link di prima resta.
+    expect((await linkDi(CALENDARIO)).map((r) => r.impronta)).toEqual([riga?.impronta]);
+  });
+
+  it("l'utente non modifica il link, non sceglie le date e non crea link per altri", async () => {
+    const { id } = await nuovoLink(CALENDARIO, await impronta());
+    await expect(
+      comeUtente(() => db.query("update public.link_calendario set impronta = $1 where id = $2", ["b".repeat(64), id]), CALENDARIO),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      comeUtente(
+        async () =>
+          db.query("insert into public.link_calendario (user_id, impronta, creato_il) values ($1, $2, now() - interval '1 year')", [
+            SPIONE,
+            await impronta(),
+          ]),
+        SPIONE,
+      ),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      comeUtente(
+        async () => db.query("insert into public.link_calendario (user_id, impronta) values ($1, $2)", [SPIONE, await impronta()]),
+        CALENDARIO,
+      ),
+    ).rejects.toThrow(/row-level security/);
+    const r = await db.query<{ recente: boolean; letto_il: string | null }>(
+      "select creato_il > now() - interval '1 minute' as recente, letto_il from public.link_calendario where id = $1",
+      [id],
+    );
+    expect(r.rows).toEqual([{ recente: true, letto_il: null }]);
+  });
+
+  it("ognuno revoca solo il proprio link", async () => {
+    await nuovoLink(CALENDARIO, await impronta());
+    await nuovoLink(SPIONE, await impronta());
+    await comeUtente(() => db.query("delete from public.link_calendario"), SPIONE);
+    expect(await linkDi(SPIONE)).toEqual([]);
+    expect(await linkDi(CALENDARIO)).toHaveLength(1);
+  });
+
+  it("senza accesso nuovo_link_calendario non si può chiamare", async () => {
+    await expect(
+      come("anon", "", async () => db.query("select * from public.nuovo_link_calendario($1)", [await impronta()])),
+    ).rejects.toThrow(/permission denied/);
+  });
+
+  it("il server (chiave segreta) trova il link dall'impronta e segna la lettura", async () => {
+    const token = nuovoTokenCalendario();
+    const valore = await improntaToken(token);
+    await nuovoLink(CALENDARIO, valore);
+    const trovato = await db.query<{ user_id: string }>("select user_id from public.link_calendario where impronta = $1", [
+      await improntaToken(token),
+    ]);
+    expect(trovato.rows).toEqual([{ user_id: CALENDARIO }]);
+    await db.query("update public.link_calendario set letto_il = now() where impronta = $1", [valore]);
+    expect((await linkDi(CALENDARIO))[0]?.letto_il).not.toBeNull();
+    const altro = await db.query("select user_id from public.link_calendario where impronta = $1", [
+      await improntaToken(nuovoTokenCalendario()),
+    ]);
+    expect(altro.rows).toEqual([]);
+  });
+
+  it("cancellando l'utente sparisce il suo link", async () => {
+    await nuovoLink(SPIONE, await impronta());
+    await db.query("delete from auth.users where id = $1", [SPIONE]);
+    expect(await linkDi(SPIONE)).toEqual([]);
   });
 });

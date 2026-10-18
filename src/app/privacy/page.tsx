@@ -5,6 +5,7 @@ import { Avviso, PaginaLegale } from "@/components/landing/pagina-legale";
 import { DatiTitolare, EmailTitolare } from "@/components/landing/titolare";
 import { SCAMBI_PRECEDENTI_MASSIMI } from "@/lib/chat/limiti";
 import { DURATA_LINK_DOCUMENTO, LETTURE_AL_GIORNO } from "@/lib/conti/limiti";
+import { calendarioAttivo } from "@/lib/percorso/abbonamento-server";
 import { dataSvizzera, fonti, regolePercorso } from "@/data/svizzera";
 import { ELENCO_DPF, GARANZIE_USA, informativaPrivacy, OPDA, trattamentiAttivi } from "@/lib/privacy";
 import { listaAttesaAttiva } from "@/lib/lista-attesa/stato";
@@ -48,6 +49,7 @@ export default async function PaginaPrivacy() {
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     NEXT_PUBLIC_PLAUSIBLE_DOMAIN: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN,
   });
+  const calendario = calendarioAttivo();
 
   return (
     <PaginaLegale
@@ -147,6 +149,29 @@ export default async function PaginaPrivacy() {
           <li>
             <strong>Dove:</strong> senza account restano solo nel tuo browser (memoria locale del dispositivo). Se
             accedi, li salviamo anche nel tuo account, così li ritrovi su altri dispositivi.
+          </li>
+        </ul>
+
+        <h3 id="calendario">
+          Calendario sempre aggiornato
+          <NonAttivo attivo={calendario} />
+        </h3>
+        <ul>
+          <li>
+            <strong>Dati:</strong> se crei il link personale del calendario, salviamo nel tuo account un&apos;impronta
+            del link (un codice calcolato dal link, da cui il link non si può ricostruire), quando l&apos;hai creato e
+            quando un calendario l&apos;ha letto l&apos;ultima volta. Il link intero resta solo nel browser o nel
+            telefono dove l&apos;hai creato.
+          </li>
+          <li>
+            <strong>Perché:</strong> per dare al calendario che scegli (per esempio Google Calendar o Apple
+            Calendario) le tue scadenze e le votazioni da seguire, calcolate a ogni lettura dalle risposte al
+            questionario salvate nell&apos;account. Nel calendario non mettiamo il tuo nome né la tua email.
+          </li>
+          <li>
+            <strong>Chi le riceve:</strong> il servizio di calendario che scegli legge il link dai suoi server e tiene
+            gli eventi secondo le sue regole. Chi ha il link vede le tue scadenze: non condividerlo. Puoi rigenerarlo o
+            disattivarlo quando vuoi dalla pagina del percorso.
           </li>
         </ul>
 
@@ -363,6 +388,10 @@ export default async function PaginaPrivacy() {
             cancelliamo anche questi dati.
           </li>
           <li>
+            <strong>Link del calendario</strong> (impronta e date): finché non lo disattivi o lo rigeneri, o finché
+            non elimini l&apos;account.
+          </li>
+          <li>
             <strong>Domande alla chat:</strong> 12 mesi: le domande più vecchie vengono cancellate automaticamente
             ogni notte.
           </li>
@@ -527,7 +556,9 @@ export default async function PaginaPrivacy() {
           Il sito usa solo connessioni cifrate (HTTPS). Nel database ogni persona può leggere solo i propri dati; la
           lista d&apos;attesa è accessibile solo dal server. Le ricevute di «I tuoi conti» stanno in un archivio
           privato: si aprono solo con un link temporaneo che vale {DURATA_LINK_DOCUMENTO / 60} minuti. L&apos;indirizzo personale per inoltrare
-          le email contiene un codice casuale che nessuno può indovinare; se finisce in giro puoi cambiarlo. Solo il titolare ha accesso amministrativo.
+          le email contiene un codice casuale che nessuno può indovinare; se finisce in giro puoi cambiarlo. Anche il
+          link del calendario sempre aggiornato contiene un codice casuale: nel database ne teniamo solo
+          un&apos;impronta e, se finisce in giro, puoi rigenerarlo. Solo il titolare ha accesso amministrativo.
         </p>
       </section>
 

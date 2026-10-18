@@ -42,7 +42,8 @@ export type Scelta = {
   datiDiAltri: boolean;
 };
 
-function stesseRisposte(a: Risposte, b: Risposte): boolean {
+/** true se le due risposte dicono le stesse cose (stesse chiavi, stessi valori). */
+export function stesseRisposte(a: Risposte, b: Risposte): boolean {
   const chiavi = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof Risposte>;
   return [...chiavi].every((k) => a[k] === b[k]);
 }
