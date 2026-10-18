@@ -10,6 +10,7 @@ import {
   analizzaPassiFatti,
   analizzaRisposteSalvate,
   cambiaPasso,
+  CHIAVE_LINK_CALENDARIO,
   CHIAVE_PASSI_FATTI,
   CHIAVE_RISPOSTE,
   type RisposteSalvate,
@@ -92,6 +93,27 @@ export function impostaPromemoria(attivi: boolean): void {
   scrivi(CHIAVE_PROMEMORIA, attivi ? "si" : null);
 }
 
+/** Promemoria attivi, letti adesso (fuori dalle schermate). */
+export function promemoriaAttivi(): boolean {
+  return leggi(CHIAVE_PROMEMORIA) === "si";
+}
+
+/** Tutto quello che serve per riprogrammare le notifiche, letto adesso dal telefono. */
+export function leggiStatoNotifiche(): {
+  percorso: Percorso | null;
+  fatti: ReadonlySet<string>;
+  scadenze: boolean;
+  settimana: boolean;
+} {
+  const salvate = analizzaRisposteSalvate(leggi(CHIAVE_RISPOSTE));
+  return {
+    percorso: salvate ? calcolaPercorso(salvate.risposte) : null,
+    fatti: new Set(analizzaPassiFatti(leggi(CHIAVE_PASSI_FATTI))),
+    scadenze: promemoriaAttivi(),
+    settimana: leggi(CHIAVE_SETTIMANA) === "si",
+  };
+}
+
 export function useSettimanaAttiva(): boolean {
   return useGrezzo(CHIAVE_SETTIMANA) === "si";
 }
@@ -102,7 +124,16 @@ export function impostaSettimana(attiva: boolean): void {
 
 /** Cancella dal telefono tutto quello che Bleo ha salvato. */
 export function cancellaDatiLocali(): void {
-  for (const chiave of [CHIAVE_RISPOSTE, CHIAVE_PASSI_FATTI, CHIAVE_BOZZA, CHIAVE_VESTITO, CHIAVE_LOOK, CHIAVE_PROMEMORIA, CHIAVE_SETTIMANA]) {
+  for (const chiave of [
+    CHIAVE_RISPOSTE,
+    CHIAVE_PASSI_FATTI,
+    CHIAVE_BOZZA,
+    CHIAVE_VESTITO,
+    CHIAVE_LOOK,
+    CHIAVE_PROMEMORIA,
+    CHIAVE_SETTIMANA,
+    CHIAVE_LINK_CALENDARIO,
+  ]) {
     scrivi(chiave, null);
   }
 }

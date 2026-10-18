@@ -293,6 +293,25 @@ describe("file .ics", () => {
     expect(spiega(generaIcs([], { adesso: ADESSO })).at(-2)).toBe("END:VCALENDAR");
   });
 
+  it("per i calendari con iscrizione: descrizione e intervallo di aggiornamento, solo se validi", () => {
+    const righe = spiega(
+      generaIcs([evento], { adesso: ADESSO, descrizioneCalendario: "Scadenze, con fonti", aggiornaOgni: "PT12H" }),
+    );
+    expect(righe).toContain("X-WR-CALDESC:Scadenze\\, con fonti");
+    expect(righe).toContain("REFRESH-INTERVAL;VALUE=DURATION:PT12H");
+    expect(righe).toContain("X-PUBLISHED-TTL:PT12H");
+    expect(righe.indexOf("X-PUBLISHED-TTL:PT12H")).toBeLessThan(righe.indexOf("BEGIN:VEVENT"));
+    for (const sbagliata of ["12 ore", "PT", "P", "PT12H\r\nX-ALTRO:1"]) {
+      const ics = generaIcs([evento], { adesso: ADESSO, aggiornaOgni: sbagliata });
+      expect(ics).not.toContain("REFRESH-INTERVAL");
+    }
+    expect(generaIcs([evento], { adesso: ADESSO, aggiornaOgni: "P1D" })).toContain("X-PUBLISHED-TTL:P1D");
+    // Senza opzioni il file da scaricare resta com'era.
+    const semplice = generaIcs([evento], { adesso: ADESSO });
+    expect(semplice).not.toContain("X-WR-CALDESC");
+    expect(semplice).not.toContain("REFRESH-INTERVAL");
+  });
+
   it("nessuna riga supera 75 ottetti nel file completo del percorso", () => {
     const eventi = eventiDaScadenze(calcolaPercorso(ticino).scadenze, { anno: 2027, inizioAttivita: "2026-11-02" });
     const ics = generaIcs(eventi, { adesso: ADESSO });

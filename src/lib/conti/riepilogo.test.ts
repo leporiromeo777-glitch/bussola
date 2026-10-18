@@ -34,6 +34,8 @@ function fattura(campi: Partial<FatturaEmessa>): FatturaEmessa {
     importo: 100,
     stato: "aperta",
     pagataIl: null,
+    riferimento: null,
+    sollecito: null,
     ...campi,
   };
 }

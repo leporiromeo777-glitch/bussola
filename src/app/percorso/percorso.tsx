@@ -10,6 +10,7 @@ import { IconaRicomincia, IconaStampa } from "@/components/percorso/icone";
 import { FasiPercorso } from "@/components/percorso/fasi-percorso";
 import { NotaInformazione } from "@/components/percorso/nota-informazione";
 import { ProssimoPasso, type UltimoFatto } from "@/components/percorso/prossimo-passo";
+import { RiquadroCalendario } from "@/components/percorso/riquadro-calendario";
 import { RiquadroScadenze } from "@/components/percorso/riquadro-scadenze";
 import { RiquadroSettimana } from "@/components/percorso/riquadro-settimana";
 import { RiquadroVotazioni } from "@/components/percorso/riquadro-votazioni";
@@ -67,10 +68,13 @@ type StatoCaricamento = "in_corso" | "fatto" | "rifiutato" | null;
 export function Percorso({
   account,
   accessoDisponibile,
+  calendarioDisponibile,
   annoScadenze,
 }: {
   account: DatiAccount;
   accessoDisponibile: boolean;
+  /** «Calendario sempre aggiornato» attivo sul server (Supabase con la chiave segreta). */
+  calendarioDisponibile: boolean;
   annoScadenze: number;
 }) {
   const idratato = useIdratato();
@@ -347,6 +351,12 @@ export function Percorso({
         <aside className="space-y-6 print:mt-10 lg:sticky lg:top-24 lg:self-start" aria-label="Scadenze, votazioni e aiuto">
           <RiquadroSettimana percorso={percorso} fatti={insiemeFatti} />
           <RiquadroScadenze scadenze={percorso.scadenze} anno={annoScadenze} verificatoIl={VERIFICATO_IL} />
+          <RiquadroCalendario
+            accesso={!calendarioDisponibile ? "non_attivo" : account.collegato ? "collegato" : "ospite"}
+            userId={account.userId}
+            percorsoNellAccount={account.risposte !== null || caricamento === "fatto"}
+            conInizio={percorso.scadenze.some((s) => s.calendario.tipo === "dopo-inizio")}
+          />
           <RiquadroVotazioni />
           <section aria-labelledby="titolo-aiuto" className="rounded-2xl border border-border bg-card p-5 print:hidden">
             <h2 id="titolo-aiuto" className="text-lg font-bold">
