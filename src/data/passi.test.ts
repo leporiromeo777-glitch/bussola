@@ -48,7 +48,7 @@ describe("catalogo dei passi", () => {
 
   it("i costi noti hanno una fonte", () => {
     const conCosto = PASSI.filter((p) => "costoNoto" in p);
-    expect(conCosto.map((p) => p.id)).toEqual(["autorizzazione-esercizio-pubblico", "iscrizione-rc"]);
+    expect(conCosto.map((p) => p.id)).toEqual(["autorizzazione-esercizio-pubblico", "autorizzazione-sanitaria", "iscrizione-rc"]);
     for (const p of conCosto) {
       if ("costoNoto" in p) expect(p.costoNoto.fonte.url).toMatch(/^https:\/\//);
     }
@@ -63,6 +63,11 @@ describe("catalogo dei passi", () => {
     expect(trovaPasso("iscrizione-iva")?.cosaFare.join(" ")).toContain("normale 8,1%, ridotta 2,6%, alloggio 3,8%");
     expect(trovaPasso("soci-forma-giuridica")?.descrizione).toContain("CHF 20'000");
     expect(trovaPasso("aiuto")?.descrizione).toContain("15 ore in 2 anni");
+    const sanitaria = trovaPasso("autorizzazione-sanitaria");
+    expect(sanitaria?.costoNoto?.testo).toBe(
+      "Tassa di autorizzazione: da CHF 400 a CHF 600; per le professioni con formazione accademica da CHF 600 a CHF 1'200",
+    );
+    expect(sanitaria?.cosaFare.join(" ")).toContain("Via Orico 5, 6501 Bellinzona");
     expect(trovaPasso("acconti-imposte")?.cosaFare.join(" ")).toContain(
       ufficiPercorso.esazioneCondoniTicino.valore.email,
     );
