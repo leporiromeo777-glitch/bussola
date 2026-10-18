@@ -15,7 +15,7 @@ import { SezioneRiepilogo } from "~/components/conti/riepilogo";
 import { RigaMovimento, SchedaDaConfermare } from "~/components/conti/scheda-movimento";
 import { ImmagineMascotte } from "~/components/mascotte";
 import { ElencoStrumenti } from "~/components/strumenti";
-import { Pulsante, Schermata, Scheda, Separatore, Testo } from "~/components/ui";
+import { Pulsante, RigaMenu, Schermata, Scheda, Separatore, Testo } from "~/components/ui";
 import { apriSito } from "~/lib/apri";
 import {
   aggiornaMovimento,
@@ -447,6 +447,15 @@ function ContiUtente() {
         onSegnaPagata={segnaPagata}
         onPreparaSollecito={setInSollecito}
       />
+
+      <Scheda>
+        <RigaMenu
+          titolo="Clienti e ore"
+          sottotitolo="Segna le ore per cliente e crea la fattura a fine mese"
+          icona="timer-outline"
+          onPress={() => router.push("/clienti-ore")}
+        />
+      </Scheda>
 
       <Scheda>
         <Pressable

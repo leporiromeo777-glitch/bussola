@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { IconaScarica } from "@/components/strumenti/icone";
 import type { Casella, RispostaConti } from "@/lib/conti/tipi";
@@ -134,6 +135,18 @@ export function Conti({ oggi }: { oggi: string }) {
         descrizione="Quando il cliente paga, segnala come pagata: diventa un'entrata."
       >
         <FattureEmesse fatture={dati.fatture} oggi={oggi} onCambiato={cambiato} />
+      </Sezione>
+
+      <Sezione id="clienti-ore" titolo="Clienti e ore">
+        <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+          <p className="text-sm text-muted">
+            Tieni l&apos;elenco dei tuoi clienti e segna le ore che lavori per ognuno. A fine mese la fattura si apre già
+            compilata.
+          </p>
+          <Link href="/conti/clienti" className={`${classeNo} mt-4 w-full sm:w-auto`}>
+            Apri Clienti e ore
+          </Link>
+        </div>
       </Sezione>
 
       <Sezione id="aggiungi" titolo="Aggiungi">

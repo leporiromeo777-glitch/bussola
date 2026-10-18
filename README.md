@@ -22,6 +22,7 @@ Il kit per le settimane 1-2 (interviste, messaggi, social, lettere) è in
 | Import delle fonti ufficiali | `scripts/importa-fonti.ts`, `supabase/fonti/elenco.json` | pronto, fonti da ricontrollare a mano |
 | Strumenti: tariffa oraria, budget, business plan, preventivo, fattura con QR | `/strumenti`, `src/lib/strumenti` | pronti (dati solo nel browser) |
 | «I tuoi conti»: entrate, uscite, fatture emesse, ricevute lette da Claude, email inoltrate, CSV | `/conti`, `src/app/api/conti`, `src/lib/conti` | fase 1 pronta (servono Supabase; Claude e Resend facoltativi) |
+| «Clienti e ore»: rubrica dei clienti con indirizzo per la QR-fattura, ore per cliente, fattura del mese già compilata | `/conti/clienti`, `src/app/api/conti/clienti`, `src/app/api/conti/ore`, `src/lib/clienti` | pronta (serve Supabase) |
 | «Calendario sempre aggiornato»: link personale con scadenze e votazioni per Google Calendar e Apple Calendario | `/percorso`, `src/app/api/calendario`, `src/lib/percorso/abbonamento.ts` | pronto (servono Supabase e la chiave segreta) |
 | Pagamenti (Stripe + TWINT), scadenzario via email | | settimane 12-13 del piano |
 
@@ -160,6 +161,13 @@ iscrizioni vengono salvate lo stesso.
    dell'hosting lo consenta.
 3. Le app usano le stesse API con `Authorization: Bearer`. `DELETE
    /api/account` cancella anche i file dello Storage prima dell'utente.
+4. «Clienti e ore» (`/conti/clienti`): esegui la migrazione
+   `20261019000005_clienti_ore.sql` (tabelle `conti_clienti` e `conti_ore`
+   con RLS). «Crea la fattura» segna come fatturate le ore del cliente nel
+   mese (`fatturata_il`) e apre lo strumento fattura con i dati dopo il «#»
+   (`/strumenti/fattura#ore=…`): il browser non manda quella parte al server
+   e la fattura resta nel browser come le altre. L'app apre lo stesso link
+   nel browser.
 
 ### «Calendario sempre aggiornato» (link personale per il calendario)
 

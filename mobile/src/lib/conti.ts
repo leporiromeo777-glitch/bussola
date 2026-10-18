@@ -46,7 +46,8 @@ const MESSAGGI: Record<number, string> = {
   503: "I conti non sono ancora attivi.",
 };
 
-async function chiama<T>(percorso: string, opzioni: { metodo?: string; corpo?: unknown } = {}): Promise<Esito<T>> {
+/** Chiamata alle API dei conti sul sito con il token dell'accesso (la usa anche «Clienti e ore»). */
+export async function chiama<T>(percorso: string, opzioni: { metodo?: string; corpo?: unknown } = {}): Promise<Esito<T>> {
   const token = await tokenAttuale();
   if (!token) return { ok: false, messaggio: "Accedi per vedere i tuoi conti.", stato: 401 };
   const intestazioni: Record<string, string> = { Authorization: `Bearer ${token}` };
