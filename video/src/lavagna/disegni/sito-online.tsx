@@ -96,7 +96,7 @@ function Cornetta({ cx, cy, s = 1 }: { cx: number; cy: number; s?: number }) {
       <path
         d="M -46 -30 q -8 -10 4 -18 l 18 -10 q 10 -5 16 5 l 10 20 q 4 9 -5 14 l -10 6 q 6 22 26 36 l 10 -6 q 9 -5 14 4 l 12 20 q 5 10 -4 16 l -18 10 q -14 6 -26 -4 q -38 -30 -47 -93 Z"
         fill={TINTE.tratto}
-        transform="translate(4 18)"
+        transform="translate(0 -6.5)"
       />
     </g>
   );
