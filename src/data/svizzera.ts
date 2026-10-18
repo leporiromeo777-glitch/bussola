@@ -802,6 +802,22 @@ export const fontiPercorso = {
     url: "https://www4.ti.ch/di/dg/fiduciari/ufficio",
     ente: "Cantone Ticino",
   },
+  // A chi chiedere aiuto (passo e lezione 9): ricontrollate il 18.10.2026, vedi VERIFICATO_AIUTO.
+  fondounimpresaCorsi: {
+    titolo: "Fondounimpresa: i corsi di imprenditorialità",
+    url: "https://www.ifc.ti.ch/corsi-imprenditorialita",
+    ente: "Istituto della formazione continua (IFC), Ticino",
+  },
+  pmiServiziSupporto: {
+    titolo: "Costituire la propria impresa: consigli preliminari e servizi di supporto",
+    url: "https://www.kmu.admin.ch/it/costituire-la-propria-impresa-consigli-preliminari-e-servizi-di-supporto",
+    ente: PMI,
+  },
+  grCostituzioneStartup: {
+    titolo: "Costituzione e start up (Grigioni)",
+    url: "https://www.gr.ch/IT/istituzioni/amministrazione/dvs/awt/wirtschaftsstandort/Seiten/Gruendung_und_Startups.aspx",
+    ente: "Cantone dei Grigioni, Ufficio dell'economia e del turismo",
+  },
 } as const satisfies Record<string, Fonte>;
 
 /**
@@ -945,6 +961,18 @@ export const regolePermessi = {
   rinnovoPrimaDellaScadenzaGiorni: datoPermessi(14, fontiPercorso.umIndipendentiUeAelsB, "Il rinnovo del permesso va chiesto all'Ufficio della migrazione almeno 14 giorni prima della scadenza (anche con il permesso G)."),
 } as const;
 
+/**
+ * Data dell'ultimo controllo delle fonti su chi può aiutare chi apre
+ * un'attività, per il passo e la lezione 9: pagine di Fondounimpresa
+ * (accompagnamento, accompagnamento breve, «servizio pubblico gratuito»,
+ * corsi a pagamento), Portale impresa del Cantone Ticino, LFid (artt. 1-3),
+ * pagina e albo online dell'Autorità di vigilanza sui fiduciari, legge di
+ * applicazione della LAVS (agenzie comunali, artt. 3 e 6), Portale PMI
+ * (mettersi in proprio, servizi di supporto, EasyGov) e pagina dell'Ufficio
+ * dell'economia e del turismo dei Grigioni sulla costituzione d'impresa.
+ */
+export const VERIFICATO_AIUTO = "2026-10-18";
+
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
   mesiPerIvaDaSubito: dato(12, fonti.liva14, "Se all'avvio è presumibile superare la soglia IVA entro 12 mesi, si è assoggettati da subito."),
@@ -971,11 +999,14 @@ export const regolePercorso = {
     ),
   } as Partial<Record<number, Dato<string[]>>>,
   termineDichiarazioneTicino2025: dato("2026-04-30", fontiPercorso.istruzioniPf2025, "Il termine vale per la dichiarazione 2025; quello della dichiarazione 2026 non è ancora pubblicato."),
-  fondounimpresa: dato(
-    { oreMassime: 15, anniMassimi: 2 },
-    fontiPercorso.fondounimpresa,
-    "Per cittadini svizzeri o stranieri con permesso B o C residenti in Ticino o nella Regione Moesa. Non comprende contabilità, corrispondenza e dichiarazione d'imposta. L'IFC lo definisce un servizio pubblico gratuito (pagina fondounimpresaGratuito); i corsi invece si pagano.",
-  ),
+  fondounimpresa: {
+    ...dato(
+      { oreMassime: 15, anniMassimi: 2 },
+      fontiPercorso.fondounimpresa,
+      "Per cittadini svizzeri o stranieri con permesso B o C residenti in Ticino o nella Regione Moesa. Non comprende contabilità, corrispondenza e dichiarazione d'imposta. L'IFC lo definisce un servizio pubblico gratuito (pagina fondounimpresaGratuito); i corsi invece si pagano (pagina fondounimpresaCorsi). Anche l'accompagnamento breve, per chi ha già avviato l'attività, è di 15 ore sull'arco di 2 anni (pagina fondounimpresaBreve).",
+    ),
+    verificatoIl: VERIFICATO_AIUTO,
+  },
 } as const;
 
 /** Uffici e servizi citati nel percorso guidato. */
@@ -1013,11 +1044,14 @@ export const ufficiPercorso = {
     fontiPercorso.umRichiestaPermessoB,
     "Contact center dei permessi per stranieri, dal lunedì al venerdì 08:00-12:00 e 13:30-17:00. La domanda si presenta con la procedura online della pagina.",
   ),
-  fondounimpresa: dato(
-    { nome: "Fondounimpresa", luogo: "Camorino", telefono: "+41 91 814 16 71", email: "fondounimpresa@edu.ti.ch" },
-    fontiPercorso.portaleImpresaServizi,
-    "Indirizzo da confermare: il Portale impresa indica Ala Munda 35, il sito IFC Ala Munda 41.",
-  ),
+  fondounimpresa: {
+    ...dato(
+      { nome: "Fondounimpresa", luogo: "Camorino", telefono: "+41 91 814 16 71", email: "fondounimpresa@edu.ti.ch" },
+      fontiPercorso.portaleImpresaServizi,
+      "Indirizzo da confermare: il Portale impresa indica Ala Munda 35, il sito IFC Ala Munda 41 (ancora così il 18.10.2026). L'iscrizione si fa con il formulario online della pagina fontiPercorso.fondounimpresa.",
+    ),
+    verificatoIl: VERIFICATO_AIUTO,
+  },
 } as const;
 
 // ---------------------------------------------------------------------------

@@ -13,6 +13,7 @@ import { DISEGNI_NOTIFICA_ALIMENTI } from "./notifica-alimenti";
 import { DISEGNI_SANITA } from "./sanita";
 import { DISEGNI_PERMESSO_LAVORO } from "./permesso-lavoro";
 import { DISEGNI_NOME_DITTA } from "./nome-ditta";
+import { DISEGNI_AIUTO } from "./aiuto";
 import type { Disegno } from "./tipi";
 
 export const DISEGNI: Readonly<Record<string, Disegno>> = {
@@ -26,6 +27,7 @@ export const DISEGNI: Readonly<Record<string, Disegno>> = {
   ...DISEGNI_SANITA,
   ...DISEGNI_PERMESSO_LAVORO,
   ...DISEGNI_NOME_DITTA,
+  ...DISEGNI_AIUTO,
 };
 
 export type { ContestoDisegno, Disegno } from "./tipi";
