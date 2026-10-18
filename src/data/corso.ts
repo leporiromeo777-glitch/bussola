@@ -3,7 +3,7 @@
  * I video si fanno con Remotion nella cartella video/ (vedi video/README.md),
  * che legge da qui titolo, numero e fonti di ogni lezione.
  *
- * Per ora ci sono le lezioni da 1 a 5; gli altri passi appaiono come «In arrivo».
+ * Per ora solo alcuni passi hanno la lezione; gli altri appaiono come «In arrivo».
  * Una lezione può avere dei video facoltativi (`approfondimenti`), che
  * spiegano meglio un punto: si vedono sotto il video della lezione.
  */
@@ -17,6 +17,7 @@ import {
   VERIFICATO_DOCUMENTI_SAGL,
   VERIFICATO_ESERCIZI_PUBBLICI,
   VERIFICATO_FORME,
+  VERIFICATO_SANITA,
   type Fonte,
 } from "./svizzera";
 
@@ -169,6 +170,27 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.grNotificaDerrate,
     ],
     verificatoIl: VERIFICATO_ALIMENTI,
+  },
+  {
+    passoId: "autorizzazione-sanitaria",
+    numero: 6,
+    titolo: "Lavorare in proprio nella salute",
+    video: "/corso/autorizzazione-sanitaria.mp4",
+    poster: "/corso/autorizzazione-sanitaria.jpg",
+    sottotitoli: "/corso/autorizzazione-sanitaria.vtt",
+    durataSecondi: 163,
+    fonti: [
+      fontiPercorso.sanitaLiberoEsercizio,
+      fontiPercorso.lsan,
+      fontiPercorso.sanitaDocumenti,
+      fontiPercorso.regolamentoEstetista,
+      fontiPercorso.sanitaFaqTerapisti,
+      fontiPercorso.sefriTerapieComplementari,
+      fontiPercorso.tasseSanita,
+      fontiPercorso.sanitaAoms,
+      fontiPercorso.lamal36,
+    ],
+    verificatoIl: VERIFICATO_SANITA,
   },
 ];
 

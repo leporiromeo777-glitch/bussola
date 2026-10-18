@@ -10,6 +10,7 @@ import { DISEGNI_ESERCIZIO_PUBBLICO } from "./esercizio-pubblico";
 import { DISEGNI_FONDARE_SAGL } from "./fondare-sagl";
 import { DISEGNI_FORME } from "./forme-giuridiche";
 import { DISEGNI_NOTIFICA_ALIMENTI } from "./notifica-alimenti";
+import { DISEGNI_SANITA } from "./sanita";
 import type { Disegno } from "./tipi";
 
 export const DISEGNI: Readonly<Record<string, Disegno>> = {
@@ -20,6 +21,7 @@ export const DISEGNI: Readonly<Record<string, Disegno>> = {
   ...DISEGNI_AUTORIZZAZIONI,
   ...DISEGNI_ESERCIZIO_PUBBLICO,
   ...DISEGNI_NOTIFICA_ALIMENTI,
+  ...DISEGNI_SANITA,
 };
 
 export type { ContestoDisegno, Disegno } from "./tipi";

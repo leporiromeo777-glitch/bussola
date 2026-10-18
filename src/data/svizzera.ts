@@ -444,6 +444,51 @@ export const fontiPercorso = {
     url: "https://www4.ti.ch/dss/dsp/us/sportello/procedure-per-le-autorizzazioni-di-libero-esercizio",
     ente: "Cantone Ticino, Ufficio di sanità",
   },
+  sanitaDocumenti: {
+    titolo: "Autorizzazione di libero esercizio: professioni e documenti da presentare",
+    url: "https://www4.ti.ch/dss/dsp/us/sportello/procedure-per-le-autorizzazioni-di-libero-esercizio/autorizzazione-di-libero-esercizio",
+    ente: "Cantone Ticino, Ufficio di sanità",
+  },
+  sanitaAltroCantone: {
+    titolo: "Autorizzazione di libero esercizio già ricevuta in un altro Cantone",
+    url: "https://www4.ti.ch/dss/dsp/us/sportello/procedure-per-le-autorizzazioni-di-libero-esercizio/autorizzazione-di-libero-esercizio-gia-ricevuta-in-un-altro-cantone",
+    ente: "Cantone Ticino, Ufficio di sanità",
+  },
+  sanitaFaqTerapisti: {
+    titolo: "Terapista complementare: domande frequenti (FAQ)",
+    url: "https://www4.ti.ch/dss/dsp/us/informazioni-utili/revisione-lsan-implicazioni-per-terapisti-complementari-naturopati/faq",
+    ente: "Cantone Ticino, Ufficio di sanità",
+  },
+  sanitaAoms: {
+    titolo: "Procedura per la richiesta di esercitare a carico dell'AOMS",
+    url: "https://www4.ti.ch/dss/dsp/us/sportello/procedure-per-la-richiesta-di-fatturare-a-carico-dellaoms",
+    ente: "Cantone Ticino, Ufficio di sanità",
+  },
+  lsan: {
+    titolo: "Legge sanitaria (LSan), artt. 53-63d e 95",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/270",
+    ente: RACCOLTA_TI,
+  },
+  tasseSanita: {
+    titolo: "Regolamento concernente le tasse previste dalla legge sanitaria, art. 2",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/284",
+    ente: RACCOLTA_TI,
+  },
+  regolamentoEstetista: {
+    titolo: "Regolamento concernente l'esercizio della professione di estetista",
+    url: "https://m3.ti.ch/CAN/RLeggi/public/index.php/raccolta-leggi/legge/num/309",
+    ente: RACCOLTA_TI,
+  },
+  sefriTerapieComplementari: {
+    titolo: "Regolamentazione delle professioni nel settore della medicina alternativa (terapie complementari)",
+    url: "https://www.sbfi.admin.ch/dam/it/sd-web/MxoTsi-KhYn1/Alternativmedizin%20oder%20Komplement%C3%A4rtherapie_it.pdf",
+    ente: "Segreteria di Stato per la formazione, la ricerca e l'innovazione (SEFRI)",
+  },
+  lamal36: {
+    titolo: "Legge sull'assicurazione malattie (LAMal), artt. 35-36",
+    url: `${LAMAL}#art_36`,
+    ente: FEDLEX,
+  },
   oderr20: {
     titolo: "Ordinanza sulle derrate alimentari e gli oggetti d'uso (ODerr), art. 20",
     url: `${ODERR}#art_20`,
@@ -728,6 +773,51 @@ export const regoleAlimenti = {
     verificatoIl: VERIFICATO_ALIMENTI,
   },
 } as const;
+
+/**
+ * Data dell'ultimo controllo delle fonti sulle attività sanitarie in Ticino,
+ * per il passo e la lezione 6: LSan (stato 01.06.2025), regolamento delle
+ * tasse (stato 01.01.2026), regolamento sull'estetista, pagine dell'Ufficio di
+ * sanità (procedure, documenti, altro Cantone, FAQ sui terapisti
+ * complementari, AOMS), nota della SEFRI sulle terapie complementari (gennaio
+ * 2020) e artt. 35-36 LAMal (stato 01.07.2026).
+ */
+export const VERIFICATO_SANITA = "2026-10-18";
+
+function datoSanita<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_SANITA };
+}
+
+/** Regole ticinesi sull'autorizzazione di libero esercizio delle professioni sanitarie. */
+export const regoleSanita = {
+  tassaProfessioniAccademicheFranchi: datoSanita(
+    { min: 600, max: 1_200 },
+    fontiPercorso.tasseSanita,
+    "Libero esercizio delle professioni sanitarie con formazione accademica (art. 2 lett. b del regolamento sulle tasse). La tassa si paga in anticipo (art. 1 cpv. 2); l'importo definitivo lo stabilisce la decisione.",
+  ),
+  tassaAltreProfessioniFranchi: datoSanita(
+    { min: 400, max: 600 },
+    fontiPercorso.tasseSanita,
+    "Libero esercizio delle altre professioni sanitarie e dei terapisti complementari (art. 2 lett. c del regolamento sulle tasse).",
+  ),
+  validitaDocumentiMesi: datoSanita(
+    3,
+    fontiPercorso.sanitaDocumenti,
+    "Estratto del casellario giudiziale, certificato medico di buona salute e certificato di good professional standing: validità di 3 mesi.",
+  ),
+  multaMassimaFranchi: datoSanita(
+    100_000,
+    fontiPercorso.lsan,
+    "Le infrazioni alla legge sanitaria e ai suoi regolamenti sono punite con la multa fino a CHF 100'000; quelle intenzionali gravi fino a CHF 500'000 (art. 95 LSan).",
+  ),
+} as const;
+
+/** L'Ufficio di sanità ticinese, che rilascia l'autorizzazione di libero esercizio. */
+export const ufficioSanitaTicino = datoSanita(
+  { nome: "Ufficio di sanità", indirizzo: "Via Orico 5, 6501 Bellinzona", luogo: "Bellinzona" },
+  fontiPercorso.sanitaLiberoEsercizio,
+  "La documentazione per il libero esercizio si invia su carta (A4, senza fermagli, punti metallici o nastro adesivo).",
+);
 
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {

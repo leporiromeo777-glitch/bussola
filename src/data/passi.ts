@@ -18,10 +18,13 @@ import {
   regoleAlimenti,
   regoleEserciziPubblici,
   regolePercorso,
+  regoleSanita,
   tasseRegistroCommercio,
+  ufficioSanitaTicino,
   ufficiPercorso,
   VERIFICATO_ALIMENTI,
   VERIFICATO_ESERCIZI_PUBBLICI,
+  VERIFICATO_SANITA,
   type Fonte,
 } from "./svizzera";
 
@@ -66,6 +69,8 @@ const esazione = ufficiPercorso.esazioneCondoniTicino.valore;
 const fondounimpresa = ufficiPercorso.fondounimpresa.valore;
 const laboratorio = ufficiPercorso.laboratorioCantonaleTicino.valore;
 const ep = regoleEserciziPubblici;
+const sanita = regoleSanita;
+const ufficioSanita = ufficioSanitaTicino.valore;
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -219,14 +224,33 @@ export const PASSI = [
     fase: "prima di iniziare",
     titolo: "Attività sanitaria: verifica l'autorizzazione",
     descrizione:
-      "In Ticino ogni attività sanitaria svolta sotto la propria responsabilità professionale è soggetta ad autorizzazione dell'Ufficio di sanità.",
+      "In Ticino ogni attività sanitaria svolta sotto la propria responsabilità professionale ha bisogno dell'autorizzazione di libero esercizio dell'Ufficio di sanità (LSan, artt. 53-56). La legge elenca le professioni: per esempio medico, fisioterapista, infermiere, osteopata, psicologo, podologo, massaggiatore medicale ed estetista (art. 54). Per l'Ufficio di sanità il massaggio classico o rilassante non è un trattamento sanitario.",
     cosaFare: [
-      "Verifica con l'Ufficio di sanità se la tua attività è un'attività sanitaria.",
-      "Se lo è, segui la procedura per l'autorizzazione di libero esercizio prima di iniziare.",
+      "Cerca la tua professione sulla pagina dell'Ufficio di sanità: trovi i documenti da presentare. Nel dubbio, chiedi all'ufficio prima di iniziare.",
+      "Se sei estetista, l'autorizzazione serve solo per alcuni trattamenti: per esempio trucco permanente, microblading, microneedling, epilazione elettrica e drenaggio linfatico a fini estetici.",
+      "Terapie complementari: alcuni metodi (per esempio shiatsu, riflessoterapia, omeopatia) sono riservati a chi ha il diploma federale; per gli altri serve l'autorizzazione di terapista complementare cantonale, con un esame (LSan, art. 63).",
+      `Paga prima la tassa online e spedisci i documenti su carta all'${ufficioSanita.nome}, ${ufficioSanita.indirizzo}. Il casellario giudiziale e il certificato medico non devono avere più di ${sanita.validitaDocumentiMesi.valore} mesi.`,
+      "L'autorizzazione non basta per fatturare alla cassa malati: per l'assicurazione di base serve un'altra autorizzazione del Cantone (LAMal, art. 36), e solo alcune professioni possono averla.",
+      "Se sei già autorizzato in un altro Cantone, annunciati all'Ufficio di sanità: in Ticino l'autorizzazione è gratuita, ma puoi iniziare solo dopo il nulla osta.",
     ],
     link: { etichetta: "Procedure dell'Ufficio di sanità", url: fontiPercorso.sanitaLiberoEsercizio.url },
-    fonti: [fontiPercorso.sanitaLiberoEsercizio],
-    verificatoIl: VERIFICATO_IL,
+    fonti: [
+      fontiPercorso.sanitaLiberoEsercizio,
+      fontiPercorso.sanitaDocumenti,
+      fontiPercorso.lsan,
+      fontiPercorso.tasseSanita,
+      fontiPercorso.regolamentoEstetista,
+      fontiPercorso.sanitaFaqTerapisti,
+      fontiPercorso.sefriTerapieComplementari,
+      fontiPercorso.sanitaAoms,
+      fontiPercorso.lamal36,
+      fontiPercorso.sanitaAltroCantone,
+    ],
+    verificatoIl: VERIFICATO_SANITA,
+    costoNoto: {
+      testo: `Tassa di autorizzazione: da ${chf(sanita.tassaAltreProfessioniFranchi.valore.min)} a ${chf(sanita.tassaAltreProfessioniFranchi.valore.max)}; per le professioni con formazione accademica da ${chf(sanita.tassaProfessioniAccademicheFranchi.valore.min)} a ${chf(sanita.tassaProfessioniAccademicheFranchi.valore.max)}`,
+      fonte: fontiPercorso.tasseSanita,
+    },
     domandaChat: "La mia attività nel benessere ha bisogno di un'autorizzazione sanitaria?",
   },
   {
