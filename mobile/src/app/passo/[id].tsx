@@ -1,6 +1,8 @@
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
+import { lezionePerPasso } from "@/data/corso";
 import { eIdPasso, trovaPasso } from "@/data/passi";
+import { LezioneVideo } from "~/components/lezione-video";
 import { ElencoFonti, NotaInformazione, Pillola, Pulsante, Schermata, Scheda, Testo } from "~/components/ui";
 import { apriLink } from "~/lib/apri";
 import { segnaPasso, usePassiFatti, usePercorso } from "~/lib/stato";
@@ -23,6 +25,7 @@ export default function DettaglioPasso() {
   }
   const idPasso = passo.id;
   const fatto = fatti.has(idPasso);
+  const lezione = lezionePerPasso(idPasso);
 
   return (
     <Schermata>
@@ -36,6 +39,8 @@ export default function DettaglioPasso() {
       ) : null}
 
       <Testo>{passo.descrizione}</Testo>
+
+      {lezione ? <LezioneVideo lezione={lezione} /> : null}
 
       {voce && voce.note.length > 0 ? (
         <Scheda tenue>

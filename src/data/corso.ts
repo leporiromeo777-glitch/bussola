@@ -3,7 +3,7 @@
  * I video si fanno con Remotion nella cartella video/ (vedi video/README.md),
  * che legge da qui titolo, numero e fonti di ogni lezione.
  *
- * Per ora solo alcuni passi hanno la lezione; gli altri appaiono come «In arrivo».
+ * Ogni passo ha la sua lezione; un passo nuovo senza lezione appare come «In arrivo».
  * Una lezione può avere dei video facoltativi (`approfondimenti`), che
  * spiegano meglio un punto: si vedono sotto il video della lezione.
  */
