@@ -3,7 +3,7 @@
  * I video si fanno con Remotion nella cartella video/ (vedi video/README.md),
  * che legge da qui titolo, numero e fonti di ogni lezione.
  *
- * Per ora ci sono le lezioni da 1 a 4; gli altri passi appaiono come «In arrivo».
+ * Per ora ci sono le lezioni da 1 a 5; gli altri passi appaiono come «In arrivo».
  * Una lezione può avere dei video facoltativi (`approfondimenti`), che
  * spiegano meglio un punto: si vedono sotto il video della lezione.
  */
@@ -11,6 +11,7 @@ import type { IdPasso } from "./passi";
 import {
   fonti,
   fontiPercorso,
+  VERIFICATO_ALIMENTI,
   VERIFICATO_AUTORIZZAZIONI,
   VERIFICATO_CHECKLIST,
   VERIFICATO_DOCUMENTI_SAGL,
@@ -146,6 +147,28 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.diplomaEsercenteCorso,
     ],
     verificatoIl: VERIFICATO_ESERCIZI_PUBBLICI,
+  },
+  {
+    passoId: "notifica-derrate-alimentari",
+    numero: 5,
+    titolo: "Vendi cibo? Notifica la tua attività",
+    video: "/corso/notifica-derrate-alimentari.mp4",
+    poster: "/corso/notifica-derrate-alimentari.jpg",
+    sottotitoli: "/corso/notifica-derrate-alimentari.vtt",
+    durataSecondi: 132,
+    fonti: [
+      fontiPercorso.oderr20,
+      fontiPercorso.oderr21,
+      fontiPercorso.oderr73,
+      fontiPercorso.oderr74,
+      fontiPercorso.laboratorioCantonaleNotifica,
+      fontiPercorso.laboratorioEssenziale,
+      fontiPercorso.laboratorioControlloAutonomo,
+      fontiPercorso.laboratorioEtichettatura,
+      fontiPercorso.formularioNotificaDerrate,
+      fontiPercorso.grNotificaDerrate,
+    ],
+    verificatoIl: VERIFICATO_ALIMENTI,
   },
 ];
 

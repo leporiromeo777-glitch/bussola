@@ -459,6 +459,31 @@ export const fontiPercorso = {
     url: "https://www4.ti.ch/dss/dsp/lc/informazioni-e-servizi/dettaglio?tx_tichdsslabcantonale_lcschede%5Baction%5D=show&tx_tichdsslabcantonale_lcschede%5Bcontroller%5D=Scheda&tx_tichdsslabcantonale_lcschede%5Bidc%5D=13&tx_tichdsslabcantonale_lcschede%5Bscheda%5D=1&cHash=309da7cd28df37ae6eb122061dc5e6ea",
     ente: LABORATORIO_TI,
   },
+  oderr73: {
+    titolo: "Ordinanza sulle derrate alimentari e gli oggetti d'uso (ODerr), art. 73",
+    url: `${ODERR}#art_73`,
+    ente: FEDLEX,
+  },
+  oderr74: {
+    titolo: "Ordinanza sulle derrate alimentari e gli oggetti d'uso (ODerr), art. 74",
+    url: `${ODERR}#art_74`,
+    ente: FEDLEX,
+  },
+  laboratorioEssenziale: {
+    titolo: "Fabbricare, importare o commercializzare derrate alimentari: l'essenziale in breve",
+    url: "https://www4.ti.ch/dss/dsp/lc/informazioni-e-servizi/dettaglio?tx_tichdsslabcantonale_lcschede%5Baction%5D=show&tx_tichdsslabcantonale_lcschede%5Bcontroller%5D=Scheda&tx_tichdsslabcantonale_lcschede%5Bidc%5D=4&tx_tichdsslabcantonale_lcschede%5Bscheda%5D=1&cHash=c330d788625a3019893e627f41ef0333",
+    ente: LABORATORIO_TI,
+  },
+  laboratorioControlloAutonomo: {
+    titolo: "Controllo autonomo e analisi di derrate alimentari",
+    url: "https://www4.ti.ch/dss/dsp/lc/informazioni-e-servizi/dettaglio?tx_tichdsslabcantonale_lcschede%5Baction%5D=show&tx_tichdsslabcantonale_lcschede%5Bcontroller%5D=Scheda&tx_tichdsslabcantonale_lcschede%5Bidc%5D=14&tx_tichdsslabcantonale_lcschede%5Bscheda%5D=1&cHash=36e07b593c24bab9d1afd353dd343824",
+    ente: LABORATORIO_TI,
+  },
+  laboratorioEtichettatura: {
+    titolo: "Come etichettare la merce",
+    url: "https://www4.ti.ch/dss/dsp/lc/informazioni-e-servizi/dettaglio?tx_tichdsslabcantonale_lcschede%5Baction%5D=show&tx_tichdsslabcantonale_lcschede%5Bcontroller%5D=Scheda&tx_tichdsslabcantonale_lcschede%5Bidc%5D=17&tx_tichdsslabcantonale_lcschede%5Bscheda%5D=1&cHash=644d1e57aec5e2953bec90e926bb9145",
+    ente: LABORATORIO_TI,
+  },
   formularioNotificaDerrate: {
     titolo: "Formulario per la notifica di attività alimentari",
     url: "https://www4.ti.ch/fileadmin/DSS/DSP/LC/Formulari/Formulario_per_la_notifica_DA_05_2021.pdf",
@@ -686,6 +711,22 @@ export const regoleEserciziPubblici = {
   praticaDiplomaMesi: datoEserciziPubblici(5, fontiPercorso.rlear, "Oltre all'esame, pratica in Svizzera o all'estero, a tempo pieno o parziale, anche non consecutiva (art. 38 RLEAR)."),
   termineDomandaGiorni: datoEserciziPubblici(15, fontiPercorso.rlear, "La domanda di autorizzazione va presentata almeno 15 giorni prima dell'inizio dell'attività (art. 26 cpv. 2 RLEAR)."),
   tassaAutorizzazioneFranchi: datoEserciziPubblici({ min: 100, max: 500 }, fontiPercorso.rlear, "Tassa per il rilascio dell'autorizzazione (art. 60 RLEAR); per un aggiornamento CHF 100."),
+} as const;
+
+/**
+ * Data dell'ultimo controllo di ODerr (artt. 2, 20, 21, 73 e 74, stato
+ * 01.07.2025), delle schede del Laboratorio cantonale ticinese, del suo
+ * formulario e della pagina dei Grigioni sulla notifica, per il passo e la
+ * lezione 5.
+ */
+export const VERIFICATO_ALIMENTI = "2026-10-18";
+
+/** Notifica delle attività con le derrate alimentari. */
+export const regoleAlimenti = {
+  verificaRegistrazioneSettimane: {
+    ...dato(2, fontiPercorso.formularioNotificaDerrate, "Il Laboratorio cantonale non manda una conferma: circa 2 settimane dopo l'invio del formulario si può verificare la registrazione sul suo sito."),
+    verificatoIl: VERIFICATO_ALIMENTI,
+  },
 } as const;
 
 /** Regole e importi usati dal percorso guidato. */
