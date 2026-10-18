@@ -53,6 +53,8 @@ import {
   VERIFICATO_ACCONTI_AVS,
   VERIFICATO_IMPOSTE,
   VERIFICATO_PREVIDENZA,
+  VERIFICATO_DICHIARAZIONE,
+  regoleDichiarazione,
   type Fonte,
 } from "./svizzera";
 
@@ -116,6 +118,7 @@ const orari = loc.orariNegozi.valore;
 const aavs = regoleAccontiAvs;
 const etaIndennita = regolePrevidenza.etaIndennitaGiornaliera.valore;
 const quota3a = percentuale(datiStrumenti.quotaMassimaPilastro3a.valore, 0);
+const tassazione = ufficiPercorso.tassazioneTicino.valore;
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -809,12 +812,13 @@ export const PASSI = [
     id: "dichiarazione-imposte",
     fase: "ogni anno",
     titolo: "Dichiara il reddito della ditta",
-    descrizione:
-      "Il reddito della ditta va nella tua dichiarazione d'imposta personale, alla cifra 2 («Reddito da attività indipendente»); se l'attività è accessoria, alla cifra 2.2. Una perdita si indica con il segno meno.",
+    descrizione: `Il reddito della ditta va nella tua dichiarazione d'imposta personale, alla cifra 2 («Reddito da attività indipendente»): alla 2.1 se è la tua attività principale, alla 2.2 se è accessoria. Scrivi l'utile netto, cioè dopo le spese della ditta; una perdita si indica con il segno meno. Le perdite dei ${regoleDichiarazione.perditeEserciziPrecedenti.valore} esercizi precedenti non ancora compensate si possono dedurre.`,
     cosaFare: [
-      "Senza contabilità commerciale: compila il Modulo 10 «Questionario per indipendenti senza contabilità» e allega le distinte firmate di attivi e passivi, entrate e uscite, apporti e prelevamenti privati.",
+      "Senza contabilità commerciale: compila e firma il Modulo 10 «Questionario per indipendenti senza contabilità» e allega le distinte firmate di attivi e passivi, entrate e uscite, apporti e prelevamenti privati.",
       "Con la contabilità commerciale: allega i conti annuali firmati (bilancio e conto economico).",
-      "Consegna la dichiarazione entro il termine scritto a pagina 1. Va consegnata anche se non hai ricevuto il modulo. Puoi inviarla online con eTax PF.",
+      "Consegna la dichiarazione entro il termine scritto a pagina 1. Se per motivi giustificati non ce la fai, chiedi una proroga online.",
+      `Va consegnata anche se non hai ricevuto il modulo: in quel caso chiedilo al tuo ${tassazione.nome}.`,
+      "Puoi compilarla con il programma eTax PF e inviarla online, allegati compresi, senza spedire niente per posta: servono il numero di registro e la password scritti a pagina 1. L'invio online si fa una sola volta.",
       "Bleo non compila dichiarazioni: per farti aiutare rivolgiti a un fiduciario autorizzato.",
     ],
     link: { etichetta: "Moduli della dichiarazione (Ticino)", url: fontiPercorso.dcModuliPf.url },
@@ -826,7 +830,7 @@ export const PASSI = [
       fontiPercorso.dcEtax,
       fonti.albofiduciari,
     ],
-    verificatoIl: VERIFICATO_IL,
+    verificatoIl: VERIFICATO_DICHIARAZIONE,
     domandaChat: "Come dichiaro il reddito della mia ditta individuale?",
   },
   {

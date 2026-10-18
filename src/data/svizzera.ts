@@ -990,6 +990,8 @@ export const fontiPercorso = {
     url: "https://www.kmu.admin.ch/it/tenere-da-soli-la-contabilita-o-delegare",
     ente: PMI,
   },
+  // Dichiarazione d'imposta (passo e lezione 22): ricontrollate il 18.10.2026, vedi VERIFICATO_DICHIARAZIONE.
+  // Le istruzioni e i moduli 2025 sono ancora gli ultimi pubblicati: quando escono quelli 2026, aggiornare qui.
   leggeTributariaTicino: { titolo: "Legge tributaria del Cantone Ticino (LT)", url: LT_TICINO, ente: RACCOLTA_TI },
   istruzioniPf2025: {
     titolo: "Istruzioni per la dichiarazione d'imposta delle persone fisiche 2025",
@@ -1569,6 +1571,32 @@ export const regoleImposte = {
   } as Partial<Record<number, Dato<{ ritardo: number; pagamentiAnticipati: number }>>>,
 } as const;
 
+/**
+ * Data dell'ultimo controllo delle fonti sulla dichiarazione d'imposta della
+ * ditta individuale, per il passo e la lezione 22: le pagine «Moduli 2025» e
+ * «Istruzioni 2025» della Divisione delle contribuzioni (ancora le ultime: i
+ * file 2026 non ci sono), le Istruzioni PF 2025 (pagg. 6-9 e 13-15: moduli,
+ * firma, termine a pagina 1, proroga online, eTax, cifra 2, perdite), il
+ * Modulo 10 2025, la traduzione tedesca del Modulo 1 2025 (cifra 2.1
+ * attività principale, 2.2 accessoria), la pagina e il volantino eTax PF
+ * 2025, LT artt. 30, 198, 199 e 200, LIFD artt. 31, 124 e 125 (stato
+ * 02.09.2026) e l'albo dei fiduciari autorizzati.
+ */
+export const VERIFICATO_DICHIARAZIONE = "2026-10-18";
+
+function datoDichiarazione<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
+  return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_DICHIARAZIONE };
+}
+
+/** La dichiarazione d'imposta con il reddito della ditta individuale (Ticino). */
+export const regoleDichiarazione = {
+  perditeEserciziPrecedenti: datoDichiarazione(
+    7,
+    fontiPercorso.istruzioniPf2025,
+    "Dal reddito da attività indipendente si deducono le perdite dei sette esercizi che precedono il periodo fiscale, se non se ne è potuto tenere conto prima (art. 30 LT, art. 31 LIFD); per il 2025 quelle dal 2018 al 2024. La deduzione non va nella colonna dei redditi ma nello spazio a sinistra della cifra 2.",
+  ),
+} as const;
+
 /** Regole e importi usati dal percorso guidato. */
 export const regolePercorso = {
   mesiPerIvaDaSubito: datoIva(
@@ -1625,7 +1653,7 @@ export const regolePercorso = {
       "Tre rate d'acconto e una quarta a conguaglio (decreto esecutivo del 19.11.2025, art. 1): scadenze 1.5, 1.7 e 1.9, si paga entro 30 giorni. Il conguaglio si paga entro 30 giorni dall'intimazione del conteggio.",
     ),
   } as Partial<Record<number, Dato<string[]>>>,
-  termineDichiarazioneTicino2025: dato("2026-04-30", fontiPercorso.istruzioniPf2025, "Il termine vale per la dichiarazione 2025; quello della dichiarazione 2026 non è ancora pubblicato."),
+  termineDichiarazioneTicino2025: datoDichiarazione("2026-04-30", fontiPercorso.istruzioniPf2025, "Il termine è quello indicato a pagina 1 della dichiarazione: per la dichiarazione 2025 il 30.04.2026. Quello della dichiarazione 2026 non è ancora pubblicato (il 18.10.2026 la Divisione delle contribuzioni ha ancora i moduli e le istruzioni 2025)."),
   fondounimpresa: {
     ...dato(
       { oreMassime: 15, anniMassimi: 2 },
@@ -1647,6 +1675,11 @@ export const ufficiPercorso = {
     },
     fontiPercorso.dcRichiestaAcconto,
     "Divisione delle contribuzioni. Riscuote l'imposta cantonale e l'imposta federale diretta; l'imposta comunale la riscuote il Comune (Istruzioni PF 2025, p. 48). A chi compila la dichiarazione per la prima volta manda, su richiesta, le polizze per pagamenti volontari. Come NPA le pagine della DC indicano sia 6500 sia 6501 Bellinzona (18.10.2026).",
+  ),
+  tassazioneTicino: datoDichiarazione(
+    { nome: "Ufficio circondariale di tassazione", sedi: ["Mendrisio", "Lugano", "Locarno", "Bellinzona", "Biasca"] },
+    fontiPercorso.istruzioniPf2025,
+    "Per le domande sulla compilazione, le richieste di moduli, i termini, le scadenze e le proroghe (Istruzioni PF 2025, pag. 2). Il Modulo 1 non si scarica: serve l'originale, e chi non l'ha ricevuto lo chiede a questo ufficio.",
   ),
   iasContributiPersonali: dato(
     {

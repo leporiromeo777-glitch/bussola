@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { eIdPasso, FASI, ID_PASSI, PASSI, TITOLI_FASI, trovaPasso } from "./passi";
-import { fonti, fontiPercorso, regoleImposte, regolePercorso, ufficiPercorso } from "./svizzera";
+import {
+  fonti,
+  fontiPercorso,
+  regoleDichiarazione,
+  regoleImposte,
+  regolePercorso,
+  ufficiPercorso,
+  VERIFICATO_DICHIARAZIONE,
+} from "./svizzera";
 
 describe("catalogo dei passi", () => {
   it("id unici, brevi e stabili (minuscole e trattini)", () => {
@@ -111,5 +119,15 @@ describe("dati aggiunti per il percorso in svizzera.ts", () => {
     expect(regoleImposte.interessiCantonali[2027]).toBeUndefined();
     expect(regolePercorso.conservazioneDocumentiAnni.valore).toBe(10);
     expect(regolePercorso.fondounimpresa.valore).toEqual({ oreMassime: 15, anniMassimi: 2 });
+  });
+
+  it("dichiarazione d'imposta: perdite, termine 2025 e ufficio vengono dai dati verificati", () => {
+    expect(regoleDichiarazione.perditeEserciziPrecedenti.valore).toBe(7);
+    expect(regolePercorso.termineDichiarazioneTicino2025.valore).toBe("2026-04-30");
+    expect(regolePercorso.termineDichiarazioneTicino2025.verificatoIl).toBe(VERIFICATO_DICHIARAZIONE);
+    const p = trovaPasso("dichiarazione-imposte");
+    expect(p?.descrizione).toContain(`perdite dei ${regoleDichiarazione.perditeEserciziPrecedenti.valore} esercizi`);
+    expect(p?.cosaFare.join(" ")).toContain(ufficiPercorso.tassazioneTicino.valore.nome);
+    expect(p?.verificatoIl).toBe(VERIFICATO_DICHIARAZIONE);
   });
 });
