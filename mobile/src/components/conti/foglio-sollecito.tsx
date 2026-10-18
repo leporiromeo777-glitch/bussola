@@ -1,10 +1,11 @@
 import * as Clipboard from "expo-clipboard";
 import { useState } from "react";
 import { Linking, Modal, ScrollView, Share, View } from "react-native";
-import { dataSvizzera, fontiSolleciti, percentuale, regoleSolleciti, VERIFICATO_SOLLECITI } from "@/data/svizzera";
+import { dataSvizzera, regoleSolleciti } from "@/data/svizzera";
 import { dataIsoValida } from "@/lib/conti/importi";
 import {
   FIRMA_MASSIMA,
+  FONTI_SOLLECITO,
   GIORNI_NUOVO_TERMINE,
   NOMI_LIVELLO,
   leggiIbanSollecito,
@@ -12,8 +13,10 @@ import {
   livelloConsigliato,
   nuovoTermineProposto,
   preparaSollecito,
+  TASSO_INTERESSE_MORA,
   testoDaCopiare,
   testoSollecitoInviato,
+  VERIFICA_FONTI_SOLLECITO,
 } from "@/lib/conti/sollecito";
 import { LIVELLI_SOLLECITO, type FatturaEmessa, type LivelloSollecito, type Sollecito } from "@/lib/conti/tipi";
 import { normalizzaData } from "@/lib/lettera/spiegazione";
@@ -141,7 +144,6 @@ function ContenutoSollecito({
     else if (ok) setStato("Nota del sollecito tolta.");
   }
 
-  const tasso = percentuale(regoleSolleciti.interesseMora.valore, 0);
   const { ufficio } = regoleSolleciti.esecuzione.valore;
 
   return (
@@ -264,7 +266,7 @@ function ContenutoSollecito({
         <Testo variante="forte">Da sapere</Testo>
         <Testo variante="piccolo">
           Se in fattura c&apos;era una data di pagamento, quando passa il cliente è in mora (art. 102 CO): puoi chiedere gli
-          interessi di mora previsti dalla legge, il {tasso} all&apos;anno, se nel contratto non ne avete pattuiti di più
+          interessi di mora previsti dalla legge, il {TASSO_INTERESSE_MORA} all&apos;anno, se nel contratto non ne avete pattuiti di più
           alti (art. 104 CO). Il secondo sollecito li ricorda.
         </Testo>
         <Testo variante="piccolo">
@@ -276,8 +278,8 @@ function ContenutoSollecito({
           chiedi a un fiduciario autorizzato o a un avvocato.
         </Testo>
         <ElencoFonti
-          fonti={[fontiSolleciti.co102, fontiSolleciti.co104, fontiSolleciti.chEsecuzioni]}
-          verificatoIl={VERIFICATO_SOLLECITI}
+          fonti={FONTI_SOLLECITO}
+          verificatoIl={VERIFICA_FONTI_SOLLECITO}
         />
       </Scheda>
     </View>

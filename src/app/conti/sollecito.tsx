@@ -5,10 +5,11 @@ import { ElencoFonti } from "@/components/percorso/elenco-fonti";
 import { IconaCopia, IconaPosta, IconaSpunta } from "@/components/strumenti/icone";
 import { CampoArea, CampoTesto } from "@/components/strumenti/ui";
 import { useArchivio } from "@/components/strumenti/usa-archivio";
-import { fontiSolleciti, percentuale, regoleSolleciti, VERIFICATO_SOLLECITI } from "@/data/svizzera";
+import { regoleSolleciti } from "@/data/svizzera";
 import { dataIsoValida } from "@/lib/conti/importi";
 import {
   FIRMA_MASSIMA,
+  FONTI_SOLLECITO,
   GIORNI_NUOVO_TERMINE,
   NOMI_LIVELLO,
   datiDaStrumentoFattura,
@@ -17,7 +18,9 @@ import {
   livelloConsigliato,
   nuovoTermineProposto,
   preparaSollecito,
+  TASSO_INTERESSE_MORA,
   testoDaCopiare,
+  VERIFICA_FONTI_SOLLECITO,
 } from "@/lib/conti/sollecito";
 import { LIVELLI_SOLLECITO, type FatturaEmessa, type LivelloSollecito } from "@/lib/conti/tipi";
 import { CHIAVI_ARCHIVIO } from "@/lib/strumenti/archivio";
@@ -102,7 +105,6 @@ export function PannelloSollecito({
     onChiudi();
   }
 
-  const tasso = percentuale(regoleSolleciti.interesseMora.valore, 0);
   const { ufficio } = regoleSolleciti.esecuzione.valore;
 
   return (
@@ -234,7 +236,7 @@ export function PannelloSollecito({
         <p className="font-semibold">Da sapere</p>
         <p>
           Se in fattura c&apos;era una data di pagamento, quando passa il cliente è in mora (art. 102 CO): puoi chiedere
-          gli interessi di mora previsti dalla legge, il {tasso} all&apos;anno, se nel contratto non ne avete pattuiti di
+          gli interessi di mora previsti dalla legge, il {TASSO_INTERESSE_MORA} all&apos;anno, se nel contratto non ne avete pattuiti di
           più alti (art. 104 CO). Il secondo sollecito li ricorda.
         </p>
         <p>
@@ -246,8 +248,8 @@ export function PannelloSollecito({
           chiedi a un fiduciario autorizzato o a un avvocato.
         </p>
         <ElencoFonti
-          fonti={[fontiSolleciti.co102, fontiSolleciti.co104, fontiSolleciti.chEsecuzioni]}
-          verificatoIl={VERIFICATO_SOLLECITI}
+          fonti={FONTI_SOLLECITO}
+          verificatoIl={VERIFICA_FONTI_SOLLECITO}
         />
       </div>
     </section>

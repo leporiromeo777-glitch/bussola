@@ -1989,46 +1989,28 @@ export const datiStrumenti = {
 
 // ---------------------------------------------------------------------------
 // «I tuoi conti»: il sollecito di pagamento delle fatture emesse scadute.
+// Mora e interessi moratori (CO artt. 102 e 104) sono in
+// regoleMancatoPagamento, con le fonti fontiPercorso.co102 e co104.
 // ---------------------------------------------------------------------------
 
 /**
- * Data dell'ultimo controllo delle fonti sul sollecito di pagamento: CO artt.
- * 102 e 104 (testo in vigore dal 01.10.2026, letto su Fedlex) e la pagina
- * «Procedure d'esecuzione» di ch.ch (sollecito consueto ma non obbligatorio,
- * domanda d'esecuzione all'Ufficio di esecuzione del domicilio del debitore).
+ * Data dell'ultimo controllo della pagina «Procedure d'esecuzione» di ch.ch
+ * per il sollecito di pagamento (sollecito consueto ma non obbligatorio,
+ * domanda d'esecuzione all'Ufficio di esecuzione del domicilio del
+ * debitore). Lo stesso giorno sono stati riletti su Fedlex anche gli artt.
+ * 102 e 104 CO (testo in vigore dal 01.10.2026).
  */
 export const VERIFICATO_SOLLECITI = "2026-10-18";
-
-/** Fonti del sollecito di pagamento («I tuoi conti»). */
-export const fontiSolleciti = {
-  co102: { titolo: "Codice delle obbligazioni, art. 102: mora del debitore", url: `${CO}#art_102`, ente: FEDLEX },
-  co104: { titolo: "Codice delle obbligazioni, art. 104: interessi moratori", url: `${CO}#art_104`, ente: FEDLEX },
-  chEsecuzioni: {
-    titolo: "Procedure d'esecuzione",
-    url: "https://www.ch.ch/it/imposte-e-finanze/esecuzioni--debiti--fallimenti/procedure-d-esecuzione/",
-    ente: "ch.ch (Confederazione, Cantoni e Comuni)",
-  },
-} as const satisfies Record<string, Fonte>;
 
 function datoSolleciti<T>(valore: T, fonte: Fonte, nota: string): Dato<T> {
   return { ...dato(valore, fonte, nota), verificatoIl: VERIFICATO_SOLLECITI };
 }
 
-/** Mora e interessi moratori (CO), e la via ufficiale se il cliente non paga. */
+/** Se dopo i solleciti il cliente non paga: la via ufficiale. */
 export const regoleSolleciti = {
-  interesseMora: datoSolleciti(
-    0.05,
-    fontiSolleciti.co104,
-    "Il debitore in mora nel pagamento di una somma di denaro deve gli interessi moratori del cinque per cento all'anno, anche se nel contratto sono stati pattuiti interessi più bassi; se ne sono stati pattuiti di più alti, si possono chiedere anche durante la mora (art. 104 cpv. 1 e 2 CO).",
-  ),
-  moraDopoScadenzaGiorni: datoSolleciti(
-    1,
-    fontiSolleciti.co102,
-    "Se il giorno del pagamento è stato stabilito (per esempio «da pagare entro il …» in fattura), il debitore è in mora già quando quel giorno è passato, cioè dal giorno dopo (art. 102 cpv. 2 CO). Se no, è in mora quando il creditore gli chiede di pagare (interpellazione, art. 102 cpv. 1 CO), per esempio con un sollecito.",
-  ),
   esecuzione: datoSolleciti(
     { ufficio: "Ufficio di esecuzione", dove: "del luogo di domicilio del debitore" },
-    fontiSolleciti.chEsecuzioni,
-    "Mandare prima un sollecito è consuetudine, ma non è obbligatorio. Se anche dopo il sollecito il debitore non paga, il creditore può presentare una domanda d'esecuzione all'Ufficio di esecuzione del luogo di domicilio del debitore, anche con lo sportello delle esecuzioni online; le spese le anticipa il creditore. Il debitore può fare opposizione entro 10 giorni dalla notifica del precetto esecutivo: poi decide il tribunale (ch.ch, «Procedure d'esecuzione»).",
+    fontiPercorso.chEsecuzioni,
+    "Mandare prima un sollecito è consuetudine, ma non è obbligatorio. Se anche dopo il sollecito il debitore non paga, il creditore può presentare una domanda d'esecuzione all'Ufficio di esecuzione del luogo di domicilio del debitore, anche con lo sportello delle esecuzioni online; le spese le anticipa il creditore (ch.ch, «Procedure d'esecuzione»).",
   ),
 } as const;

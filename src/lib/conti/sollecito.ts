@@ -5,9 +5,18 @@
  *
  * Bleo prepara il testo, ma a mandarlo è l'utente, con la sua email o un'altra
  * app. Sugli interessi di mora dà solo l'informazione generale della legge
- * (art. 102 e 104 CO, src/data/svizzera.ts): non è una consulenza legale.
+ * (art. 102 e 104 CO, regoleMancatoPagamento in src/data/svizzera.ts): non è
+ * una consulenza legale.
  */
-import { dataSvizzera, percentuale, regoleSolleciti } from "@/data/svizzera";
+import {
+  dataSvizzera,
+  fontiPercorso,
+  percentuale,
+  regoleMancatoPagamento,
+  VERIFICATO_MANCATO_PAGAMENTO,
+  VERIFICATO_SOLLECITI,
+  type Fonte,
+} from "@/data/svizzera";
 import {
   formattaIban,
   formattaRiferimentoQr,
@@ -25,6 +34,15 @@ import type { FatturaEmessa, LivelloSollecito, Sollecito } from "./tipi";
  * valore di legge: è solo la data che Bleo propone, e l'utente la cambia.
  */
 export const GIORNI_NUOVO_TERMINE = 10;
+
+/** Fonti mostrate con il sollecito: mora, interessi moratori e procedura d'esecuzione. */
+export const FONTI_SOLLECITO: readonly Fonte[] = [fontiPercorso.co102, fontiPercorso.co104, fontiPercorso.chEsecuzioni];
+
+/** Data del controllo meno recente tra quelli di queste fonti. */
+export const VERIFICA_FONTI_SOLLECITO = [VERIFICATO_MANCATO_PAGAMENTO, VERIFICATO_SOLLECITI].sort()[0];
+
+/** Tasso degli interessi di mora della legge, da mostrare: «5%» (art. 104 CO). */
+export const TASSO_INTERESSE_MORA = percentuale(regoleMancatoPagamento.interesseMora.valore, 0);
 
 /** Lunghezza massima del nome per la firma (come il nome nella fattura). */
 export const FIRMA_MASSIMA = 140;
@@ -147,7 +165,6 @@ export function preparaSollecito(d: DatiSollecito): TestoSollecito {
   const apertura = precedente
     ? `il ${dataSvizzera(precedente.inviatoIl)} le ho mandato ${precedente.livello === 1 ? "un promemoria" : "un sollecito"} per ${fattura}${scadenza ? `, scaduta il ${scadenza}` : ""}.`
     : `${fattura.charAt(0).toUpperCase()}${fattura.slice(1)}, ${scadenza ? `è scaduta il ${scadenza}` : "è ancora da pagare"}.`;
-  const tasso = percentuale(regoleSolleciti.interesseMora.valore, 0);
   return {
     oggetto: `Secondo sollecito di pagamento: fattura ${f.numero}`,
     testo: [
@@ -155,7 +172,7 @@ export function preparaSollecito(d: DatiSollecito): TestoSollecito {
       `${apertura} Ad oggi il pagamento non è ancora arrivato.`,
       `La prego di pagare l'importo entro il ${termine}.`,
       datiPagamento(d),
-      `Le ricordo che per i pagamenti in ritardo la legge prevede interessi di mora del ${tasso} all'anno (art. 104 del Codice delle obbligazioni): se il pagamento non arriva entro questo termine, mi riservo di chiederli.`,
+      `Le ricordo che per i pagamenti in ritardo la legge prevede interessi di mora del ${TASSO_INTERESSE_MORA} all'anno (art. 104 del Codice delle obbligazioni): se il pagamento non arriva entro questo termine, mi riservo di chiederli.`,
       "Se ha già pagato nel frattempo, la ringrazio e non tenga conto di questo messaggio. Se c'è un problema con la fattura, mi contatti entro la stessa data.",
       chiusura,
     ].join("\n\n"),

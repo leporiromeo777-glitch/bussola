@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { fontiSolleciti, regoleSolleciti, VERIFICATO_SOLLECITI } from "@/data/svizzera";
+import { fontiPercorso, regoleMancatoPagamento, regoleSolleciti, VERIFICATO_SOLLECITI } from "@/data/svizzera";
 import {
+  FONTI_SOLLECITO,
   GIORNI_NUOVO_TERMINE,
+  TASSO_INTERESSE_MORA,
+  VERIFICA_FONTI_SOLLECITO,
   datiDaStrumentoFattura,
   giorniDiRitardo,
   leggiIbanSollecito,
@@ -135,14 +138,19 @@ describe("testo del sollecito", () => {
     );
   });
 
-  it("il tasso viene dal dato con la fonte (art. 104 CO), controllato oggi", () => {
-    expect(regoleSolleciti.interesseMora.valore).toBe(0.05);
-    expect(regoleSolleciti.interesseMora.fonte).toBe(fontiSolleciti.co104);
-    expect(regoleSolleciti.interesseMora.fonte.url).toBe("https://www.fedlex.admin.ch/eli/cc/27/317_321_377/it#art_104");
-    expect(regoleSolleciti.moraDopoScadenzaGiorni.fonte.url).toMatch(/#art_102$/);
-    expect(regoleSolleciti.esecuzione.fonte.url).toMatch(/^https:\/\/www\.ch\.ch\/it\//);
-    for (const d of Object.values(regoleSolleciti)) expect(d.verificatoIl).toBe(VERIFICATO_SOLLECITI);
+  it("il tasso viene dal dato con la fonte (art. 104 CO); le fonti sono quelle controllate oggi", () => {
+    expect(regoleMancatoPagamento.interesseMora.valore).toBe(0.05);
+    expect(regoleMancatoPagamento.interesseMora.fonte).toBe(fontiPercorso.co104);
+    expect(TASSO_INTERESSE_MORA).toBe("5%");
+    expect(FONTI_SOLLECITO.map((f) => f.url)).toEqual([
+      "https://www.fedlex.admin.ch/eli/cc/27/317_321_377/it#art_102",
+      "https://www.fedlex.admin.ch/eli/cc/27/317_321_377/it#art_104",
+      "https://www.ch.ch/it/imposte-e-finanze/esecuzioni--debiti--fallimenti/procedure-d-esecuzione/",
+    ]);
+    expect(regoleSolleciti.esecuzione.fonte).toBe(fontiPercorso.chEsecuzioni);
+    expect(regoleSolleciti.esecuzione.verificatoIl).toBe(VERIFICATO_SOLLECITI);
     expect(VERIFICATO_SOLLECITI).toBe("2026-10-18");
+    expect(VERIFICA_FONTI_SOLLECITO).toBe("2026-10-18");
   });
 
   it("testo da copiare e link per l'email", () => {
