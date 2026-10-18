@@ -31,6 +31,7 @@ import {
   VERIFICATO_LOCALI,
   VERIFICATO_CONTABILITA,
   VERIFICATO_ACCONTI_AVS,
+  VERIFICATO_SOGLIE,
   type Fonte,
 } from "./svizzera";
 
@@ -516,6 +517,29 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fonti.lafTicino73,
     ],
     verificatoIl: VERIFICATO_ACCONTI_AVS,
+  },
+  {
+    passoId: "soglie-annuali",
+    numero: 23,
+    titolo: "A fine anno controlla le soglie",
+    video: "/corso/soglie-annuali.mp4",
+    poster: "/corso/soglie-annuali.jpg",
+    sottotitoli: "/corso/soglie-annuali.vtt",
+    durataSecondi: 171,
+    fonti: [
+      fonti.co931,
+      fonti.liva10,
+      fontiPercorso.liva21,
+      fonti.afcAssoggettamento,
+      fonti.liva14,
+      fontiPercorso.oiva9,
+      fontiPercorso.afcInfoIva02,
+      fonti.liva66,
+      fonti.co957,
+      fontiPercorso.liva34,
+      fonti.albofiduciari,
+    ],
+    verificatoIl: VERIFICATO_SOGLIE,
   },
 ];
 

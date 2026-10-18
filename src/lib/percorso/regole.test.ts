@@ -385,6 +385,10 @@ describe("regole: IVA", () => {
     expect(passo(calcolaPercorso(risposte({ fatturato: "non_so" })), "soglie-annuali").perche).toMatch(
       /quanto fatturerai/,
     );
+    // Una Sagl è sempre nel registro e tiene sempre la contabilità completa: resta solo l'IVA.
+    const sagl = passo(calcolaPercorso(risposte({ soci: "con_soci", fatturato: "da_60k_a_100k" })), "soglie-annuali");
+    expect(sagl.stato).toBe("facoltativo");
+    expect(sagl.perche).toMatch(/soglia dell'IVA/);
   });
 });
 
