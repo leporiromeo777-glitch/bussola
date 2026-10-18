@@ -7,16 +7,19 @@ import {
   fonti,
   fontiPercorso,
   percentuale,
+  pilastro3a,
   regole,
   regoleFatture,
   regoleInfortuni,
   regolePercorso,
+  regolePrevidenza,
   regoleRegistro,
   tasseRegistroCommercio,
   VERIFICATO_FORME,
   VERIFICATO_INFORTUNI,
   VERIFICATO_REGISTRO,
   VERIFICATO_FATTURE,
+  VERIFICATO_PREVIDENZA,
 } from "./svizzera";
 
 describe("formattazione svizzera", () => {
@@ -88,6 +91,14 @@ describe("dati ufficiali", () => {
     for (const d of Object.values(regoleFatture)) expect(d.verificatoIl).toBe(VERIFICATO_FATTURE);
     expect(datiStrumenti.indirizzoStrutturatoQr.verificatoIl).toBe(VERIFICATO_FATTURE);
     expect(regolePercorso.conservazioneDocumentiAnni.fonte).toBe(fonti.co958f);
+  });
+  it("previdenza: indennità giornaliera dai 15 ai 65 anni (LAMal) e pilastro 3a con la data di controllo", () => {
+    expect(regolePrevidenza.etaIndennitaGiornaliera.valore).toEqual({ da: 15, primaDi: 65 });
+    expect(regolePrevidenza.etaIndennitaGiornaliera.fonte).toBe(fontiPercorso.lamal67);
+    expect(percentuale(datiStrumenti.quotaMassimaPilastro3a.valore, 0)).toBe("20%");
+    for (const d of [regolePrevidenza.etaIndennitaGiornaliera, datiStrumenti.quotaMassimaPilastro3a, pilastro3a[2026], pilastro3a[2027]]) {
+      expect(d.verificatoIl).toBe(VERIFICATO_PREVIDENZA);
+    }
   });
 });
 

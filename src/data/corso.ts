@@ -29,6 +29,7 @@ import {
   VERIFICATO_IVA,
   VERIFICATO_FATTURE,
   VERIFICATO_LOCALI,
+  VERIFICATO_PREVIDENZA,
   type Fonte,
 } from "./svizzera";
 
@@ -470,6 +471,30 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fontiPercorso.poliziaAutorizzazioni,
     ],
     verificatoIl: VERIFICATO_LOCALI,
+  },
+  {
+    passoId: "assicurazioni-previdenza",
+    numero: 21,
+    titolo: "Malattia e pensione: ci pensi tu",
+    video: "/corso/assicurazioni-previdenza.mp4",
+    poster: "/corso/assicurazioni-previdenza.jpg",
+    sottotitoli: "/corso/assicurazioni-previdenza.vtt",
+    durataSecondi: 162,
+    fonti: [
+      fonti.avsPromemoria202,
+      fontiPercorso.pmiAssicurazioniSociali,
+      fontiPercorso.lamal1a,
+      fontiPercorso.lamal67,
+      fontiPercorso.pmiIndennitaGiornaliera,
+      fontiPercorso.lpp4,
+      fontiPercorso.lpp44,
+      fonti.opp3,
+      fonti.ufasImporti2026,
+      fonti.ufasImporti2027,
+      fontiPercorso.pmiDisoccupazione,
+      fonti.albofiduciari,
+    ],
+    verificatoIl: VERIFICATO_PREVIDENZA,
   },
 ];
 
