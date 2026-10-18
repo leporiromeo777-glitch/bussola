@@ -17,6 +17,7 @@ import {
   percentuale,
   pilastro3a,
   regole,
+  regoleAccontiAvs,
   regoleAlimenti,
   regoleEserciziPubblici,
   regoleFatture,
@@ -46,6 +47,7 @@ import {
   VERIFICATO_FATTURE,
   VERIFICATO_LOCALI,
   VERIFICATO_CONTABILITA,
+  VERIFICATO_ACCONTI_AVS,
   type Fonte,
 } from "./svizzera";
 
@@ -101,6 +103,7 @@ const inf = regoleInfortuni;
 const reg = regoleRegistro;
 const loc = regoleLocali;
 const orari = loc.orariNegozi.valore;
+const aavs = regoleAccontiAvs;
 
 export const PASSI = [
   // -------------------------------------------------------------------------
@@ -688,23 +691,32 @@ export const PASSI = [
     id: "acconti-avs",
     fase: "primi mesi",
     titolo: "Paga gli acconti AVS ogni trimestre",
-    descrizione: `Durante l'anno paghi acconti calcolati dalla cassa sul reddito che prevedi, entro il 10 gennaio, il 10 aprile, il 10 luglio e il 10 ottobre. I contributi definitivi si calcolano dopo, sulla base della tassazione fiscale: la cassa ti rimborsa o ti manda il conguaglio da pagare entro ${regolePercorso.termineConguaglioAvsGiorni.valore} giorni.`,
+    descrizione: `Durante l'anno paghi acconti fissati dalla cassa di compensazione sul reddito che prevedi, entro il 10 gennaio, il 10 aprile, il 10 luglio e il 10 ottobre. I contributi definitivi si calcolano dopo, sul reddito della tassazione fiscale, che la cassa riceve dall'autorità fiscale: la cassa ti rimborsa o ti manda il conguaglio da pagare entro ${regolePercorso.termineConguaglioAvsGiorni.valore} giorni dalla data della fattura.`,
     cosaFare: [
-      `Se il reddito cambia molto, avvisa la cassa: per l'IAS conta una variazione di più o meno il ${percentuale(regolePercorso.variazioneRedditoIas.valore, 0)}.`,
-      `Se gli acconti restano sotto il ${percentuale(regolePercorso.sogliaAccontiAvs.valore, 0)} dei contributi definitivi, paghi interessi di mora del ${percentuale(regolePercorso.interesseMoraAvs.valore, 0)} l'anno.`,
+      `Paga ogni acconto in tempo: conta il giorno in cui i soldi arrivano sul conto della cassa. Se arrivano più di ${aavs.giorniMoraAcconto.valore} giorni dopo la fine del trimestre, paghi interessi di mora dalla fine del trimestre.`,
+      `Se il reddito cambia molto, anche a fine anno, avvisa subito la cassa: per l'IAS conta una variazione di più o meno il ${percentuale(regolePercorso.variazioneRedditoIas.valore, 0)}, da segnalare per iscritto o con la richiesta online di adeguamento.`,
+      `Se gli acconti restano sotto il ${percentuale(regolePercorso.sogliaAccontiAvs.valore, 0)} dei contributi definitivi, sulla differenza paghi interessi di mora del ${percentuale(regolePercorso.interesseMoraAvs.valore, 0)} l'anno, dal 1° gennaio del secondo anno dopo quello dei contributi: per il ${avs2026.anno} dal ${dataSvizzera(`${avs2026.anno + aavs.anniInizioMoraAccontiBassi.valore}-01-01`)}.`,
+      `Se non paghi, la cassa ti manda una diffida con una tassa da ${chf(aavs.tassaDiffidaFranchi.valore.min)} a ${chf(aavs.tassaDiffidaFranchi.valore.max)}. Se sei in difficoltà, chiedile una dilazione: gli interessi di mora restano dovuti.`,
       `Contributi AVS/AI/IPG degli indipendenti: al massimo il ${percentuale(avs2026.tassoMassimo, 0)} del reddito, al minimo ${chf(avs2026.contributoMinimo)} l'anno nel 2026 e ${chf(avs2027.contributoMinimo)} dal 2027.`,
     ],
     link: { etichetta: "Promemoria AVS 2.02", url: fonti.avsPromemoria202.url },
     fonti: [
       fonti.avsPromemoria202,
-      fontiPercorso.iasAcconti,
-      fontiPercorso.oavs41bis,
+      fontiPercorso.oavs24,
+      fontiPercorso.oavs34,
       fontiPercorso.oavs42,
+      fontiPercorso.oavs41bis,
+      fontiPercorso.oavs34a,
+      fontiPercorso.oavs34b,
+      fontiPercorso.iasAcconti,
+      fontiPercorso.iasAdeguamentoIndipendenti,
+      fontiPercorso.oavs27,
+      fontiPercorso.oavs25,
       fonti.ufasImporti2027,
       fonti.iasAf2026,
       fonti.lafTicino73,
     ],
-    verificatoIl: VERIFICATO_IL,
+    verificatoIl: VERIFICATO_ACCONTI_AVS,
     tempoStimato: "10 minuti a trimestre",
     domandaChat: "Come funzionano gli acconti AVS da indipendente?",
   },

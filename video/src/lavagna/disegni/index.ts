@@ -23,6 +23,7 @@ import { DISEGNI_ISCRIZIONE_IVA } from "./iscrizione-iva";
 import { DISEGNI_FATTURE } from "./fatture";
 import { DISEGNI_LOCALI_PUBBLICO } from "./locali-pubblico";
 import { DISEGNI_CONTABILITA } from "./contabilita";
+import { DISEGNI_ACCONTI_AVS } from "./acconti-avs";
 import type { Disegno } from "./tipi";
 
 export const DISEGNI: Readonly<Record<string, Disegno>> = {
@@ -46,6 +47,7 @@ export const DISEGNI: Readonly<Record<string, Disegno>> = {
   ...DISEGNI_FATTURE,
   ...DISEGNI_LOCALI_PUBBLICO,
   ...DISEGNI_CONTABILITA,
+  ...DISEGNI_ACCONTI_AVS,
 };
 
 export type { ContestoDisegno, Disegno } from "./tipi";

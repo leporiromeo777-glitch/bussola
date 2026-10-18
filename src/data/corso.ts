@@ -30,6 +30,7 @@ import {
   VERIFICATO_FATTURE,
   VERIFICATO_LOCALI,
   VERIFICATO_CONTABILITA,
+  VERIFICATO_ACCONTI_AVS,
   type Fonte,
 } from "./svizzera";
 
@@ -491,6 +492,30 @@ export const LEZIONI: readonly LezioneCorso[] = [
       fonti.albofiduciari,
     ],
     verificatoIl: VERIFICATO_CONTABILITA,
+  },
+  {
+    passoId: "acconti-avs",
+    numero: 19,
+    titolo: "Pagare gli acconti AVS",
+    video: "/corso/acconti-avs.mp4",
+    poster: "/corso/acconti-avs.jpg",
+    sottotitoli: "/corso/acconti-avs.vtt",
+    durataSecondi: 163,
+    fonti: [
+      fontiPercorso.oavs24,
+      fonti.avsPromemoria202,
+      fontiPercorso.oavs34,
+      fontiPercorso.oavs42,
+      fontiPercorso.oavs41bis,
+      fontiPercorso.iasAcconti,
+      fontiPercorso.iasAdeguamentoIndipendenti,
+      fontiPercorso.oavs27,
+      fontiPercorso.oavs25,
+      fontiPercorso.oavs34b,
+      fonti.iasAf2026,
+      fonti.lafTicino73,
+    ],
+    verificatoIl: VERIFICATO_ACCONTI_AVS,
   },
 ];
 
