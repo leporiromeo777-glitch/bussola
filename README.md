@@ -22,6 +22,7 @@ Il kit per le settimane 1-2 (interviste, messaggi, social, lettere) è in
 | Import delle fonti ufficiali | `scripts/importa-fonti.ts`, `supabase/fonti/elenco.json` | pronto, fonti da ricontrollare a mano |
 | Strumenti: tariffa oraria, budget, business plan, preventivo, fattura con QR | `/strumenti`, `src/lib/strumenti` | pronti (dati solo nel browser) |
 | «I tuoi conti»: entrate, uscite, fatture emesse, ricevute lette da Claude, email inoltrate, CSV | `/conti`, `src/app/api/conti`, `src/lib/conti` | fase 1 pronta (servono Supabase; Claude e Resend facoltativi) |
+| «Calendario sempre aggiornato»: link personale con scadenze e votazioni per Google Calendar e Apple Calendario | `/percorso`, `src/app/api/calendario`, `src/lib/percorso/abbonamento.ts` | pronto (servono Supabase e la chiave segreta) |
 | Pagamenti (Stripe + TWINT), scadenzario via email | | settimane 12-13 del piano |
 
 Tutti i numeri ufficiali (soglie, aliquote, contributi, uffici) stanno in
@@ -159,6 +160,26 @@ iscrizioni vengono salvate lo stesso.
    dell'hosting lo consenta.
 3. Le app usano le stesse API con `Authorization: Bearer`. `DELETE
    /api/account` cancella anche i file dello Storage prima dell'utente.
+
+### «Calendario sempre aggiornato» (link personale per il calendario)
+
+Esegui la migrazione `20261019000003_calendario_abbonamento.sql` (tabella
+`link_calendario` con RLS e funzione `nuovo_link_calendario`). Serve
+`SUPABASE_SECRET_KEY`: senza, il riquadro sotto «Scadenze da ricordare» dice
+che il calendario non è attivo e resta solo il file .ics.
+
+- `GET/POST/PUT/DELETE /api/calendario` (cookie del sito o `Authorization:
+  Bearer` dell'app): stato del link, link nuovo («Rigenera il link»), risposte
+  del questionario da usare (l'app salva quelle del telefono) e disattivazione.
+- `GET /api/calendario/<token>`: il file `text/calendar` che Google Calendar,
+  Apple Calendario o Outlook rileggono da soli, costruito a ogni richiesta
+  dalle risposte salvate nell'account (scadenze dell'anno in corso e del
+  prossimo, votazioni da seguire). Il token (192 bit) non è nel database: c'è
+  solo la sua impronta SHA-256, che il server cerca con la chiave segreta.
+  Il link intero resta nel browser o nel telefono che l'ha creato.
+- Google Calendar legge il link dai suoi server: va provato sul sito
+  pubblicato, non su `localhost`. Sul sito il link usa l'indirizzo della
+  pagina; nell'app usa `EXPO_PUBLIC_SITO_URL` (o `sitoUrl` in `app.json`).
 
 ### Dati del titolare
 

@@ -15,6 +15,12 @@ export const CHIAVE_PASSI_FATTI = "bussola:percorso:passi-fatti";
  * nessun account e vanno salvati in un account solo se l'utente lo conferma.
  */
 export const CHIAVE_UTENTE = "bussola:percorso:utente";
+/**
+ * Il link del «Calendario sempre aggiornato» creato in questo browser (o
+ * telefono), con l'utente e l'id del link (analizzaLinkSalvato in
+ * abbonamento.ts). Il server ne tiene solo l'impronta: il link intero sta qui.
+ */
+export const CHIAVE_LINK_CALENDARIO = "bussola:calendario:link";
 
 /** Evento per avvisare i componenti della stessa scheda (l'evento "storage" arriva solo alle altre). */
 export const EVENTO_ARCHIVIO = "bussola:percorso-archivio";

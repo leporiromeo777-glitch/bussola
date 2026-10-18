@@ -16,6 +16,7 @@ import { DOMANDE, etichettaRisposta } from "@/lib/percorso/domande";
 import { avanzamento, prossimoPasso, type Avviso, type PassoPercorso, type Percorso } from "@/lib/percorso/regole";
 import type { IdDomanda, Risposte } from "@/lib/percorso/risposte";
 import { etichettaLivello, votazioniInArrivo } from "@/lib/votazioni";
+import { CalendarioAggiornato } from "~/components/calendario-aggiornato";
 import { ImmagineMascotte } from "~/components/mascotte";
 import {
   BarraProgresso,
@@ -82,6 +83,10 @@ export default function SchermataPercorso() {
 
       <NonServono percorso={percorso} />
       <Scadenze percorso={percorso} fatti={fatti} />
+      <CalendarioAggiornato
+        risposte={risposte}
+        conInizio={percorso.scadenze.some((s) => s.calendario.tipo === "dopo-inizio")}
+      />
       <Votazioni />
       <RiepilogoRisposte risposte={risposte} />
       <Testo variante="piccolo" attenuato>

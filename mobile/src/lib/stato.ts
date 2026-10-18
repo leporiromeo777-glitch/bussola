@@ -10,6 +10,7 @@ import {
   analizzaPassiFatti,
   analizzaRisposteSalvate,
   cambiaPasso,
+  CHIAVE_LINK_CALENDARIO,
   CHIAVE_PASSI_FATTI,
   CHIAVE_RISPOSTE,
   type RisposteSalvate,
@@ -102,7 +103,16 @@ export function impostaSettimana(attiva: boolean): void {
 
 /** Cancella dal telefono tutto quello che Bleo ha salvato. */
 export function cancellaDatiLocali(): void {
-  for (const chiave of [CHIAVE_RISPOSTE, CHIAVE_PASSI_FATTI, CHIAVE_BOZZA, CHIAVE_VESTITO, CHIAVE_LOOK, CHIAVE_PROMEMORIA, CHIAVE_SETTIMANA]) {
+  for (const chiave of [
+    CHIAVE_RISPOSTE,
+    CHIAVE_PASSI_FATTI,
+    CHIAVE_BOZZA,
+    CHIAVE_VESTITO,
+    CHIAVE_LOOK,
+    CHIAVE_PROMEMORIA,
+    CHIAVE_SETTIMANA,
+    CHIAVE_LINK_CALENDARIO,
+  ]) {
     scrivi(chiave, null);
   }
 }

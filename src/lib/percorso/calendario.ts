@@ -222,12 +222,28 @@ function istanteIcs(istante: Date): string {
     .replace(/\.\d{3}Z$/, "Z");
 }
 
+/** Durate accettate per aggiornaOgni: giorni ("P1D") o ore ("PT12H"). */
+const DURATA_ISO = /^P(?:\d{1,3}D|T\d{1,3}H)$/;
+
 /** Il file .ics completo (righe CRLF, termina con CRLF). */
 export function generaIcs(
   eventi: readonly EventoCalendario[],
-  opzioni: { adesso: Date; nomeCalendario?: string; giorniPreavviso?: number },
+  opzioni: {
+    adesso: Date;
+    nomeCalendario?: string;
+    giorniPreavviso?: number;
+    /** Descrizione del calendario (X-WR-CALDESC), per i calendari a cui ci si iscrive con un link. */
+    descrizioneCalendario?: string;
+    /**
+     * Ogni quanto rileggere il link, come durata ISO 8601 in giorni o ore ("P1D", "PT12H"):
+     * REFRESH-INTERVAL (RFC 7986) e X-PUBLISHED-TTL. È un suggerimento: ogni
+     * calendario decide da sé.
+     */
+    aggiornaOgni?: string;
+  },
 ): string {
   const preavviso = opzioni.giorniPreavviso ?? 7;
+  const aggiorna = opzioni.aggiornaOgni && DURATA_ISO.test(opzioni.aggiornaOgni) ? opzioni.aggiornaOgni : null;
   const righe: string[] = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -235,6 +251,8 @@ export function generaIcs(
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${proteggiTesto(opzioni.nomeCalendario ?? "Bleo: scadenze")}`,
+    ...(opzioni.descrizioneCalendario ? [`X-WR-CALDESC:${proteggiTesto(opzioni.descrizioneCalendario)}`] : []),
+    ...(aggiorna ? [`REFRESH-INTERVAL;VALUE=DURATION:${aggiorna}`, `X-PUBLISHED-TTL:${aggiorna}`] : []),
   ];
   const timbro = istanteIcs(opzioni.adesso);
   for (const evento of eventi) {
