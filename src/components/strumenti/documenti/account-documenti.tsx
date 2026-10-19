@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { documentiDaImportare, emittenteCompilato } from "@/lib/strumenti/account";
 import type { ArchivioAccount, StatoArchivio } from "@/lib/strumenti/archivio-account";
 import { NOMI_TIPO, type Documento, type Emittente, type TipoDocumento } from "@/lib/strumenti/documenti";
@@ -65,45 +65,66 @@ export function ErroreAccount({
   );
 }
 
-/** «I tuoi documenti sono nel tuo account», con lo stato dell'ultimo salvataggio. */
-export function NotaAccount({ stato, onRiprova }: { stato: StatoArchivio; onRiprova: () => void }) {
+/**
+ * «I tuoi documenti sono nel tuo account», con lo stato dell'ultimo
+ * salvataggio. La usano anche budget e business plan, con il loro testo.
+ */
+export function NotaAccount({
+  stato,
+  onRiprova,
+  testo,
+  azioni,
+}: {
+  stato: Pick<StatoArchivio, "salvataggio" | "erroreSalvataggio">;
+  onRiprova: () => void;
+  testo?: ReactNode;
+  /** Altri pulsanti sotto lo stato (per esempio «ricomincia da zero»). */
+  azioni?: ReactNode;
+}) {
   const errore = stato.salvataggio === "errore" ? stato.erroreSalvataggio : null;
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-border bg-brand-soft p-4 text-sm sm:flex-row sm:items-center sm:justify-between print:hidden">
       <p className="flex items-start gap-2">
         <IconaDispositivo className="mt-0.5 size-5 shrink-0 text-brand" />
         <span>
-          <strong className="font-semibold">Salvati nel tuo account.</strong> Li ritrovi su ogni dispositivo in cui accedi,
-          anche nell&apos;app Bleo sul telefono.
+          {testo ?? (
+            <>
+              <strong className="font-semibold">Salvati nel tuo account.</strong> Li ritrovi su ogni dispositivo in cui
+              accedi, anche nell&apos;app Bleo sul telefono.
+            </>
+          )}
         </span>
       </p>
-      <div className="shrink-0" role="status" aria-live="polite">
-        {errore ? (
-          <span className="flex flex-col items-start gap-2 font-medium text-danger sm:items-end">
-            <span className="flex items-start gap-1.5">
-              <IconaAvviso className="mt-0.5 size-4 shrink-0" />
-              <span>
-                {errore.stato === 401 ? "Accesso scaduto: le ultime modifiche non sono salvate." : `Non salvato: ${errore.messaggio}`}
+      <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
+        <div role="status" aria-live="polite">
+          {errore ? (
+            <span className="flex flex-col items-start gap-2 font-medium text-danger sm:items-end">
+              <span className="flex items-start gap-1.5">
+                <IconaAvviso className="mt-0.5 size-4 shrink-0" />
+                <span>
+                  {errore.stato === 401 ? "Accesso scaduto: le ultime modifiche non sono salvate." : `Non salvato: ${errore.messaggio}`}
+                </span>
               </span>
+              {errore.stato === 401 ? (
+                <Link href="/accedi" className={classeLink}>
+                  Accedi di nuovo
+                </Link>
+              ) : (
+                <button type="button" className={classePulsantePiccolo} onClick={onRiprova}>
+                  Riprova
+                </button>
+              )}
             </span>
-            {errore.stato === 401 ? (
-              <Link href="/accedi" className={classeLink}>
-                Accedi di nuovo
-              </Link>
-            ) : (
-              <button type="button" className={classePulsantePiccolo} onClick={onRiprova}>
-                Riprova
-              </button>
-            )}
-          </span>
-        ) : stato.salvataggio === "salvato" ? (
-          <span className="flex items-center gap-1.5 text-success">
-            <IconaSpunta className="size-4" />
-            Tutto salvato
-          </span>
-        ) : (
-          <span className="text-muted">Salvo…</span>
-        )}
+          ) : stato.salvataggio === "salvato" ? (
+            <span className="flex items-center gap-1.5 text-success">
+              <IconaSpunta className="size-4" />
+              Tutto salvato
+            </span>
+          ) : (
+            <span className="text-muted">Salvo…</span>
+          )}
+        </div>
+        {azioni}
       </div>
     </div>
   );

@@ -13,7 +13,8 @@ import { ArchivioAccount, type Chiamata, type StatoArchivio } from "@/lib/strume
 const MESSAGGIO_RETE = "Non riesco a raggiungere Bleo: controlla la connessione. Riprovo da solo.";
 const MESSAGGIO_GENERICO = "Qualcosa non ha funzionato. Riprova tra poco.";
 
-const chiamaSito: Chiamata = async <T,>(
+/** Chiamata alle API del sito con i cookie della sessione (la usano anche budget e business plan). */
+export const chiamaSito: Chiamata = async <T,>(
   percorso: string,
   opzioni: { metodo?: string; corpo?: unknown; keepalive?: boolean } = {},
 ) => {

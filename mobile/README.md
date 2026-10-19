@@ -69,8 +69,15 @@ Cosa c'è:
   preventivo trasformato in fattura, anteprima, PDF con la QR-fattura da
   condividere o stampare, «Registra in I tuoi conti». Gli stessi documenti
   si vedono sul sito. In fondo, **Calcoli e strumenti**: tariffa oraria,
-  contributi AVS, «Fotografa la lettera», nome della ditta, testi pronti e
-  Fondare una Sagl nell'app; budget e business plan stanno sul sito.
+  contributi AVS, «Fotografa la lettera», nome della ditta, testi pronti,
+  Fondare una Sagl, budget del primo anno e business plan di una pagina,
+  tutti nell'app.
+- **Budget del primo anno** e **Business plan di una pagina**: gli stessi
+  calcoli e le stesse domande del sito, con il PDF da condividere o
+  stampare. Senza accesso restano sul telefono; con l'accesso stanno
+  nell'account e si vedono anche sul sito (la prima volta l'app propone di
+  copiare nell'account quello che c'era sul telefono). Il business plan
+  prende i numeri dalla tariffa e dal budget.
 - **Cassetto dei documenti** (con l'accesso, da Conti o Profilo): fotografi
   o carichi in PDF decisione della cassa AVS, numero IVA, polizze, permesso,
   contratti; vedi cosa è scaduto o scade presto e ricevi una notifica 30 e 7
@@ -81,9 +88,10 @@ Cosa c'è:
 
 I dati (risposte, passi fatti, calcoli) restano sul telefono; con l'accesso
 risposte e passi fatti sono anche nell'account (`/api/percorso`). I conti, le
-ricevute, i preventivi e le fatture stanno nell'account sul sito.
+ricevute, i preventivi e le fatture stanno nell'account sul sito, e con
+l'accesso anche budget e business plan (`/api/strumenti/salvati`).
 
-Le pagine del sito (strumenti, privacy, impressum) si aprono nel **browser
+Le pagine del sito (privacy, impressum, «Cosa Bleo non è») si aprono nel **browser
 del telefono** (Safari, Chrome), dove ci sono già i dati che il sito ha
 salvato e l'accesso al sito: il browser dentro l'app, su iPhone, non li
 condivide con Safari. Le fonti ufficiali, i moduli e i file dei conti e del
@@ -162,7 +170,8 @@ Prima, negli store, crea la scheda dell'app:
   anche a Zefix) e non salvati da Bleo (il resto resta sul telefono). Con
   la chat attiva: indirizzo email e
   contenuti dell'utente (le domande; con i conti e il cassetto, le foto e i
-  PDF caricati), per il funzionamento dell'app, non per pubblicità e non
+  PDF caricati; preventivi, fatture, budget e business plan salvati
+  nell'account), per il funzionamento dell'app, non per pubblicità e non
   venduti. L'account si
   elimina dall'app (Profilo → Elimina account).
 - **Account di prova per Apple**: quando la chat è attiva, Apple vuole un

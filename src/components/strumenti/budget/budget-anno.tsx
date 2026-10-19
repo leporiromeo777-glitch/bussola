@@ -2,30 +2,32 @@
 
 import { useMemo } from "react";
 import { fonti, fontiStrumenti, regole, regolePercorso, regoleRegistro, tasseRegistroCommercio } from "@/data/svizzera";
-import { CHIAVI_ARCHIVIO } from "@/lib/strumenti/archivio";
 import {
   calcolaBudget,
   costoIscrizioneRegistro,
-  datiBudgetIniziali,
   MESI,
   mesiDaInizio,
   nomeMese,
-  schemaDatiBudget,
   type CostoAvvio,
   type DatiBudget,
   type MeseBudget,
   type RigaImporto,
   type RisultatoBudget,
 } from "@/lib/strumenti/budget";
-import { dataIsoLocale } from "@/lib/strumenti/documenti";
 import { importo, numeroBreve } from "@/lib/strumenti/numeri";
-import { NotaDatiLocali, PulsanteStampa } from "../dati-locali";
+import { PulsanteStampa } from "../dati-locali";
 import { DettaglioContributi } from "../dettaglio-contributi";
 import { IconaCestino, IconaPiu } from "../icone";
 import { nuovoId } from "../id";
 import { NotaNonConsulenza } from "../intestazione";
+import {
+  CaricamentoStrumento,
+  ErroreStrumento,
+  NotaStrumento,
+  useStrumentoSalvato,
+  type AccessoStrumento,
+} from "../salvati/strumento-account";
 import { OPZIONI_SITUAZIONE } from "../tariffa/calcolatore-tariffa";
-import { useArchivio } from "../usa-archivio";
 import {
   CampoScelta,
   CampoTesto,
@@ -39,12 +41,16 @@ import {
   RiquadroAvviso,
 } from "../ui";
 
-const predefinito = () => datiBudgetIniziali(dataIsoLocale(new Date()));
-
-export function BudgetAnno() {
-  const [dati, aggiorna] = useArchivio(CHIAVI_ARCHIVIO.budget, schemaDatiBudget, predefinito);
+/**
+ * Budget del primo anno. Con l'accesso (`accesso` «collegato») i dati stanno
+ * nell'account e si vedono anche nell'app; senza, nel browser.
+ */
+export function BudgetAnno({ accesso = null }: { accesso?: AccessoStrumento }) {
+  const s = useStrumentoSalvato("budget", accesso);
+  const { dati, aggiorna } = s;
   const esito = useMemo(() => (dati ? calcolaBudget(dati) : null), [dati]);
-  if (!dati || !esito) return <Caricamento />;
+  if (s.errore && s.archivio) return <ErroreStrumento s={s} />;
+  if (!dati || !esito) return s.collegato ? <CaricamentoStrumento strumento="budget" /> : <Caricamento />;
 
   const { errori, risultato } = esito;
   const imposta = <K extends keyof DatiBudget>(campo: K, valore: DatiBudget[K]) => aggiorna((d) => ({ ...d, [campo]: valore }));
@@ -54,7 +60,7 @@ export function BudgetAnno() {
 
   return (
     <div className="mt-8 space-y-6">
-      <NotaDatiLocali chiavi={[CHIAVI_ARCHIVIO.budget]} />
+      <NotaStrumento s={s} />
 
       <form className="space-y-6 print:hidden" onSubmit={(e) => e.preventDefault()} noValidate>
         <Gruppo legenda="1. Da quando parti">

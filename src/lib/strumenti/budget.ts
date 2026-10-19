@@ -93,8 +93,12 @@ export function datiBudgetIniziali(oggiIso: string): DatiBudget {
   };
 }
 
-const testoBreve = z.string().max(40).catch("");
-const riga = z.object({ id: z.string().max(60), descrizione: z.string().max(120).catch(""), importo: testoBreve });
+/** Lunghezze massime salvate (nel browser, sul telefono e nell'account: src/lib/strumenti/salvati.ts). */
+export const LUNGHEZZE_BUDGET = { importo: 40, descrizione: 120, id: 60, righe: 50 } as const;
+
+const L = LUNGHEZZE_BUDGET;
+const testoBreve = z.string().max(L.importo).catch("");
+const riga = z.object({ id: z.string().max(L.id), descrizione: z.string().max(L.descrizione).catch(""), importo: testoBreve });
 export const schemaDatiBudget = z.object({
   meseInizio: z
     .string()
@@ -108,9 +112,9 @@ export const schemaDatiBudget = z.object({
   iscrizioneRegistro: z.boolean().catch(false),
   costiAvvio: z
     .array(riga.extend({ mese: z.number().int().min(0).max(11).catch(0) }))
-    .max(50)
+    .max(L.righe)
     .catch([]),
-  costiFissi: z.array(riga).max(50).catch([]),
+  costiFissi: z.array(riga).max(L.righe).catch([]),
   costiVariabiliPercento: testoBreve,
   prelieviMensili: testoBreve,
   riservaImpostePercento: testoBreve,

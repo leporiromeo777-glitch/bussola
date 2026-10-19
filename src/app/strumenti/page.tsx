@@ -130,7 +130,8 @@ export default function PaginaStrumenti() {
           quello che scrivi solo nel tuo browser: Bleo non lo riceve. Se cambi dispositivo o cancelli i dati del
           browser, li perdi. Fanno eccezione gli strumenti segnati «con l&apos;AI»: per risponderti, quello che scrivi
           o fotografi viene inviato all&apos;intelligenza artificiale, senza salvarlo. «I tuoi conti» invece salva le
-          voci e le ricevute nel tuo account, perché le ritrovi ovunque.
+          voci e le ricevute nel tuo account, perché le ritrovi ovunque; con l&apos;accesso anche budget, business
+          plan, preventivi e fatture si salvano nel tuo account.
         </span>
       </p>
 

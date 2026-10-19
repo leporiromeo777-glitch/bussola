@@ -3,14 +3,12 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CHIAVI_ARCHIVIO } from "@/lib/strumenti/archivio";
-import { calcolaBudget, datiBudgetIniziali, schemaDatiBudget } from "@/lib/strumenti/budget";
+import { calcolaBudget } from "@/lib/strumenti/budget";
 import {
   CAMPI_PIANO,
   campiCompilati,
   campiTroppoLunghi,
-  datiPianoIniziali,
   MASSIMO_ASSOLUTO,
-  schemaDatiPiano,
   statoLunghezza,
   testoCostiDaBudget,
   testoPrezzoDaTariffa,
@@ -21,21 +19,33 @@ import {
 import { dataIsoLocale } from "@/lib/strumenti/documenti";
 import { calcolaTariffa, datiTariffaIniziali, schemaDatiTariffa } from "@/lib/strumenti/tariffa";
 import { dataSvizzera, fonti } from "@/data/svizzera";
-import { NotaDatiLocali, PulsanteStampa } from "../dati-locali";
+import { PulsanteStampa } from "../dati-locali";
 import { NotaNonConsulenza } from "../intestazione";
+import {
+  CaricamentoStrumento,
+  ErroreStrumento,
+  NotaStrumento,
+  useStrumentoSalvato,
+  type AccessoStrumento,
+} from "../salvati/strumento-account";
 import { useArchivio, useArchivioPresente, useOggi } from "../usa-archivio";
 import { CampoArea, CampoTesto, Caricamento, classeLink, classePulsantePiccolo, FonteLink, Gruppo } from "../ui";
 
-const predefinitoPiano = datiPianoIniziali;
 const predefinitoTariffa = () => datiTariffaIniziali(dataIsoLocale(new Date()));
-const predefinitoBudget = () => datiBudgetIniziali(dataIsoLocale(new Date()));
 
-export function PianoUnaPagina() {
-  const [dati, aggiorna] = useArchivio(CHIAVI_ARCHIVIO.businessPlan, schemaDatiPiano, predefinitoPiano);
+/**
+ * Business plan di una pagina. Con l'accesso (`accesso` «collegato») i dati,
+ * e il budget da cui importare i numeri, stanno nell'account; senza, nel
+ * browser. La tariffa resta sempre nel browser.
+ */
+export function PianoUnaPagina({ accesso = null }: { accesso?: AccessoStrumento }) {
+  const s = useStrumentoSalvato("business-plan", accesso);
+  const { dati, aggiorna } = s;
+  const b = useStrumentoSalvato("budget", s.collegato ? "collegato" : null);
+  const budget = b.dati;
+  const budgetSalvato = b.presente;
   const [tariffa] = useArchivio(CHIAVI_ARCHIVIO.tariffa, schemaDatiTariffa, predefinitoTariffa);
-  const [budget] = useArchivio(CHIAVI_ARCHIVIO.budget, schemaDatiBudget, predefinitoBudget);
   const tariffaSalvata = useArchivioPresente(CHIAVI_ARCHIVIO.tariffa);
-  const budgetSalvato = useArchivioPresente(CHIAVI_ARCHIVIO.budget);
   const oggi = useOggi();
   const [annuncio, setAnnuncio] = useState("");
 
@@ -55,7 +65,8 @@ export function PianoUnaPagina() {
     return voci;
   }, [tariffa, budget, tariffaSalvata, budgetSalvato]);
 
-  if (!dati) return <Caricamento />;
+  if (s.errore && s.archivio) return <ErroreStrumento s={s} />;
+  if (!dati) return s.collegato ? <CaricamentoStrumento strumento="business-plan" /> : <Caricamento />;
 
   const impostaCampo = (id: CampoPiano, valore: string) => aggiorna((d) => ({ ...d, campi: { ...d.campi, [id]: valore } }));
   const importa = (id: CampoPiano, testo: string, titolo: string) => {
@@ -71,7 +82,7 @@ export function PianoUnaPagina() {
 
   return (
     <div className="mt-8 space-y-6">
-      <NotaDatiLocali chiavi={[CHIAVI_ARCHIVIO.businessPlan]} />
+      <NotaStrumento s={s} />
       <p className="sr-only" role="status" aria-live="polite">
         {annuncio}
       </p>

@@ -77,7 +77,7 @@ function Account() {
   function confermaEliminazione() {
     Alert.alert(
       "Eliminare l'account?",
-      "Cancelliamo per sempre il tuo account con il questionario, i passi fatti, le domande alla chat, i tuoi conti, le ricevute salvate, il cassetto dei documenti con i suoi file e i tuoi preventivi e fatture. Se ti servono, prima scarica i conti per il fiduciario dalla pagina Conti e tieni una copia dei documenti e delle fatture in PDF. Non si può tornare indietro.",
+      "Cancelliamo per sempre il tuo account con il questionario, i passi fatti, le domande alla chat, i tuoi conti, le ricevute salvate, il cassetto dei documenti con i suoi file, i tuoi preventivi e fatture, il budget e il business plan. Se ti servono, prima scarica i conti per il fiduciario dalla pagina Conti e tieni una copia dei documenti e delle fatture in PDF. Non si può tornare indietro.",
       [
         { text: "Annulla", style: "cancel" },
         {
@@ -134,7 +134,7 @@ function Account() {
           <Pulsante titolo="Elimina account" variante="testo" caricamento={attesa} onPress={confermaEliminazione} />
           <Testo variante="piccolo" colore={c.attenuato}>
             Eliminando l&apos;account cancelli i dati salvati su Bleo, compresi i tuoi conti, le foto delle ricevute, i
-            documenti del cassetto e i tuoi preventivi e fatture. Se ti servono, prima scaricali per il fiduciario dalla pagina Conti. I dati su questo
+            documenti del cassetto, i tuoi preventivi e fatture, il budget e il business plan. Se ti servono, prima scaricali per il fiduciario dalla pagina Conti. I dati su questo
             telefono li cancelli qui sotto.
           </Testo>
         </View>
@@ -155,7 +155,7 @@ function DatiSulTelefono() {
   function conferma() {
     Alert.alert(
       "Cancellare i dati da questo telefono?",
-      "Togliamo risposte al questionario, passi fatti, look di Bleo, promemoria, le scadenze dei documenti salvate per i promemoria e i dati degli strumenti (tariffa oraria, quanto mettere da parte, Fondare una Sagl). Il tuo account, se ce l'hai, resta.",
+      "Togliamo risposte al questionario, passi fatti, look di Bleo, promemoria, le scadenze dei documenti salvate per i promemoria e i dati degli strumenti (tariffa oraria, budget e business plan salvati sul telefono, quanto mettere da parte, Fondare una Sagl). Il tuo account, se ce l'hai, resta.",
       [
         { text: "Annulla", style: "cancel" },
         {
