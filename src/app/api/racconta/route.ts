@@ -1,9 +1,13 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
+import { connection } from "next/server";
 import { dettagliErrore } from "@/lib/chat/errori";
 import { scegliModelloRacconto, supportaFallback } from "@/lib/chat/modello";
-import { creaClientAnthropic } from "@/lib/chat/server";
+import { anthropicConfigurato, creaClientAnthropic } from "@/lib/chat/server";
 import { controllaLimite } from "@/lib/limiti/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { supabaseConfigured } from "@/lib/supabase/env";
+import { utenteDaRichiesta } from "@/lib/supabase/richiesta";
 import {
   ISTRUZIONI_RACCONTO,
   MESSAGGI_RACCONTO,
@@ -33,11 +37,38 @@ function registra(contesto: string, dettagli: Record<string, unknown>) {
 }
 
 /**
+ * Id dell'utente se la richiesta ha un accesso valido (cookie del sito o
+ * `Authorization: Bearer` dell'app), altrimenti null. L'accesso non serve
+ * per raccontare: decide solo come si conta il limite. Un token scaduto,
+ * falso o scritto male vale come nessun accesso (si conta per connessione).
+ */
+async function utenteFacoltativo(request: Request): Promise<string | null> {
+  if (!supabaseConfigured()) return null;
+  const utente = await utenteDaRichiesta(request);
+  return utente.ok ? utente.user.id : null;
+}
+
+/**
+ * GET /api/racconta — { attiva }: la funzione si può usare (Claude e il
+ * limite delle richieste configurati)? La usa l'app per mostrare subito
+ * «non ancora attivo» invece di farti scrivere per niente. È la stessa
+ * condizione con cui il sito mostra «Racconta a Bleo» nel questionario.
+ */
+export async function GET() {
+  // Al momento della richiesta: dipende dalle variabili d'ambiente del server.
+  await connection();
+  return json(200, { attiva: anthropicConfigurato() && createAdminClient() !== null });
+}
+
+/**
  * POST /api/racconta — { testo } → { bozza, riassunto }.
  * Chi scrive racconta la sua idea con parole sue; Claude ne ricava le
  * risposte del questionario che il testo dice o lascia capire chiaramente
- * (`bozza`, solo valori validi) e una frase di riassunto. Senza accesso, ma
- * con un limite per connessione: se il limite non si può verificare la
+ * (`bozza`, solo valori validi) e una frase di riassunto. Il testo non si
+ * salva: passa solo da qui a Claude. Senza accesso, ma con un limite per
+ * connessione; con l'accesso (sito o app con `Authorization: Bearer`) lo
+ * stesso limite vale per account, perché dietro una connessione mobile
+ * possono esserci molte persone. Se il limite non si può verificare la
  * richiesta si rifiuta, perché ogni chiamata a Claude costa.
  */
 export async function POST(request: Request) {
@@ -57,7 +88,7 @@ export async function POST(request: Request) {
   if (!richiesta.ok) return json(400, { messaggio: richiesta.messaggio });
 
   // Si conta solo una richiesta valida, subito prima di chiamare Claude.
-  const limite = await controllaLimite("racconto");
+  const limite = await controllaLimite("racconto", { utenteId: await utenteFacoltativo(request) });
   if (limite === "non_disponibile") return json(503, { messaggio: MESSAGGI_RACCONTO.occupato });
   if (limite === "superato") return json(429, { messaggio: MESSAGGI_RACCONTO.troppeRichieste });
 
