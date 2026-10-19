@@ -62,7 +62,8 @@
           "color": "#0F5E6B"
         }
       ],
-      "expo-video"
+      "expo-video",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true
