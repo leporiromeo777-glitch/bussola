@@ -1,9 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
+import { connection } from "next/server";
 import { dettagliErrore } from "@/lib/chat/errori";
 import { scegliModelloFunzione, supportaFallback } from "@/lib/chat/modello";
-import { creaClientAnthropic } from "@/lib/chat/server";
+import { anthropicConfigurato, creaClientAnthropic } from "@/lib/chat/server";
 import { controllaLimite } from "@/lib/limiti/server";
+import { utentePerLimite } from "@/lib/limiti/utente";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   ISTRUZIONI_NOME_DITTA,
   MESSAGGI_NOME_DITTA,
@@ -34,13 +37,26 @@ function registra(contesto: string, dettagli: Record<string, unknown>) {
 }
 
 /**
+ * GET /api/nome-ditta — { attiva }: le proposte di nomi si possono chiedere
+ * (Claude e il limite delle richieste configurati)? La usa l'app per
+ * mostrare subito il modulo giusto, come fa la pagina del sito.
+ */
+export async function GET() {
+  // Al momento della richiesta: dipende dalle variabili d'ambiente del server.
+  await connection();
+  return json(200, { attiva: anthropicConfigurato() && createAdminClient() !== null });
+}
+
+/**
  * POST /api/nome-ditta — { cognome, nome?, attivita, parole?, stile? }
  * → { proposte: [{ nome, perche, registro }] }.
  * Claude propone da 6 a 8 nomi; restano solo quelli con il cognome e senza
  * parole vietate (pulisciProposte). Per ognuno si cercano su Zefix le ditte
  * attive con le stesse parole (`registro`, solo indicativo). Senza accesso,
- * con un limite per connessione: se il limite non si può verificare la
- * richiesta si rifiuta, perché ogni chiamata a Claude costa.
+ * con un limite per connessione; con l'accesso (sito o app con
+ * `Authorization: Bearer`) lo stesso limite vale per account. Se il limite
+ * non si può verificare la richiesta si rifiuta, perché ogni chiamata a
+ * Claude costa.
  */
 export async function POST(request: Request) {
   const anthropic = creaClientAnthropic();
@@ -59,7 +75,7 @@ export async function POST(request: Request) {
   if (!richiesta.ok) return json(400, { messaggio: richiesta.messaggio });
 
   // Si conta solo una richiesta valida, subito prima di chiamare Claude.
-  const limite = await controllaLimite("nomeDitta");
+  const limite = await controllaLimite("nomeDitta", { utenteId: await utentePerLimite(request) });
   if (limite === "non_disponibile") return json(503, { messaggio: MESSAGGI_NOME_DITTA.occupato });
   if (limite === "superato") return json(429, { messaggio: MESSAGGI_NOME_DITTA.troppeRichieste });
 

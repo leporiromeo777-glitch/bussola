@@ -6,9 +6,9 @@ import { RigaMenu, Scheda, Separatore, Testo } from "./ui";
 
 /**
  * Calcoli e strumenti nell'app (tariffa oraria, contributi AVS, preventivo e
- * fattura, «Fotografa la lettera») e quelli che stanno sul sito. Questi si
- * aprono nel browser del telefono (apriSito), dove ci sono già i dati salvati
- * dal sito.
+ * fattura, «Fotografa la lettera», nome della ditta, testi pronti, Fondare
+ * una Sagl) e quelli che stanno sul sito. Questi si aprono nel browser del
+ * telefono (apriSito), dove ci sono già i dati salvati dal sito.
  */
 export function ElencoStrumenti() {
   return (
@@ -41,6 +41,27 @@ export function ElencoStrumenti() {
           icona="mail-open-outline"
           onPress={() => router.push("/strumenti/lettera")}
         />
+        <Separatore />
+        <RigaMenu
+          titolo="Nome della ditta"
+          sottotitolo="Idee con il tuo cognome e un primo controllo nel registro di commercio"
+          icona="pricetag-outline"
+          onPress={() => router.push("/strumenti/nome")}
+        />
+        <Separatore />
+        <RigaMenu
+          titolo="Testi pronti"
+          sottotitolo="Bio per Instagram, prima email a un cliente, la tua attività in breve"
+          icona="chatbox-ellipses-outline"
+          onPress={() => router.push("/strumenti/testi")}
+        />
+        <Separatore />
+        <RigaMenu
+          titolo="Fondare una Sagl"
+          sottotitolo="Per chi parte con dei soci: scheda per il notaio e bozza dello statuto"
+          icona="people-outline"
+          onPress={() => router.push("/strumenti/sagl")}
+        />
       </Scheda>
       <Testo variante="etichetta" attenuato style={{ marginTop: SPAZIO.s }}>
         SUL SITO
@@ -61,30 +82,6 @@ export function ElencoStrumenti() {
           icona="document-text-outline"
           esterno
           onPress={() => void apriSito("/strumenti/business-plan")}
-        />
-        <Separatore />
-        <RigaMenu
-          titolo="Fondare una Sagl"
-          sottotitolo="Per chi parte con dei soci: scheda per il notaio e bozza dello statuto"
-          icona="people-outline"
-          esterno
-          onPress={() => void apriSito("/strumenti/sagl")}
-        />
-        <Separatore />
-        <RigaMenu
-          titolo="Nome della ditta"
-          sottotitolo="Idee con il tuo cognome e un primo controllo nel registro di commercio"
-          icona="pricetag-outline"
-          esterno
-          onPress={() => void apriSito("/strumenti/nome")}
-        />
-        <Separatore />
-        <RigaMenu
-          titolo="Testi pronti"
-          sottotitolo="Bio per Instagram, prima email a un cliente, la tua attività in breve"
-          icona="chatbox-ellipses-outline"
-          esterno
-          onPress={() => void apriSito("/strumenti/testi")}
         />
       </Scheda>
     </View>

@@ -5,9 +5,8 @@ import { dettagliErrore } from "@/lib/chat/errori";
 import { scegliModelloFunzione, supportaFallback } from "@/lib/chat/modello";
 import { anthropicConfigurato, creaClientAnthropic } from "@/lib/chat/server";
 import { controllaLimite } from "@/lib/limiti/server";
+import { utentePerLimite } from "@/lib/limiti/utente";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { supabaseConfigured } from "@/lib/supabase/env";
-import { utenteDaRichiesta } from "@/lib/supabase/richiesta";
 import {
   CORPO_MASSIMO,
   MESSAGGI_LETTERA,
@@ -44,18 +43,6 @@ function bloccoLettera({ tipo, dati }: RichiestaLettera): Anthropic.Beta.BetaCon
     return { type: "document", source: { type: "base64", media_type: "application/pdf", data: dati } };
   }
   return { type: "image", source: { type: "base64", media_type: tipo, data: dati } };
-}
-
-/**
- * Id dell'utente se la richiesta ha un accesso valido (cookie del sito o
- * `Authorization: Bearer` dell'app), altrimenti null. L'accesso non serve
- * per leggere una lettera: decide solo come si conta il limite. Un token
- * scaduto o non valido vale come nessun accesso (si conta per connessione).
- */
-async function utenteFacoltativo(request: Request): Promise<string | null> {
-  if (!supabaseConfigured()) return null;
-  const utente = await utenteDaRichiesta(request);
-  return utente.ok ? utente.user.id : null;
 }
 
 /**
@@ -108,7 +95,7 @@ export async function POST(request: Request) {
   }
 
   // Si conta solo una richiesta valida, subito prima di chiamare Claude.
-  const limite = await controllaLimite("lettera", { utenteId: await utenteFacoltativo(request) });
+  const limite = await controllaLimite("lettera", { utenteId: await utentePerLimite(request) });
   if (limite === "non_disponibile") return json(503, { messaggio: MESSAGGI_LETTERA.occupato });
   if (limite === "superato") return json(429, { messaggio: MESSAGGI_LETTERA.troppeRichieste });
 

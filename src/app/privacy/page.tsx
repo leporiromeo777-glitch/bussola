@@ -395,9 +395,9 @@ export default async function PaginaPrivacy() {
             <strong>Cosa salviamo:</strong> niente. Né quello che scrivi o fotografi né le risposte: restano nella
             pagina (o nella schermata dell&apos;app) finché non la chiudi. Per limitare gli abusi contiamo le richieste
             per connessione, con un&apos;impronta dell&apos;indirizzo IP e mai l&apos;IP in chiaro. Per «Fotografa la
-            lettera», se hai fatto l&apos;accesso (sul sito o nell&apos;app) le contiamo invece per account, con
-            un&apos;impronta del codice del tuo account. Non scrivere dati personali che non servono, come telefono o
-            numero AVS.
+            lettera», «Nome della ditta» e «Testi pronti», se hai fatto l&apos;accesso (sul sito o nell&apos;app) le
+            contiamo invece per account, con un&apos;impronta del codice del tuo account. Non scrivere dati personali
+            che non servono, come telefono o numero AVS.
           </li>
         </ul>
 
@@ -408,7 +408,7 @@ export default async function PaginaPrivacy() {
             vengono inviati dal nostro server a Zefix, l&apos;indice centrale delle ditte gestito dall&apos;Ufficio
             federale del registro di commercio, per cercare le ditte con nomi simili. Il nome della ditta di solito
             contiene il tuo cognome. Non salviamo questi dati; per il limite di richieste contiamo solo
-            un&apos;impronta dell&apos;indirizzo IP.
+            un&apos;impronta dell&apos;indirizzo IP (con l&apos;accesso, del codice del tuo account).
           </li>
         </ul>
 

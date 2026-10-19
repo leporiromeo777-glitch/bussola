@@ -5,9 +5,8 @@ import { dettagliErrore } from "@/lib/chat/errori";
 import { scegliModelloRacconto, supportaFallback } from "@/lib/chat/modello";
 import { anthropicConfigurato, creaClientAnthropic } from "@/lib/chat/server";
 import { controllaLimite } from "@/lib/limiti/server";
+import { utentePerLimite } from "@/lib/limiti/utente";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { supabaseConfigured } from "@/lib/supabase/env";
-import { utenteDaRichiesta } from "@/lib/supabase/richiesta";
 import {
   ISTRUZIONI_RACCONTO,
   MESSAGGI_RACCONTO,
@@ -34,18 +33,6 @@ function json(status: number, corpo: Record<string, unknown>) {
 /** Nei log solo tipo e codici, mai il testo di chi scrive né l'output del modello che lo riprende. */
 function registra(contesto: string, dettagli: Record<string, unknown>) {
   console.error(`[racconta] ${contesto}`, dettagli);
-}
-
-/**
- * Id dell'utente se la richiesta ha un accesso valido (cookie del sito o
- * `Authorization: Bearer` dell'app), altrimenti null. L'accesso non serve
- * per raccontare: decide solo come si conta il limite. Un token scaduto,
- * falso o scritto male vale come nessun accesso (si conta per connessione).
- */
-async function utenteFacoltativo(request: Request): Promise<string | null> {
-  if (!supabaseConfigured()) return null;
-  const utente = await utenteDaRichiesta(request);
-  return utente.ok ? utente.user.id : null;
 }
 
 /**
@@ -88,7 +75,7 @@ export async function POST(request: Request) {
   if (!richiesta.ok) return json(400, { messaggio: richiesta.messaggio });
 
   // Si conta solo una richiesta valida, subito prima di chiamare Claude.
-  const limite = await controllaLimite("racconto", { utenteId: await utenteFacoltativo(request) });
+  const limite = await controllaLimite("racconto", { utenteId: await utentePerLimite(request) });
   if (limite === "non_disponibile") return json(503, { messaggio: MESSAGGI_RACCONTO.occupato });
   if (limite === "superato") return json(429, { messaggio: MESSAGGI_RACCONTO.troppeRichieste });
 
