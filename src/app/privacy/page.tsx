@@ -351,13 +351,20 @@ export default async function PaginaPrivacy() {
         </h3>
         <ul>
           <li>
-            <strong>Dati:</strong> la descrizione della tua idea che scrivi tu, per esempio che lavoro vuoi fare e dove.
+            <strong>Dati:</strong> la descrizione della tua idea che scrivi (o detti) tu, sul sito o nell&apos;app, per
+            esempio che lavoro vuoi fare e dove.
           </li>
           <li>
             <strong>Perché:</strong> per dedurre le risposte del questionario e chiederti solo quelle che mancano. Non
             salviamo il testo: lo riceve solo il fornitore di intelligenza artificiale (vedi sotto), e ti mostriamo le
             risposte dedotte prima di usarle. Per limitare gli abusi contiamo le richieste per connessione, con
-            un&apos;impronta dell&apos;indirizzo IP e mai l&apos;IP in chiaro.
+            un&apos;impronta dell&apos;indirizzo IP e mai l&apos;IP in chiaro. Se hai fatto l&apos;accesso (sul sito o
+            nell&apos;app) le contiamo invece per account, con un&apos;impronta del codice del tuo account.
+          </li>
+          <li>
+            <strong>Nell&apos;app:</strong> il testo passa dal telefono al nostro server e da lì al fornitore di
+            intelligenza artificiale, come sul sito, e resta nella schermata finché non la chiudi. Le risposte che
+            confermi entrano nel questionario come se le avessi date una per una.
           </li>
         </ul>
 
@@ -412,6 +419,11 @@ export default async function PaginaPrivacy() {
             di riconoscimento vocale (per esempio quello di Google in Chrome o di Apple in Safari), secondo le regole di
             quel fornitore. Bleo non riceve né salva l&apos;audio: riceve solo il testo, come se l&apos;avessi
             scritto.
+          </li>
+          <li>
+            Nell&apos;app puoi dettare con il microfono della tastiera del telefono: la voce la trasforma in testo la
+            tastiera (per esempio quella di Apple o di Google), secondo le regole di quel fornitore. Anche qui Bleo
+            riceve solo il testo, mai l&apos;audio.
           </li>
         </ul>
 
