@@ -57,7 +57,7 @@ describe("budget pronto da mostrare", () => {
     expect(ricavi).toEqual({ etichetta: "Ricavi in 12 mesi", valore: "CHF 55'000" });
     expect(pareggio.valore).toBe(testoPareggio(r));
     expect(saldo.nota).toMatch(/^Punto più basso: -CHF|^Punto più basso: CHF -/);
-    expect(notaFabbisogno(r)).toMatch(/Nel mese peggiore il saldo cumulato scende a/);
+    expect(notaFabbisogno(r)).toMatch(/Nel mese peggiore il saldo cumulato va sotto zero di CHF \d/);
     const tranquillo = calcolaBudget(budget({ ricavi: tutti("9000") })).risultato;
     expect(testoPareggio(tranquillo)).toBe("Dal primo mese");
     expect(notaFabbisogno(tranquillo)).toBeNull();

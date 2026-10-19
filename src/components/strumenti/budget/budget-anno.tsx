@@ -365,7 +365,7 @@ function Risultati({ r }: { r: RisultatoBudget }) {
       </dl>
       {r.fabbisognoMassimo > 0 ? (
         <p className="text-sm text-muted">
-          Nel mese peggiore il saldo cumulato scende a {importo(-r.fabbisognoMassimo, 0)}: è la riserva (risparmi o altri
+          Nel mese peggiore il saldo cumulato va sotto zero di {importo(r.fabbisognoMassimo, 0)}: è la riserva (risparmi o altri
           soldi) che ti serve per coprire i mesi in rosso.
         </p>
       ) : null}

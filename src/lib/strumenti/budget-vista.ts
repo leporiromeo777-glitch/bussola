@@ -99,7 +99,7 @@ export function riquadriBudget(r: RisultatoBudget): RiquadroBudget[] {
 export function notaFabbisogno(r: RisultatoBudget): string | null {
   if (r.fabbisognoMassimo <= 0) return null;
   return (
-    `Nel mese peggiore il saldo cumulato scende a ${importo(-r.fabbisognoMassimo, 0)}: è la riserva (risparmi o altri ` +
+    `Nel mese peggiore il saldo cumulato va sotto zero di ${importo(r.fabbisognoMassimo, 0)}: è la riserva (risparmi o altri ` +
     "soldi) che ti serve per coprire i mesi in rosso."
   );
 }
