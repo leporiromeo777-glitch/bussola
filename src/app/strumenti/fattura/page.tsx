@@ -12,8 +12,9 @@ export const metadata: Metadata = {
 
 export default async function PaginaFattura({ searchParams }: PageProps<"/strumenti/fattura">) {
   const { doc } = await searchParams;
-  // «Registra in I tuoi conti» solo con Supabase configurato; senza accesso un invito ad accedere.
-  const accessoConti = supabaseConfigured() ? ((await getUser()) ? "collegato" : "ospite") : null;
+  // Con l'accesso le fatture stanno nell'account (anche nell'app) e si registrano in «I tuoi conti»;
+  // senza accesso restano nel browser, con un invito ad accedere; senza Supabase solo nel browser.
+  const accesso = supabaseConfigured() ? ((await getUser()) ? "collegato" : "ospite") : null;
   return (
     <>
       <IntestazioneStrumento
@@ -28,7 +29,7 @@ export default async function PaginaFattura({ searchParams }: PageProps<"/strume
       <GestioneDocumenti
         tipo="fattura"
         idIniziale={typeof doc === "string" ? doc : null}
-        accessoConti={accessoConti}
+        accesso={accesso}
       />
     </>
   );

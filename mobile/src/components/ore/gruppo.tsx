@@ -141,7 +141,7 @@ export function GruppoOre({
             icona="qr-code-outline"
             onPress={() => onCreaFattura(dettaglio, conPrezzo ? totale.importo : null)}
             caricamento={attesa}
-            suggerimento="Segna le ore come fatturate e apre la fattura sul sito"
+            suggerimento="Segna le ore come fatturate e apre la fattura già compilata"
           />
         </View>
       ) : (

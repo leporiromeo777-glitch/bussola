@@ -5,9 +5,10 @@ import { SPAZIO } from "~/lib/tema";
 import { RigaMenu, Scheda, Separatore, Testo } from "./ui";
 
 /**
- * Calcoli e strumenti nell'app (tariffa oraria, contributi AVS, «Fotografa la
- * lettera») e quelli che stanno sul sito. Questi si aprono nel browser del
- * telefono (apriSito), dove ci sono già i dati salvati dal sito.
+ * Calcoli e strumenti nell'app (tariffa oraria, contributi AVS, preventivo e
+ * fattura, «Fotografa la lettera») e quelli che stanno sul sito. Questi si
+ * aprono nel browser del telefono (apriSito), dove ci sono già i dati salvati
+ * dal sito.
  */
 export function ElencoStrumenti() {
   return (
@@ -25,6 +26,13 @@ export function ElencoStrumenti() {
           sottotitolo="Quanto paghi di AVS, AI e IPG come indipendente in Ticino"
           icona="shield-checkmark-outline"
           onPress={() => router.push("/strumenti/contributi")}
+        />
+        <Separatore />
+        <RigaMenu
+          titolo="Preventivo e fattura"
+          sottotitolo="Con il codice QR, in PDF da mandare al cliente (serve l'accesso)"
+          icona="receipt-outline"
+          onPress={() => router.push("/fatture")}
         />
         <Separatore />
         <RigaMenu
@@ -53,15 +61,6 @@ export function ElencoStrumenti() {
           icona="document-text-outline"
           esterno
           onPress={() => void apriSito("/strumenti/business-plan")}
-        />
-        <Separatore />
-        <RigaMenu titolo="Preventivo" icona="create-outline" esterno onPress={() => void apriSito("/strumenti/preventivo")} />
-        <Separatore />
-        <RigaMenu
-          titolo="Fattura con codice QR"
-          icona="qr-code-outline"
-          esterno
-          onPress={() => void apriSito("/strumenti/fattura")}
         />
         <Separatore />
         <RigaMenu

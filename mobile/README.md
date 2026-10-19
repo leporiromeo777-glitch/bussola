@@ -28,9 +28,13 @@ Cosa c'è:
   legge e la mette «da confermare»; riepilogo dell'anno, fatture emesse da
   incassare, indirizzo email personale per inoltrare le fatture.
   **Clienti e ore**: rubrica dei clienti, ore segnate in pochi tocchi e, a
-  fine mese, «Crea la fattura», che si apre sul sito già compilata. In fondo,
-  **Calcoli e strumenti**: tariffa oraria, contributi AVS e «Fotografa la
-  lettera» nell'app; budget, business plan, preventivo e fattura QR,
+  fine mese, «Crea la fattura», che si apre già compilata nell'app.
+  **Preventivo e fattura** (con l'accesso): elenco dei documenti, i tuoi
+  dati (nome, indirizzo, IBAN, IVA), modifica di cliente, voci e pagamento,
+  preventivo trasformato in fattura, anteprima, PDF con la QR-fattura da
+  condividere o stampare, «Registra in I tuoi conti». Gli stessi documenti
+  si vedono sul sito. In fondo, **Calcoli e strumenti**: tariffa oraria,
+  contributi AVS e «Fotografa la lettera» nell'app; budget, business plan,
   Fondare una Sagl, nome della ditta e testi pronti stanno sul sito.
 - **Cassetto dei documenti** (con l'accesso, da Conti o Profilo): fotografi
   o carichi in PDF decisione della cassa AVS, numero IVA, polizze, permesso,
@@ -40,8 +44,8 @@ Cosa c'è:
 - **Profilo**: vesti Bleo, account (esci, elimina account), privacy,
   impressum, cancella i dati dal telefono.
 
-I dati (risposte, passi fatti, calcoli) restano sul telefono; i conti e le
-ricevute stanno nell'account sul sito.
+I dati (risposte, passi fatti, calcoli) restano sul telefono; i conti, le
+ricevute, i preventivi e le fatture stanno nell'account sul sito.
 
 Le pagine del sito (strumenti, privacy, impressum) si aprono nel **browser
 del telefono** (Safari, Chrome), dove ci sono già i dati che il sito ha

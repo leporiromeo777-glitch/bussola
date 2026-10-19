@@ -145,6 +145,9 @@ export function CampoTesto({
   segnaposto,
   tastiera = "default",
   righe = 1,
+  onFine,
+  massimo,
+  maiuscole,
 }: {
   etichetta: string;
   valore: string;
@@ -152,8 +155,14 @@ export function CampoTesto({
   aiuto?: string;
   errore?: string;
   segnaposto?: string;
-  tastiera?: "default" | "numbers-and-punctuation" | "decimal-pad";
+  tastiera?: "default" | "numbers-and-punctuation" | "decimal-pad" | "email-address" | "phone-pad";
   righe?: number;
+  /** Quando si esce dal campo (per esempio per sistemare il formato). */
+  onFine?: () => void;
+  /** Caratteri al massimo. */
+  massimo?: number;
+  /** Maiuscole automatiche (predefinito: all'inizio delle frasi; mai per email). */
+  maiuscole?: "none" | "sentences" | "words" | "characters";
 }) {
   const c = useColori();
   return (
@@ -167,6 +176,10 @@ export function CampoTesto({
         placeholderTextColor={c.attenuato}
         accessibilityLabel={etichetta}
         accessibilityHint={aiuto}
+        onBlur={onFine}
+        maxLength={massimo}
+        autoCapitalize={maiuscole ?? (tastiera === "email-address" ? "none" : undefined)}
+        autoCorrect={tastiera === "email-address" ? false : undefined}
         multiline={righe > 1}
         numberOfLines={righe}
         style={{

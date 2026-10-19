@@ -83,3 +83,37 @@ export function sezionePagamentoSvg(doc: Documento): EsitoSezionePagamento {
     };
   }
 }
+
+/** Pixel CSS (96 per pollice) per unità di misura SVG. */
+const PX_PER_UNITA: Record<string, number> = { "": 1, px: 1, mm: 96 / 25.4, cm: 96 / 2.54, in: 96, pt: 96 / 72, pc: 16 };
+
+function lunghezzaInPx(valore: string | undefined): number | null {
+  if (valore === undefined) return 0;
+  const m = /^\s*(-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)(px|mm|cm|in|pt|pc)?\s*$/i.exec(valore);
+  return m ? Number(m[1]) * PX_PER_UNITA[(m[2] ?? "").toLowerCase()] : null;
+}
+
+/**
+ * Lo stesso disegno senza <svg> dentro l'<svg>: ognuno diventa un gruppo
+ * spostato di x e y (le misure interne restano quelle). swissqrbill annida
+ * gli <svg> per ricevuta, sezione pagamento e codice QR; non tutti i motori
+ * SVG li disegnano bene (per esempio react-native-svg nell'app). Se un
+ * <svg> annidato ha una posizione che non si sa convertire, il testo resta
+ * com'era.
+ */
+export function svgSenzaAnnidati(svg: string): string {
+  const inizio = svg.indexOf(">") + 1;
+  const fine = svg.lastIndexOf("</svg>");
+  if (!svg.startsWith("<svg") || inizio <= 0 || fine < inizio) return svg;
+  let convertibile = true;
+  const interno = svg
+    .slice(inizio, fine)
+    .replace(/<svg\b([^>]*?)(\/?)>/g, (_tutto, attributi: string, chiuso: string) => {
+      const x = lunghezzaInPx(/\sx="([^"]*)"/.exec(attributi)?.[1]);
+      const y = lunghezzaInPx(/\sy="([^"]*)"/.exec(attributi)?.[1]);
+      if (x === null || y === null) convertibile = false;
+      return `<g transform="translate(${(x ?? 0).toFixed(3)} ${(y ?? 0).toFixed(3)})"${chiuso}>`;
+    })
+    .replace(/<\/svg>/g, "</g>");
+  return convertibile ? `${svg.slice(0, inizio)}${interno}${svg.slice(fine)}` : svg;
+}

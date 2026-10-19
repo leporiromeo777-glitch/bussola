@@ -194,8 +194,8 @@ export function linkEmail(t: TestoSollecito): string {
 }
 
 /**
- * IBAN e nome per il sollecito dai dati dello strumento fattura salvati nel
- * browser (mai sul server): prima la fattura con lo stesso numero, poi i
+ * IBAN e nome per il sollecito dai dati dello strumento fattura (salvati
+ * nell'account o nel browser): prima la fattura con lo stesso numero, poi i
  * dati dell'emittente salvati. Stringhe vuote se non ci sono.
  */
 export function datiDaStrumentoFattura(

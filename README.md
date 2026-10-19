@@ -20,7 +20,8 @@ Il kit per le settimane 1-2 (interviste, messaggi, social, lettere) è in
 | Questionario di 5 minuti e percorso personale | `/questionario`, `/percorso`, `src/lib/percorso`, `src/data/passi.ts` | pronto |
 | Chat con fonti ufficiali e citazioni | `/chat`, `src/app/api/chat`, `src/lib/chat` | pronta (servono Supabase e Claude) |
 | Import delle fonti ufficiali | `scripts/importa-fonti.ts`, `supabase/fonti/elenco.json` | pronto, fonti da ricontrollare a mano |
-| Strumenti: tariffa oraria, budget, business plan, preventivo, fattura con QR | `/strumenti`, `src/lib/strumenti` | pronti (dati solo nel browser) |
+| Strumenti: tariffa oraria, budget, business plan, preventivo, fattura con QR | `/strumenti`, `src/lib/strumenti` | pronti (dati nel browser; con l'accesso preventivi e fatture nell'account) |
+| «Preventivo e fattura» nell'account: gli stessi documenti e i tuoi dati sul sito e nell'app, PDF con QR-fattura sul telefono | `/strumenti/preventivo`, `/strumenti/fattura`, `src/app/api/strumenti`, `src/lib/strumenti/account.ts`, `mobile/src/app/fatture` | pronto (serve Supabase) |
 | «I tuoi conti»: entrate, uscite, fatture emesse, ricevute lette da Claude, email inoltrate, CSV | `/conti`, `src/app/api/conti`, `src/lib/conti` | fase 1 pronta (servono Supabase; Claude e Resend facoltativi) |
 | «Clienti e ore»: rubrica dei clienti con indirizzo per la QR-fattura, ore per cliente, fattura del mese già compilata | `/conti/clienti`, `src/app/api/conti/clienti`, `src/app/api/conti/ore`, `src/lib/clienti` | pronta (serve Supabase) |
 | «Cassetto dei documenti»: AVS, IVA, registro di commercio, polizze, permesso, contratti, con le scadenze | `/documenti`, `src/app/api/documenti`, `src/lib/cassetto` | pronto (serve Supabase) |
@@ -166,9 +167,34 @@ iscrizioni vengono salvate lo stesso.
    `20261019000005_clienti_ore.sql` (tabelle `conti_clienti` e `conti_ore`
    con RLS). «Crea la fattura» segna come fatturate le ore del cliente nel
    mese (`fatturata_il`) e apre lo strumento fattura con i dati dopo il «#»
-   (`/strumenti/fattura#ore=…`): il browser non manda quella parte al server
-   e la fattura resta nel browser come le altre. L'app apre lo stesso link
-   nel browser.
+   (`/strumenti/fattura#ore=…`): il browser non manda quella parte al server.
+   Con l'accesso la fattura si salva poi nell'account come le altre (vedi
+   sotto). L'app apre invece la fattura direttamente nel suo editor.
+
+### «Preventivo e fattura» nell'account
+
+Esegui la migrazione `20261020000001_preventivi_fatture.sql`: crea le tabelle
+`preventivi_fatture` (un documento per riga: id dello strumento, tipo,
+numero, data, stato «bozza»/«pronto» e il contenuto completo in JSON) ed
+`emittenti` (i tuoi dati: nome, indirizzo strutturato, email, telefono, IBAN,
+IVA), con RLS. Le API sono in `src/app/api/strumenti` (`GET`/`POST
+/api/strumenti/documenti`, `PUT`/`DELETE /api/strumenti/documenti/[id]`,
+`PUT /api/strumenti/emittente`), con i cookie o `Authorization: Bearer`;
+il server controlla ogni documento con zod (`src/lib/strumenti/account.ts`).
+
+- Sul sito, con l'accesso, `/strumenti/preventivo` e `/strumenti/fattura`
+  leggono e salvano nell'account (da soli, dopo una breve pausa); la prima
+  volta propongono di copiare i documenti rimasti nel browser (stesso id:
+  niente doppioni) e poi li tolgono dal browser. Senza account o in modalità
+  demo tutto resta nel browser come prima.
+- «Registra in I tuoi conti» resta un clic esplicito: crea o aggiorna la
+  riga di `conti_fatture` per numero, come prima.
+- Nell'app «Preventivo e fattura» (da Conti e da Calcoli e strumenti) usa le
+  stesse API; il PDF si crea sul telefono con `expo-print` dall'HTML di
+  `src/lib/strumenti/stampa-documento.ts` (con la sezione pagamento di
+  `qr-svg.ts`) e si condivide con `expo-sharing`. L'app usa `swissqrbill` e
+  `expo-file-system`, aggiunti in `mobile/package.json`: dopo l'aggiornamento
+  esegui `npm install` in `mobile/`.
 
 ### «Cassetto dei documenti»
 

@@ -78,7 +78,8 @@ export default async function PaginaPrivacy() {
             <li>
               Il sito e il suo server girano su Netlify {hosting.server}: i dati che mandi con i moduli (lista
               d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, ricevute di «I tuoi
-              conti», documenti del cassetto) passano da lì prima di arrivare al database.
+              conti», documenti del cassetto, preventivi e fatture salvati nell&apos;account) passano da lì prima di
+              arrivare al database.
             </li>
           ) : null}
           <li>
@@ -183,13 +184,48 @@ export default async function PaginaPrivacy() {
             se prepari una fattura.
           </li>
           <li>
-            <strong>Dove:</strong> solo nel tuo browser. Non li riceviamo e non li salviamo sui nostri server; puoi
-            cancellarli dallo strumento stesso.
+            <strong>Dove:</strong> senza accesso, solo nel tuo browser (o nella memoria dell&apos;app). Non li
+            riceviamo e non li salviamo sui nostri server; puoi cancellarli dallo strumento stesso.
           </li>
           <li>
-            <strong>Eccezione:</strong> se hai un account e nello strumento fattura scegli «Registra in I tuoi conti»,
-            salviamo nei tuoi conti numero, nome del cliente, date, importo e riferimento di pagamento di quella
-            fattura (vedi «I tuoi conti» qui sotto). Il resto della fattura, compreso il tuo IBAN, resta nel browser.
+            <strong>Eccezione:</strong> se hai un account, preventivi e fatture si salvano nel tuo account (vedi
+            «Preventivi e fatture nell&apos;account» qui sotto).
+          </li>
+        </ul>
+
+        <h3 id="preventivi-fatture">
+          Preventivi e fatture nell&apos;account
+          <NonAttivo attivo={attivi.conti} />
+        </h3>
+        <ul>
+          <li>
+            <strong>Dati:</strong> i preventivi e le fatture che prepari con l&apos;accesso, con tutto il loro
+            contenuto (numero, date, cliente con il suo indirizzo, oggetto, voci, prezzi, IVA, note, riferimento di
+            pagamento) e i tuoi dati che compaiono nei documenti: nome o nome della ditta, indirizzo, email,
+            telefono, IBAN e, se sei iscritto all&apos;IVA, il numero IVA. Ogni documento tiene anche una copia dei tuoi dati com&apos;erano
+            quando l&apos;hai fatto. Ci sono dati dei tuoi clienti: inseriscili solo per lavorare con loro.
+          </li>
+          <li>
+            <strong>Dove:</strong> nel database di Supabase, su server {luogoDati}, visibili solo a te.
+          </li>
+          <li>
+            <strong>Perché:</strong> per ritrovare gli stessi preventivi e fatture sul sito e nell&apos;app, su ogni
+            dispositivo in cui accedi, senza riscrivere i tuoi dati. Bleo non manda i documenti ai tuoi clienti e non
+            fa la contabilità per te: li mandi tu.
+          </li>
+          <li>
+            <strong>Dal browser all&apos;account:</strong> se nel browser avevi già preventivi o fatture salvati senza
+            account, dopo l&apos;accesso il sito ti chiede se copiarli nell&apos;account. Li copiamo solo se lo scegli
+            tu; dopo la copia li togliamo dal browser.
+          </li>
+          <li>
+            <strong>Il PDF nell&apos;app:</strong> l&apos;app crea il PDF del documento sul telefono e lo condividi tu
+            con l&apos;app che scegli (email, messaggi, file). Il PDF non passa dai nostri server.
+          </li>
+          <li>
+            <strong>«I tuoi conti»:</strong> solo se scegli «Registra in I tuoi conti», salviamo anche nei tuoi conti
+            numero, nome del cliente, date, importo e riferimento di pagamento di quella fattura (vedi «I tuoi conti»
+            qui sotto).
           </li>
         </ul>
 
@@ -209,9 +245,10 @@ export default async function PaginaPrivacy() {
             <strong>Clienti e ore:</strong> i clienti che aggiungi (nome, indirizzo, email se la scrivi, tariffa
             oraria) e le ore che segni per ognuno (giorno, durata, descrizione, tariffa, giorno in cui le hai
             fatturate). Sono dati dei tuoi clienti: inseriscili solo per lavorare con loro. Quando crei la fattura
-            dalle ore, nome e indirizzo del cliente e le voci passano allo strumento fattura nell&apos;indirizzo della
-            pagina, dopo il «#»: quella parte il browser non la manda ai nostri server, e la fattura resta nel
-            browser come le altre.
+            dalle ore sul sito, nome e indirizzo del cliente e le voci passano allo strumento fattura
+            nell&apos;indirizzo della pagina, dopo il «#»: quella parte il browser non la manda ai nostri server.
+            Nell&apos;app la fattura si apre direttamente. In tutti e due i casi la fattura si salva poi tra i tuoi
+            preventivi e fatture nell&apos;account, come le altre.
           </li>
           <li>
             <strong>Email inoltrate</strong>
@@ -237,8 +274,8 @@ export default async function PaginaPrivacy() {
           <li>
             <strong>Solleciti di pagamento:</strong> il testo del sollecito per una fattura scaduta lo prepara il tuo
             browser o l&apos;app, e lo mandi tu con la tua email o un&apos;altra app: noi non lo riceviamo e non lo
-            mandiamo. L&apos;IBAN e il nome che scrivi nel sollecito non li salviamo; sul sito li prendiamo, se ci sono,
-            dallo strumento fattura salvato nel tuo browser. Salviamo solo, quando lo segni, il giorno e il livello
+            mandiamo. L&apos;IBAN e il nome che scrivi nel sollecito non li salviamo; li prendiamo, se ci sono, dallo
+            strumento fattura (dai tuoi preventivi e fatture nell&apos;account o, sul sito, dal tuo browser). Salviamo solo, quando lo segni, il giorno e il livello
             del sollecito.
           </li>
           <li>
@@ -459,6 +496,15 @@ export default async function PaginaPrivacy() {
             cancelliamo tutto il cassetto. Gli originali tienili tu: il cassetto è solo una copia.
           </li>
           <li>
+            <strong>Preventivi e fatture nell&apos;account</strong> (documenti e i tuoi dati): finché non
+            li elimini tu o non elimini l&apos;account. Anche per le fatture vale l&apos;obbligo di conservarle per{" "}
+            {regolePercorso.conservazioneDocumentiAnni.valore} anni (
+            <a href={fonti.co958f.url} target="_blank" rel="noopener noreferrer">
+              art. 958f CO
+            </a>
+            ): tienine una copia in PDF anche altrove.
+          </li>
+          <li>
             <strong>Dati tecnici:</strong> {durataDatiTecnici}.
           </li>
         </ul>
@@ -488,7 +534,7 @@ export default async function PaginaPrivacy() {
               <>
                 {" "}
                 Su Netlify gira anche il server del sito, {hosting.server}: riceve i dati che mandi con i moduli
-                (lista d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, strumenti con l&apos;AI, «I tuoi conti», cassetto dei documenti)
+                (lista d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, strumenti con l&apos;AI, «I tuoi conti», cassetto dei documenti, preventivi e fatture salvati nell&apos;account)
                 e li passa al database.
               </>
             ) : null}

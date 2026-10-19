@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { dataSvizzera } from "@/data/svizzera";
 import { documentoDaPrecompilazione, leggiPrecompilazione, type LetturaLink } from "@/lib/clienti/fattura";
+import { emittenteCompilato } from "@/lib/strumenti/account";
 import { CHIAVI_ARCHIVIO } from "@/lib/strumenti/archivio";
 import {
   calcolaTotali,
@@ -31,7 +32,7 @@ import { NotaDatiLocali, PulsanteStampa } from "../dati-locali";
 import { IconaCestino, IconaCopia, IconaFattura, IconaPiu, IconaSpunta } from "../icone";
 import { nuovoId } from "../id";
 import { NotaNonConsulenza } from "../intestazione";
-import { useArchivio } from "../usa-archivio";
+import { cancellaArchivio, useArchivio } from "../usa-archivio";
 import {
   Caricamento,
   classeLink,
@@ -40,9 +41,11 @@ import {
   classePulsanteSecondario,
   FonteLink,
 } from "../ui";
+import { CaricamentoAccount, ErroreAccount, ImportaDalBrowser, NotaAccount } from "./account-documenti";
 import { AnteprimaDocumento } from "./anteprima-documento";
 import { ModuloDocumento } from "./modulo-documento";
 import { RegistraNeiConti, type AccessoConti } from "./registra-conti";
+import { useArchivioAccount } from "./usa-archivio-account";
 
 const nessunDocumento = (): Documento[] => [];
 
@@ -66,19 +69,47 @@ function letturaDalLink(): LetturaLink | null {
   return leggiPrecompilazione(window.location.hash);
 }
 
+type Aggiornamento<T> = (aggiornamento: (precedente: T) => T) => void;
+
 export function GestioneDocumenti({
   tipo,
   idIniziale,
-  accessoConti = null,
+  accesso = null,
 }: {
   tipo: TipoDocumento;
   idIniziale: string | null;
-  /** Solo per le fatture: «Registra in I tuoi conti» (null se i conti non sono attivi). */
-  accessoConti?: AccessoConti;
+  /**
+   * «collegato»: i documenti stanno nell'account (anche nell'app); «ospite»:
+   * nel browser, con l'invito ad accedere; null (account non attivi): nel
+   * browser. Per le fatture vale anche per «Registra in I tuoi conti».
+   */
+  accesso?: AccessoConti;
 }) {
   const router = useRouter();
-  const [documenti, aggiornaDocumenti] = useArchivio(CHIAVI_ARCHIVIO.documenti, schemaElencoDocumenti, nessunDocumento);
-  const [profilo, aggiornaProfilo] = useArchivio(CHIAVI_ARCHIVIO.emittente, schemaEmittente, emittenteVuoto);
+  // Se l'account non risponde, si può lavorare nel browser come senza accesso.
+  const [soloBrowser, setSoloBrowser] = useState(false);
+  const collegato = accesso === "collegato" && !soloBrowser;
+  const [documentiLocali, aggiornaDocumentiLocali] = useArchivio(CHIAVI_ARCHIVIO.documenti, schemaElencoDocumenti, nessunDocumento);
+  const [profiloLocale, aggiornaProfiloLocale] = useArchivio(CHIAVI_ARCHIVIO.emittente, schemaEmittente, emittenteVuoto);
+  const { stato: conto, archivio } = useArchivioAccount(collegato);
+  const contoPronto = collegato && conto?.caricamento === "pronto" ? conto : null;
+
+  // Con l'accesso i dati vengono dall'account; senza, dal browser come prima.
+  // Se l'account non ha ancora i tuoi dati, si parte da quelli del browser.
+  const emittenteConto = contoPronto?.emittente ?? null;
+  const profiloConto = useMemo(
+    () => (emittenteConto ?? (emittenteCompilato(profiloLocale) ? profiloLocale : null) ?? emittenteVuoto()),
+    [emittenteConto, profiloLocale],
+  );
+  const documenti = collegato ? (contoPronto?.documenti ?? null) : documentiLocali;
+  const profilo = collegato ? (contoPronto ? profiloConto : null) : profiloLocale;
+  const aggiornaDocumenti = useMemo<Aggiornamento<Documento[]>>(
+    () => (collegato ? (modifica) => archivio?.aggiornaDocumenti(modifica) : aggiornaDocumentiLocali),
+    [collegato, archivio, aggiornaDocumentiLocali],
+  );
+  const aggiornaProfilo: Aggiornamento<Emittente> = collegato
+    ? (modifica) => archivio?.aggiornaEmittente((p) => modifica(p ?? profiloConto))
+    : aggiornaProfiloLocale;
   // Fattura dalle ore: il documento ha l'id della precompilazione, quindi si apre subito quello.
   const [dalLink] = useState(() => (tipo === "fattura" ? letturaDalLink() : null));
   const daOre = dalLink?.ok ? dalLink.dati : null;
@@ -109,7 +140,17 @@ export function GestioneDocumenti({
     [documenti, tipo],
   );
 
-  if (!documenti || !profilo) return <Caricamento />;
+  if (collegato && conto?.caricamento === "errore" && archivio) {
+    return (
+      <ErroreAccount
+        stato={conto}
+        tipo={tipo}
+        onRiprova={() => void archivio.carica()}
+        onSoloBrowser={() => setSoloBrowser(true)}
+      />
+    );
+  }
+  if (!documenti || !profilo) return collegato ? <CaricamentoAccount /> : <Caricamento />;
 
   const doc = documenti.find((d) => d.id === selezionato) ?? null;
   const docAltroTipo = doc && doc.tipo !== tipo ? doc : null;
@@ -160,10 +201,36 @@ export function GestioneDocumenti({
 
   return (
     <div className="mt-8 space-y-8 print:mt-0 print:space-y-0">
-      <NotaDatiLocali
-        chiavi={[CHIAVI_ARCHIVIO.documenti, CHIAVI_ARCHIVIO.emittente]}
-        etichettaCancella="Cancella preventivi, fatture e i tuoi dati"
-      />
+      {contoPronto && archivio ? (
+        <>
+          <NotaAccount stato={contoPronto} onRiprova={() => void archivio.salva()} />
+          {documentiLocali ? (
+            <ImportaDalBrowser
+              stato={contoPronto}
+              archivio={archivio}
+              locali={documentiLocali}
+              profiloLocale={profiloLocale}
+              onTogliDalBrowser={(ids) => aggiornaDocumentiLocali((lista) => lista.filter((d) => !ids.has(d.id)))}
+              onTogliProfilo={() => cancellaArchivio(CHIAVI_ARCHIVIO.emittente)}
+            />
+          ) : null}
+        </>
+      ) : (
+        <div className="space-y-2 print:hidden">
+          <NotaDatiLocali
+            chiavi={[CHIAVI_ARCHIVIO.documenti, CHIAVI_ARCHIVIO.emittente]}
+            etichettaCancella="Cancella preventivi, fatture e i tuoi dati"
+          />
+          {accesso === "ospite" ? (
+            <p className="text-sm text-muted">
+              Con un account li salvi nel tuo account e li ritrovi anche nell&apos;app Bleo sul telefono.{" "}
+              <Link href={`/accedi?next=/strumenti/${tipo}`} className={classeLink}>
+                Accedi
+              </Link>
+            </p>
+          ) : null}
+        </div>
+      )}
       <p className="sr-only" role="status" aria-live="polite">
         {annuncio}
       </p>
@@ -200,7 +267,7 @@ export function GestioneDocumenti({
         </div>
         {elenco.length === 0 ? (
           <p className="mt-3 rounded-xl border border-border bg-card p-4 text-muted">
-            Non hai ancora {nomi.plurale} su questo dispositivo.{" "}
+            Non hai ancora {nomi.plurale} {collegato ? "nel tuo account" : "su questo dispositivo"}.{" "}
             {tipo === "fattura" ? (
               <>
                 Puoi partire da zero o da un <Link href="/strumenti/preventivo" className={classeLink}>preventivo</Link>.
@@ -274,7 +341,8 @@ export function GestioneDocumenti({
           onEmittente={(m) => aggiornaEmittente(doc.id, m)}
           onDuplica={() => duplica(doc)}
           onInFattura={tipo === "preventivo" ? () => inFattura(doc) : undefined}
-          accessoConti={tipo === "fattura" ? accessoConti : null}
+          accessoConti={tipo === "fattura" ? accesso : null}
+          nellAccount={collegato}
         />
       ) : null}
 
@@ -290,6 +358,7 @@ function Editor({
   onDuplica,
   onInFattura,
   accessoConti,
+  nellAccount,
 }: {
   doc: Documento;
   onCambia: (m: (d: Documento) => Documento) => void;
@@ -297,6 +366,7 @@ function Editor({
   onDuplica: () => void;
   onInFattura?: () => void;
   accessoConti: AccessoConti;
+  nellAccount: boolean;
 }) {
   const problemi = controllaDocumento(doc);
   const nomi = NOMI_TIPO[doc.tipo];
@@ -323,7 +393,7 @@ function Editor({
       </div>
 
       <div className="print:hidden">
-        <ModuloDocumento doc={doc} onCambia={onCambia} onEmittente={onEmittente} />
+        <ModuloDocumento doc={doc} onCambia={onCambia} onEmittente={onEmittente} nellAccount={nellAccount} />
       </div>
 
       <section aria-labelledby="titolo-anteprima-doc" className="space-y-4 print:space-y-0">

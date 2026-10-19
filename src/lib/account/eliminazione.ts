@@ -54,7 +54,7 @@ async function cancellaCartella(admin: SupabaseClient, nomeBucket: string, userI
  * conti», documenti del cassetto), poi l'utente da Supabase Auth: tutte le
  * tabelle con i suoi dati (profili, questionari, passi_completati,
  * domande_chat, le chat salvate in chat_conversazioni e chat_messaggi, le
- * tabelle conti_* e cassetto_documenti) puntano ad auth.users con "on delete cascade" e si svuotano
+ * tabelle conti_*, cassetto_documenti, preventivi_fatture ed emittenti) puntano ad auth.users con "on delete cascade" e si svuotano
  * insieme. Lo controlla supabase/schema.test.ts: una tabella nuova senza
  * cascade fa fallire il test.
  * La lista d'attesa è un'iscrizione separata (per email, senza account) e
