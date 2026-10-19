@@ -199,6 +199,13 @@ senza pagine dinamiche. Per le build automatiche a ogni push collega il
 repository in *Project configuration > Build & deploy > Continuous
 deployment*.
 
+## Post social
+
+Ogni giorno GitHub Actions pubblica un post di Bleo su Instagram, pagina
+Facebook e profilo LinkedIn: piano in `src/data/social.ts`, immagini fatte
+con Remotion in `social/`. Come collegare i social e aggiungere post:
+[`social/README.md`](social/README.md).
+
 ## App per iPhone e Android
 
 In [`mobile/`](mobile/) c'è l'app Expo, con le stesse regole e gli stessi
@@ -213,7 +220,8 @@ src/components/     componenti della landing, del percorso e degli strumenti
 src/lib/            logica pura con i test accanto (*.test.ts)
 src/data/           dati ufficiali con fonte e data di controllo
 supabase/           migrazioni, test dello schema, elenco delle fonti
-scripts/            import delle fonti
+scripts/            import delle fonti, pubblicazione dei post social
+social/             immagini dei post social e guida per collegare i social
 mobile/             app per iPhone e Android (Expo)
 docs/               piano, ricerca, kit settimane 1-2, guida alle fonti
 ```
