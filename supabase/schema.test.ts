@@ -11,6 +11,8 @@ import { LETTURE_AL_GIORNO } from "../src/lib/conti/limiti";
 import { CATEGORIE, LIVELLI_SOLLECITO } from "../src/lib/conti/tipi";
 import { improntaToken, nuovoTokenCalendario } from "../src/lib/percorso/abbonamento";
 import { VERSIONE_REGOLE } from "../src/lib/percorso/regole";
+import { DOCUMENTI_ACCOUNT_MASSIMI, STATI_DOCUMENTO } from "../src/lib/strumenti/account";
+import { LUNGHEZZE_EMITTENTE } from "../src/lib/strumenti/documenti";
 import { LUNGHEZZE_INDIRIZZO_QR } from "../src/lib/strumenti/qr";
 import {
   ATTIVITA,
@@ -428,8 +430,10 @@ describe("eliminazione dell'account (src/lib/account/eliminazione.ts)", () => {
       "conti_movimenti",
       "conti_ore",
       "domande_chat",
+      "emittenti",
       "link_calendario",
       "passi_completati",
+      "preventivi_fatture",
       "profili",
       "questionari",
     ]);
@@ -1378,5 +1382,186 @@ describe("«Calendario sempre aggiornato» (link_calendario)", () => {
     await nuovoLink(SPIONE, await impronta());
     await db.query("delete from auth.users where id = $1", [SPIONE]);
     expect(await linkDi(SPIONE)).toEqual([]);
+  });
+});
+
+describe("«Preventivo e fattura» nell'account (preventivi_fatture ed emittenti)", () => {
+  const TITOLARE = "f6f60000-0000-4000-8000-000000000001";
+  const CURIOSO = "f6f60000-0000-4000-8000-000000000002";
+  const ID = "0f8fad5b-d9cb-469f-a165-70867728950e";
+
+  beforeAll(async () => {
+    await db.exec(
+      `insert into auth.users (id, email) values ('${TITOLARE}', 'fatture@example.ch'), ('${CURIOSO}', 'curioso-fatture@example.ch')`,
+    );
+  });
+
+  const contenuto = (id: string, campi: Record<string, unknown> = {}) => ({
+    id,
+    tipo: "fattura",
+    numero: "F-2026-001",
+    data: "2026-10-19",
+    cliente: { nome: "Bar Centrale" },
+    righe: [],
+    ...campi,
+  });
+
+  const nuovo = (utente: string, campi: Record<string, unknown> = {}, come = utente) => {
+    const id = (campi.id as string | undefined) ?? ID;
+    const riga = {
+      user_id: utente,
+      id,
+      tipo: "fattura",
+      numero: "F-2026-001",
+      data: "2026-10-19",
+      stato: "bozza",
+      contenuto: JSON.stringify(contenuto(id)),
+      ...campi,
+    };
+    const colonne = Object.keys(riga);
+    return comeUtente(
+      () =>
+        db.query(
+          `insert into public.preventivi_fatture (${colonne.join(", ")}) values (${colonne.map((_, i) => `$${i + 1}`).join(", ")})`,
+          Object.values(riga),
+        ),
+      come,
+    );
+  };
+
+  it("stati, numero massimo e lunghezze dell'emittente nel database sono quelli di src/lib/strumenti", () => {
+    const sql = readFileSync(new URL("20261020000001_preventivi_fatture.sql", CARTELLA), "utf8");
+    const stati = /stato text not null check \(stato in \(([^)]*)\)\)/.exec(sql)?.[1] ?? "";
+    expect(stati.split(",").map((v) => v.trim().replace(/'/g, ""))).toEqual([...STATI_DOCUMENTO]);
+    expect(sql).toContain(`limita_righe_conti('${DOCUMENTI_ACCOUNT_MASSIMI}')`);
+    const colonne: Record<keyof typeof LUNGHEZZE_EMITTENTE, string> = {
+      nome: "nome",
+      via: "via",
+      numero: "numero",
+      npa: "npa",
+      localita: "localita",
+      paese: "paese",
+      email: "email",
+      telefono: "telefono",
+      iban: "iban",
+      numeroIva: "numero_iva",
+    };
+    for (const [campo, colonna] of Object.entries(colonne)) {
+      expect(sql).toContain(`check (char_length(${colonna}) <= ${LUNGHEZZE_EMITTENTE[campo as keyof typeof LUNGHEZZE_EMITTENTE]})`);
+    }
+  });
+
+  it("ognuno vede, cambia e cancella solo i propri documenti e i propri dati", async () => {
+    await nuovo(TITOLARE);
+    await comeUtente(() => db.query("insert into public.emittenti (user_id, nome, iban) values ($1, 'Giulia', 'CH93')", [TITOLARE]), TITOLARE);
+    const visti = await comeUtente(
+      () =>
+        db.query<{ n: number }>(
+          "select (select count(*) from public.preventivi_fatture) + (select count(*) from public.emittenti) as n",
+        ),
+      CURIOSO,
+    );
+    expect(Number(visti.rows[0]?.n)).toBe(0);
+    const propri = await comeUtente(
+      () => db.query<{ numero: string }>("select numero from public.preventivi_fatture where id = $1", [ID]),
+      TITOLARE,
+    );
+    expect(propri.rows).toEqual([{ numero: "F-2026-001" }]);
+
+    // Nessuno scrive al posto di un altro, nemmeno con il suo user_id.
+    await expect(nuovo(TITOLARE, { id: "altro-doc-0001", contenuto: JSON.stringify(contenuto("altro-doc-0001")) }, CURIOSO)).rejects.toThrow(
+      /row-level security/,
+    );
+    await expect(
+      comeUtente(() => db.query("insert into public.emittenti (user_id, nome) values ($1, 'Rubato')", [TITOLARE]), CURIOSO),
+    ).rejects.toThrow(/row-level security/);
+    for (const sql of [
+      "update public.preventivi_fatture set stato = 'pronto'",
+      "update public.emittenti set iban = 'CH00'",
+      "delete from public.preventivi_fatture",
+      "delete from public.emittenti",
+    ]) {
+      const r = await comeUtente(() => db.query(sql), CURIOSO);
+      expect(r.affectedRows).toBe(0);
+    }
+    await expect(come("anon", "", () => db.query("select * from public.preventivi_fatture"))).rejects.toThrow(/permission denied/);
+    await expect(come("anon", "", () => db.query("select * from public.emittenti"))).rejects.toThrow(/permission denied/);
+  });
+
+  it("lo stesso id una volta sola per utente: importare due volte non crea doppioni", async () => {
+    // Un altro utente può avere un documento con lo stesso id: è suo.
+    await nuovo(CURIOSO);
+    await expect(nuovo(TITOLARE)).rejects.toThrow(/preventivi_fatture_pkey/);
+    // Come POST /api/strumenti/documenti: on conflict do nothing.
+    const r = await comeUtente(
+      () =>
+        db.query(
+          `insert into public.preventivi_fatture (user_id, id, tipo, numero, stato, contenuto)
+           values ($1, $2, 'fattura', 'F-2026-001', 'bozza', $3)
+           on conflict (user_id, id) do nothing returning id`,
+          [TITOLARE, ID, JSON.stringify(contenuto(ID, { righe: ["nuove"] }))],
+        ),
+      TITOLARE,
+    );
+    expect(r.rows).toEqual([]);
+    const salvato = await db.query<{ righe: unknown[] }>(
+      "select contenuto -> 'righe' as righe from public.preventivi_fatture where user_id = $1 and id = $2",
+      [TITOLARE, ID],
+    );
+    expect(salvato.rows).toEqual([{ righe: [] }]);
+  });
+
+  it("rifiuta id, tipi, stati e date strani, e un contenuto che non corrisponde alle colonne o troppo grande", async () => {
+    const id = "controllo-0001";
+    const valido = { id, contenuto: JSON.stringify(contenuto(id)) };
+    await expect(nuovo(TITOLARE, { id: "corto", contenuto: JSON.stringify(contenuto("corto")) })).rejects.toThrow(/check/);
+    await expect(nuovo(TITOLARE, { id: "con spazi 0001", contenuto: JSON.stringify(contenuto("con spazi 0001")) })).rejects.toThrow(
+      /check/,
+    );
+    await expect(nuovo(TITOLARE, { ...valido, tipo: "ricevuta" })).rejects.toThrow(/check/);
+    await expect(nuovo(TITOLARE, { ...valido, stato: "pagata" })).rejects.toThrow(/check/);
+    await expect(nuovo(TITOLARE, { ...valido, data: "1999-12-31" })).rejects.toThrow(/check/);
+    await expect(nuovo(TITOLARE, { ...valido, numero: "x".repeat(41) })).rejects.toThrow(/check/);
+    await expect(nuovo(TITOLARE, { ...valido, contenuto: JSON.stringify(contenuto("un-altro-id-01")) })).rejects.toThrow(
+      /preventivi_fatture_contenuto/,
+    );
+    await expect(nuovo(TITOLARE, { ...valido, contenuto: JSON.stringify(contenuto(id, { tipo: "preventivo" })) })).rejects.toThrow(
+      /preventivi_fatture_contenuto/,
+    );
+    await expect(nuovo(TITOLARE, { ...valido, contenuto: JSON.stringify(contenuto(id, { numero: "F-2026-999" })) })).rejects.toThrow(
+      /preventivi_fatture_contenuto/,
+    );
+    await expect(nuovo(TITOLARE, { ...valido, contenuto: JSON.stringify([1, 2]) })).rejects.toThrow(/preventivi_fatture_contenuto/);
+    await expect(
+      nuovo(TITOLARE, { ...valido, contenuto: JSON.stringify(contenuto(id, { note: "x".repeat(500_001) })) }),
+    ).rejects.toThrow(/preventivi_fatture_contenuto/);
+    await expect(
+      comeUtente(() => db.query("insert into public.emittenti (user_id, nome) values ($1, $2)", [CURIOSO, "x".repeat(141)]), CURIOSO),
+    ).rejects.toThrow(/check/);
+    await nuovo(TITOLARE, { ...valido, data: null, stato: "pronto" });
+  });
+
+  it(`al massimo ${DOCUMENTI_ACCOUNT_MASSIMI} documenti per utente`, async () => {
+    await db.query(
+      `insert into public.preventivi_fatture (user_id, id, tipo, numero, stato, contenuto)
+       select $1, 'riempitivo-' || g, 'preventivo', '', 'bozza',
+              jsonb_build_object('id', 'riempitivo-' || g, 'tipo', 'preventivo', 'numero', '')
+         from generate_series(1, $2::int - (select count(*)::int from public.preventivi_fatture where user_id = $1)) g`,
+      [CURIOSO, DOCUMENTI_ACCOUNT_MASSIMI],
+    );
+    await expect(nuovo(CURIOSO, { id: "uno-di-troppo", contenuto: JSON.stringify(contenuto("uno-di-troppo")) })).rejects.toThrow(
+      /troppe righe in preventivi_fatture/,
+    );
+    await db.query("delete from public.preventivi_fatture where user_id = $1", [CURIOSO]);
+  });
+
+  it("cancellando l'utente spariscono i suoi documenti e i suoi dati", async () => {
+    await db.query("delete from auth.users where id = $1", [TITOLARE]);
+    const r = await db.query<{ righe: number }>(
+      `select (select count(*) from public.preventivi_fatture where user_id = $1)
+            + (select count(*) from public.emittenti where user_id = $1) as righe`,
+      [TITOLARE],
+    );
+    expect(Number(r.rows[0]?.righe)).toBe(0);
   });
 });

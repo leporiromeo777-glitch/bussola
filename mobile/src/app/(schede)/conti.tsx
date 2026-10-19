@@ -456,6 +456,13 @@ function ContiUtente() {
           icona="timer-outline"
           onPress={() => router.push("/clienti-ore")}
         />
+        <Separatore />
+        <RigaMenu
+          titolo="Preventivo e fattura"
+          sottotitolo="Prepara i documenti con il codice QR e mandali in PDF"
+          icona="receipt-outline"
+          onPress={() => router.push("/fatture")}
+        />
       </Scheda>
 
       <Scheda>

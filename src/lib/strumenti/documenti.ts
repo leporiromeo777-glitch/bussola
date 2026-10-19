@@ -461,7 +461,8 @@ export function pagamentoDaDocumento(doc: Documento): { ok: true; dati: DatiPaga
 /**
  * Dati di una fattura per «I tuoi conti» (POST /api/conti/fatture): solo
  * numero, nome del cliente, date, totale e riferimento QR. Niente IBAN né
- * voci, che restano nel browser.
+ * voci: restano nel documento (nel browser o, con l'accesso, tra i
+ * preventivi e le fatture dell'account).
  */
 export function fatturaPerConti(doc: Documento) {
   const rif = riferimentoPerFattura(doc);
@@ -477,51 +478,89 @@ export function fatturaPerConti(doc: Documento) {
 
 // --- Archivio (schema per i dati salvati nel browser).
 
+/**
+ * Lunghezze massime dei campi dei dati dell'emittente, uguali nel browser,
+ * nelle API e nella tabella emittenti del database (migrazione
+ * 20261020000001_preventivi_fatture.sql, lo verifica supabase/schema.test.ts).
+ */
+export const LUNGHEZZE_EMITTENTE = {
+  nome: 140,
+  via: 140,
+  numero: 32,
+  npa: 32,
+  localita: 70,
+  paese: 2,
+  email: 200,
+  telefono: 60,
+  iban: 60,
+  numeroIva: 40,
+} as const;
+
+/** Lunghezze massime degli altri campi di un documento (e numero massimo di voci). */
+export const LUNGHEZZE_DOCUMENTO = {
+  id: 60,
+  numero: 40,
+  data: 10,
+  periodoPrestazione: 120,
+  oggetto: 200,
+  descrizione: 500,
+  quantita: 30,
+  unita: 30,
+  prezzo: 30,
+  riferimentoManuale: 40,
+  note: 1000,
+  daPreventivo: 40,
+  momento: 40,
+  righe: 100,
+} as const;
+
+const E = LUNGHEZZE_EMITTENTE;
+const D = LUNGHEZZE_DOCUMENTO;
 const t = (max: number) => z.string().max(max).catch("");
 const schemaIndirizzo = z.object({
-  nome: t(140),
-  via: t(140),
-  numero: t(32),
-  npa: t(32),
-  localita: t(70),
-  paese: t(2).transform((p) => p || "CH"),
+  nome: t(E.nome),
+  via: t(E.via),
+  numero: t(E.numero),
+  npa: t(E.npa),
+  localita: t(E.localita),
+  paese: t(E.paese).transform((p) => p || "CH"),
 });
 export const schemaEmittente = schemaIndirizzo.extend({
-  email: t(200),
-  telefono: t(60),
-  iban: t(60),
+  email: t(E.email),
+  telefono: t(E.telefono),
+  iban: t(E.iban),
   ivaIscritto: z.boolean().catch(false),
-  numeroIva: t(40),
+  numeroIva: t(E.numeroIva),
 }) satisfies z.ZodType<Emittente>;
 
 const schemaRiga = z.object({
-  id: z.string().min(1).max(60),
-  descrizione: t(500),
-  quantita: t(30),
-  unita: t(30),
-  prezzo: t(30),
+  id: z.string().min(1).max(D.id),
+  descrizione: t(D.descrizione),
+  quantita: t(D.quantita),
+  unita: t(D.unita),
+  prezzo: t(D.prezzo),
   aliquota: z.enum(["normale", "ridotta", "alloggio"]).catch("normale"),
 });
 
 export const schemaDocumento = z.object({
-  id: z.string().min(1).max(60),
+  id: z.string().min(1).max(D.id),
   tipo: z.enum(["preventivo", "fattura"]),
-  numero: t(40),
-  data: t(10),
-  scadenza: t(10),
-  periodoPrestazione: t(120),
-  oggetto: t(200),
+  numero: t(D.numero),
+  data: t(D.data),
+  scadenza: t(D.data),
+  periodoPrestazione: t(D.periodoPrestazione),
+  oggetto: t(D.oggetto),
   emittente: schemaEmittente.catch(emittenteVuoto()),
   cliente: schemaIndirizzo.catch(indirizzoVuoto()),
-  righe: z.array(schemaRiga).max(100).catch([]),
+  righe: z.array(schemaRiga).max(D.righe).catch([]),
   valuta: z.enum(["CHF", "EUR"]).catch("CHF"),
   arrotonda5: z.boolean().catch(false),
   riferimento: z.enum(["automatico", "nessuno", "manuale"]).catch("automatico"),
-  riferimentoManuale: t(40),
-  note: t(1000),
-  daPreventivo: t(40),
-  creatoIl: t(40),
-  aggiornatoIl: t(40),
+  riferimentoManuale: t(D.riferimentoManuale),
+  note: t(D.note),
+  daPreventivo: t(D.daPreventivo),
+  creatoIl: t(D.momento),
+  aggiornatoIl: t(D.momento),
 }) satisfies z.ZodType<Documento>;
 
 /** Elenco salvato: i documenti rovinati si scartano uno per uno, gli altri restano. */

@@ -1,7 +1,8 @@
 /**
  * «Clienti e ore»: chiamate al sito con il token dell'accesso
  * ("Authorization: Bearer"). I tipi e i calcoli sono quelli del sito
- * (src/lib/clienti). La fattura si apre sul sito, nel browser dell'app.
+ * (src/lib/clienti). La fattura si apre nell'app («Preventivo e fattura»,
+ * src/lib/fatture.ts); sul sito solo se i documenti dell'account non si leggono.
  */
 import { percorsoFatturaDaOre } from "@/lib/clienti/fattura";
 import type { Cliente, DettaglioFattura, Mese, RispostaFatturaOre, RispostaOre, VoceOre } from "@/lib/clienti/tipi";
@@ -75,7 +76,7 @@ export function annullaFatturaOre(clienteId: string, mese: Mese, fatturataIl: st
   return chiama<{ voci: number }>(`/api/conti/ore/fattura?${parametri}`, { metodo: "DELETE" });
 }
 
-/** Apre lo strumento fattura del sito con le ore (i dati vanno dopo il «#», come fa il sito). */
+/** Ripiego: apre lo strumento fattura del sito con le ore (i dati vanno dopo il «#», come fa il sito). */
 export function apriFatturaOre(risposta: RispostaFatturaOre): Promise<void> {
   return apriSito(percorsoFatturaDaOre(risposta.precompilazione));
 }

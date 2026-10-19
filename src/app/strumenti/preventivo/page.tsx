@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { GestioneDocumenti } from "@/components/strumenti/documenti/gestione-documenti";
 import { IntestazioneStrumento } from "@/components/strumenti/intestazione";
+import { supabaseConfigured } from "@/lib/supabase/env";
+import { getUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Preventivo",
@@ -10,6 +12,8 @@ export const metadata: Metadata = {
 
 export default async function PaginaPreventivo({ searchParams }: PageProps<"/strumenti/preventivo">) {
   const { doc } = await searchParams;
+  // Con l'accesso i preventivi stanno nell'account (anche nell'app); senza, nel browser.
+  const accesso = supabaseConfigured() ? ((await getUser()) ? "collegato" : "ospite") : null;
   return (
     <>
       <IntestazioneStrumento
@@ -20,7 +24,7 @@ export default async function PaginaPreventivo({ searchParams }: PageProps<"/str
           </p>
         }
       />
-      <GestioneDocumenti tipo="preventivo" idIniziale={typeof doc === "string" ? doc : null} />
+      <GestioneDocumenti tipo="preventivo" idIniziale={typeof doc === "string" ? doc : null} accesso={accesso} />
     </>
   );
 }

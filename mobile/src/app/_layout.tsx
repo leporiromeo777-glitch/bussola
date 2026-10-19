@@ -29,6 +29,9 @@ export default function Radice() {
         <Stack.Screen name="strumenti/tariffa" options={{ title: "Tariffa oraria" }} />
         <Stack.Screen name="strumenti/contributi" options={{ title: "Contributi AVS" }} />
         <Stack.Screen name="clienti-ore" options={{ title: "Clienti e ore" }} />
+        <Stack.Screen name="fatture/index" options={{ title: "Preventivo e fattura" }} />
+        <Stack.Screen name="fatture/[id]" options={{ title: "" }} />
+        <Stack.Screen name="fatture/profilo" options={{ title: "I tuoi dati" }} />
         <Stack.Screen name="accedi" options={{ title: "Accedi", presentation: "modal" }} />
         <Stack.Screen
           name="chat-elenco"

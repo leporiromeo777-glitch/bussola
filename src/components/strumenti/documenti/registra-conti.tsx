@@ -77,8 +77,8 @@ export function RegistraNeiConti({ doc, pronta, accesso }: { doc: Documento; pro
       ) : (
         <>
           <p className="mt-1 text-muted">
-            Salva numero, cliente, date, totale e riferimento: così vedi cosa devi ancora incassare. Il tuo IBAN e le
-            voci restano solo qui.
+            Salva numero, cliente, date, totale e riferimento: così vedi cosa devi ancora incassare. Nei conti non
+            vanno il tuo IBAN né le voci: restano nella fattura.
           </p>
           <button
             type="button"

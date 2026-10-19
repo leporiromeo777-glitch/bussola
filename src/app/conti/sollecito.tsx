@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { ElencoFonti } from "@/components/percorso/elenco-fonti";
 import { IconaCopia, IconaPosta, IconaSpunta } from "@/components/strumenti/icone";
 import { CampoArea, CampoTesto } from "@/components/strumenti/ui";
+import { useArchivioAccount } from "@/components/strumenti/documenti/usa-archivio-account";
 import { useArchivio } from "@/components/strumenti/usa-archivio";
 import { regoleSolleciti } from "@/data/svizzera";
 import { dataIsoValida } from "@/lib/conti/importi";
@@ -34,8 +35,9 @@ const nessunDocumento = (): Documento[] => [];
  * «Prepara il sollecito»: Bleo scrive oggetto e testo per il cliente, l'utente
  * li controlla, li copia o li apre nella sua email e li manda lui. Poi segna
  * il sollecito come inviato, così la volta dopo Bleo propone il secondo.
- * IBAN e nome vengono dallo strumento fattura salvato in questo browser e
- * non vanno al server.
+ * IBAN e nome vengono dallo strumento fattura: prima dalla fattura e dai
+ * tuoi dati salvati nell'account, poi da quelli rimasti in questo browser.
+ * Il testo del sollecito non va al server.
  */
 export function PannelloSollecito({
   fattura: f,
@@ -51,7 +53,11 @@ export function PannelloSollecito({
   const id = useId();
   const [documenti] = useArchivio(CHIAVI_ARCHIVIO.documenti, schemaElencoDocumenti, nessunDocumento);
   const [emittente] = useArchivio(CHIAVI_ARCHIVIO.emittente, schemaEmittente, emittenteVuoto);
-  const locali = datiDaStrumentoFattura(f.numero, documenti, emittente);
+  const { stato: conto } = useArchivioAccount(true);
+  const dalConto =
+    conto?.caricamento === "pronto" ? datiDaStrumentoFattura(f.numero, conto.documenti, conto.emittente) : null;
+  const dalBrowser = datiDaStrumentoFattura(f.numero, documenti, emittente);
+  const locali = { iban: dalConto?.iban || dalBrowser.iban, firma: dalConto?.firma || dalBrowser.firma };
 
   const [livello, setLivello] = useState<LivelloSollecito>(livelloConsigliato(f));
   const [termine, setTermine] = useState(nuovoTermineProposto(oggi));

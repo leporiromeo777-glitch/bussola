@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { emittenteVuoto, nuovoDocumento, type Documento } from "./documenti";
-import { conLineaDiTaglio, sezionePagamentoSvg, svgScalabile } from "./qr-svg";
+import { conLineaDiTaglio, sezionePagamentoSvg, svgScalabile, svgSenzaAnnidati } from "./qr-svg";
 
 function fattura(modifiche: Partial<Documento> = {}): Documento {
   const base = nuovoDocumento(
@@ -95,5 +95,32 @@ describe("sezionePagamentoSvg", () => {
     const zero = sezionePagamentoSvg(fattura({ righe: [] }));
     expect(zero.ok).toBe(false);
     if (!zero.ok) expect(zero.errori.map((e) => e.campo)).toContain("importo");
+  });
+});
+
+describe("svgSenzaAnnidati", () => {
+  it("trasforma gli svg annidati in gruppi spostati, convertendo mm e pt in px", () => {
+    expect(
+      svgSenzaAnnidati('<svg viewBox="0 0 10 10"><svg x="5mm" y="3pt"><rect x="1mm"/></svg><svg width="11px" x="2" y=".5"/></svg>'),
+    ).toBe(
+      '<svg viewBox="0 0 10 10"><g transform="translate(18.898 4.000)"><rect x="1mm"/></g><g transform="translate(2.000 0.500)"/></svg>',
+    );
+  });
+
+  it("se una posizione non si sa convertire lascia tutto com'era", () => {
+    const svg = '<svg><svg x="10%"><rect/></svg></svg>';
+    expect(svgSenzaAnnidati(svg)).toBe(svg);
+    expect(svgSenzaAnnidati("<div>")).toBe("<div>");
+  });
+
+  it("sulla vera sezione pagamento resta un solo svg, con lo stesso contenuto", () => {
+    const esito = sezionePagamentoSvg(fattura());
+    if (!esito.ok) throw new Error("attesa una sezione pagamento");
+    const piatto = svgSenzaAnnidati(esito.svg);
+    expect(piatto.match(/<svg\b/g)).toHaveLength(1);
+    expect(piatto.match(/<\/svg>/g)).toHaveLength(1);
+    expect(piatto.match(/<rect\b/g)?.length).toBe(esito.svg.match(/<rect\b/g)?.length);
+    expect(piatto).toContain('<g transform="translate(18.898 18.898)">');
+    expect(piatto).toContain("Sezione pagamento");
   });
 });

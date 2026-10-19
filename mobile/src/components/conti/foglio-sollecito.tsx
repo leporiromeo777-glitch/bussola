@@ -4,6 +4,7 @@ import { Linking, Modal, ScrollView, Share, View } from "react-native";
 import { dataSvizzera, regoleSolleciti } from "@/data/svizzera";
 import { dataIsoValida } from "@/lib/conti/importi";
 import {
+  datiDaStrumentoFattura,
   FIRMA_MASSIMA,
   FONTI_SOLLECITO,
   GIORNI_NUOVO_TERMINE,
@@ -24,6 +25,7 @@ import { importo } from "@/lib/strumenti/numeri";
 import { CampoTesto, Scelta } from "~/components/campi";
 import { ElencoFonti, Pulsante, Scheda, Separatore, Testo } from "~/components/ui";
 import { avvisa } from "~/lib/conferma";
+import { useArchivioFatture } from "~/lib/fatture";
 import { oggiLocale } from "~/lib/stato";
 import { SPAZIO, useColori } from "~/lib/tema";
 
@@ -86,8 +88,14 @@ function ContenutoSollecito({
   const oggi = oggiLocale();
   const [livello, setLivello] = useState<LivelloSollecito>(livelloConsigliato(f));
   const [termine, setTermine] = useState(dataSvizzera(nuovoTermineProposto(oggi)));
-  const [iban, setIban] = useState("");
-  const [firma, setFirma] = useState("");
+  // IBAN e nome dai tuoi preventivi e fatture nell'account, finché non li cambi qui.
+  const archivio = useArchivioFatture();
+  const dalConto =
+    archivio.caricamento === "pronto" ? datiDaStrumentoFattura(f.numero, archivio.documenti, archivio.emittente) : null;
+  const [ibanScritto, setIban] = useState<string | null>(null);
+  const [firmaScritta, setFirma] = useState<string | null>(null);
+  const iban = ibanScritto ?? dalConto?.iban ?? "";
+  const firma = firmaScritta ?? dalConto?.firma ?? "";
   const [modificato, setModificato] = useState<{ oggetto: string; testo: string } | null>(null);
   const [stato, setStato] = useState("");
   const [inCorso, setInCorso] = useState(false);

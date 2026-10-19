@@ -26,9 +26,11 @@ type Props = {
   onCambia: (modifica: (d: Documento) => Documento) => void;
   /** Modifica i dati dell'emittente nel documento e nel profilo salvato. */
   onEmittente: (modifica: Partial<Emittente>) => void;
+  /** true se i tuoi dati si salvano nell'account (non solo su questo dispositivo). */
+  nellAccount?: boolean;
 };
 
-export function ModuloDocumento({ doc, onCambia, onEmittente }: Props) {
+export function ModuloDocumento({ doc, onCambia, onEmittente, nellAccount = false }: Props) {
   const e = doc.emittente;
   const tipo = NOMI_TIPO[doc.tipo];
   const imposta = <K extends keyof Documento>(campo: K, valore: Documento[K]) => onCambia((d) => ({ ...d, [campo]: valore }));
@@ -42,7 +44,11 @@ export function ModuloDocumento({ doc, onCambia, onEmittente }: Props) {
     <form className="space-y-6" onSubmit={(ev) => ev.preventDefault()} noValidate>
       <Gruppo
         legenda="I tuoi dati"
-        descrizione="Li ricordiamo su questo dispositivo per i prossimi preventivi e fatture."
+        descrizione={
+          nellAccount
+            ? "Li ricordiamo nel tuo account per i prossimi preventivi e fatture, anche nell'app."
+            : "Li ricordiamo su questo dispositivo per i prossimi preventivi e fatture."
+        }
       >
         <CampiIndirizzo
           prefissoId="emittente"

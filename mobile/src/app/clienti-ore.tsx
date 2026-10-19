@@ -29,6 +29,7 @@ import {
   type DatiCliente,
   type DatiVoce,
 } from "~/lib/ore";
+import { creaFatturaDaOre } from "~/lib/fatture";
 import { useSessione } from "~/lib/sessione";
 import { oggiLocale } from "~/lib/stato";
 import { supabase } from "~/lib/supabase";
@@ -191,8 +192,8 @@ function ClientiOreUtente() {
       titolo: `Fattura per ${g.cliente.nome}?`,
       messaggio:
         `${voci === 1 ? "1 voce" : `${voci} voci`} di ${nomeMese(mese)}` +
-        `${importoOre !== null ? ` (${importo(importoOre)})` : ""}: si segnano come fatturate oggi e la fattura si apre sul sito, ` +
-        "dove la controlli e la stampi o salvi in PDF. La prima volta scrivi lì i tuoi dati e l'IBAN: li ricorda.",
+        `${importoOre !== null ? ` (${importo(importoOre)})` : ""}: si segnano come fatturate oggi e si apre la fattura già ` +
+        "compilata: la controlli e la mandi in PDF. La prima volta scrivi i tuoi dati e l'IBAN: restano nel tuo account.",
       conferma: "Crea la fattura",
       onConferma: () => void crea(),
     });
@@ -206,7 +207,10 @@ function ClientiOreUtente() {
         return;
       }
       setAvviso(`Ore di ${g.cliente.nome} segnate come fatturate il ${dataSvizzera(esito.dati.fatturataIl)}.`);
-      await apriFatturaOre(esito.dati);
+      // La fattura si apre nell'app; se i documenti dell'account non si leggono, sul sito (che la salva lo stesso nell'account).
+      const id = await creaFatturaDaOre(esito.dati.precompilazione);
+      if (id) router.push({ pathname: "/fatture/[id]", params: { id } });
+      else await apriFatturaOre(esito.dati);
       void carica();
     }
   }
@@ -335,8 +339,8 @@ function ClientiOreUtente() {
       )}
 
       <Testo variante="piccolo" attenuato>
-        La fattura si prepara sul sito con lo strumento fattura, con il codice QR. Bleo ti aiuta a tenere in ordine ore e
-        fatture, ma non fa la contabilità per te: per IVA e imposte rivolgiti a un fiduciario autorizzato.
+        La fattura si prepara qui, con il codice QR, e resta nel tuo account con i tuoi preventivi e fatture. Bleo ti aiuta a
+        tenere in ordine ore e fatture, ma non fa la contabilità per te: per IVA e imposte rivolgiti a un fiduciario autorizzato.
       </Testo>
 
       <Foglio
