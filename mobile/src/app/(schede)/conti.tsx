@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AccessibilityInfo, ActivityIndicator, Pressable, RefreshControl, View } from "react-native";
 import { dataSvizzera } from "@/data/svizzera";
@@ -124,6 +124,9 @@ function ContiUtente() {
   const [inSollecito, setInSollecito] = useState<FatturaEmessa | null>(null);
   const [aggiungi, setAggiungi] = useState(false);
   const [tuttiMovimenti, setTuttiMovimenti] = useState(false);
+  // Da «Oggi» in Inizio («Manda un sollecito»): il sollecito di quella fattura si apre appena i conti sono letti.
+  const { sollecito: sollecitoRichiesto } = useLocalSearchParams<{ sollecito?: string }>();
+  const fatturaRichiesta = (sollecitoRichiesto && dati?.fatture.find((f) => f.id === sollecitoRichiesto)) || null;
   const richiesta = useRef(0);
   /** Modifiche in corso: finché ce ne sono, una lettura dal server non sovrascrive le voci già cambiate qui. */
   const inCorso = useRef(0);
@@ -535,7 +538,14 @@ function ContiUtente() {
         onSalva={salvaModifica}
         onElimina={(m) => void elimina(m)}
       />
-      <FoglioSollecito fattura={inSollecito} onChiudi={() => setInSollecito(null)} onSegna={salvaSollecito} />
+      <FoglioSollecito
+        fattura={inSollecito ?? fatturaRichiesta}
+        onChiudi={() => {
+          setInSollecito(null);
+          if (sollecitoRichiesto) router.setParams({ sollecito: undefined });
+        }}
+        onSegna={salvaSollecito}
+      />
     </Schermata>
   );
 }

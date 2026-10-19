@@ -1,12 +1,13 @@
 import { router } from "expo-router";
 import { useMemo } from "react";
-import { View } from "react-native";
+import { RefreshControl, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LEZIONI } from "@/data/corso";
 import { dataSvizzera } from "@/data/svizzera";
 import { annoScadenzario, eventiDaScadenze } from "@/lib/percorso/calendario";
 import { avanzamento, prossimoPasso } from "@/lib/percorso/regole";
 import { ImmagineMascotte } from "~/components/mascotte";
+import { SezioneOggi } from "~/components/oggi/sezione-oggi";
 import {
   BarraProgresso,
   NotaInformazione,
@@ -18,6 +19,7 @@ import {
   Testo,
 } from "~/components/ui";
 import { useDaConfermare } from "~/lib/conti";
+import { useOggi } from "~/lib/oggi";
 import { oggiLocale, usePassiFatti, usePercorso } from "~/lib/stato";
 import { SPAZIO, useColori } from "~/lib/tema";
 
@@ -25,6 +27,7 @@ export default function Inizio() {
   const c = useColori();
   const dati = usePercorso();
   const fatti = usePassiFatti();
+  const statoOggi = useOggi();
 
   const prossimeScadenze = useMemo(() => {
     if (!dati) return [];
@@ -41,7 +44,9 @@ export default function Inizio() {
 
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.sfondo }}>
-      <Schermata>
+      <Schermata
+        refreshControl={<RefreshControl refreshing={statoOggi.aggiornando} onRefresh={statoOggi.aggiorna} tintColor={c.marchio} />}
+      >
         <View style={{ flexDirection: "row", alignItems: "center", gap: SPAZIO.m }}>
           <ImmagineMascotte nome="coppia" larghezza={112} />
           <View style={{ flex: 1, gap: SPAZIO.xs }}>
@@ -49,6 +54,8 @@ export default function Inizio() {
             <Testo attenuato>Si dice «Blìo». Ti accompagno passo per passo ad aprire la tua attività.</Testo>
           </View>
         </View>
+
+        <SezioneOggi stato={statoOggi} percorso={dati?.percorso ?? null} />
 
         {!dati ? (
           <Scheda evidenziata>
