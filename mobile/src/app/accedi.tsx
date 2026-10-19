@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, TextInput } from "react-native";
 import { Pulsante, Schermata, Testo } from "~/components/ui";
-import { apriSito } from "~/lib/apri";
+import { leggiSitoNellApp } from "~/lib/apri";
 import { supabase } from "~/lib/supabase";
 import { RAGGIO, SPAZIO, useColori } from "~/lib/tema";
 
@@ -124,7 +124,7 @@ export default function Accedi() {
         <Testo variante="piccolo" attenuato>
           Con l&apos;accesso salviamo la tua email e le domande alla chat, come spiegato nell&apos;informativa sulla privacy.
         </Testo>
-        <Pulsante titolo="Informativa sulla privacy" variante="testo" onPress={() => void apriSito("/privacy")} />
+        <Pulsante titolo="Informativa sulla privacy" variante="testo" onPress={() => void leggiSitoNellApp("/privacy")} />
       </Schermata>
     </KeyboardAvoidingView>
   );

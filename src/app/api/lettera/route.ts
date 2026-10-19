@@ -1,9 +1,13 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
+import { connection } from "next/server";
 import { dettagliErrore } from "@/lib/chat/errori";
 import { scegliModelloFunzione, supportaFallback } from "@/lib/chat/modello";
-import { creaClientAnthropic } from "@/lib/chat/server";
+import { anthropicConfigurato, creaClientAnthropic } from "@/lib/chat/server";
 import { controllaLimite } from "@/lib/limiti/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { supabaseConfigured } from "@/lib/supabase/env";
+import { utenteDaRichiesta } from "@/lib/supabase/richiesta";
 import {
   CORPO_MASSIMO,
   MESSAGGI_LETTERA,
@@ -43,13 +47,38 @@ function bloccoLettera({ tipo, dati }: RichiestaLettera): Anthropic.Beta.BetaCon
 }
 
 /**
+ * Id dell'utente se la richiesta ha un accesso valido (cookie del sito o
+ * `Authorization: Bearer` dell'app), altrimenti null. L'accesso non serve
+ * per leggere una lettera: decide solo come si conta il limite. Un token
+ * scaduto o non valido vale come nessun accesso (si conta per connessione).
+ */
+async function utenteFacoltativo(request: Request): Promise<string | null> {
+  if (!supabaseConfigured()) return null;
+  const utente = await utenteDaRichiesta(request);
+  return utente.ok ? utente.user.id : null;
+}
+
+/**
+ * GET /api/lettera — { attiva }: la funzione si può usare (Claude e il
+ * limite delle richieste configurati)? La usa l'app per mostrare subito
+ * «non ancora attiva» invece di farti scattare la foto per niente.
+ */
+export async function GET() {
+  // Al momento della richiesta: dipende dalle variabili d'ambiente del server.
+  await connection();
+  return json(200, { attiva: anthropicConfigurato() && createAdminClient() !== null });
+}
+
+/**
  * POST /api/lettera — { tipo, dati } → { spiegazione }.
  * `tipo` è image/jpeg, image/png, image/webp o application/pdf; `dati` il file
  * in base64 (senza «data:…;base64,»). Claude legge la lettera e la spiega in
  * italiano semplice (src/lib/lettera/spiegazione.ts). Il file non si salva:
  * passa solo da qui a Claude. Senza accesso, ma con un limite per
- * connessione: se il limite non si può verificare la richiesta si rifiuta,
- * perché ogni chiamata a Claude costa.
+ * connessione; con l'accesso (sito o app con `Authorization: Bearer`) lo
+ * stesso limite vale per account, perché dietro una connessione mobile
+ * possono esserci molte persone. Se il limite non si può verificare la
+ * richiesta si rifiuta, perché ogni chiamata a Claude costa.
  */
 export async function POST(request: Request) {
   const anthropic = creaClientAnthropic();
@@ -79,7 +108,7 @@ export async function POST(request: Request) {
   }
 
   // Si conta solo una richiesta valida, subito prima di chiamare Claude.
-  const limite = await controllaLimite("lettera");
+  const limite = await controllaLimite("lettera", { utenteId: await utenteFacoltativo(request) });
   if (limite === "non_disponibile") return json(503, { messaggio: MESSAGGI_LETTERA.occupato });
   if (limite === "superato") return json(429, { messaggio: MESSAGGI_LETTERA.troppeRichieste });
 

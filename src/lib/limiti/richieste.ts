@@ -61,3 +61,15 @@ export function chiaveLimite(ambito: AmbitoLimite, ip: string, segreto: string):
   const impronta = createHmac("sha256", segreto).update(ip).digest("base64url");
   return `${ambito}:${impronta}`;
 }
+
+/**
+ * Chiave per contare le richieste di un account invece che della
+ * connessione: impronta dell'id dell'utente, con un prefisso diverso da
+ * quello delle connessioni («ambito:u:…»), così le due chiavi non si
+ * mescolano mai. Serve a chi usa l'app: dietro la stessa connessione
+ * mobile possono esserci molte persone.
+ */
+export function chiaveLimiteUtente(ambito: AmbitoLimite, utenteId: string, segreto: string): string {
+  const impronta = createHmac("sha256", segreto).update(`utente:${utenteId}`).digest("base64url");
+  return `${ambito}:u:${impronta}`;
+}

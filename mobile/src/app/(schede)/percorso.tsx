@@ -59,6 +59,13 @@ export default function SchermataPercorso() {
         <Testo attenuato>
           {n} fatti su {totale}. Tocca la casella quando hai finito un passo.
         </Testo>
+        <Pulsante
+          titolo="Le lezioni video del corso di Bleo"
+          variante="testo"
+          icona="chevron-forward"
+          onPress={() => router.push("/corso")}
+          style={{ alignSelf: "flex-start" }}
+        />
       </Scheda>
 
       {percorso.avvisi.length > 0 ? <ElencoAvvisi avvisi={percorso.avvisi} /> : null}

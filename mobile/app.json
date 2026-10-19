@@ -38,8 +38,8 @@
       [
         "expo-image-picker",
         {
-          "cameraPermission": "Bleo usa la fotocamera per fotografare le tue ricevute e i documenti della tua attività.",
-          "photosPermission": "Bleo apre le tue foto per caricare le ricevute e i documenti che scegli.",
+          "cameraPermission": "Bleo usa la fotocamera per fotografare le tue ricevute, le lettere degli uffici e i documenti della tua attività.",
+          "photosPermission": "Bleo apre le tue foto per caricare le ricevute, le lettere e i documenti che scegli.",
           "microphonePermission": false
         }
       ],

@@ -5,10 +5,23 @@ stessi dati con le fonti e gli stessi calcoli del sito (cartella `../src`).
 
 Cosa c'è:
 
-- **Inizio**: avanzamento, prossimo passo e prossime scadenze.
+- **Inizio**: avanzamento, prossimo passo e prossime scadenze; da qui il
+  corso, i conti, «Fotografa la lettera» e gli strumenti.
 - **Questionario** di 10 domande (si riprende da dove eri).
 - **Percorso**: passi da spuntare, avvisi, scadenze con le fonti ufficiali e
   **promemoria sul telefono** una settimana prima di ogni scadenza.
+- **Il corso di Bleo** (da Inizio, Percorso e da ogni passo): tutte le
+  lezioni video nell'ordine del percorso, con numero, titolo e durata; tocchi
+  una lezione e compaiono il video, i video facoltativi, le fonti e il link
+  al passo. In verde le lezioni dei passi che hai già fatto. I video si
+  scaricano dal sito solo quando li avvii.
+- **Fotografa la lettera** (da Inizio e da Calcoli e strumenti): fotografi o
+  carichi in PDF una lettera di un ufficio (cassa AVS, contribuzioni,
+  Comune...) e Bleo ti spiega cos'è, le scadenze, gli importi, cosa fare e
+  quando chiedere aiuto, con la nota che è un'informazione generale. Usa la
+  stessa API del sito (`/api/lettera`) con gli stessi limiti; con l'accesso
+  il limite conta per account. Funziona anche senza accesso. La lettera non
+  si salva: resta nella schermata finché non la chiudi.
 - **Chiedi a Bleo**: la chat con le fonti, con accesso tramite codice via email.
   Nella versione di prova mostra "La chat arriva presto".
 - **Conti** (con l'accesso): fotografi una ricevuta o carichi un PDF, Bleo la
@@ -16,8 +29,9 @@ Cosa c'è:
   incassare, indirizzo email personale per inoltrare le fatture.
   **Clienti e ore**: rubrica dei clienti, ore segnate in pochi tocchi e, a
   fine mese, «Crea la fattura», che si apre sul sito già compilata. In fondo,
-  **Calcoli e strumenti**: tariffa oraria e contributi AVS; budget, business
-  plan, preventivo e fattura QR si aprono sul sito.
+  **Calcoli e strumenti**: tariffa oraria, contributi AVS e «Fotografa la
+  lettera» nell'app; budget, business plan, preventivo e fattura QR,
+  Fondare una Sagl, nome della ditta e testi pronti stanno sul sito.
 - **Cassetto dei documenti** (con l'accesso, da Conti o Profilo): fotografi
   o carichi in PDF decisione della cassa AVS, numero IVA, polizze, permesso,
   contratti; vedi cosa è scaduto o scade presto e ricevi una notifica 30 e 7
@@ -28,6 +42,13 @@ Cosa c'è:
 
 I dati (risposte, passi fatti, calcoli) restano sul telefono; i conti e le
 ricevute stanno nell'account sul sito.
+
+Le pagine del sito (strumenti, privacy, impressum) si aprono nel **browser
+del telefono** (Safari, Chrome), dove ci sono già i dati che il sito ha
+salvato e l'accesso al sito: il browser dentro l'app, su iPhone, non li
+condivide con Safari. Le fonti ufficiali, i moduli e i file dei conti e del
+cassetto si aprono invece nel browser dentro l'app, per tornare subito
+indietro (`src/lib/apri.ts`).
 
 ## Provarla sul tuo telefono
 
@@ -95,9 +116,12 @@ Prima, negli store, crea la scheda dell'app:
   (cambia l'indirizzo quando hai il dominio).
 - **Schermate**: fai gli screenshot dall'app (iPhone 6,9" e Android).
 - **Dati raccolti** (App Privacy di Apple, Sicurezza dei dati di Google):
-  senza accesso, nessuno (tutto resta sul telefono). Con la chat attiva:
-  indirizzo email e contenuti dell'utente (le domande), per il
-  funzionamento dell'app, non per pubblicità e non venduti. L'account si
+  senza accesso, solo la foto o il PDF che scegli in «Fotografa la
+  lettera», mandato al fornitore di AI per la spiegazione e non salvato da
+  Bleo (il resto resta sul telefono). Con la chat attiva: indirizzo email e
+  contenuti dell'utente (le domande; con i conti e il cassetto, le foto e i
+  PDF caricati), per il funzionamento dell'app, non per pubblicità e non
+  venduti. L'account si
   elimina dall'app (Profilo → Elimina account).
 - **Account di prova per Apple**: quando la chat è attiva, Apple vuole un
   account per provarla; spiega nelle note che l'accesso è con un codice via

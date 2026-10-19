@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { useMemo } from "react";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LEZIONI } from "@/data/corso";
 import { dataSvizzera } from "@/data/svizzera";
 import { annoScadenzario, eventiDaScadenze } from "@/lib/percorso/calendario";
 import { avanzamento, prossimoPasso } from "@/lib/percorso/regole";
@@ -81,6 +82,14 @@ export default function Inizio() {
           </>
         )}
 
+        <Scheda style={{ paddingVertical: SPAZIO.xs }}>
+          <RigaMenu
+            titolo="Il corso di Bleo"
+            sottotitolo={`${LEZIONI.length} video brevi, uno per ogni passo`}
+            icona="school-outline"
+            onPress={() => router.push("/corso")}
+          />
+        </Scheda>
         <ContiEStrumenti />
         <NotaInformazione />
       </Schermata>
@@ -103,6 +112,13 @@ function ContiEStrumenti() {
         }
         icona="wallet-outline"
         onPress={() => router.push("/conti")}
+      />
+      <Separatore />
+      <RigaMenu
+        titolo="Fotografa la lettera"
+        sottotitolo="Bleo ti spiega le lettere degli uffici"
+        icona="mail-open-outline"
+        onPress={() => router.push("/strumenti/lettera")}
       />
       <Separatore />
       <RigaMenu

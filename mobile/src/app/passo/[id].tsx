@@ -40,7 +40,7 @@ export default function DettaglioPasso() {
 
       <Testo>{passo.descrizione}</Testo>
 
-      {lezione ? <LezioneVideo lezione={lezione} /> : null}
+      {lezione ? <LezioneVideo lezione={lezione} conLinkCorso /> : null}
 
       {voce && voce.note.length > 0 ? (
         <Scheda tenue>
