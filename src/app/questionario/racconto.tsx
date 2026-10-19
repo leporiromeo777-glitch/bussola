@@ -9,13 +9,8 @@ import { aggiungiDettato } from "@/lib/dettatura/testo";
 import { salvaBozza, type Bozza } from "@/lib/percorso/bozza";
 import { DOMANDE, etichettaRisposta } from "@/lib/percorso/domande";
 import { VOCI_RACCONTO, vociToccate } from "@/lib/percorso/racconto-checklist";
+import { ESEMPI_RACCONTO as ESEMPI, TESTI_RACCONTO, controllaTestoRacconto } from "@/lib/percorso/racconto-revisione";
 import type { IdDomanda } from "@/lib/percorso/risposte";
-
-const ESEMPI = [
-  "Voglio fare il fotografo a Lugano nel fine settimana. Ho già un lavoro al 60% e sono svizzero.",
-  "Vorrei aprire un piccolo bar a Bellinzona con la mia ragazza.",
-  "Faccio siti web per altre persone, da sola, e penso di fatturare circa 30'000 franchi il primo anno.",
-];
 
 type Esito = { bozza: Bozza; riassunto: string };
 
@@ -32,9 +27,9 @@ export function Racconto({ onContinua, onDomande }: { onContinua: () => void; on
 
   async function invia(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
-    const pulito = testo.trim();
-    if (pulito.length < 10) {
-      setErrore("Scrivi almeno una frase: cosa vuoi fare e dove.");
+    const controllo = controllaTestoRacconto(testo);
+    if (!controllo.ok) {
+      setErrore(controllo.messaggio);
       return;
     }
     setErrore(null);
@@ -43,22 +38,20 @@ export function Racconto({ onContinua, onDomande }: { onContinua: () => void; on
       const risposta = await fetch("/api/racconta", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ testo: pulito }),
+        body: JSON.stringify({ testo: controllo.testo }),
       });
       const corpo = (await risposta.json().catch(() => null)) as
         | (Partial<Esito> & { messaggio?: unknown })
         | null;
       if (!risposta.ok || !corpo?.bozza || typeof corpo.riassunto !== "string") {
         setErrore(
-          typeof corpo?.messaggio === "string"
-            ? corpo.messaggio
-            : "Non sono riuscito a capire. Rispondi alle domande: ci vogliono 5 minuti.",
+          typeof corpo?.messaggio === "string" ? corpo.messaggio : TESTI_RACCONTO.nonCapito,
         );
         return;
       }
       setEsito({ bozza: corpo.bozza, riassunto: corpo.riassunto });
     } catch {
-      setErrore("Non riesco a raggiungere Bleo: controlla la connessione o rispondi alle domande.");
+      setErrore(TESTI_RACCONTO.senzaConnessione);
     } finally {
       setInCorso(false);
     }
@@ -132,8 +125,7 @@ export function Racconto({ onContinua, onDomande }: { onContinua: () => void; on
         Racconta a Bleo cosa vuoi fare
       </label>
       <p id={`${id}-aiuto`} className="mt-2 text-muted">
-        Con parole tue, scritte o a voce: che lavoro, dove, se da solo o con altri, se hai già un impiego. Bleo
-        capisce le risposte e ti chiede solo quello che manca.
+        {TESTI_RACCONTO.aiuto}
       </p>
       <textarea
         id={`${id}-testo`}
@@ -176,10 +168,7 @@ export function Racconto({ onContinua, onDomande }: { onContinua: () => void; on
           Preferisco rispondere alle 10 domande
         </button>
       </div>
-      <p className="mt-4 text-xs text-muted">
-        Il testo lo legge l&apos;intelligenza artificiale che usa Bleo (Claude, di Anthropic) solo per capire le
-        risposte: noi non lo salviamo. Scrivi solo quello che serve, senza dati come indirizzo o numero AVS.
-      </p>
+      <p className="mt-4 text-xs text-muted">{TESTI_RACCONTO.privacy}</p>
       <p role="status" aria-live="polite" className="sr-only">
         {inCorso ? "Bleo sta leggendo la tua descrizione." : ""}
       </p>
@@ -235,7 +224,7 @@ function ChecklistRacconto({ testo }: { testo: string }) {
       <p className="mt-3 text-xs text-muted">
         <span className="text-brand">*</span> le più importanti
         {testo.trim() && importantiMancanti > 0
-          ? ` · ne mancano ${importantiMancanti}`
+          ? ` · ${importantiMancanti === 1 ? "ne manca 1" : `ne mancano ${importantiMancanti}`}`
           : testo.trim()
             ? " · ci sono tutte"
             : ""}

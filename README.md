@@ -110,6 +110,9 @@ npm run build
    come sul sito. `DELETE /api/account` (e "Elimina account" in `/account`)
    cancella l'utente con `SUPABASE_SECRET_KEY`; i suoi dati si cancellano a
    cascata.
+   «Racconta a Bleo» (`GET`/`POST /api/racconta`) e «Fotografa la lettera»
+   funzionano anche senza accesso, con il limite per connessione; con il
+   token (o i cookie del sito) lo stesso limite conta per account.
 
 ### Fonti della chat
 

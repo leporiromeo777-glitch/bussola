@@ -5,9 +5,23 @@ stessi dati con le fonti e gli stessi calcoli del sito (cartella `../src`).
 
 Cosa c'è:
 
-- **Inizio**: avanzamento, prossimo passo e prossime scadenze; da qui il
-  corso, i conti, «Fotografa la lettera» e gli strumenti.
+- **Inizio**: in cima **Oggi**, il riassunto del giorno: solo quando c'è
+  qualcosa, schede dalla più urgente con un'azione ciascuna (fatture scadute
+  → «Manda un sollecito», fatture che scadono presto, la prossima scadenza
+  del percorso, documenti del cassetto scaduti o in scadenza, ore da
+  fatturare → «Crea la fattura», «Quanto mettere da parte», votazioni
+  vicine); altrimenti «Tutto in ordine per oggi». Senza accesso solo
+  scadenze e votazioni. Si aggiorna tornando su Inizio e tirando giù
+  (logica in `src/lib/oggi/`). Sotto: avanzamento, prossimo passo e
+  prossime scadenze; da qui il corso, i conti, «Fotografa la lettera» e gli
+  strumenti.
 - **Questionario** di 10 domande (si riprende da dove eri).
+- **Racconta a Bleo** (in cima alla prima domanda del questionario): scrivi
+  la tua idea con parole tue (o la detti con il microfono della tastiera),
+  Bleo propone le risposte, tu le controlli e le correggi prima di
+  confermare; poi ti chiede solo quelle che mancano. Usa la stessa API del
+  sito (`/api/racconta`) con gli stessi limiti; con l'accesso il limite
+  conta per account. Il testo non si salva.
 - **Percorso**: passi da spuntare, avvisi, scadenze con le fonti ufficiali e
   **promemoria sul telefono** una settimana prima di ogni scadenza.
   **Il percorso nell'account**: con l'accesso risposte e passi fatti sono
@@ -130,7 +144,8 @@ Prima, negli store, crea la scheda dell'app:
 - **Schermate**: fai gli screenshot dall'app (iPhone 6,9" e Android).
 - **Dati raccolti** (App Privacy di Apple, Sicurezza dei dati di Google):
   senza accesso, solo la foto o il PDF che scegli in «Fotografa la
-  lettera», mandato al fornitore di AI per la spiegazione e non salvato da
+  lettera» e il testo che scrivi in «Racconta a Bleo», mandati al fornitore
+  di AI per la spiegazione o per proporre le risposte e non salvati da
   Bleo (il resto resta sul telefono). Con la chat attiva: indirizzo email e
   contenuti dell'utente (le domande; con i conti e il cassetto, le foto e i
   PDF caricati), per il funzionamento dell'app, non per pubblicità e non

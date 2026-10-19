@@ -1,18 +1,23 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { Bozza } from "@/lib/percorso/bozza";
 import { indiceDiRipresa } from "@/lib/percorso/bozza";
 import { DOMANDE, type Opzione } from "@/lib/percorso/domande";
+import { esitoRevisione, prossimaDaRispondere } from "@/lib/percorso/racconto-revisione";
 import {
   LUNGHEZZA_MASSIMA_ATTIVITA_ALTRO,
   leggiRisposte,
   VERSIONE_RISPOSTE,
   type IdDomanda,
+  type Risposte,
 } from "@/lib/percorso/risposte";
 import { NotaSalvataggioQuestionario } from "~/components/percorso-account";
+import { AvvisoDaRacconto, IngressoRacconto } from "~/components/racconto/ingresso";
+import { Racconto } from "~/components/racconto/racconto";
 import { BarraProgresso, Pulsante, Schermata, Testo, tocco } from "~/components/ui";
+import { useRaccontoAttivo } from "~/lib/racconto";
 import { cancellaBozza, leggiBozza, salvaBozza, salvaRisposte } from "~/lib/stato";
 import { RAGGIO, SPAZIO, useColori } from "~/lib/tema";
 
@@ -28,6 +33,10 @@ export default function Questionario() {
   const domanda = DOMANDE[indice];
   const scelta = bozza[domanda.id as IdDomanda];
   const ultima = indice === DOMANDE.length - 1;
+  // «Racconta a Bleo»: aperto, e se le risposte vengono dal racconto (allora «Avanti» salta quelle già date).
+  const [racconto, setRacconto] = useState(false);
+  const [daRacconto, setDaRacconto] = useState(false);
+  const [raccontoAttivo, setRaccontoAttivo] = useRaccontoAttivo();
 
   function aggiorna(indiceNuovo: number, bozzaNuova: Bozza) {
     setStato({ indice: indiceNuovo, bozza: bozzaNuova });
@@ -41,7 +50,7 @@ export default function Questionario() {
 
   function avanti() {
     if (!ultima) {
-      aggiorna(indice + 1, bozza);
+      aggiorna(daRacconto ? prossimaDaRispondere(indice, bozza) : indice + 1, bozza);
       return;
     }
     const risposte = leggiRisposte({ versione: VERSIONE_RISPOSTE, ...bozza });
@@ -50,15 +59,50 @@ export default function Questionario() {
       aggiorna(indiceDiRipresa(DOMANDE.length - 1, bozza), bozza);
       return;
     }
+    concludi(risposte);
+  }
+
+  /** Fine del questionario: salva le risposte e apre il percorso (anche da «Racconta a Bleo»). */
+  function concludi(risposte: Risposte) {
     salvaRisposte(risposte);
     cancellaBozza();
     router.replace("/percorso");
   }
 
+  /** Le risposte confermate in «Racconta a Bleo» entrano nel questionario come se le avessi date tu. */
+  function confermaRacconto(confermata: Bozza) {
+    setRacconto(false);
+    const esito = esitoRevisione(confermata);
+    if (esito.completa) {
+      concludi(esito.risposte);
+      return;
+    }
+    setDaRacconto(true);
+    aggiorna(esito.indice, confermata);
+  }
+
+  if (racconto) {
+    return (
+      <Racconto
+        bozzaAttuale={bozza}
+        attivo={raccontoAttivo}
+        onNonAttivo={() => setRaccontoAttivo(false)}
+        onConferma={confermaRacconto}
+        onDomande={() => setRacconto(false)}
+      />
+    );
+  }
+
   return (
     <SafeAreaView edges={["bottom"]} style={{ flex: 1, backgroundColor: c.sfondo }}>
+      <Stack.Screen options={{ title: "Questionario" }} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <Schermata>
+          {daRacconto ? (
+            <AvvisoDaRacconto />
+          ) : indice === 0 ? (
+            <IngressoRacconto attivo={raccontoAttivo} onApri={() => setRacconto(true)} />
+          ) : null}
           <View style={{ gap: SPAZIO.s }}>
             <Testo variante="piccolo" attenuato>
               Domanda {indice + 1} di {DOMANDE.length}
