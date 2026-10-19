@@ -1,9 +1,9 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { ActivityIndicator, Pressable, RefreshControl, View } from "react-native";
 import { dataSvizzera } from "@/data/svizzera";
-import { clientiInOrdine, durata, meseDi, nomeMese, riepilogoMese, spostaMese } from "@/lib/clienti/ore";
+import { clientiInOrdine, durata, meseDi, meseValido, nomeMese, riepilogoMese, spostaMese } from "@/lib/clienti/ore";
 import type { GruppoCliente } from "@/lib/clienti/ore";
 import type { Cliente, DettaglioFattura, Mese, RispostaOre, VoceOre } from "@/lib/clienti/tipi";
 import { importo } from "@/lib/strumenti/numeri";
@@ -66,7 +66,11 @@ function ClientiOreUtente() {
   const c = useColori();
   const oggi = oggiLocale();
   const meseCorrente = meseDi(oggi);
-  const [mese, setMese] = useState<Mese>(meseCorrente);
+  // Da «Oggi» in Inizio («Crea la fattura»): si apre sul mese con le ore da fatturare.
+  const { mese: meseRichiesto } = useLocalSearchParams<{ mese?: string }>();
+  const [mese, setMese] = useState<Mese>(() =>
+    meseValido(meseRichiesto) && meseRichiesto <= meseCorrente ? meseRichiesto : meseCorrente,
+  );
   const [dati, setDati] = useState<RispostaOre | null>(null);
   const [errore, setErrore] = useState<Errore | null>(null);
   const [aggiornando, setAggiornando] = useState(false);

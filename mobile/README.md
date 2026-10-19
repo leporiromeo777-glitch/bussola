@@ -5,8 +5,16 @@ stessi dati con le fonti e gli stessi calcoli del sito (cartella `../src`).
 
 Cosa c'è:
 
-- **Inizio**: avanzamento, prossimo passo e prossime scadenze; da qui il
-  corso, i conti, «Fotografa la lettera» e gli strumenti.
+- **Inizio**: in cima **Oggi**, il riassunto del giorno: solo quando c'è
+  qualcosa, schede dalla più urgente con un'azione ciascuna (fatture scadute
+  → «Manda un sollecito», fatture che scadono presto, la prossima scadenza
+  del percorso, documenti del cassetto scaduti o in scadenza, ore da
+  fatturare → «Crea la fattura», «Quanto mettere da parte», votazioni
+  vicine); altrimenti «Tutto in ordine per oggi». Senza accesso solo
+  scadenze e votazioni. Si aggiorna tornando su Inizio e tirando giù
+  (logica in `src/lib/oggi/`). Sotto: avanzamento, prossimo passo e
+  prossime scadenze; da qui il corso, i conti, «Fotografa la lettera» e gli
+  strumenti.
 - **Questionario** di 10 domande (si riprende da dove eri).
 - **Percorso**: passi da spuntare, avvisi, scadenze con le fonti ufficiali e
   **promemoria sul telefono** una settimana prima di ogni scadenza.
