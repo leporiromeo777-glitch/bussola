@@ -155,7 +155,7 @@ function DatiSulTelefono() {
   function conferma() {
     Alert.alert(
       "Cancellare i dati da questo telefono?",
-      "Togliamo risposte al questionario, passi fatti, look di Bleo, promemoria e le scadenze dei documenti salvate per i promemoria. Il tuo account, se ce l'hai, resta.",
+      "Togliamo risposte al questionario, passi fatti, look di Bleo, promemoria, le scadenze dei documenti salvate per i promemoria e i dati degli strumenti (tariffa oraria, quanto mettere da parte, Fondare una Sagl). Il tuo account, se ce l'hai, resta.",
       [
         { text: "Annulla", style: "cancel" },
         {

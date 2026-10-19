@@ -23,6 +23,7 @@ import { calcolaPercorso, type Percorso } from "@/lib/percorso/regole";
 import { VERSIONE_RISPOSTE, type Risposte } from "@/lib/percorso/risposte";
 import { analizzaLook, CHIAVE_LOOK, type IdLook } from "@/lib/mascotte/look";
 import { CHIAVE_VESTITO } from "@/lib/mascotte/vestito";
+import { CHIAVI_ARCHIVIO } from "@/lib/strumenti/archivio";
 import { iscriviti, leggi, scrivi } from "./memoria";
 import { cambiaPassoSulTelefono, CHIAVE_IN_SOSPESO, nuoveRisposteSulTelefono } from "./percorso-locale";
 
@@ -128,9 +129,14 @@ export function impostaSettimana(attiva: boolean): void {
   scrivi(CHIAVE_SETTIMANA, attiva ? "si" : null);
 }
 
-/** Cancella dal telefono tutto quello che Bleo ha salvato (anche nomi e scadenze dei documenti del cassetto). */
+/**
+ * Cancella dal telefono tutto quello che Bleo ha salvato: percorso, look,
+ * promemoria, nomi e scadenze dei documenti del cassetto e i dati degli
+ * strumenti (tutte le chiavi di CHIAVI_ARCHIVIO, anche quelle aggiunte dopo).
+ */
 export function cancellaDatiLocali(): void {
   for (const chiave of [
+    ...Object.values(CHIAVI_ARCHIVIO),
     CHIAVE_RISPOSTE,
     CHIAVE_PASSI_FATTI,
     CHIAVE_UTENTE,
