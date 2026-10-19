@@ -39,6 +39,21 @@ export const PASSI_CHECK_LIST = [
   "Chiarite se dovete pagare l'IVA. Per le iscrizioni c'è il portale EasyGov.",
 ] as const;
 
+/**
+ * Nome del file PDF, uguale sul sito e nell'app: «scheda-fondazione-…» o
+ * «bozza-statuto-…» con la ditta in minuscolo, senza accenti, spazi né
+ * simboli («rossi-bianchi-sagl»); «sagl» se la ditta è vuota.
+ */
+export function nomeFilePdfFondazione(quale: "scheda" | "statuto", ditta: string): string {
+  const pulito = ditta
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return `${quale === "scheda" ? "scheda-fondazione" : "bozza-statuto"}-${pulito || "sagl"}.pdf`;
+}
+
 function fontiBlocchi(elenco: readonly Fonte[]): Blocco[] {
   const uniche = elenco.filter((f, i) => elenco.findIndex((g) => g.url === f.url) === i);
   return [

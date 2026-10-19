@@ -2,7 +2,7 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 import { creaPdf, righeDi, type Blocco, type DocumentoPdf } from "../pdf/crea-pdf";
 import { datiFondazioneIniziali, type DatiFondazione } from "./dati";
-import { bozzaStatuto, PASSI_CHECK_LIST, schedaPreparazione } from "./documenti";
+import { bozzaStatuto, nomeFilePdfFondazione, PASSI_CHECK_LIST, schedaPreparazione } from "./documenti";
 
 function completi(): DatiFondazione {
   const d = datiFondazioneIniziali();
@@ -113,5 +113,17 @@ describe("PDF", () => {
     const lungo = Array.from({ length: 120 }, (_, i) => `Riga numero ${i + 1} di un elenco molto lungo.`);
     const byte = await creaPdf({ titolo: "Lungo", blocchi: [{ tipo: "elenco", voci: lungo, numerato: true }], piede: "piede" });
     expect((await PDFDocument.load(byte)).getPageCount()).toBeGreaterThan(1);
+  });
+});
+
+describe("nomeFilePdfFondazione", () => {
+  it("usa la ditta in minuscolo, senza accenti né simboli", () => {
+    expect(nomeFilePdfFondazione("scheda", "Rossi & Bianchi Sagl")).toBe("scheda-fondazione-rossi-bianchi-sagl.pdf");
+    expect(nomeFilePdfFondazione("statuto", "Caffè Già Sàrl")).toBe("bozza-statuto-caffe-gia-sarl.pdf");
+  });
+
+  it("senza ditta il file si chiama «sagl»", () => {
+    expect(nomeFilePdfFondazione("scheda", "  ")).toBe("scheda-fondazione-sagl.pdf");
+    expect(nomeFilePdfFondazione("statuto", "«»")).toBe("bozza-statuto-sagl.pdf");
   });
 });

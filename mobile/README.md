@@ -22,6 +22,19 @@ Cosa c'è:
   stessa API del sito (`/api/lettera`) con gli stessi limiti; con l'accesso
   il limite conta per account. Funziona anche senza accesso. La lettera non
   si salva: resta nella schermata finché non la chiudi.
+- **Nome della ditta**, **Testi pronti** e **Fondare una Sagl** (da Calcoli e
+  strumenti), come sul sito. Nome della ditta: le regole con le fonti, le
+  proposte di Bleo con il tuo cognome già cercate nel registro di commercio
+  (Zefix) e il controllo di un nome che hai in mente, con «Copia». Testi
+  pronti: bio e descrizione per Instagram o il sito, prima email a un
+  cliente, introduzione al preventivo, la tua attività in breve; il testo si
+  modifica, si copia o si condivide. Le stesse API del sito (`/api/nome-ditta`,
+  `/api/testi`) con gli stessi limiti; con l'accesso il limite conta per
+  account. Niente si salva. Fondare una Sagl: sei passi (società, capitale e
+  quote, soci, chi dirige, banca e revisione, controlli) con gli stessi
+  controlli e le stesse fonti del sito; la scheda per il notaio e la bozza
+  dello statuto in PDF, creati sul telefono, da condividere o stampare. I
+  dati restano sul telefono (sul sito restano nel browser).
 - **Chiedi a Bleo**: la chat con le fonti, con accesso tramite codice via email.
   Nella versione di prova mostra "La chat arriva presto".
 - **Conti** (con l'accesso): fotografi una ricevuta o carichi un PDF, Bleo la
@@ -34,8 +47,8 @@ Cosa c'è:
   preventivo trasformato in fattura, anteprima, PDF con la QR-fattura da
   condividere o stampare, «Registra in I tuoi conti». Gli stessi documenti
   si vedono sul sito. In fondo, **Calcoli e strumenti**: tariffa oraria,
-  contributi AVS e «Fotografa la lettera» nell'app; budget, business plan,
-  Fondare una Sagl, nome della ditta e testi pronti stanno sul sito.
+  contributi AVS, «Fotografa la lettera», nome della ditta, testi pronti e
+  Fondare una Sagl nell'app; budget e business plan stanno sul sito.
 - **Cassetto dei documenti** (con l'accesso, da Conti o Profilo): fotografi
   o carichi in PDF decisione della cassa AVS, numero IVA, polizze, permesso,
   contratti; vedi cosa è scaduto o scade presto e ricevi una notifica 30 e 7
@@ -121,8 +134,9 @@ Prima, negli store, crea la scheda dell'app:
 - **Schermate**: fai gli screenshot dall'app (iPhone 6,9" e Android).
 - **Dati raccolti** (App Privacy di Apple, Sicurezza dei dati di Google):
   senza accesso, solo la foto o il PDF che scegli in «Fotografa la
-  lettera», mandato al fornitore di AI per la spiegazione e non salvato da
-  Bleo (il resto resta sul telefono). Con la chat attiva: indirizzo email e
+  lettera» e quello che scrivi in «Nome della ditta» e «Testi pronti»,
+  mandati al fornitore di AI (i nomi anche a Zefix) e non salvati da Bleo
+  (il resto resta sul telefono). Con la chat attiva: indirizzo email e
   contenuti dell'utente (le domande; con i conti e il cassetto, le foto e i
   PDF caricati), per il funzionamento dell'app, non per pubblicità e non
   venduti. L'account si

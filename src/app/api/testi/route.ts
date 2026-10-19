@@ -1,9 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
+import { connection } from "next/server";
 import { dettagliErrore } from "@/lib/chat/errori";
 import { scegliModelloFunzione, supportaFallback } from "@/lib/chat/modello";
-import { creaClientAnthropic } from "@/lib/chat/server";
+import { anthropicConfigurato, creaClientAnthropic } from "@/lib/chat/server";
 import { controllaLimite } from "@/lib/limiti/server";
+import { utentePerLimite } from "@/lib/limiti/utente";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ISTRUZIONI_TESTI, messaggioTesti } from "@/lib/testi/istruzioni";
 import { MESSAGGI_TESTI, leggiRichiestaTesti, pulisciTesti, schemaOutputTesti } from "@/lib/testi/richiesta";
 
@@ -27,13 +30,25 @@ function registra(contesto: string, dettagli: Record<string, unknown>) {
 }
 
 /**
+ * GET /api/testi — { attiva }: lo strumento si può usare (Claude e il limite
+ * delle richieste configurati)? La usa l'app per mostrare subito «non ancora
+ * attivo», come fa la pagina del sito.
+ */
+export async function GET() {
+  // Al momento della richiesta: dipende dalle variabili d'ambiente del server.
+  await connection();
+  return json(200, { attiva: anthropicConfigurato() && createAdminClient() !== null });
+}
+
+/**
  * POST /api/testi — { tipo, descrizione, nome?, luogo?, clienti?, tono, lingua?, rifai? }
  * → { testi: [{ titolo, testo }] }.
  * Bleo scrive testi pronti per la nuova attività (bio e descrizione, prima
  * email a un cliente, introduzione al preventivo, attività in breve) solo da
  * quello che la persona ha scritto. Senza accesso, ma con un limite per
- * connessione: se il limite non si può verificare la richiesta si rifiuta,
- * perché ogni chiamata a Claude costa.
+ * connessione; con l'accesso (sito o app con `Authorization: Bearer`) lo
+ * stesso limite vale per account. Se il limite non si può verificare la
+ * richiesta si rifiuta, perché ogni chiamata a Claude costa.
  */
 export async function POST(request: Request) {
   const anthropic = creaClientAnthropic();
@@ -52,7 +67,7 @@ export async function POST(request: Request) {
   if (!richiesta.ok) return json(400, { messaggio: richiesta.messaggio });
 
   // Si conta solo una richiesta valida, subito prima di chiamare Claude.
-  const limite = await controllaLimite("testi");
+  const limite = await controllaLimite("testi", { utenteId: await utentePerLimite(request) });
   if (limite === "non_disponibile") return json(503, { messaggio: MESSAGGI_TESTI.occupato });
   if (limite === "superato") return json(429, { messaggio: MESSAGGI_TESTI.troppeRichieste });
 

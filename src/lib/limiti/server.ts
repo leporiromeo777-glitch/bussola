@@ -49,8 +49,12 @@ export async function controllaLimite(
  * Dice se la richiesta è consentita. Se il limite non si può verificare la
  * richiesta passa: qui il limite protegge dagli abusi, non deve bloccare chi
  * usa il sito. Per le azioni che costano (Claude) usare controllaLimite e
- * rifiutare quando il limite non è disponibile.
+ * rifiutare quando il limite non è disponibile. Con `utenteId` conta per
+ * account, come controllaLimite.
  */
-export async function richiestaConsentita(ambito: AmbitoLimite): Promise<boolean> {
-  return (await controllaLimite(ambito)) !== "superato";
+export async function richiestaConsentita(
+  ambito: AmbitoLimite,
+  opzioni: { utenteId?: string | null } = {},
+): Promise<boolean> {
+  return (await controllaLimite(ambito, opzioni)) !== "superato";
 }

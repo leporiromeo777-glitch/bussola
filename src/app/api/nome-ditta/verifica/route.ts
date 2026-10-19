@@ -1,4 +1,5 @@
 import { richiestaConsentita } from "@/lib/limiti/server";
+import { utentePerLimite } from "@/lib/limiti/utente";
 import { MESSAGGI_NOME_DITTA, leggiRichiestaVerifica } from "@/lib/nome-ditta/proposte";
 import { cercaSuZefix } from "@/lib/nome-ditta/zefix";
 
@@ -12,7 +13,8 @@ function json(status: number, corpo: Record<string, unknown>) {
  * POST /api/nome-ditta/verifica — { nome } → { registro }.
  * Cerca su Zefix le ditte attive con le stesse parole del nome scritto da
  * chi usa lo strumento. Non usa Claude: funziona anche in modalità demo.
- * Conta nel limite «nomeDitta» della connessione; se il limite non si può
+ * Conta nel limite «zefix» della connessione (con l'accesso, sito o app con
+ * `Authorization: Bearer`, dell'account); se il limite non si può
  * verificare la richiesta passa (Zefix è gratuito e ha un tempo massimo).
  */
 export async function POST(request: Request) {
@@ -28,7 +30,7 @@ export async function POST(request: Request) {
   const richiesta = leggiRichiestaVerifica(corpo);
   if (!richiesta.ok) return json(400, { messaggio: richiesta.messaggio });
 
-  if (!(await richiestaConsentita("zefix"))) {
+  if (!(await richiestaConsentita("zefix", { utenteId: await utentePerLimite(request) }))) {
     return json(429, { messaggio: MESSAGGI_NOME_DITTA.troppiControlli });
   }
 

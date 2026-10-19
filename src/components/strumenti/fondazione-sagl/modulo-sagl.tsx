@@ -64,7 +64,7 @@ export function ModuloSagl() {
       const url = URL.createObjectURL(new Blob([byte as BlobPart], { type: "application/pdf" }));
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${quale === "scheda" ? "scheda-fondazione" : "bozza-statuto"}-${nomeFile(dati.ditta)}.pdf`;
+      a.download = documenti.nomeFilePdfFondazione(quale, dati.ditta);
       document.body.append(a);
       a.click();
       a.remove();
@@ -336,17 +336,6 @@ export function ModuloSagl() {
       <NotaNonConsulenza />
     </div>
   );
-}
-
-/** Nome del file: la ditta in minuscolo, senza spazi né simboli. */
-function nomeFile(ditta: string): string {
-  const pulito = ditta
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-  return pulito || "sagl";
 }
 
 /** Un campo per un importo (o un numero di quote): si scrive libero, si salva quando è un numero. */
