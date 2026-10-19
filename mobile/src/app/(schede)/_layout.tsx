@@ -6,6 +6,8 @@ import type { NomeIcona } from "~/components/ui";
 import { aggiornaScadenzeDocumenti, dimenticaScadenzeDocumenti } from "~/lib/cassetto";
 import { aggiornaContatore, impostaDaConfermare, useDaConfermare } from "~/lib/conti";
 import { riprogrammaNotifiche, togliPromemoriaFatture } from "~/lib/notifiche";
+// Il percorso nell'account: si allinea all'accesso, in primo piano e dopo ogni modifica.
+import "~/lib/percorso-account";
 import { useSessione } from "~/lib/sessione";
 import { useColori } from "~/lib/tema";
 

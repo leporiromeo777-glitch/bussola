@@ -1,7 +1,7 @@
 "use server";
 
 import { utenteCollegato } from "@/lib/percorso/account";
-import { VERSIONE_REGOLE } from "@/lib/percorso/regole";
+import { salvaRisposteUtente } from "@/lib/percorso/account-utente";
 import { leggiRisposte } from "@/lib/percorso/risposte";
 import type { EsitoSalvataggio } from "@/lib/percorso/salvataggio";
 
@@ -17,15 +17,7 @@ export async function salvaRisposte(dati: unknown): Promise<EsitoSalvataggio> {
     const collegamento = await utenteCollegato();
     if (!collegamento.ok) return collegamento;
     const { supabase, userId } = collegamento;
-    const { error } = await supabase.from("questionari").upsert(
-      {
-        user_id: userId,
-        risposte,
-        versione_regole: VERSIONE_REGOLE,
-        aggiornato_il: new Date().toISOString(),
-      },
-      { onConflict: "user_id" },
-    );
+    const { error } = await salvaRisposteUtente(supabase, userId, risposte);
     return error ? { ok: false, motivo: "errore" } : { ok: true };
   } catch {
     return { ok: false, motivo: "errore" };

@@ -13,6 +13,7 @@ import {
   type IdDomanda,
   type Risposte,
 } from "@/lib/percorso/risposte";
+import { NotaSalvataggioQuestionario } from "~/components/percorso-account";
 import { AvvisoDaRacconto, IngressoRacconto } from "~/components/racconto/ingresso";
 import { Racconto } from "~/components/racconto/racconto";
 import { BarraProgresso, Pulsante, Schermata, Testo, tocco } from "~/components/ui";
@@ -180,9 +181,7 @@ export default function Questionario() {
               onPress={avanti}
             />
           </View>
-          <Testo variante="piccolo" attenuato>
-            Le risposte restano su questo telefono. Puoi chiudere e riprendere da dove eri.
-          </Testo>
+          <NotaSalvataggioQuestionario />
         </Schermata>
       </KeyboardAvoidingView>
     </SafeAreaView>

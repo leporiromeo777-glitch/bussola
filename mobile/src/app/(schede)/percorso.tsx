@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, Pressable, Switch, View } from "react-native";
+import { Alert, Pressable, RefreshControl, Switch, View } from "react-native";
 import { FASI, TITOLI_FASI, VERIFICATO_IL, type IdPasso } from "@/data/passi";
 import { dataSvizzera } from "@/data/svizzera";
 import { VOTAZIONI } from "@/data/votazioni";
@@ -18,6 +18,7 @@ import type { IdDomanda, Risposte } from "@/lib/percorso/risposte";
 import { etichettaLivello, votazioniInArrivo } from "@/lib/votazioni";
 import { CalendarioAggiornato } from "~/components/calendario-aggiornato";
 import { ImmagineMascotte } from "~/components/mascotte";
+import { DomandaPercorsoAccount, PercorsoDalSito, StatoPercorsoAccount } from "~/components/percorso-account";
 import {
   BarraProgresso,
   Casella,
@@ -30,6 +31,7 @@ import {
   Testo,
 } from "~/components/ui";
 import { chiediPermesso, programmaNotifiche } from "~/lib/notifiche";
+import { aggiornaPercorsoDallAccount, useStatoPercorsoAccount } from "~/lib/percorso-account";
 import {
   impostaPromemoria,
   impostaSettimana,
@@ -42,23 +44,44 @@ import {
 } from "~/lib/stato";
 import { SPAZIO, useColori } from "~/lib/tema";
 
+/** «Tira giù per aggiornare»: con l'accesso rilegge il percorso dall'account (per esempio dopo una modifica sul sito). */
+function useTiraGiu() {
+  const c = useColori();
+  const { fase } = useStatoPercorsoAccount();
+  const [aggiornando, setAggiornando] = useState(false);
+  if (fase === "senza_accesso") return undefined;
+  return (
+    <RefreshControl
+      refreshing={aggiornando}
+      onRefresh={() => {
+        setAggiornando(true);
+        void aggiornaPercorsoDallAccount().finally(() => setAggiornando(false));
+      }}
+      tintColor={c.marchio}
+    />
+  );
+}
+
 export default function SchermataPercorso() {
   const dati = usePercorso();
   const fatti = usePassiFatti();
+  const tirato = useTiraGiu();
 
-  if (!dati) return <SenzaRisposte />;
+  if (!dati) return <SenzaRisposte tirato={tirato} />;
   const { percorso, risposte } = dati;
   const { fatti: n, totale } = avanzamento(percorso, fatti);
   const prossimo = prossimoPasso(percorso, fatti);
 
   return (
-    <Schermata>
+    <Schermata refreshControl={tirato}>
+      <DomandaPercorsoAccount />
       <Scheda>
         <Testo variante="sottotitolo">I tuoi passi</Testo>
         <BarraProgresso fatti={n} totale={totale} />
         <Testo attenuato>
           {n} fatti su {totale}. Tocca la casella quando hai finito un passo.
         </Testo>
+        <StatoPercorsoAccount />
         <Pulsante
           titolo="Le lezioni video del corso di Bleo"
           variante="testo"
@@ -104,9 +127,9 @@ export default function SchermataPercorso() {
   );
 }
 
-function SenzaRisposte() {
+function SenzaRisposte({ tirato }: { tirato: ReturnType<typeof useTiraGiu> }) {
   return (
-    <Schermata style={{ alignItems: "center", paddingTop: SPAZIO.xxl }}>
+    <Schermata style={{ alignItems: "center", paddingTop: SPAZIO.xxl }} refreshControl={tirato}>
       <ImmagineMascotte nome="checklist" larghezza={200} />
       <Testo variante="titolo" style={{ textAlign: "center" }}>
         Prima rispondi a 10 domande
@@ -116,6 +139,7 @@ function SenzaRisposte() {
         ufficiali.
       </Testo>
       <Pulsante titolo="Inizia il questionario" icona="arrow-forward" onPress={() => router.push("/questionario")} />
+      <PercorsoDalSito />
     </Schermata>
   );
 }

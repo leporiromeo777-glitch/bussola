@@ -20,6 +20,7 @@ import {
   usaRisposteDelTelefono,
 } from "~/lib/calendario";
 import { avvisa, chiediConferma } from "~/lib/conferma";
+import { useStatoPercorsoAccount } from "~/lib/percorso-account";
 import { useSessione } from "~/lib/sessione";
 import { oggiLocale } from "~/lib/stato";
 import { supabase } from "~/lib/supabase";
@@ -96,6 +97,8 @@ function CalendarioUtente({ userId, risposte, conInizio }: { userId: string; ris
   const [attesa, setAttesa] = useState(false);
   const [creato, setCreato] = useState<LinkSalvato | null>(null);
   const [annuncio, setAnnuncio] = useState("");
+  // Dopo ogni salvataggio del percorso nell'account si rileggono le risposte che usa il calendario.
+  const { scritture } = useStatoPercorsoAccount();
 
   useEffect(() => {
     let attivo = true;
@@ -112,7 +115,7 @@ function CalendarioUtente({ userId, risposte, conInizio }: { userId: string; ris
     return () => {
       attivo = false;
     };
-  }, [userId, tentativo]);
+  }, [userId, tentativo, scritture]);
 
   if (carica.fase === "caricamento") {
     return (

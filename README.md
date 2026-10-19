@@ -18,6 +18,7 @@ Il kit per le settimane 1-2 (interviste, messaggi, social, lettere) è in
 | Privacy e impressum (bozze da far rivedere) | `/privacy`, `/impressum` | da completare con i dati del titolare |
 | Accesso con link via email | `/accedi`, `src/app/auth` | pronto (serve Supabase) |
 | Questionario di 5 minuti e percorso personale | `/questionario`, `/percorso`, `src/lib/percorso`, `src/data/passi.ts` | pronto |
+| «Il percorso nell'account»: stesse risposte e stessi passi fatti sul sito e nell'app | `src/app/api/percorso`, `src/lib/percorso/sincronizza.ts`, `src/lib/percorso/sincronizzazione.ts`, `mobile/src/lib/percorso-account.ts` | pronto (serve Supabase) |
 | Chat con fonti ufficiali e citazioni | `/chat`, `src/app/api/chat`, `src/lib/chat` | pronta (servono Supabase e Claude) |
 | Import delle fonti ufficiali | `scripts/importa-fonti.ts`, `supabase/fonti/elenco.json` | pronto, fonti da ricontrollare a mano |
 | Strumenti: tariffa oraria, budget, business plan, preventivo, fattura con QR | `/strumenti`, `src/lib/strumenti` | pronti (dati nel browser; con l'accesso preventivi e fatture nell'account) |
@@ -104,7 +105,7 @@ npm run build
    link** com'è (il sito continua a usare il link), per esempio
    `<p>Oppure scrivi questo codice nell'app: <strong>{{ .Token }}</strong></p>`.
    L'app chiama le API del sito (`POST /api/chat`, `GET /api/quota`,
-   `DELETE /api/account`) mandando l'access token della sua sessione Supabase
+   `GET/PUT/PATCH /api/percorso`, `DELETE /api/account`) mandando l'access token della sua sessione Supabase
    in `Authorization: Bearer <access_token>` invece dei cookie; la RLS vale
    come sul sito. `DELETE /api/account` (e "Elimina account" in `/account`)
    cancella l'utente con `SUPABASE_SECRET_KEY`; i suoi dati si cancellano a
@@ -210,6 +211,29 @@ caricamenti per connessione e per cancellare i file quando si elimina
 l'account (`src/lib/account/eliminazione.ts` svuota le cartelle di
 `ricevute` e `cassetto`). Nell'app i promemoria (30 e 7 giorni prima della
 scadenza, alle 9) usano lo stesso interruttore delle scadenze del percorso.
+
+### «Il percorso nell'account» (sito e app)
+
+Nessuna migrazione: usa le tabelle `questionari` e `passi_completati` (RLS).
+`GET`/`PUT`/`PATCH /api/percorso` (cookie del sito o `Authorization: Bearer`
+dell'app) leggono risposte e passi fatti, salvano le risposte e segnano i
+passi (`{ fatti, daFare }`), con zod (`src/lib/percorso/account-api.ts`). Le
+server action del sito, il calendario e l'API scrivono con le stesse
+funzioni (`src/lib/percorso/account-utente.ts`).
+
+- Le regole per unire telefono (o browser) e account sono quelle del sito
+  (`scegliRisposte` in `src/lib/percorso/sincronizza.ts`): copia di un altro
+  account → si sostituisce; copia fatta senza accesso con qualcosa che
+  l'account non ha (risposte più recenti o passi fatti in più) → si chiede
+  «Salva / No»; altrimenti vince la più recente. Nell'app
+  `pianoAllineamento` tiene anche le modifiche ai passi fatte senza rete
+  (`bleo:app:percorso:in-sospeso`) finché l'account non le ha.
+- L'app (`mobile/src/lib/percorso-account.ts`, con il motore puro
+  `src/lib/percorso/sincronizzazione.ts`) si allinea all'accesso, in primo
+  piano, dopo ogni modifica e tirando giù la schermata del percorso; dopo un
+  errore di rete riprova da sola. I promemoria si rifanno con le risposte e
+  i passi arrivati dall'account. «Esci» toglie la copia dal telefono come
+  sul sito (prima prova a mandare quello che manca, e se non riesce chiede).
 
 ### «Calendario sempre aggiornato» (link personale per il calendario)
 

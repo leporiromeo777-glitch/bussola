@@ -12,7 +12,7 @@ import {
   MESSAGGI_CALENDARIO,
   registraCalendario,
 } from "@/lib/percorso/abbonamento-server";
-import { VERSIONE_REGOLE } from "@/lib/percorso/regole";
+import { salvaRisposteUtente } from "@/lib/percorso/account-utente";
 import { leggiRisposte } from "@/lib/percorso/risposte";
 import { utenteDaRichiesta } from "@/lib/supabase/richiesta";
 
@@ -122,16 +122,8 @@ export async function PUT(request: Request) {
   const risposte =
     corpo && typeof corpo === "object" ? leggiRisposte((corpo as { risposte?: unknown }).risposte) : null;
   if (!risposte) return json(400, { messaggio: MESSAGGI_CALENDARIO.risposteNonValide });
-  // Come «salvaRisposte» del sito (src/app/questionario/azioni.ts).
-  const { error } = await accesso.supabase.from("questionari").upsert(
-    {
-      user_id: accesso.userId,
-      risposte,
-      versione_regole: VERSIONE_REGOLE,
-      aggiornato_il: new Date().toISOString(),
-    },
-    { onConflict: "user_id" },
-  );
+  // Come «salvaRisposte» del sito (src/app/questionario/azioni.ts) e PUT /api/percorso.
+  const { error } = await salvaRisposteUtente(accesso.supabase, accesso.userId, risposte);
   if (error) return erroreDatabase("salvataggio delle risposte", error);
   const esito = await leggiStato(accesso.supabase, accesso.userId);
   return esito.ok ? json(200, esito.stato) : esito.risposta;

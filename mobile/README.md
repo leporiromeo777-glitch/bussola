@@ -24,6 +24,14 @@ Cosa c'è:
   conta per account. Il testo non si salva.
 - **Percorso**: passi da spuntare, avvisi, scadenze con le fonti ufficiali e
   **promemoria sul telefono** una settimana prima di ogni scadenza.
+  **Il percorso nell'account**: con l'accesso risposte e passi fatti sono
+  quelli dell'account, gli stessi del sito. Si salvano subito sul telefono e
+  poi nell'account (senza rete l'app riprova da sola); quello che cambi sul
+  sito arriva all'accesso, quando riapri l'app e tirando giù la schermata. Se
+  sul telefono c'è un percorso fatto senza accesso, l'app chiede prima di
+  salvarlo nell'account, come il sito. Uscendo dall'account la copia sul
+  telefono si toglie (resta nell'account). Profilo e Percorso dicono dove sta
+  il percorso («Salvato nel tuo account» / «Solo su questo telefono»).
 - **Il corso di Bleo** (da Inizio, Percorso e da ogni passo): tutte le
   lezioni video nell'ordine del percorso, con numero, titolo e durata; tocchi
   una lezione e compaiono il video, i video facoltativi, le fonti e il link
@@ -71,7 +79,8 @@ Cosa c'è:
 - **Profilo**: vesti Bleo, account (esci, elimina account), privacy,
   impressum, cancella i dati dal telefono.
 
-I dati (risposte, passi fatti, calcoli) restano sul telefono; i conti, le
+I dati (risposte, passi fatti, calcoli) restano sul telefono; con l'accesso
+risposte e passi fatti sono anche nell'account (`/api/percorso`). I conti, le
 ricevute, i preventivi e le fatture stanno nell'account sul sito.
 
 Le pagine del sito (strumenti, privacy, impressum) si aprono nel **browser
