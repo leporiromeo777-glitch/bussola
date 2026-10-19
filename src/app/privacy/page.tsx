@@ -78,7 +78,7 @@ export default async function PaginaPrivacy() {
             <li>
               Il sito e il suo server girano su Netlify {hosting.server}: i dati che mandi con i moduli (lista
               d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, ricevute di «I tuoi
-              conti», documenti del cassetto, preventivi e fatture salvati nell&apos;account) passano da lì prima di
+              conti», documenti del cassetto, preventivi, fatture, budget e business plan salvati nell&apos;account) passano da lì prima di
               arrivare al database.
             </li>
           ) : null}
@@ -198,8 +198,9 @@ export default async function PaginaPrivacy() {
             riceviamo e non li salviamo sui nostri server; puoi cancellarli dallo strumento stesso.
           </li>
           <li>
-            <strong>Eccezione:</strong> se hai un account, preventivi e fatture si salvano nel tuo account (vedi
-            «Preventivi e fatture nell&apos;account» qui sotto).
+            <strong>Eccezione:</strong> se hai un account, preventivi e fatture, budget e business plan si salvano
+            nel tuo account (vedi «Preventivi e fatture nell&apos;account» e «Budget e business plan
+            nell&apos;account» qui sotto).
           </li>
         </ul>
 
@@ -236,6 +237,37 @@ export default async function PaginaPrivacy() {
             <strong>«I tuoi conti»:</strong> solo se scegli «Registra in I tuoi conti», salviamo anche nei tuoi conti
             numero, nome del cliente, date, importo e riferimento di pagamento di quella fattura (vedi «I tuoi conti»
             qui sotto).
+          </li>
+        </ul>
+
+        <h3 id="budget-business-plan">
+          Budget e business plan nell&apos;account
+          <NonAttivo attivo={attivi.account} />
+        </h3>
+        <ul>
+          <li>
+            <strong>Dati:</strong> il budget del primo anno che prepari con l&apos;accesso (mese di inizio, ricavi
+            previsti, costi di avvio, costi fissi e variabili, prelievi privati, riserva per le imposte, se ti iscrivi
+            al registro di commercio) e il business plan di una pagina (nome dell&apos;attività, il tuo nome e le
+            risposte alle undici domande).
+          </li>
+          <li>
+            <strong>Dove:</strong> nel database di Supabase, su server {luogoDati}, visibili solo a te.
+          </li>
+          <li>
+            <strong>Perché:</strong> per ritrovare lo stesso budget e lo stesso business plan sul sito e
+            nell&apos;app, su ogni dispositivo in cui accedi. I calcoli (contributi, saldo, mese di pareggio) li
+            fanno il browser e l&apos;app ogni volta: non li salviamo.
+          </li>
+          <li>
+            <strong>Dal browser o dal telefono all&apos;account:</strong> se avevi già un budget o un business plan
+            salvato senza account, dopo l&apos;accesso il sito e l&apos;app ti chiedono se copiarlo nell&apos;account
+            o, se nell&apos;account ce n&apos;è già uno diverso, quale tenere. Lo copiamo solo se lo scegli tu; dopo
+            lo togliamo dal browser o dal telefono.
+          </li>
+          <li>
+            <strong>Il PDF nell&apos;app:</strong> l&apos;app crea il PDF del budget o del business plan sul
+            telefono e lo condividi tu con l&apos;app che scegli. Il PDF non passa dai nostri server.
           </li>
         </ul>
 
@@ -527,6 +559,10 @@ export default async function PaginaPrivacy() {
             ): tienine una copia in PDF anche altrove.
           </li>
           <li>
+            <strong>Budget e business plan nell&apos;account:</strong> finché non li cancelli tu («Ricomincia da
+            zero») o non elimini l&apos;account.
+          </li>
+          <li>
             <strong>Dati tecnici:</strong> {durataDatiTecnici}.
           </li>
         </ul>
@@ -556,7 +592,7 @@ export default async function PaginaPrivacy() {
               <>
                 {" "}
                 Su Netlify gira anche il server del sito, {hosting.server}: riceve i dati che mandi con i moduli
-                (lista d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, strumenti con l&apos;AI, «I tuoi conti», cassetto dei documenti, preventivi e fatture salvati nell&apos;account)
+                (lista d&apos;attesa, accesso, questionario salvato nell&apos;account, domande della chat, strumenti con l&apos;AI, «I tuoi conti», cassetto dei documenti, preventivi, fatture, budget e business plan salvati nell&apos;account)
                 e li passa al database.
               </>
             ) : null}

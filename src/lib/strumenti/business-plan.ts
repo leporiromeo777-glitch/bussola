@@ -138,10 +138,13 @@ export function datiPianoIniziali(): DatiPiano {
 /** Limite massimo salvato per campo (il doppio del consigliato): oltre non si scrive. */
 export const MASSIMO_ASSOLUTO = 2;
 
+/** Caratteri al massimo di nome dell'attività e titolare. */
+export const LUNGHEZZA_NOME_PIANO = 120;
+
 const testoCampo = (max: number) => z.string().max(max).catch("");
 export const schemaDatiPiano = z.object({
-  nomeAttivita: testoCampo(120),
-  titolare: testoCampo(120),
+  nomeAttivita: testoCampo(LUNGHEZZA_NOME_PIANO),
+  titolare: testoCampo(LUNGHEZZA_NOME_PIANO),
   campi: z
     .object(
       Object.fromEntries(CAMPI_PIANO.map((c) => [c.id, testoCampo(c.consigliati * MASSIMO_ASSOLUTO)])) as Record<

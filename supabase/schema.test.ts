@@ -12,6 +12,7 @@ import { CATEGORIE, LIVELLI_SOLLECITO } from "../src/lib/conti/tipi";
 import { improntaToken, nuovoTokenCalendario } from "../src/lib/percorso/abbonamento";
 import { VERSIONE_REGOLE } from "../src/lib/percorso/regole";
 import { DOCUMENTI_ACCOUNT_MASSIMI, STATI_DOCUMENTO } from "../src/lib/strumenti/account";
+import { CONTENUTO_STRUMENTO_MASSIMO, STRUMENTI_SALVATI } from "../src/lib/strumenti/salvati";
 import { LUNGHEZZE_EMITTENTE } from "../src/lib/strumenti/documenti";
 import { LUNGHEZZE_INDIRIZZO_QR } from "../src/lib/strumenti/qr";
 import {
@@ -436,6 +437,7 @@ describe("eliminazione dell'account (src/lib/account/eliminazione.ts)", () => {
       "preventivi_fatture",
       "profili",
       "questionari",
+      "strumenti_salvati",
     ]);
     // 'c' = cascade: eliminaAccount cancella solo l'utente da Supabase Auth.
     expect(r.rows.every((x) => x.cancellazione === "c")).toBe(true);
@@ -1562,6 +1564,119 @@ describe("«Preventivo e fattura» nell'account (preventivi_fatture ed emittenti
             + (select count(*) from public.emittenti where user_id = $1) as righe`,
       [TITOLARE],
     );
+    expect(Number(r.rows[0]?.righe)).toBe(0);
+  });
+});
+
+describe("«Budget e business plan» nell'account (strumenti_salvati)", () => {
+  const TITOLARE = "b0d9e700-0000-4000-8000-000000000001";
+  const CURIOSO = "b0d9e700-0000-4000-8000-000000000002";
+
+  beforeAll(async () => {
+    await db.exec(
+      `insert into auth.users (id, email) values ('${TITOLARE}', 'budget@example.ch'), ('${CURIOSO}', 'curioso-budget@example.ch')`,
+    );
+  });
+
+  const budget = (campi: Record<string, unknown> = {}) => ({
+    meseInizio: "2026-11",
+    situazione: "principale",
+    ricavi: Array.from({ length: 12 }, () => "4000"),
+    ...campi,
+  });
+  const piano = (campi: Record<string, unknown> = {}) => ({ nomeAttivita: "Siti Rossi", titolare: "", campi: { idea: "Siti web" }, ...campi });
+
+  const salva = (utente: string, strumento: string, contenuto: unknown, come = utente) =>
+    comeUtente(
+      () =>
+        db.query("insert into public.strumenti_salvati (user_id, strumento, contenuto) values ($1, $2, $3)", [
+          utente,
+          strumento,
+          JSON.stringify(contenuto),
+        ]),
+      come,
+    );
+
+  it("gli strumenti e la grandezza massima nel database sono quelli di src/lib/strumenti/salvati.ts", () => {
+    const sql = readFileSync(new URL("20261021000001_strumenti_salvati.sql", CARTELLA), "utf8");
+    const strumenti = /strumento text not null check \(strumento in \(([^)]*)\)\)/.exec(sql)?.[1] ?? "";
+    expect(strumenti.split(",").map((v) => v.trim().replace(/'/g, ""))).toEqual([...STRUMENTI_SALVATI]);
+    expect(sql).toContain(`octet_length(contenuto::text) <= ${CONTENUTO_STRUMENTO_MASSIMO}`);
+  });
+
+  it("ognuno vede, cambia e cancella solo i propri dati", async () => {
+    await salva(TITOLARE, "budget", budget());
+    await salva(TITOLARE, "business-plan", piano());
+    const visti = await comeUtente(() => db.query<{ n: number }>("select count(*) as n from public.strumenti_salvati"), CURIOSO);
+    expect(Number(visti.rows[0]?.n)).toBe(0);
+    const propri = await comeUtente(
+      () => db.query<{ strumento: string }>("select strumento from public.strumenti_salvati order by strumento"),
+      TITOLARE,
+    );
+    expect(propri.rows).toEqual([{ strumento: "budget" }, { strumento: "business-plan" }]);
+
+    // Nessuno scrive al posto di un altro, nemmeno con il suo user_id.
+    await expect(salva(TITOLARE, "budget", budget(), CURIOSO)).rejects.toThrow(/row-level security/);
+    for (const sql of [
+      "update public.strumenti_salvati set contenuto = '{\"meseInizio\": \"2027-01\", \"ricavi\": []}'::jsonb",
+      "delete from public.strumenti_salvati",
+    ]) {
+      const r = await comeUtente(() => db.query(sql), CURIOSO);
+      expect(r.affectedRows).toBe(0);
+    }
+    await expect(come("anon", "", () => db.query("select * from public.strumenti_salvati"))).rejects.toThrow(/permission denied/);
+  });
+
+  it("una riga per strumento e per utente: due righe al massimo, e la copia non sovrascrive", async () => {
+    // Un altro utente può avere il suo budget.
+    await salva(CURIOSO, "budget", budget());
+    await expect(salva(TITOLARE, "budget", budget())).rejects.toThrow(/strumenti_salvati_pkey/);
+    await expect(salva(TITOLARE, "tariffa", { anno: 2026 })).rejects.toThrow(/check/);
+    // Come POST /api/strumenti/salvati/budget: on conflict do nothing.
+    const copia = await comeUtente(
+      () =>
+        db.query(
+          `insert into public.strumenti_salvati (user_id, strumento, contenuto) values ($1, 'budget', $2)
+           on conflict (user_id, strumento) do nothing returning strumento`,
+          [TITOLARE, JSON.stringify(budget({ meseInizio: "2030-01" }))],
+        ),
+      TITOLARE,
+    );
+    expect(copia.rows).toEqual([]);
+    // Come PUT: on conflict do update.
+    await comeUtente(
+      () =>
+        db.query(
+          `insert into public.strumenti_salvati (user_id, strumento, contenuto) values ($1, 'budget', $2)
+           on conflict (user_id, strumento) do update set contenuto = excluded.contenuto, aggiornato_il = now()`,
+          [TITOLARE, JSON.stringify(budget({ meseInizio: "2027-03" }))],
+        ),
+      TITOLARE,
+    );
+    const salvato = await db.query<{ mese: string }>(
+      "select contenuto ->> 'meseInizio' as mese from public.strumenti_salvati where user_id = $1 and strumento = 'budget'",
+      [TITOLARE],
+    );
+    expect(salvato.rows).toEqual([{ mese: "2027-03" }]);
+  });
+
+  it("rifiuta contenuti che non sono oggetti, con la forma di un altro strumento o troppo grandi", async () => {
+    await comeUtente(() => db.query("delete from public.strumenti_salvati"), CURIOSO);
+    await expect(salva(CURIOSO, "budget", [1, 2])).rejects.toThrow(/strumenti_salvati_contenuto/);
+    await expect(salva(CURIOSO, "budget", "testo")).rejects.toThrow(/strumenti_salvati_contenuto/);
+    await expect(salva(CURIOSO, "budget", piano())).rejects.toThrow(/strumenti_salvati_contenuto/);
+    await expect(salva(CURIOSO, "business-plan", budget())).rejects.toThrow(/strumenti_salvati_contenuto/);
+    await expect(
+      salva(CURIOSO, "business-plan", piano({ titolare: "x".repeat(CONTENUTO_STRUMENTO_MASSIMO) })),
+    ).rejects.toThrow(/strumenti_salvati_contenuto/);
+    await salva(CURIOSO, "business-plan", piano());
+  });
+
+  it("cancellando l'utente spariscono i suoi budget e business plan", async () => {
+    await db.query("delete from auth.users where id = $1", [TITOLARE]);
+    const r = await db.query<{ righe: number }>("select count(*) as righe from public.strumenti_salvati where user_id = $1", [
+      TITOLARE,
+    ]);
     expect(Number(r.rows[0]?.righe)).toBe(0);
   });
 });

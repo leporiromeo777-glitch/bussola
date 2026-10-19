@@ -21,8 +21,9 @@ Il kit per le settimane 1-2 (interviste, messaggi, social, lettere) è in
 | «Il percorso nell'account»: stesse risposte e stessi passi fatti sul sito e nell'app | `src/app/api/percorso`, `src/lib/percorso/sincronizza.ts`, `src/lib/percorso/sincronizzazione.ts`, `mobile/src/lib/percorso-account.ts` | pronto (serve Supabase) |
 | Chat con fonti ufficiali e citazioni | `/chat`, `src/app/api/chat`, `src/lib/chat` | pronta (servono Supabase e Claude) |
 | Import delle fonti ufficiali | `scripts/importa-fonti.ts`, `supabase/fonti/elenco.json` | pronto, fonti da ricontrollare a mano |
-| Strumenti: tariffa oraria, budget, business plan, preventivo, fattura con QR | `/strumenti`, `src/lib/strumenti` | pronti (dati nel browser; con l'accesso preventivi e fatture nell'account) |
+| Strumenti: tariffa oraria, budget, business plan, preventivo, fattura con QR | `/strumenti`, `src/lib/strumenti` | pronti (dati nel browser; con l'accesso preventivi, fatture, budget e business plan nell'account) |
 | «Preventivo e fattura» nell'account: gli stessi documenti e i tuoi dati sul sito e nell'app, PDF con QR-fattura sul telefono | `/strumenti/preventivo`, `/strumenti/fattura`, `src/app/api/strumenti`, `src/lib/strumenti/account.ts`, `mobile/src/app/fatture` | pronto (serve Supabase) |
+| «Budget del primo anno» e «Business plan di una pagina» nell'account e nativi nell'app, con PDF sul telefono | `/strumenti/budget`, `/strumenti/business-plan`, `src/app/api/strumenti/salvati`, `src/lib/strumenti/salvati.ts`, `mobile/src/app/strumenti/budget.tsx`, `mobile/src/app/strumenti/business-plan.tsx` | pronto (account: serve Supabase) |
 | «I tuoi conti»: entrate, uscite, fatture emesse, ricevute lette da Claude, email inoltrate, CSV | `/conti`, `src/app/api/conti`, `src/lib/conti` | fase 1 pronta (servono Supabase; Claude e Resend facoltativi) |
 | «Clienti e ore»: rubrica dei clienti con indirizzo per la QR-fattura, ore per cliente, fattura del mese già compilata | `/conti/clienti`, `src/app/api/conti/clienti`, `src/app/api/conti/ore`, `src/lib/clienti` | pronta (serve Supabase) |
 | «Cassetto dei documenti»: AVS, IVA, registro di commercio, polizze, permesso, contratti, con le scadenze | `/documenti`, `src/app/api/documenti`, `src/lib/cassetto` | pronto (serve Supabase) |
@@ -199,6 +200,29 @@ il server controlla ogni documento con zod (`src/lib/strumenti/account.ts`).
   `qr-svg.ts`) e si condivide con `expo-sharing`. L'app usa `swissqrbill` e
   `expo-file-system`, aggiunti in `mobile/package.json`: dopo l'aggiornamento
   esegui `npm install` in `mobile/`.
+
+### «Budget del primo anno» e «Business plan di una pagina» nell'account
+
+Esegui la migrazione `20261021000001_strumenti_salvati.sql`: crea la tabella
+`strumenti_salvati` (una riga per strumento e per utente, `budget` o
+`business-plan`, con i dati dello strumento in JSON, al massimo 500 kB), con
+RLS. L'API è `GET`/`PUT`/`POST`/`DELETE /api/strumenti/salvati/[strumento]`
+(cookie o `Authorization: Bearer`); il server controlla i dati con zod
+(`src/lib/strumenti/salvati.ts`). `POST` copia i dati del browser o del
+telefono solo se l'account non ha ancora quello strumento.
+
+- Sul sito, con l'accesso, `/strumenti/budget` e `/strumenti/business-plan`
+  leggono e salvano nell'account (da soli, dopo una breve pausa,
+  `src/lib/strumenti/archivio-salvati.ts`), con «Ricomincia da zero». La
+  prima volta propongono di copiare quello che è rimasto nel browser o, se
+  l'account ha già dati diversi, di scegliere quali tenere; poi lo tolgono
+  dal browser. Il business plan prende i numeri dal budget dell'account.
+  Senza account o in modalità demo tutto resta nel browser come prima.
+- Nell'app le due schermate sono native (Calcoli e strumenti): senza accesso
+  i dati restano sul telefono, con l'accesso stanno nell'account con la
+  stessa proposta di copia. Il PDF (budget in A4 orizzontale, business plan
+  in A4) si crea sul telefono con `expo-print` dall'HTML di
+  `src/lib/strumenti/stampa-piani.ts` e si condivide con `expo-sharing`.
 
 ### «Cassetto dei documenti»
 

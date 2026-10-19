@@ -29,7 +29,7 @@ export function EliminaAccount() {
           className="mt-3"
         >
           <p>
-            Sei sicuro? Cancelliamo il tuo account con il questionario, i passi fatti, le domande alla chat, «I tuoi conti» con tutte le ricevute salvate, il cassetto dei documenti con i suoi file e i tuoi preventivi e fatture. Se ti servono, scarica prima i conti dalla pagina «I tuoi conti» e tieni una copia dei documenti e delle fatture in PDF.{" "}
+            Sei sicuro? Cancelliamo il tuo account con il questionario, i passi fatti, le domande alla chat, «I tuoi conti» con tutte le ricevute salvate, il cassetto dei documenti con i suoi file, i tuoi preventivi e fatture, il budget e il business plan. Se ti servono, scarica prima i conti dalla pagina «I tuoi conti» e tieni una copia dei documenti e delle fatture in PDF.{" "}
             <strong className="font-semibold">Non si può tornare indietro.</strong>
           </p>
           {stato.stato === "errore" ? (

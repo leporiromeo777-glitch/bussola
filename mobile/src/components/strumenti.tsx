@@ -1,14 +1,12 @@
 import { router } from "expo-router";
 import { View } from "react-native";
-import { apriSito } from "~/lib/apri";
 import { SPAZIO } from "~/lib/tema";
-import { RigaMenu, Scheda, Separatore, Testo } from "./ui";
+import { RigaMenu, Scheda, Separatore } from "./ui";
 
 /**
- * Calcoli e strumenti nell'app (tariffa oraria, contributi AVS, preventivo e
+ * Calcoli e strumenti nell'app: tariffa oraria, contributi AVS, preventivo e
  * fattura, «Fotografa la lettera», nome della ditta, testi pronti, Fondare
- * una Sagl) e quelli che stanno sul sito. Questi si aprono nel browser del
- * telefono (apriSito), dove ci sono già i dati salvati dal sito.
+ * una Sagl, budget del primo anno e business plan di una pagina.
  */
 export function ElencoStrumenti() {
   return (
@@ -62,26 +60,19 @@ export function ElencoStrumenti() {
           icona="people-outline"
           onPress={() => router.push("/strumenti/sagl")}
         />
-      </Scheda>
-      <Testo variante="etichetta" attenuato style={{ marginTop: SPAZIO.s }}>
-        SUL SITO
-      </Testo>
-      <Testo variante="piccolo" attenuato>
-        Si aprono nel browser del telefono, con i dati che hai già salvato lì.
-      </Testo>
-      <Scheda>
+        <Separatore />
         <RigaMenu
           titolo="Budget del primo anno"
+          sottotitolo="Ricavi e costi mese per mese, mese di pareggio, PDF da condividere"
           icona="bar-chart-outline"
-          esterno
-          onPress={() => void apriSito("/strumenti/budget")}
+          onPress={() => router.push("/strumenti/budget")}
         />
         <Separatore />
         <RigaMenu
           titolo="Business plan di una pagina"
+          sottotitolo="Undici domande guidate per un foglio A4 in PDF"
           icona="document-text-outline"
-          esterno
-          onPress={() => void apriSito("/strumenti/business-plan")}
+          onPress={() => router.push("/strumenti/business-plan")}
         />
       </Scheda>
     </View>

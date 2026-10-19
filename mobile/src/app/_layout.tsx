@@ -29,6 +29,8 @@ export default function Radice() {
         <Stack.Screen name="strumenti/tariffa" options={{ title: "Tariffa oraria" }} />
         <Stack.Screen name="strumenti/contributi" options={{ title: "Contributi AVS" }} />
         <Stack.Screen name="strumenti/lettera" options={{ title: "Fotografa la lettera" }} />
+        <Stack.Screen name="strumenti/budget" options={{ title: "Budget del primo anno" }} />
+        <Stack.Screen name="strumenti/business-plan" options={{ title: "Business plan" }} />
         <Stack.Screen name="corso" options={{ title: "Il corso di Bleo" }} />
         <Stack.Screen name="clienti-ore" options={{ title: "Clienti e ore" }} />
         <Stack.Screen name="fatture/index" options={{ title: "Preventivo e fattura" }} />

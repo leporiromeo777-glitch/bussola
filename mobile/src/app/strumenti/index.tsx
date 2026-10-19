@@ -11,7 +11,8 @@ export default function Strumenti() {
       <View style={{ flexDirection: "row", alignItems: "center", gap: SPAZIO.m }}>
         <ImmagineMascotte nome="scrivania" larghezza={96} />
         <Testo attenuato style={{ flex: 1 }}>
-          Calcoli veloci con i numeri ufficiali: restano su questo telefono. Preventivi e fatture si salvano nel tuo account.
+          Calcoli veloci con i numeri ufficiali: restano su questo telefono. Preventivi e fatture si salvano nel tuo account;
+          budget e business plan anche, se hai fatto l&apos;accesso.
         </Testo>
       </View>
       <ElencoStrumenti />

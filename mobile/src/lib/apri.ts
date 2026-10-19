@@ -5,8 +5,8 @@
  *   si leggono e si torna subito all'app.
  * - `apriSito` / `apriNelBrowser`: nel browser del telefono (Safari, Chrome).
  *   Per gli strumenti e le pagine del sito di Bleo: lì ci sono già i dati che
- *   il sito ha salvato nel browser (budget, business plan, fatture...) e
- *   l'accesso al sito. Su iPhone il browser dentro l'app non li condivide con
+ *   il sito ha salvato nel browser (per esempio le fatture della versione
+ *   di prova) e l'accesso al sito. Su iPhone il browser dentro l'app non li condivide con
  *   Safari: ripartiresti ogni volta da zero.
  * Se un giorno l'app risponderà ai link del sito (universal link / app link),
  * `Linking.openURL` sul sito riaprirebbe l'app: allora qui servirà un'altra strada.
@@ -33,7 +33,7 @@ export async function apriNelBrowser(url: string): Promise<void> {
   }
 }
 
-/** Uno strumento o una pagina del sito di Bleo (budget, business plan, privacy...), nel browser del telefono. */
+/** Uno strumento o una pagina del sito di Bleo (privacy, impressum...), nel browser del telefono. */
 export function apriSito(percorso: string): Promise<void> {
   return apriNelBrowser(`${SITO_URL}${percorso}`);
 }
