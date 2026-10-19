@@ -4,11 +4,14 @@ import { Alert, View } from "react-native";
 import { datiLook } from "@/lib/mascotte/look";
 import { RigaCassetto } from "~/components/cassetto/link-cassetto";
 import { ImmagineMascotte } from "~/components/mascotte";
+import { StatoPercorsoAccount } from "~/components/percorso-account";
 import { NotaInformazione, Pulsante, RigaMenu, Schermata, Scheda, Separatore, Testo } from "~/components/ui";
 import { eliminaAccount } from "~/lib/api";
 import { apriSito } from "~/lib/apri";
 import { VERSIONE_APP } from "~/lib/config";
+import { chiediConferma } from "~/lib/conferma";
 import { cancellaPromemoria } from "~/lib/notifiche";
+import { dimenticaPercorsoDelTelefono, esciDallAccount, prontoPerUscire } from "~/lib/percorso-account";
 import { useSessione } from "~/lib/sessione";
 import { cancellaDatiLocali, useLook } from "~/lib/stato";
 import { supabase } from "~/lib/supabase";
@@ -57,6 +60,7 @@ function Account() {
   const c = useColori();
   const { pronta, sessione } = useSessione();
   const [attesa, setAttesa] = useState(false);
+  const [uscita, setUscita] = useState(false);
 
   if (!supabase()) {
     return (
@@ -82,6 +86,8 @@ function Account() {
           onPress: async () => {
             setAttesa(true);
             const esito = await eliminaAccount();
+            // Come sul sito: via dal telefono anche la copia del percorso dell'account eliminato.
+            if (esito.ok) dimenticaPercorsoDelTelefono();
             setAttesa(false);
             Alert.alert(esito.ok ? "Account eliminato" : "Non è stato possibile", esito.ok ? "Il tuo account non esiste più." : esito.messaggio);
           },
@@ -90,17 +96,41 @@ function Account() {
     );
   }
 
+  /** Prima di uscire prova a salvare il percorso; se qualcosa resterebbe solo sul telefono, chiede. */
+  async function esci() {
+    setUscita(true);
+    const pronto = await prontoPerUscire();
+    if (pronto) {
+      await esciDallAccount();
+      setUscita(false);
+      return;
+    }
+    setUscita(false);
+    chiediConferma({
+      titolo: "Uscire lo stesso?",
+      messaggio:
+        "Una parte del percorso di questo telefono forse non è ancora nel tuo account (per esempio perché manca la connessione). Uscendo la togliamo da questo telefono e potresti perderla. Se puoi, riprova quando c'è la connessione.",
+      conferma: "Esci lo stesso",
+      pericolo: true,
+      onConferma: () => void esciDallAccount(),
+    });
+  }
+
   return (
     <Scheda>
       <Testo variante="sottotitolo">Account</Testo>
       {sessione ? (
         <View style={{ gap: SPAZIO.m }}>
           <Testo attenuato>Hai fatto l&apos;accesso come {sessione.user.email}.</Testo>
-          <Pulsante
-            titolo="Esci"
-            variante="secondario"
-            onPress={() => void supabase()?.auth.signOut({ scope: "local" })}
-          />
+          <View style={{ gap: SPAZIO.xs }}>
+            <Testo variante="forte">Il tuo percorso</Testo>
+            <StatoPercorsoAccount />
+          </View>
+          <Pulsante titolo="Esci" variante="secondario" caricamento={uscita} onPress={() => void esci()} />
+          <Testo variante="piccolo" colore={c.attenuato}>
+            Uscendo togliamo da questo telefono le risposte e i passi fatti, come sul sito: restano nel tuo account e
+            tornano quando accedi di nuovo.
+          </Testo>
           <Pulsante titolo="Elimina account" variante="testo" caricamento={attesa} onPress={confermaEliminazione} />
           <Testo variante="piccolo" colore={c.attenuato}>
             Eliminando l&apos;account cancelli i dati salvati su Bleo, compresi i tuoi conti, le foto delle ricevute, i
@@ -111,8 +141,8 @@ function Account() {
       ) : (
         <View style={{ gap: SPAZIO.m }}>
           <Testo attenuato>
-            Con l&apos;accesso puoi fare domande alla chat, tenere i tuoi conti e preparare preventivi e fatture. Ti basta
-            l&apos;email: niente password.
+            Con l&apos;accesso ritrovi il percorso anche sul sito e su un altro telefono, puoi fare domande alla chat,
+            tenere i tuoi conti e preparare preventivi e fatture. Ti basta l&apos;email: niente password.
           </Testo>
           <Pulsante titolo="Accedi" onPress={() => router.push("/accedi")} />
         </View>
@@ -143,7 +173,9 @@ function DatiSulTelefono() {
     <Scheda>
       <Testo variante="sottotitolo">Dati su questo telefono</Testo>
       <Testo attenuato>
-        Risposte, passi fatti e calcoli degli strumenti restano solo su questo telefono, finché non li cancelli.
+        Senza accesso, risposte e passi fatti restano solo su questo telefono, finché non li cancelli; con
+        l&apos;accesso sono anche nel tuo account e tornano qui alla prossima apertura. I calcoli degli strumenti
+        restano solo su questo telefono.
       </Testo>
       <Pulsante titolo="Cancella i dati da questo telefono" variante="secondario" onPress={conferma} />
     </Scheda>

@@ -38,7 +38,7 @@ import { DOMANDE, etichettaRisposta } from "@/lib/percorso/domande";
 import { avanzamento, calcolaPercorso, prossimoPasso } from "@/lib/percorso/regole";
 import type { Risposte } from "@/lib/percorso/risposte";
 import { messaggioErrore, type EsitoSalvataggio } from "@/lib/percorso/salvataggio";
-import { scegliRisposte, type DatiAccount } from "@/lib/percorso/sincronizza";
+import { scegliRisposte, soloPassiDaSalvare, type DatiAccount } from "@/lib/percorso/sincronizza";
 import { salvaRisposte } from "../questionario/azioni";
 import { segnaPasso, sincronizzaPassi } from "./azioni";
 
@@ -81,7 +81,7 @@ export function Percorso({
   const locali = useRisposteLocali();
   const passiLocali = usePassiFattiLocali();
   const proprietario = useProprietarioLocale();
-  const scelta = scegliRisposte(account, locali, proprietario);
+  const scelta = scegliRisposte(account, locali, proprietario, passiLocali);
   const risposte = scelta.risposte;
 
   // Dati del browser creati senza accesso: finché l'utente non dice "Salva" restano solo nel browser,
@@ -247,6 +247,7 @@ export function Percorso({
       {inAttesaDelSi ? (
         <ConfermaSalvataggio
           email={account.email}
+          soloPassi={soloPassiDaSalvare(account, locali)}
           sostituisce={account.risposte !== null}
           stato={caricamento}
           onSalva={() => caricaNellAccount(true)}
@@ -392,12 +393,15 @@ export function Percorso({
 /** Chiede prima di salvare nell'account le risposte create in questo browser senza accesso. */
 function ConfermaSalvataggio({
   email,
+  soloPassi,
   sostituisce,
   stato,
   onSalva,
   onRifiuta,
 }: {
   email: string | null;
+  /** Le risposte sono le stesse dell'account: si salvano solo i passi fatti. */
+  soloPassi: boolean;
   sostituisce: boolean;
   stato: StatoCaricamento;
   onSalva: () => void;
@@ -421,13 +425,14 @@ function ConfermaSalvataggio({
       className="mt-6 max-w-3xl rounded-xl border-2 border-brand bg-card p-5 print:hidden"
     >
       <h2 id="titolo-conferma-account" className="text-lg font-semibold text-balance">
-        Vuoi salvare nel tuo account {email ? <strong className="break-all">{email}</strong> : null} le risposte di
-        questo browser?
+        Vuoi salvare nel tuo account {email ? <strong className="break-all">{email}</strong> : null}{" "}
+        {soloPassi ? "i passi fatti in questo browser?" : "le risposte di questo browser?"}
       </h2>
       <p className="mt-2 text-sm">
-        Hai risposto al questionario in questo browser senza accedere. Se le salvi, ritrovi il percorso e i passi fatti
-        su tutti i tuoi dispositivi.
-        {sostituisce ? " Le risposte salvate prima nell'account verranno sostituite." : ""}
+        {soloPassi
+          ? "In questo browser hai segnato dei passi come fatti senza accedere. Se li salvi, li ritrovi su tutti i tuoi dispositivi."
+          : "Hai risposto al questionario in questo browser senza accedere. Se le salvi, ritrovi il percorso e i passi fatti su tutti i tuoi dispositivi."}
+        {sostituisce && !soloPassi ? " Le risposte salvate prima nell'account verranno sostituite." : ""}
       </p>
       <p className="mt-2 text-sm text-muted">
         Se non riconosci questo indirizzo email, scegli «No» ed{" "}

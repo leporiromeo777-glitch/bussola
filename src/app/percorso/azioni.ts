@@ -2,6 +2,7 @@
 
 import { eIdPasso, ID_PASSI } from "@/data/passi";
 import { utenteCollegato } from "@/lib/percorso/account";
+import { segnaPassiUtente } from "@/lib/percorso/account-utente";
 import type { EsitoSalvataggio } from "@/lib/percorso/salvataggio";
 
 /** Segna un passo come fatto (inserisce) o da fare (cancella) per l'utente collegato. */
@@ -11,11 +12,11 @@ export async function segnaPasso(passoId: unknown, fatto: unknown): Promise<Esit
     const collegamento = await utenteCollegato();
     if (!collegamento.ok) return collegamento;
     const { supabase, userId } = collegamento;
-    const { error } = fatto
-      ? await supabase
-          .from("passi_completati")
-          .upsert({ user_id: userId, passo_id: passoId }, { onConflict: "user_id,passo_id", ignoreDuplicates: true })
-      : await supabase.from("passi_completati").delete().eq("user_id", userId).eq("passo_id", passoId);
+    const { error } = await segnaPassiUtente(
+      supabase,
+      userId,
+      fatto ? { fatti: [passoId], daFare: [] } : { fatti: [], daFare: [passoId] },
+    );
     return error ? { ok: false, motivo: "errore" } : { ok: true };
   } catch {
     return { ok: false, motivo: "errore" };
@@ -34,10 +35,7 @@ export async function sincronizzaPassi(passiIds: unknown): Promise<EsitoSalvatag
     const collegamento = await utenteCollegato();
     if (!collegamento.ok) return collegamento;
     const { supabase, userId } = collegamento;
-    const { error } = await supabase.from("passi_completati").upsert(
-      passi.map((passo_id) => ({ user_id: userId, passo_id })),
-      { onConflict: "user_id,passo_id", ignoreDuplicates: true },
-    );
+    const { error } = await segnaPassiUtente(supabase, userId, { fatti: passi, daFare: [] });
     return error ? { ok: false, motivo: "errore" } : { ok: true };
   } catch {
     return { ok: false, motivo: "errore" };

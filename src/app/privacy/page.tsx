@@ -149,8 +149,17 @@ export default async function PaginaPrivacy() {
             <strong>Perché:</strong> per calcolare il tuo percorso personale e ricordarti a che punto sei.
           </li>
           <li>
-            <strong>Dove:</strong> senza account restano solo nel tuo browser (memoria locale del dispositivo). Se
-            accedi, li salviamo anche nel tuo account, così li ritrovi su altri dispositivi.
+            <strong>Dove:</strong> senza account restano solo nel tuo browser o nella memoria dell&apos;app sul
+            telefono (memoria locale del dispositivo). Se accedi, sul sito o nell&apos;app, li salviamo anche nel tuo
+            account, così ritrovi lo stesso percorso sul sito, nell&apos;app e su altri dispositivi. Le risposte e i
+            passi segnati prima di accedere vanno nell&apos;account solo se lo confermi (o se finisci il questionario
+            dopo aver fatto l&apos;accesso).
+          </li>
+          <li>
+            <strong>Nell&apos;app:</strong> con l&apos;accesso, l&apos;app manda al nostro sito le risposte e i passi
+            che segni, con il codice del tuo accesso; senza connessione li tiene sul telefono e li manda appena può.
+            Quando esci dall&apos;account (sul sito o nell&apos;app) togliamo da quel browser o da quel telefono la
+            copia del percorso: resta nel tuo account.
           </li>
         </ul>
 

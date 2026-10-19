@@ -11,6 +11,7 @@ import {
   VERSIONE_RISPOSTE,
   type IdDomanda,
 } from "@/lib/percorso/risposte";
+import { NotaSalvataggioQuestionario } from "~/components/percorso-account";
 import { BarraProgresso, Pulsante, Schermata, Testo, tocco } from "~/components/ui";
 import { cancellaBozza, leggiBozza, salvaBozza, salvaRisposte } from "~/lib/stato";
 import { RAGGIO, SPAZIO, useColori } from "~/lib/tema";
@@ -136,9 +137,7 @@ export default function Questionario() {
               onPress={avanti}
             />
           </View>
-          <Testo variante="piccolo" attenuato>
-            Le risposte restano su questo telefono. Puoi chiudere e riprendere da dove eri.
-          </Testo>
+          <NotaSalvataggioQuestionario />
         </Schermata>
       </KeyboardAvoidingView>
     </SafeAreaView>

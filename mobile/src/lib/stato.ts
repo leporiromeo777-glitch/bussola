@@ -2,6 +2,9 @@
  * Lo stato salvato sul telefono, letto con le stesse chiavi e le stesse
  * funzioni del sito (src/lib/percorso, src/lib/mascotte): risposte al
  * questionario, passi fatti, bozza, look della mascotte, promemoria.
+ * Risposte e passi fatti si cambiano solo con salvaRisposte e segnaPasso:
+ * con l'accesso vanno anche nell'account (percorso-locale.ts e
+ * percorso-account.ts).
  */
 import { useMemo, useSyncExternalStore } from "react";
 import type { IdPasso } from "@/data/passi";
@@ -10,10 +13,10 @@ import { analizzaBozza, CHIAVE_BOZZA, type BozzaSalvata } from "@/lib/percorso/b
 import {
   analizzaPassiFatti,
   analizzaRisposteSalvate,
-  cambiaPasso,
   CHIAVE_LINK_CALENDARIO,
   CHIAVE_PASSI_FATTI,
   CHIAVE_RISPOSTE,
+  CHIAVE_UTENTE,
   type RisposteSalvate,
 } from "@/lib/percorso/archivio";
 import { calcolaPercorso, type Percorso } from "@/lib/percorso/regole";
@@ -21,6 +24,7 @@ import { VERSIONE_RISPOSTE, type Risposte } from "@/lib/percorso/risposte";
 import { analizzaLook, CHIAVE_LOOK, type IdLook } from "@/lib/mascotte/look";
 import { CHIAVE_VESTITO } from "@/lib/mascotte/vestito";
 import { iscriviti, leggi, scrivi } from "./memoria";
+import { cambiaPassoSulTelefono, CHIAVE_IN_SOSPESO, nuoveRisposteSulTelefono } from "./percorso-locale";
 
 /** Promemoria delle scadenze attivi ("si") o no. */
 export const CHIAVE_PROMEMORIA = "bleo:app:promemoria";
@@ -54,13 +58,14 @@ export function usePassiFatti(): ReadonlySet<string> {
   return useMemo(() => new Set(analizzaPassiFatti(grezzo)), [grezzo]);
 }
 
+/** Segna un passo fatto o da fare: subito sul telefono, poi (con l'accesso) nell'account. */
 export function segnaPasso(id: IdPasso, fatto: boolean): void {
-  const attuali = analizzaPassiFatti(leggi(CHIAVE_PASSI_FATTI));
-  scrivi(CHIAVE_PASSI_FATTI, JSON.stringify(cambiaPasso(attuali, id, fatto)));
+  cambiaPassoSulTelefono(id, fatto);
 }
 
+/** Salva le risposte del questionario: subito sul telefono, poi (con l'accesso) nell'account. */
 export function salvaRisposte(risposte: Risposte): void {
-  scrivi(CHIAVE_RISPOSTE, JSON.stringify({ risposte, aggiornatoIl: new Date().toISOString() }));
+  nuoveRisposteSulTelefono(risposte);
 }
 
 export function leggiBozza(): BozzaSalvata | null {
@@ -128,6 +133,8 @@ export function cancellaDatiLocali(): void {
   for (const chiave of [
     CHIAVE_RISPOSTE,
     CHIAVE_PASSI_FATTI,
+    CHIAVE_UTENTE,
+    CHIAVE_IN_SOSPESO,
     CHIAVE_BOZZA,
     CHIAVE_VESTITO,
     CHIAVE_LOOK,
