@@ -4,7 +4,11 @@ import { apriSito } from "~/lib/apri";
 import { SPAZIO } from "~/lib/tema";
 import { RigaMenu, Scheda, Separatore, Testo } from "./ui";
 
-/** Calcoli nell'app (tariffa oraria, contributi AVS) e strumenti che si aprono sul sito. */
+/**
+ * Calcoli e strumenti nell'app (tariffa oraria, contributi AVS, «Fotografa la
+ * lettera») e quelli che stanno sul sito. Questi si aprono nel browser del
+ * telefono (apriSito), dove ci sono già i dati salvati dal sito.
+ */
 export function ElencoStrumenti() {
   return (
     <View style={{ gap: SPAZIO.s }}>
@@ -22,20 +26,30 @@ export function ElencoStrumenti() {
           icona="shield-checkmark-outline"
           onPress={() => router.push("/strumenti/contributi")}
         />
+        <Separatore />
+        <RigaMenu
+          titolo="Fotografa la lettera"
+          sottotitolo="Una lettera di un ufficio? Bleo ti spiega cos'è, cosa ti chiedono e entro quando"
+          icona="mail-open-outline"
+          onPress={() => router.push("/strumenti/lettera")}
+        />
       </Scheda>
       <Testo variante="etichetta" attenuato style={{ marginTop: SPAZIO.s }}>
         SUL SITO
       </Testo>
+      <Testo variante="piccolo" attenuato>
+        Si aprono nel browser del telefono, con i dati che hai già salvato lì.
+      </Testo>
       <Scheda>
         <RigaMenu
-          titolo="Budget dei primi 12 mesi"
+          titolo="Budget del primo anno"
           icona="bar-chart-outline"
           esterno
           onPress={() => void apriSito("/strumenti/budget")}
         />
         <Separatore />
         <RigaMenu
-          titolo="Business plan"
+          titolo="Business plan di una pagina"
           icona="document-text-outline"
           esterno
           onPress={() => void apriSito("/strumenti/business-plan")}
@@ -48,6 +62,30 @@ export function ElencoStrumenti() {
           icona="qr-code-outline"
           esterno
           onPress={() => void apriSito("/strumenti/fattura")}
+        />
+        <Separatore />
+        <RigaMenu
+          titolo="Fondare una Sagl"
+          sottotitolo="Per chi parte con dei soci: scheda per il notaio e bozza dello statuto"
+          icona="people-outline"
+          esterno
+          onPress={() => void apriSito("/strumenti/sagl")}
+        />
+        <Separatore />
+        <RigaMenu
+          titolo="Nome della ditta"
+          sottotitolo="Idee con il tuo cognome e un primo controllo nel registro di commercio"
+          icona="pricetag-outline"
+          esterno
+          onPress={() => void apriSito("/strumenti/nome")}
+        />
+        <Separatore />
+        <RigaMenu
+          titolo="Testi pronti"
+          sottotitolo="Bio per Instagram, prima email a un cliente, la tua attività in breve"
+          icona="chatbox-ellipses-outline"
+          esterno
+          onPress={() => void apriSito("/strumenti/testi")}
         />
       </Scheda>
     </View>

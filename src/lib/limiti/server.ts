@@ -1,7 +1,7 @@
 import "server-only";
 import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { LIMITI_RICHIESTE, chiaveLimite, ipDaIntestazioni, type AmbitoLimite } from "./richieste";
+import { LIMITI_RICHIESTE, chiaveLimite, chiaveLimiteUtente, ipDaIntestazioni, type AmbitoLimite } from "./richieste";
 
 /**
  * - "consentita": richiesta contata, può passare;
@@ -11,17 +11,30 @@ import { LIMITI_RICHIESTE, chiaveLimite, ipDaIntestazioni, type AmbitoLimite } f
  */
 export type EsitoLimite = "consentita" | "superato" | "non_disponibile";
 
-/** Conta una richiesta di questa connessione per l'ambito e dice com'è andata. */
-export async function controllaLimite(ambito: AmbitoLimite): Promise<EsitoLimite> {
+/**
+ * Conta una richiesta per l'ambito e dice com'è andata. Di solito conta per
+ * connessione (impronta dell'IP); con `utenteId` (accesso verificato) conta
+ * per account, con lo stesso limite.
+ */
+export async function controllaLimite(
+  ambito: AmbitoLimite,
+  opzioni: { utenteId?: string | null } = {},
+): Promise<EsitoLimite> {
   const segreto = process.env.SUPABASE_SECRET_KEY;
   const db = createAdminClient();
   if (!db || !segreto) return "non_disponibile";
-  const ip = ipDaIntestazioni(await headers());
-  if (!ip) return "non_disponibile";
+  let chiave: string;
+  if (opzioni.utenteId) {
+    chiave = chiaveLimiteUtente(ambito, opzioni.utenteId, segreto);
+  } else {
+    const ip = ipDaIntestazioni(await headers());
+    if (!ip) return "non_disponibile";
+    chiave = chiaveLimite(ambito, ip, segreto);
+  }
 
   const { massimo, finestraSecondi } = LIMITI_RICHIESTE[ambito];
   const { data, error } = await db.rpc("consuma_limite", {
-    p_chiave: chiaveLimite(ambito, ip, segreto),
+    p_chiave: chiave,
     p_massimo: massimo,
     p_finestra_secondi: finestraSecondi,
   });

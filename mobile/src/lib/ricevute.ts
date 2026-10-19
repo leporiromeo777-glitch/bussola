@@ -1,5 +1,6 @@
 /**
- * Foto e PDF delle ricevute: scatta, scegli dalla galleria o un PDF, poi
+ * Foto e PDF delle ricevute (e delle lettere di «Fotografa la lettera» e dei
+ * documenti del cassetto): scatta, scegli dalla galleria o un PDF, poi
  * riduce le immagini (lato massimo 2000 px, JPEG) e le trasforma in base64
  * per mandarle a Bleo.
  */
@@ -73,7 +74,7 @@ export async function scattaFoto(nomeFile = "ricevuta.jpg"): Promise<SceltaFile>
   if (Platform.OS !== "web") {
     const permesso = await ImagePicker.requestCameraPermissionsAsync();
     if (!permesso.granted) {
-      return errore("Per fotografare ricevute e documenti, permetti a Bleo di usare la fotocamera nelle impostazioni del telefono.");
+      return errore("Per fotografare ricevute, lettere e documenti, permetti a Bleo di usare la fotocamera nelle impostazioni del telefono.");
     }
   }
   try {

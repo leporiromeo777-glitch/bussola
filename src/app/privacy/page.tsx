@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const AGGIORNATO = { iso: "2026-10-18", testo: "18.10.2026" };
+const AGGIORNATO = { iso: "2026-10-19", testo: "19.10.2026" };
 
 // Regione del database, hosting, garanzie per gli USA e durata dei log:
 // src/lib/privacy.ts. Le parti tra parentesi quadre sono da completare.
@@ -343,14 +343,17 @@ export default async function PaginaPrivacy() {
             <strong>Fotografa la lettera:</strong> la foto o il PDF della lettera che scegli tu (per esempio dalla
             cassa AVS, dalle contribuzioni o dal Comune), con tutto quello che c&apos;è scritto, anche il tuo nome e
             indirizzo, viene inviato al fornitore di intelligenza artificiale per spiegarti cos&apos;è, cosa ti
-            chiedono, entro quando e cosa fare. Prima dell&apos;invio la foto viene rimpicciolita nel tuo browser. Ti
-            consigliamo di coprire il numero AVS e le coordinate bancarie: per capire la lettera non servono.
+            chiedono, entro quando e cosa fare. Prima dell&apos;invio la foto viene rimpicciolita nel tuo browser o
+            nell&apos;app. Ti consigliamo di coprire il numero AVS e le coordinate bancarie: per capire la lettera non
+            servono.
           </li>
           <li>
             <strong>Cosa salviamo:</strong> niente. Né quello che scrivi o fotografi né le risposte: restano nella
-            pagina finché non la chiudi. Per limitare gli abusi contiamo le richieste per connessione, con
-            un&apos;impronta dell&apos;indirizzo IP e mai l&apos;IP in chiaro. Non scrivere dati personali che non
-            servono, come telefono o numero AVS.
+            pagina (o nella schermata dell&apos;app) finché non la chiudi. Per limitare gli abusi contiamo le richieste
+            per connessione, con un&apos;impronta dell&apos;indirizzo IP e mai l&apos;IP in chiaro. Per «Fotografa la
+            lettera», se hai fatto l&apos;accesso (sul sito o nell&apos;app) le contiamo invece per account, con
+            un&apos;impronta del codice del tuo account. Non scrivere dati personali che non servono, come telefono o
+            numero AVS.
           </li>
         </ul>
 

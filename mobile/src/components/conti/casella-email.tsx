@@ -4,7 +4,7 @@ import { View } from "react-native";
 import { dataSvizzera } from "@/data/svizzera";
 import type { Casella } from "@/lib/conti/tipi";
 import { Pulsante, Scheda, Testo } from "~/components/ui";
-import { apriLink, apriSito } from "~/lib/apri";
+import { apriNelBrowser, apriSito } from "~/lib/apri";
 import { oggiLocale } from "~/lib/stato";
 import { RAGGIO, SPAZIO, useColori } from "~/lib/tema";
 
@@ -106,7 +106,7 @@ export function SezioneCasella({
                     titolo="Oppure conferma con il link di Gmail"
                     variante="testo"
                     icona="open-outline"
-                    onPress={() => void apriLink(conferma.link ?? "")}
+                    onPress={() => void apriNelBrowser(conferma.link ?? "")}
                   />
                 ) : null}
               </Scheda>

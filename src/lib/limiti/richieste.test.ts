@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LIMITI_RICHIESTE, chiaveLimite, ipDaIntestazioni } from "./richieste";
+import { LIMITI_RICHIESTE, chiaveLimite, chiaveLimiteUtente, ipDaIntestazioni } from "./richieste";
 
 const intestazioni = (valori: Record<string, string>) => new Headers(valori);
 
@@ -40,6 +40,27 @@ describe("chiaveLimite", () => {
     expect(chiaveLimite("listaAttesa", "203.0.113.8", "segreto")).not.toBe(chiave);
     expect(chiaveLimite("listaAttesa", "203.0.113.7", "altro")).not.toBe(chiave);
     expect(chiave.length).toBeLessThanOrEqual(200);
+  });
+});
+
+describe("chiaveLimiteUtente", () => {
+  const ID = "0f8b6c2e-6a3d-4c1e-9b7a-2d5e8f1a3c40";
+
+  it("non contiene l'id in chiaro e dipende da ambito, utente e segreto", () => {
+    const chiave = chiaveLimiteUtente("lettera", ID, "segreto");
+    expect(chiave.startsWith("lettera:u:")).toBe(true);
+    expect(chiave).not.toContain(ID);
+    expect(chiaveLimiteUtente("lettera", ID, "segreto")).toBe(chiave);
+    expect(chiaveLimiteUtente("racconto", ID, "segreto")).not.toBe(chiave);
+    expect(chiaveLimiteUtente("lettera", "1f8b6c2e-6a3d-4c1e-9b7a-2d5e8f1a3c40", "segreto")).not.toBe(chiave);
+    expect(chiaveLimiteUtente("lettera", ID, "altro")).not.toBe(chiave);
+    expect(chiave.length).toBeLessThanOrEqual(200);
+  });
+
+  it("non si confonde mai con la chiave di una connessione", () => {
+    // Anche se qualcuno avesse come «IP» lo stesso testo dell'id, le chiavi restano diverse.
+    expect(chiaveLimiteUtente("lettera", "203.0.113.7", "segreto")).not.toBe(chiaveLimite("lettera", "203.0.113.7", "segreto"));
+    expect(chiaveLimite("lettera", "203.0.113.7", "segreto").startsWith("lettera:u:")).toBe(false);
   });
 });
 
