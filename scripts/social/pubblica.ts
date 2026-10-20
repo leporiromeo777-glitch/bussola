@@ -2,27 +2,38 @@
  * Pubblica il post del giorno (src/data/social.ts) sui social collegati:
  * Instagram e pagina Facebook (Graph API di Meta), profilo LinkedIn.
  *
- *   npm run social:pubblica
+ *   npm run social:pubblica                          il carosello di immagini
+ *   SOCIAL_FORMATO=video npm run social:pubblica     il video (Reel) su Instagram e Facebook
  *
+ * Il video lo fa prima `npm run reel` in video/.
  * Lo lancia ogni giorno il workflow .github/workflows/social.yml. Variabili
  * d'ambiente e collegamento dei social: social/README.md. Con SOCIAL_PROVA=true
  * mostra testi e immagini e controlla chiavi e id, senza pubblicare nulla.
  * Ogni pubblicazione finisce in social/storico.json (scripts/social/storico.ts):
  * un post già uscito su un social non viene ripubblicato.
  */
-import { appendFileSync, existsSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { immaginiPost, POST_SOCIAL, postDelGiorno, type PostSocial } from "../../src/data/social";
 import { dataSvizzera } from "../../src/data/svizzera";
 import { didascalia, testiAlternativi, type Piattaforma } from "../../src/lib/social/post";
 import { leggiConfigurazione, statoPiattaforma, type Configurazione } from "./configurazione";
 import { autoreLinkedIn, pubblicaLinkedIn } from "./linkedin";
-import { pubblicaFacebook, pubblicaInstagram, verificaMeta } from "./meta";
+import { pubblicaFacebook, pubblicaInstagram, pubblicaReelFacebook, pubblicaReelInstagram, verificaMeta } from "./meta";
 import { aggiungiAlloStorico, giaPubblicato, leggiStorico, scriviStorico, type VoceStorico } from "./storico";
 
 type Esito = { piattaforma: Piattaforma; stato: "pubblicato" | "prova" | "saltato" | "errore"; dettaglio: string };
 
 const NOMI: Record<Piattaforma, string> = { instagram: "Instagram", facebook: "Facebook", linkedin: "LinkedIn" };
+
+/**
+ * Il momento del video usato come copertina su Instagram: il titolo della
+ * prima scheda è già tutto entrato (vedi video/src/social/tempi-reel.ts).
+ */
+const COPERTINA_REEL_MS = 2_500;
+
+/** Il file del video del post, come lo scrive `npm run reel` in video/. */
+const fileVideo = (conf: Configurazione, post: PostSocial) => conf.video ?? join("video", "out", `reel-${post.id}.mp4`);
 
 /** Instagram e Facebook scaricano le immagini dall'indirizzo pubblico: prima controlliamo che rispondano. */
 async function controllaIndirizzi(indirizzi: readonly string[]): Promise<string | null> {
@@ -38,6 +49,12 @@ async function controllaIndirizzi(indirizzi: readonly string[]): Promise<string 
 
 async function pubblica(conf: Configurazione, post: PostSocial, piattaforma: Piattaforma, file: string[], indirizzi: string[]) {
   const testo = didascalia(post, piattaforma, conf.sitoUrl ?? "https://example.invalid");
+  if (conf.formato === "video") {
+    const video = new Uint8Array(readFileSync(file[0]));
+    if (piattaforma === "instagram") return pubblicaReelInstagram(conf.meta!, conf.meta!.instagramId!, video, testo, COPERTINA_REEL_MS);
+    if (piattaforma === "facebook") return pubblicaReelFacebook(conf.meta!, conf.meta!.paginaId!, video, testo);
+    throw new Error("il video esce solo su Instagram e Facebook");
+  }
   switch (piattaforma) {
     case "instagram":
       return pubblicaInstagram(conf.meta!, conf.meta!.instagramId!, indirizzi, testo);
@@ -65,9 +82,9 @@ async function controllaCredenziali(conf: Configurazione, piattaforma: Piattafor
   }
 }
 
-function riassunto(post: PostSocial | undefined, data: string, esiti: readonly Esito[]) {
+function riassunto(conf: Configurazione, post: PostSocial | undefined, esiti: readonly Esito[]) {
   const righe = [
-    `### Post social del ${dataSvizzera(data)}`,
+    `### ${conf.formato === "video" ? "Video" : "Post"} social del ${dataSvizzera(conf.data)}`,
     post ? `\`${post.id}\`: ${post.schede[0].tipo === "copertina" ? post.schede[0].titolo : ""}` : "Nessun post.",
     "",
     ...esiti.map((e) => `- **${NOMI[e.piattaforma]}**: ${e.stato}${e.dettaglio ? `, ${e.dettaglio}` : ""}`),
@@ -86,29 +103,40 @@ async function main() {
   const post = postDelGiorno(conf.data);
   if (!post) {
     const ultimo = POST_SOCIAL.at(-1)!;
-    if (conf.data > ultimo.data) {
+    // Il promemoria lo dà il carosello: per il video basta una riga.
+    if (conf.data > ultimo.data && conf.formato === "carosello") {
       // Fallisce apposta: GitHub manda un'email, così ci si accorge che servono post nuovi.
       console.error(
         `Il piano editoriale è finito il ${dataSvizzera(ultimo.data)}: aggiungi i post nuovi in src/data/social.ts (vedi social/README.md).`,
       );
       process.exitCode = 1;
     } else {
-      console.log(`Nessun post per il ${dataSvizzera(conf.data)}: il primo esce il ${dataSvizzera(POST_SOCIAL[0].data)}.`);
+      console.log(
+        conf.data > ultimo.data
+          ? `Il piano editoriale è finito il ${dataSvizzera(ultimo.data)}: niente video.`
+          : `Nessun post per il ${dataSvizzera(conf.data)}: il primo esce il ${dataSvizzera(POST_SOCIAL[0].data)}.`,
+      );
     }
-    riassunto(undefined, conf.data, []);
+    riassunto(conf, undefined, []);
     return;
   }
 
-  const nomi = immaginiPost(post);
-  const file = nomi.map((n) => join("social", post.id, n));
+  const video = conf.formato === "video";
+  const nomi = video ? [] : immaginiPost(post);
+  const file = video ? [fileVideo(conf, post)] : nomi.map((n) => join("social", post.id, n));
   const mancanti = file.filter((f) => !existsSync(f));
   if (mancanti.length) {
-    console.error(`Mancano le immagini ${mancanti.join(", ")}: lancia cd video && npm run social -- ${post.id}.`);
+    console.error(
+      video
+        ? `Manca il video ${file[0]}: lancia cd video && npm run reel -- ${post.id}.`
+        : `Mancano le immagini ${mancanti.join(", ")}: lancia cd video && npm run social -- ${post.id}.`,
+    );
     process.exitCode = 1;
     return;
   }
   const indirizzi = conf.immaginiUrl ? nomi.map((n) => `${conf.immaginiUrl}/${post.id}/${n}`) : [];
-  console.log(`Post del ${dataSvizzera(conf.data)}: ${post.id} (${nomi.length} immagini)${conf.prova ? ", solo prova" : ""}`);
+  const contenuto = video ? `video di ${(statSync(file[0]).size / 1e6).toFixed(1)} MB` : `${nomi.length} immagini`;
+  console.log(`Post del ${dataSvizzera(conf.data)}: ${post.id} (${contenuto})${conf.prova ? ", solo prova" : ""}`);
 
   // Il controllo degli indirizzi si fa una volta sola, solo se serve a qualcuno.
   let problemaIndirizzi: string | null | undefined;
@@ -117,7 +145,13 @@ async function main() {
   const pubblicati: VoceStorico[] = [];
   for (const piattaforma of conf.piattaforme) {
     const nome = NOMI[piattaforma];
-    const gia = giaPubblicato(storico, { data: conf.data, post: post.id, piattaforma, formato: "carosello" });
+    if (video && piattaforma === "linkedin") {
+      // Sul profilo LinkedIn basta un post al giorno: il carosello.
+      console.log(`${nome}: il video esce solo su Instagram e Facebook, salto.`);
+      esiti.push({ piattaforma, stato: "saltato", dettaglio: "solo carosello" });
+      continue;
+    }
+    const gia = giaPubblicato(storico, { data: conf.data, post: post.id, piattaforma, formato: conf.formato });
     if (gia) {
       console.log(`${nome}: già pubblicato il ${gia.pubblicatoIl} (${gia.id}), salto.`);
       esiti.push({ piattaforma, stato: "saltato", dettaglio: `già pubblicato (${gia.id})` });
@@ -134,7 +168,7 @@ async function main() {
       esiti.push({ piattaforma, stato: "errore", dettaglio: stato.motivo });
       continue;
     }
-    if (piattaforma !== "linkedin" && indirizzi.length) {
+    if (!video && piattaforma !== "linkedin" && indirizzi.length) {
       problemaIndirizzi ??= await controllaIndirizzi(indirizzi);
       if (problemaIndirizzi) {
         console.error(`${nome}: ${problemaIndirizzi}.`);
@@ -163,7 +197,7 @@ async function main() {
       const id = await pubblica(conf, post, piattaforma, file, indirizzi);
       console.log(`${nome}: pubblicato (${id}).`);
       esiti.push({ piattaforma, stato: "pubblicato", dettaglio: id });
-      pubblicati.push({ data: conf.data, post: post.id, piattaforma, formato: "carosello", id, pubblicatoIl: new Date().toISOString() });
+      pubblicati.push({ data: conf.data, post: post.id, piattaforma, formato: conf.formato, id, pubblicatoIl: new Date().toISOString() });
     } catch (errore) {
       const messaggio = errore instanceof Error ? errore.message : String(errore);
       console.error(`${nome}: non pubblicato. ${messaggio}`);
@@ -172,7 +206,7 @@ async function main() {
   }
 
   if (pubblicati.length) scriviStorico(aggiungiAlloStorico(storico, pubblicati));
-  riassunto(post, conf.data, esiti);
+  riassunto(conf, post, esiti);
   if (esiti.some((e) => e.stato === "errore")) process.exitCode = 1;
   if (!esiti.some((e) => e.stato !== "saltato")) console.log("Nessun social collegato: niente da pubblicare (vedi social/README.md).");
 }

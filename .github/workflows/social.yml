@@ -1,15 +1,27 @@
-# Pubblica ogni giorno il post social di Bleo (src/data/social.ts) su
-# Instagram, pagina Facebook e profilo LinkedIn. Come collegare i social:
-# social/README.md. Un social senza credenziali viene saltato.
+# Pubblica ogni giorno il post social di Bleo (src/data/social.ts): a pranzo
+# il video (Reel) su Instagram e sulla pagina Facebook, la sera il carosello
+# su Instagram, pagina Facebook e profilo LinkedIn. Dopo il carosello legge le
+# statistiche dei post usciti e aggiorna l'analisi (social/analisi.md).
+# Come collegare i social: social/README.md. Un social senza credenziali
+# viene saltato.
 name: Post social di Bleo
 
 on:
   schedule:
-    # 16:41 UTC: 17:41 d'inverno e 18:41 d'estate in Svizzera. Non all'ora
-    # esatta, quando GitHub è più carico e può ritardare.
+    # Non all'ora esatta, quando GitHub è più carico e può ritardare.
+    # Il video: 11:11 UTC, 12:11 d'inverno e 13:11 d'estate in Svizzera.
+    - cron: "11 11 * * *"
+    # Il carosello: 16:41 UTC, 17:41 d'inverno e 18:41 d'estate.
     - cron: "41 16 * * *"
   workflow_dispatch:
     inputs:
+      formato:
+        description: "Carosello di immagini o video (Reel)"
+        type: choice
+        options:
+          - carosello
+          - video
+        default: carosello
       data:
         description: "Giorno del post (AAAA-MM-GG). Vuoto: oggi."
         required: false
@@ -22,8 +34,11 @@ on:
         type: boolean
         default: true
 
+env:
+  FORMATO: ${{ inputs.formato || (github.event.schedule == '11 11 * * *' && 'video') || 'carosello' }}
+
 permissions:
-  # Per salvare social/storico.json nel repository dopo la pubblicazione.
+  # Per salvare registro, statistiche e analisi nel repository.
   contents: write
 
 concurrency:
@@ -33,17 +48,47 @@ concurrency:
 jobs:
   pubblica:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            video/package-lock.json
       - run: npm ci
+
+      # Il video lo fa Remotion (video/scripts/reel.ts): servono ffmpeg e
+      # Python con Pillow e NumPy per preparare Bleo e la bussolina.
+      - name: Strumenti per il video
+        if: env.FORMATO == 'video'
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends ffmpeg python3-pil python3-numpy
+      - name: Fai il video
+        if: env.FORMATO == 'video'
+        working-directory: video
+        run: |
+          npm ci
+          npm run reel
+        env:
+          SOCIAL_DATA: ${{ inputs.data }}
+      # Il video resta scaricabile per due settimane (per esempio per TikTok).
+      - name: Conserva il video
+        if: env.FORMATO == 'video'
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-${{ inputs.data || github.run_id }}
+          path: video/out/reel-*.mp4
+          retention-days: 14
+          if-no-files-found: ignore
+
       - id: pubblica
         run: npm run social:pubblica
         env:
+          SOCIAL_FORMATO: ${{ env.FORMATO }}
           SOCIAL_DATA: ${{ inputs.data }}
           SOCIAL_PIATTAFORME: ${{ inputs.piattaforme }}
           SOCIAL_PROVA: ${{ inputs.prova }}
@@ -53,17 +98,28 @@ jobs:
           INSTAGRAM_USER_ID: ${{ vars.INSTAGRAM_USER_ID }}
           META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
           LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
-      # Il registro di cosa è uscito resta nel repository: evita di ripubblicare
-      # lo stesso post e serve per le statistiche. Anche se un social ha dato
-      # errore, gli altri pubblicati vanno registrati. [skip netlify]: il sito
-      # non cambia, niente build.
-      - name: Salva il registro delle pubblicazioni
+
+      # Una volta al giorno, dopo il carosello. Se le statistiche non si
+      # possono leggere (per esempio mancano i permessi) il post resta
+      # pubblicato: il problema si vede nel riassunto del workflow.
+      - name: Statistiche e analisi
+        if: always() && env.FORMATO == 'carosello' && inputs.prova != true && steps.pubblica.outcome != 'skipped'
+        continue-on-error: true
+        run: npm run social:statistiche
+        env:
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+
+      # Registro, statistiche e analisi restano nel repository: il registro
+      # evita di ripubblicare lo stesso post, statistiche e analisi servono
+      # per i post nuovi. Anche se un social ha dato errore, gli altri
+      # pubblicati vanno registrati. [skip netlify]: il sito non cambia.
+      - name: Salva registro e statistiche
         if: always() && steps.pubblica.outcome != 'skipped'
         run: |
-          git diff --quiet -- social/storico.json && exit 0
+          git add social/storico.json social/statistiche.json social/analisi.md
+          git diff --cached --quiet && exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add social/storico.json
-          git commit -m "Social: registro delle pubblicazioni [skip netlify]"
+          git commit -m "Social: registro e statistiche [skip netlify]"
           git pull --rebase origin "${{ github.ref_name }}"
           git push origin "HEAD:${{ github.ref_name }}"

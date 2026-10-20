@@ -1,7 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { pubblicaFacebook, pubblicaInstagram, verificaMeta, type ConfigMeta } from "./meta";
+import {
+  pubblicaFacebook,
+  pubblicaInstagram,
+  pubblicaReelFacebook,
+  pubblicaReelInstagram,
+  statisticheFacebook,
+  statisticheInstagram,
+  verificaMeta,
+  type ConfigMeta,
+} from "./meta";
 
-type Chiamata = { metodo: string; url: string; parametri: Record<string, string> };
+type Chiamata = {
+  metodo: string;
+  url: string;
+  parametri: Record<string, string>;
+  intestazioni: Record<string, string>;
+  /** Byte di un corpo binario (il caricamento di un video). */
+  byte: number | null;
+};
 
 /** Una Graph API finta: risponde in base a metodo e percorso, e registra le chiamate. */
 function graphFinta(risposte: (c: Chiamata) => unknown) {
@@ -9,8 +25,12 @@ function graphFinta(risposte: (c: Chiamata) => unknown) {
   const f = (async (input: string | URL | Request, init?: RequestInit) => {
     const url = new URL(String(input));
     const metodo = init?.method ?? "GET";
-    const parametri = Object.fromEntries(metodo === "GET" ? url.searchParams : new URLSearchParams(String(init?.body)));
-    const chiamata = { metodo, url: `${url.origin}${url.pathname}`, parametri };
+    const binario = init?.body instanceof Uint8Array ? init.body : null;
+    const parametri = binario
+      ? {}
+      : Object.fromEntries(metodo === "GET" ? url.searchParams : new URLSearchParams(String(init?.body)));
+    const intestazioni = Object.fromEntries(new Headers(init?.headers));
+    const chiamata = { metodo, url: `${url.origin}${url.pathname}`, parametri, intestazioni, byte: binario?.byteLength ?? null };
     chiamate.push(chiamata);
     const corpo = risposte(chiamata);
     return new Response(JSON.stringify(corpo), { status: corpo && typeof corpo === "object" && "error" in corpo ? 400 : 200 });
@@ -102,5 +122,144 @@ describe("verificaMeta", () => {
   it("riconosce un token che non è quello della pagina", async () => {
     const { cfg } = graphFinta(() => ({ id: "555", name: "Romeo" }));
     await expect(verificaMeta(cfg, "99", "17")).rejects.toThrow("non della pagina 99");
+  });
+});
+
+const VIDEO = new Uint8Array(new ArrayBuffer(1234));
+
+describe("pubblicaReelInstagram", () => {
+  it("crea il contenitore, carica il file su rupload, aspetta l'elaborazione e pubblica", async () => {
+    let controlli = 0;
+    const { cfg, chiamate } = graphFinta((c) => {
+      if (c.url.endsWith("/17/media")) return { id: "reel", uri: "https://rupload.facebook.com/ig-api-upload/v24.0/reel" };
+      if (c.url.startsWith("https://rupload.facebook.com")) return { success: true, message: "Upload successful." };
+      if (c.url.endsWith("/reel")) return { status_code: ++controlli < 3 ? "IN_PROGRESS" : "FINISHED" };
+      if (c.url.endsWith("/17/media_publish")) return { id: "post-reel" };
+      throw new Error(`chiamata inattesa ${c.url}`);
+    });
+
+    expect(await pubblicaReelInstagram(cfg, "17", VIDEO, "Didascalia", 2500)).toBe("post-reel");
+
+    expect(chiamate[0].parametri).toMatchObject({
+      media_type: "REELS",
+      upload_type: "resumable",
+      caption: "Didascalia",
+      thumb_offset: "2500",
+    });
+    const caricamento = chiamate[1];
+    expect(caricamento.url).toBe("https://rupload.facebook.com/ig-api-upload/v24.0/reel");
+    expect(caricamento.intestazioni).toMatchObject({ authorization: "OAuth segreto", offset: "0", file_size: "1234" });
+    expect(caricamento.byte).toBe(1234);
+    expect(controlli).toBe(3);
+    expect(chiamate.at(-1)?.parametri).toMatchObject({ creation_id: "reel" });
+  });
+
+  it("manda il token solo a rupload.facebook.com", async () => {
+    const { cfg, chiamate } = graphFinta((c) => {
+      if (c.url.endsWith("/17/media")) return { id: "reel", uri: "https://altro.example/carica" };
+      if (c.metodo === "GET") return { status_code: "FINISHED" };
+      return c.url.endsWith("/media_publish") ? { id: "post-reel" } : { success: true };
+    });
+    await pubblicaReelInstagram(cfg, "17", VIDEO, "x");
+    expect(chiamate[1].url).toBe("https://rupload.facebook.com/ig-api-upload/v24.0/reel");
+    expect(chiamate.some((c) => c.url.includes("altro.example"))).toBe(false);
+  });
+
+  it("si ferma se il caricamento non riesce, senza mostrare il token", async () => {
+    const { cfg } = graphFinta((c) =>
+      c.url.startsWith("https://rupload") ? { debug_info: { retriable: false, message: "ProcessingFailedError" } } : { id: "reel" },
+    );
+    const errore = await pubblicaReelInstagram(cfg, "17", VIDEO, "x").catch((e: Error) => e);
+    expect((errore as Error).message).toContain("ProcessingFailedError");
+    expect((errore as Error).message).not.toContain("segreto");
+  });
+});
+
+describe("pubblicaReelFacebook", () => {
+  it("apre il caricamento, carica il file, pubblica e aspetta che Facebook finisca", async () => {
+    let controlli = 0;
+    const { cfg, chiamate } = graphFinta((c) => {
+      if (c.url.endsWith("/99/video_reels") && c.parametri.upload_phase === "start") {
+        return { video_id: "v1", upload_url: "https://rupload.facebook.com/video-upload/v1" };
+      }
+      if (c.url.startsWith("https://rupload.facebook.com")) return { success: true };
+      if (c.url.endsWith("/99/video_reels")) return { success: true };
+      if (c.url.endsWith("/v1")) {
+        controlli++;
+        return {
+          status: {
+            video_status: controlli < 2 ? "processing" : "ready",
+            publishing_phase: { status: controlli < 2 ? "not_started" : "completed", publish_status: controlli < 2 ? "draft" : "published" },
+          },
+        };
+      }
+      throw new Error(`chiamata inattesa ${c.url}`);
+    });
+
+    expect(await pubblicaReelFacebook(cfg, "99", VIDEO, "Descrizione")).toBe("v1");
+
+    expect(chiamate[1].url).toBe("https://rupload.facebook.com/video-upload/v1");
+    expect(chiamate[1].intestazioni).toMatchObject({ authorization: "OAuth segreto", offset: "0", file_size: "1234" });
+    expect(chiamate[2].parametri).toMatchObject({
+      upload_phase: "finish",
+      video_id: "v1",
+      video_state: "PUBLISHED",
+      description: "Descrizione",
+    });
+    expect(controlli).toBe(2);
+  });
+
+  it("dice se Facebook non riesce a elaborare il video", async () => {
+    const { cfg } = graphFinta((c) => {
+      if (c.parametri.upload_phase === "start") return { video_id: "v1" };
+      if (c.metodo === "GET") return { status: { video_status: "error", processing_phase: { error: { message: "Durata non valida" } } } };
+      return { success: true };
+    });
+    await expect(pubblicaReelFacebook(cfg, "99", VIDEO, "x")).rejects.toThrow("Durata non valida");
+  });
+});
+
+describe("statistiche", () => {
+  const insight = (name: string, value: unknown) => ({ name, period: "lifetime", values: [{ value }] });
+
+  it("legge le metriche di Instagram tutte insieme", async () => {
+    const { cfg, chiamate } = graphFinta(() => ({ data: [insight("reach", 120), insight("saved", 4)] }));
+    expect(await statisticheInstagram(cfg, "m1", "carosello")).toEqual({ reach: 120, saved: 4 });
+    expect(chiamate).toHaveLength(1);
+    expect(chiamate[0].url).toBe("https://graph.facebook.com/v24.0/m1/insights");
+    expect(chiamate[0].parametri.metric).toContain("saved");
+  });
+
+  it("se Meta rifiuta un nome, chiede le metriche una alla volta e salta quelle rifiutate", async () => {
+    const { cfg, chiamate } = graphFinta((c) => {
+      const metriche = c.parametri.metric.split(",");
+      if (metriche.length > 1 || metriche[0] === "reels_skip_rate") {
+        return { error: { message: "(#100) metric must be one of the following values", code: 100 } };
+      }
+      return { data: [insight(metriche[0], 7)] };
+    });
+    const metriche = await statisticheInstagram(cfg, "m1", "video");
+    expect(metriche.reach).toBe(7);
+    expect(metriche).not.toHaveProperty("reels_skip_rate");
+    expect(chiamate.length).toBeGreaterThan(2);
+  });
+
+  it("non nasconde gli errori di permessi", async () => {
+    const { cfg } = graphFinta(() => ({ error: { message: "(#10) Application does not have permission", code: 10 } }));
+    await expect(statisticheInstagram(cfg, "m1", "carosello")).rejects.toThrow("permission");
+  });
+
+  it("su Facebook somma le reazioni per tipo e aggiunge condivisioni e commenti del post", async () => {
+    const { cfg } = graphFinta((c) =>
+      c.url.endsWith("/insights")
+        ? { data: [insight("post_media_view", 300), insight("post_reactions_by_type_total", { like: 5, love: 2 })] }
+        : { id: "99_1", shares: { count: 3 }, comments: { data: [], summary: { total_count: 2 } } },
+    );
+    expect(await statisticheFacebook(cfg, "99_1", "carosello")).toEqual({
+      post_media_view: 300,
+      post_reactions_by_type_total: 7,
+      shares: 3,
+      comments: 2,
+    });
   });
 });

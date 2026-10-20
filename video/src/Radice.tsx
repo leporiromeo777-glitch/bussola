@@ -4,6 +4,8 @@ import { Lezione, type PropsLezione } from "./Lezione";
 import { LEZIONI, trovaLezione } from "./lezioni";
 import { tempiVetrina, Vetrina, type PropsVetrina } from "./presentatore/Vetrina";
 import { ALTEZZA_POST, LARGHEZZA_POST, Post, type PropsPost } from "./social/Post";
+import { Reel, type PropsReel } from "./social/Reel";
+import { ALTEZZA_REEL, FPS_REEL, LARGHEZZA_REEL, tempiReel } from "./social/tempi-reel";
 import { STILI, type Durate } from "./lezioni/tipi";
 import { calcolaTempi, FPS, LATO } from "./tempi";
 
@@ -66,6 +68,21 @@ export function Radice() {
         height={ALTEZZA_POST}
         durationInFrames={1}
         defaultProps={{ postId: POST_SOCIAL[0].id, indice: 0 } satisfies PropsPost}
+      />
+      {/* Il video verticale del post del giorno: lo fa scripts/reel.ts. */}
+      <Composition
+        id="reel"
+        component={Reel}
+        fps={FPS_REEL}
+        width={LARGHEZZA_REEL}
+        height={ALTEZZA_REEL}
+        durationInFrames={1}
+        defaultProps={{ postId: POST_SOCIAL[0].id, clip: null } satisfies PropsReel}
+        calculateMetadata={({ props }) => {
+          const post = POST_SOCIAL.find((p) => p.id === props.postId);
+          if (!post) throw new Error(`Post sconosciuto: ${props.postId}`);
+          return { durationInFrames: tempiReel(post).totale };
+        }}
       />
     </>
   );
