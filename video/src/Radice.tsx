@@ -1,7 +1,9 @@
 import { Composition, staticFile } from "remotion";
+import { POST_SOCIAL } from "../../src/data/social";
 import { Lezione, type PropsLezione } from "./Lezione";
 import { LEZIONI, trovaLezione } from "./lezioni";
 import { tempiVetrina, Vetrina, type PropsVetrina } from "./presentatore/Vetrina";
+import { ALTEZZA_POST, LARGHEZZA_POST, Post, type PropsPost } from "./social/Post";
 import { STILI, type Durate } from "./lezioni/tipi";
 import { calcolaTempi, FPS, LATO } from "./tempi";
 
@@ -54,6 +56,16 @@ export function Radice() {
           if (!risposta.ok) throw new Error("Manca public/ditta-individuale/durate.json: lancia npm run prepara.");
           return { props: { ...props, durate: (await risposta.json()) as Durate } };
         }}
+      />
+      {/* Le immagini dei post social, una per scheda: le fa scripts/social.ts. */}
+      <Composition
+        id="post"
+        component={Post}
+        fps={FPS}
+        width={LARGHEZZA_POST}
+        height={ALTEZZA_POST}
+        durationInFrames={1}
+        defaultProps={{ postId: POST_SOCIAL[0].id, indice: 0 } satisfies PropsPost}
       />
     </>
   );

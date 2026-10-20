@@ -8,15 +8,18 @@
     "prepara": "tsx scripts/prepara.ts",
     "studio": "remotion studio",
     "render": "tsx scripts/render.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "social": "tsx scripts/social.ts"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
+    "@remotion/bundler": "4.0.536",
     "@remotion/cli": "4.0.536",
     "@remotion/fonts": "4.0.536",
     "@remotion/google-fonts": "4.0.536",
+    "@remotion/renderer": "4.0.536",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "remotion": "4.0.536"

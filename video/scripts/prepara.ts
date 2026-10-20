@@ -18,10 +18,10 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { fileCaratteri } from "../src/caratteri";
 import { trovaLezione } from "../src/lezioni";
 import type { Durate } from "../src/lezioni/tipi";
 import { CLIP_PRESENTATORE } from "../src/presentatore/clip";
+import { scaricaCaratteri } from "./caratteri";
 
 const QUI = dirname(fileURLToPath(import.meta.url));
 const VIDEO = resolve(QUI, "..");
@@ -120,12 +120,7 @@ const tagli = spawnSync(
 if (tagli.status !== 0) console.warn("Non sono riuscito a tagliare la bussolina (serve python3 con Pillow e NumPy).");
 
 // 4. Caratteri (Plus Jakarta Sans e Geist), scaricati una volta sola.
-for (const c of fileCaratteri()) {
-  const file = join(VIDEO, "public", c.file);
-  if (existsSync(file)) continue;
-  mkdirSync(dirname(file), { recursive: true });
-  execFileSync("curl", ["-sSfL", "-o", file, c.url], { stdio: "inherit" });
-}
+scaricaCaratteri(VIDEO);
 
 // 5. Bleo presentatore (stile «presentatore»): il saluto una volta, poi il
 //    pezzo in cui indica, avanti e indietro. Il decoder libvpx-vp9 serve per
