@@ -6,7 +6,7 @@
 import { oggiInSvizzera, PIATTAFORME, type Piattaforma } from "../../src/lib/social/post";
 
 /** Versioni delle API: Meta ne mantiene ognuna circa due anni, LinkedIn circa uno. */
-export const VERSIONE_META = "v24.0";
+export const VERSIONE_META = "v26.0";
 export const VERSIONE_LINKEDIN = "202610";
 
 export type Configurazione = {

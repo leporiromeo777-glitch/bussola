@@ -7,7 +7,7 @@
 export type ConfigMeta = {
   /** Token della pagina Facebook collegata all'account Instagram. */
   token: string;
-  /** Versione della Graph API, per esempio "v24.0". */
+  /** Versione della Graph API, per esempio "v26.0". */
   versione: string;
   fetch?: typeof fetch;
   /** Per i test: niente attese vere. */
@@ -50,6 +50,22 @@ async function attendiContenitore(cfg: ConfigMeta, contenitore: string) {
     await (cfg.attesa ?? aspetta)(PAUSA_MS);
   }
   throw new Error(`Instagram: il contenitore ${contenitore} non è pronto dopo ${(CONTROLLI * PAUSA_MS) / 1000} secondi`);
+}
+
+/**
+ * Controlla token e id senza pubblicare nulla. Con il token di una pagina
+ * «me» è la pagina stessa: se è un'altra cosa (per esempio un token utente,
+ * che scade) lo dice. Restituisce i nomi di pagina e account Instagram.
+ */
+export async function verificaMeta(cfg: ConfigMeta, paginaId: string | null, igUserId: string | null) {
+  const io = await graph(cfg, "GET", "me", { fields: "id,name" });
+  if (paginaId && io.id !== paginaId) {
+    throw new Error(
+      `Meta: il token è di «${String(io.name)}» (${String(io.id)}), non della pagina ${paginaId}. Serve il token della pagina (vedi social/README.md).`,
+    );
+  }
+  const instagram = igUserId ? await graph(cfg, "GET", igUserId, { fields: "username" }) : null;
+  return { pagina: String(io.name), instagram: instagram ? String(instagram.username) : null };
 }
 
 /** Pubblica un carosello (da 2 a 10 immagini JPEG) e restituisce l'id del post. */

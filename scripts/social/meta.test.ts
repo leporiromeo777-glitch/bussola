@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pubblicaFacebook, pubblicaInstagram, type ConfigMeta } from "./meta";
+import { pubblicaFacebook, pubblicaInstagram, verificaMeta, type ConfigMeta } from "./meta";
 
 type Chiamata = { metodo: string; url: string; parametri: Record<string, string> };
 
@@ -86,5 +86,21 @@ describe("pubblicaFacebook", () => {
       "attached_media[0]": '{"media_fbid":"foto-1"}',
       "attached_media[1]": '{"media_fbid":"foto-2"}',
     });
+  });
+});
+
+describe("verificaMeta", () => {
+  it("con il token della pagina restituisce pagina e account Instagram, senza scrivere nulla", async () => {
+    const { cfg, chiamate } = graphFinta((c) =>
+      c.url.endsWith("/me") ? { id: "99", name: "Bleo" } : { id: "17", username: "bleo.ticino" },
+    );
+    expect(await verificaMeta(cfg, "99", "17")).toEqual({ pagina: "Bleo", instagram: "bleo.ticino" });
+    expect(chiamate.every((c) => c.metodo === "GET")).toBe(true);
+    expect(chiamate[1].parametri).toMatchObject({ fields: "username" });
+  });
+
+  it("riconosce un token che non è quello della pagina", async () => {
+    const { cfg } = graphFinta(() => ({ id: "555", name: "Romeo" }));
+    await expect(verificaMeta(cfg, "99", "17")).rejects.toThrow("non della pagina 99");
   });
 });

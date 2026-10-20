@@ -5,8 +5,8 @@
  * (src/data/passi.ts) e le cifre vengono da src/data/svizzera.ts: niente
  * numeri a memoria. Se cambia un dato, rifai le grafiche (cd video && npm run social).
  *
- * La pubblicazione è automatica (scripts/social/pubblica.ts): ogni post esce
- * nel giorno indicato in `data`, ora svizzera.
+ * La pubblicazione è automatica (scripts/social/pubblica.ts): un post al
+ * giorno, nell'ordine dell'elenco, a partire da INIZIO_PIANO (ora svizzera).
  */
 import { FASI, TITOLI_FASI, VERIFICATO_IL, type IdPasso } from "./passi";
 import {
@@ -38,7 +38,7 @@ export type SchedaPost =
 
 export type PostSocial = {
   id: string;
-  /** Giorno di pubblicazione (ISO, ora svizzera): un post al giorno. */
+  /** Giorno di pubblicazione (ISO, ora svizzera): lo calcola il piano da INIZIO_PIANO. */
   data: string;
   /** Il passo del percorso da cui vengono testo e fonti. */
   passoId?: IdPasso;
@@ -98,10 +98,19 @@ const aliquote = aliquoteIva.valore;
 const fondo = regolePercorso.fondounimpresa.valore;
 const acconti = regolePercorso.accontiAvs.valore;
 
-export const POST_SOCIAL: readonly PostSocial[] = [
+/** Il primo giorno del piano: ogni post esce il giorno dopo il precedente. Per spostare tutto basta cambiare questa data. */
+export const INIZIO_PIANO = "2026-10-21";
+
+/** Il giorno ISO `giorni` dopo `inizio`. */
+function giornoDopo(inizio: string, giorni: number): string {
+  const d = new Date(`${inizio}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + giorni);
+  return d.toISOString().slice(0, 10);
+}
+
+const PIANO: readonly Omit<PostSocial, "data">[] = [
   {
     id: "ciao-sono-bleo",
-    data: "2026-10-20",
     schede: [
       { tipo: "copertina", occhiello: "Ciao, sono Bleo", titolo: "Apri un'attività in Ticino? Ti accompagno io", mascotte: "coppia" },
       {
@@ -131,7 +140,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "cos-e-la-ditta-individuale",
-    data: "2026-10-21",
     passoId: "ditta-individuale",
     schede: [
       { tipo: "copertina", occhiello: "Le basi", titolo: "Cos'è una ditta individuale?", mascotte: "pensa" },
@@ -157,7 +165,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "registro-di-commercio",
-    data: "2026-10-22",
     passoId: "iscrizione-rc",
     schede: [
       { tipo: "copertina", occhiello: "Registro di commercio", titolo: "Devo iscrivermi al registro di commercio?", mascotte: "pensa" },
@@ -183,7 +190,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "quando-scatta-l-iva",
-    data: "2026-10-23",
     passoId: "iscrizione-iva",
     schede: [
       { tipo: "copertina", occhiello: "IVA", titolo: "Quando devo pagare l'IVA?", mascotte: "pensa" },
@@ -209,7 +215,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "fattura-senza-iva",
-    data: "2026-10-24",
     passoId: "fatture",
     schede: [
       { tipo: "copertina", occhiello: "Fatture", titolo: "Non sei iscritto all'IVA? Niente IVA in fattura", mascotte: "festa" },
@@ -239,7 +244,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "nome-della-ditta",
-    data: "2026-10-25",
     passoId: "nome-ditta",
     schede: [
       { tipo: "copertina", occhiello: "Il nome", titolo: "Come posso chiamare la mia ditta?", mascotte: "scrivania" },
@@ -269,7 +273,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "indipendente-per-l-avs",
-    data: "2026-10-26",
     passoId: "riconoscimento-avs",
     schede: [
       { tipo: "copertina", occhiello: "AVS", titolo: "Chi decide se sei indipendente?", mascotte: "checklist" },
@@ -301,7 +304,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "contributi-avs",
-    data: "2026-10-27",
     passoId: "acconti-avs",
     schede: [
       { tipo: "copertina", occhiello: "AVS", titolo: "Quanto paghi di AVS da indipendente?", mascotte: "pensa" },
@@ -327,7 +329,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "date-acconti-avs",
-    data: "2026-10-28",
     passoId: "acconti-avs",
     schede: [
       { tipo: "copertina", occhiello: "Calendario", titolo: "Le 4 date degli acconti AVS", mascotte: "scrivania" },
@@ -352,7 +353,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "soldi-per-le-imposte",
-    data: "2026-10-29",
     passoId: "acconti-imposte",
     schede: [
       { tipo: "copertina", occhiello: "Imposte", titolo: "Metti da parte i soldi per le imposte", mascotte: "pensa" },
@@ -382,7 +382,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "contabilita-semplice",
-    data: "2026-10-30",
     passoId: "contabilita",
     schede: [
       { tipo: "copertina", occhiello: "Contabilità", titolo: "Che contabilità devo tenere?", mascotte: "scrivania" },
@@ -408,7 +407,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "assicurazione-infortuni",
-    data: "2026-10-31",
     passoId: "assicurazione-infortuni",
     schede: [
       { tipo: "copertina", occhiello: "Assicurazioni", titolo: "Da indipendente sei assicurato contro gli infortuni?", mascotte: "pensa" },
@@ -435,7 +433,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "pilastro-3a",
-    data: "2026-11-01",
     passoId: "assicurazioni-previdenza",
     schede: [
       { tipo: "copertina", occhiello: "Previdenza", titolo: "Pilastro 3a: quanto puoi dedurre?", mascotte: "checklist" },
@@ -460,7 +457,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "chi-ti-protegge",
-    data: "2026-11-02",
     passoId: "assicurazioni-previdenza",
     schede: [
       { tipo: "copertina", occhiello: "Protezione", titolo: "Malattia, pensione, disoccupazione: chi ti copre?", mascotte: "pensa" },
@@ -482,7 +478,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "serve-un-autorizzazione",
-    data: "2026-11-03",
     passoId: "autorizzazioni",
     schede: [
       { tipo: "copertina", occhiello: "Prima di iniziare", titolo: "Ti serve un'autorizzazione?", mascotte: "checklist" },
@@ -513,7 +508,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "alimenti-fatti-in-casa",
-    data: "2026-11-04",
     passoId: "notifica-derrate-alimentari",
     schede: [
       { tipo: "copertina", occhiello: "Alimenti", titolo: "Vendi cibo fatto in casa? Notificalo al Cantone", mascotte: "festa" },
@@ -543,7 +537,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "permesso-per-lavorare-in-proprio",
-    data: "2026-11-05",
     passoId: "permesso-lavoro",
     schede: [
       { tipo: "copertina", occhiello: "Permessi", titolo: "Non hai la cittadinanza svizzera? Controlla il permesso", mascotte: "checklist" },
@@ -566,7 +559,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "aiuto-gratuito",
-    data: "2026-11-06",
     passoId: "aiuto",
     schede: [
       { tipo: "copertina", occhiello: "Aiuto", titolo: "A chi chiedere aiuto, gratis", mascotte: "coppia" },
@@ -592,7 +584,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "fattura-con-iva",
-    data: "2026-11-07",
     passoId: "fatture",
     schede: [
       { tipo: "copertina", occhiello: "Fatture", titolo: "Iscritto all'IVA? Cosa scrivere in fattura", mascotte: "festa" },
@@ -615,7 +606,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "aliquote-iva",
-    data: "2026-11-08",
     passoId: "iscrizione-iva",
     schede: [
       { tipo: "copertina", occhiello: "IVA", titolo: "Le aliquote IVA in Svizzera", mascotte: "scrivania" },
@@ -645,7 +635,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "vendere-online",
-    data: "2026-11-09",
     passoId: "sito-online",
     schede: [
       { tipo: "copertina", occhiello: "Vendere online", titolo: "Vendi online? Il tuo sito deve dire chi sei", mascotte: "scrivania" },
@@ -672,7 +661,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "edilizia-e-suva",
-    data: "2026-11-10",
     passoId: "statuto-suva",
     schede: [
       { tipo: "copertina", occhiello: "Edilizia e trasporti", titolo: "Chi decide se sei indipendente?", mascotte: "pensa" },
@@ -699,7 +687,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "costo-registro-di-commercio",
-    data: "2026-11-11",
     passoId: "iscrizione-rc",
     schede: [
       { tipo: "copertina", occhiello: "Costi", titolo: "Quanto costa iscriversi al registro di commercio?", mascotte: "checklist" },
@@ -726,7 +713,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "partire-con-un-socio",
-    data: "2026-11-12",
     passoId: "soci-forma-giuridica",
     schede: [
       { tipo: "copertina", occhiello: "Forme giuridiche", titolo: "Parti con un socio? La ditta individuale non basta", mascotte: "coppia" },
@@ -748,7 +734,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "reddito-nella-dichiarazione",
-    data: "2026-11-13",
     passoId: "dichiarazione-imposte",
     schede: [
       { tipo: "copertina", occhiello: "Imposte", titolo: "Dove va il reddito della ditta nella dichiarazione?", mascotte: "scrivania" },
@@ -779,7 +764,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "soglie-di-fine-anno",
-    data: "2026-11-14",
     passoId: "soglie-annuali",
     schede: [
       { tipo: "copertina", occhiello: "Ogni anno", titolo: "A fine anno controlla 3 soglie", mascotte: "checklist" },
@@ -805,7 +789,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "attivita-accessoria",
-    data: "2026-11-15",
     passoId: "riconoscimento-avs",
     schede: [
       { tipo: "copertina", occhiello: "Attività accessoria", titolo: "Lavori in proprio accanto al tuo impiego?", mascotte: "scrivania" },
@@ -831,7 +814,6 @@ export const POST_SOCIAL: readonly PostSocial[] = [
   },
   {
     id: "il-percorso-di-bleo",
-    data: "2026-11-16",
     schede: [
       { tipo: "copertina", occhiello: "Il percorso", titolo: "Dall'idea alla prima fattura, in 4 fasi", mascotte: "festa" },
       { tipo: "punti", titolo: "Le fasi", punti: FASI.map((fase) => TITOLI_FASI[fase]) },
@@ -852,6 +834,8 @@ export const POST_SOCIAL: readonly PostSocial[] = [
     hashtag: ["#Startup", "#SvizzeraItaliana"],
   },
 ];
+
+export const POST_SOCIAL: readonly PostSocial[] = PIANO.map((post, i) => ({ ...post, data: giornoDopo(INIZIO_PIANO, i) }));
 
 /** Il post di un giorno (data ISO), se c'è. */
 export function postDelGiorno(data: string): PostSocial | undefined {

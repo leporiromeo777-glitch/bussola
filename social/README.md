@@ -4,7 +4,8 @@ Ogni giorno esce un post di Bleo su Instagram, sulla pagina Facebook e sul
 profilo LinkedIn, da solo e gratis.
 
 - **I post** sono in [`src/data/social.ts`](../src/data/social.ts): un
-  carosello al giorno, dal 20.10.2026 al 16.11.2026. I testi vengono dai passi
+  carosello al giorno, dal 21.10.2026 al 17.11.2026 (il primo giorno è
+  `INIZIO_PIANO`: per spostare tutto basta cambiare quella data). I testi vengono dai passi
   del percorso, le cifre da `src/data/svizzera.ts`, ogni post ha le sue fonti
   ufficiali. I test (`npm test`) controllano che ogni importo in CHF e ogni
   percentuale venga dai dati.
@@ -98,8 +99,11 @@ prendendole da questa cartella su GitHub.
 ## Provare senza pubblicare
 
 Su GitHub: **Actions → Post social di Bleo → Run workflow**. La casella
-«Solo prova» è già spuntata: il workflow mostra testi e immagini senza
-pubblicare nulla. Puoi scegliere il giorno, per esempio `2026-10-28`.
+«Solo prova» è già spuntata: il workflow mostra testi e immagini e controlla
+che chiavi e id funzionino (dice a nome di quale pagina, account e profilo
+uscirebbe il post), senza pubblicare nulla. Puoi scegliere il giorno, per
+esempio `2026-10-28`. Se il token di Meta non è quello della pagina (per
+esempio un token utente, che scade), la prova lo dice.
 
 Per rilanciare un solo social (per esempio dopo un errore), togli la spunta,
 scrivi il giorno e in «Social» solo quello da rifare (`linkedin`). Attenzione:
@@ -113,7 +117,8 @@ SOCIAL_PROVA=true SOCIAL_DATA=2026-10-28 npm run social:pubblica
 
 ## Aggiungere post
 
-1. Aggiungi i post in `src/data/social.ts`, con le date di seguito all'ultimo.
+1. Aggiungi i post in fondo all'elenco di `src/data/social.ts`: la data la
+   calcola il piano, un giorno dopo l'ultimo.
    Cifre e scadenze solo dai dati di `src/data/svizzera.ts`; le fonti di un
    post che spiega un passo devono essere fonti di quel passo.
 2. Fai le immagini: `cd video && npm run social -- <id> <id> …` (la prima

@@ -6,7 +6,7 @@
  *
  * Lo lancia ogni giorno il workflow .github/workflows/social.yml. Variabili
  * d'ambiente e collegamento dei social: social/README.md. Con SOCIAL_PROVA=true
- * mostra testi e immagini senza pubblicare nulla.
+ * mostra testi e immagini e controlla chiavi e id, senza pubblicare nulla.
  */
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -15,7 +15,7 @@ import { dataSvizzera } from "../../src/data/svizzera";
 import { didascalia, testiAlternativi, type Piattaforma } from "../../src/lib/social/post";
 import { leggiConfigurazione, statoPiattaforma, type Configurazione } from "./configurazione";
 import { autoreLinkedIn, pubblicaLinkedIn } from "./linkedin";
-import { pubblicaFacebook, pubblicaInstagram } from "./meta";
+import { pubblicaFacebook, pubblicaInstagram, verificaMeta } from "./meta";
 
 type Esito = { piattaforma: Piattaforma; stato: "pubblicato" | "prova" | "saltato" | "errore"; dettaglio: string };
 
@@ -46,6 +46,19 @@ async function pubblica(conf: Configurazione, post: PostSocial, piattaforma: Pia
       const immagini = file.map((f, i) => ({ dati: new Uint8Array(readFileSync(f)), testoAlternativo: alternativi[i] }));
       return pubblicaLinkedIn(conf.linkedin!, autore, immagini, testo);
     }
+  }
+}
+
+/** Una lettura che usa chiave e id senza pubblicare: dice a nome di chi uscirebbe il post. */
+async function controllaCredenziali(conf: Configurazione, piattaforma: Piattaforma): Promise<string> {
+  switch (piattaforma) {
+    case "instagram":
+    case "facebook": {
+      const { pagina, instagram } = await verificaMeta(conf.meta!, conf.meta!.paginaId, conf.meta!.instagramId);
+      return piattaforma === "instagram" ? `account @${instagram}` : `pagina «${pagina}»`;
+    }
+    case "linkedin":
+      return `profilo ${await autoreLinkedIn(conf.linkedin!)}`;
   }
 }
 
@@ -119,6 +132,16 @@ async function main() {
       }
     }
     if (conf.prova) {
+      // Con le credenziali, la prova controlla anche che chiavi e id funzionino (solo letture).
+      if (!stato) {
+        const controllo = await controllaCredenziali(conf, piattaforma).catch((e: unknown) => e as Error);
+        if (controllo instanceof Error) {
+          console.error(`${nome}: le credenziali non funzionano. ${controllo.message}`);
+          esiti.push({ piattaforma, stato: "errore", dettaglio: controllo.message });
+          continue;
+        }
+        console.log(`${nome}: credenziali a posto, ${controllo}.`);
+      }
       const testo = didascalia(post, piattaforma, conf.sitoUrl ?? "https://example.invalid");
       console.log(`\n--- ${nome}${stato ? ` (${stato.motivo})` : ""} ---\n${testo}\n`);
       if (piattaforma !== "linkedin") console.log(indirizzi.join("\n") || file.join("\n"));
