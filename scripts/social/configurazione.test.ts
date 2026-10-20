@@ -6,7 +6,14 @@ const ADESSO = new Date("2026-10-21T08:00:00Z");
 describe("leggiConfigurazione", () => {
   it("senza variabili: oggi in Svizzera, tutti i social richiesti, nessuno collegato", () => {
     const conf = leggiConfigurazione({}, ADESSO);
-    expect(conf).toMatchObject({ data: "2026-10-21", prova: false, piattaforme: ["instagram", "facebook", "linkedin"], errori: [] });
+    expect(conf).toMatchObject({
+      data: "2026-10-21",
+      prova: false,
+      formato: "carosello",
+      video: null,
+      piattaforme: ["instagram", "facebook", "linkedin"],
+      errori: [],
+    });
     expect(conf.meta).toBeNull();
     expect(conf.linkedin).toBeNull();
     for (const p of conf.piattaforme) expect(statoPiattaforma(conf, p)?.stato).toBe("non collegato");
@@ -26,6 +33,8 @@ describe("leggiConfigurazione", () => {
         SOCIAL_DATA: "2026-11-01",
         SOCIAL_PIATTAFORME: " LinkedIn, instagram ",
         SOCIAL_PROVA: "true",
+        SOCIAL_FORMATO: "Video",
+        SOCIAL_VIDEO: "video/out/reel.mp4",
         SITO_URL: "https://bleo.example.ch/",
         META_PAGE_TOKEN: "t",
         INSTAGRAM_USER_ID: "17",
@@ -36,6 +45,8 @@ describe("leggiConfigurazione", () => {
     expect(conf).toMatchObject({
       data: "2026-11-01",
       prova: true,
+      formato: "video",
+      video: "video/out/reel.mp4",
       piattaforme: ["instagram", "linkedin"],
       sitoUrl: "https://bleo.example.ch",
       meta: { token: "t", versione: VERSIONE_META, instagramId: "17", paginaId: null },
@@ -45,9 +56,15 @@ describe("leggiConfigurazione", () => {
   });
 
   it("segnala valori sbagliati", () => {
-    const conf = leggiConfigurazione({ SOCIAL_DATA: "1.11.2026", SOCIAL_PIATTAFORME: "tiktok", SITO_URL: "http://localhost:3000" });
-    expect(conf.errori).toHaveLength(3);
+    const conf = leggiConfigurazione({
+      SOCIAL_DATA: "1.11.2026",
+      SOCIAL_PIATTAFORME: "tiktok",
+      SITO_URL: "http://localhost:3000",
+      SOCIAL_FORMATO: "storia",
+    });
+    expect(conf.errori).toHaveLength(4);
     expect(conf.errori.join(" ")).toContain("tiktok");
+    expect(conf.errori.join(" ")).toContain("storia");
   });
 });
 
@@ -57,6 +74,18 @@ describe("statoPiattaforma", () => {
     expect(statoPiattaforma(conf, "instagram")).toEqual({ stato: "incompleto", motivo: "manca SOCIAL_IMMAGINI_URL" });
     expect(statoPiattaforma(conf, "facebook")).toEqual({ stato: "incompleto", motivo: "manca SOCIAL_IMMAGINI_URL e SITO_URL" });
     expect(statoPiattaforma(conf, "linkedin")).toEqual({ stato: "incompleto", motivo: "manca SITO_URL" });
+  });
+
+  it("per il video l'indirizzo delle immagini non serve: si carica il file", () => {
+    const conf = leggiConfigurazione({
+      SOCIAL_FORMATO: "video",
+      META_PAGE_TOKEN: "t",
+      INSTAGRAM_USER_ID: "17",
+      FACEBOOK_PAGE_ID: "99",
+      SITO_URL: "https://bleo.example.ch",
+    });
+    expect(statoPiattaforma(conf, "instagram")).toBeNull();
+    expect(statoPiattaforma(conf, "facebook")).toBeNull();
   });
 
   it("con tutto è pronta", () => {

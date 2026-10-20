@@ -4,6 +4,7 @@
  * così si possono collegare i social uno alla volta.
  */
 import { oggiInSvizzera, PIATTAFORME, type Piattaforma } from "../../src/lib/social/post";
+import { FORMATI, type Formato } from "./storico";
 
 /** Versioni delle API: Meta ne mantiene ognuna circa due anni, LinkedIn circa uno. */
 export const VERSIONE_META = "v26.0";
@@ -14,6 +15,10 @@ export type Configurazione = {
   data: string;
   /** Solo prova: mostra i testi senza pubblicare. */
   prova: boolean;
+  /** Il carosello di immagini o il video (Reel). */
+  formato: Formato;
+  /** Il file del video; null: quello che fa `npm run reel` in video/. */
+  video: string | null;
   piattaforme: Piattaforma[];
   sitoUrl: string | null;
   /** Indirizzo pubblico della cartella social/ (Instagram e Facebook scaricano le immagini da lì). */
@@ -49,6 +54,9 @@ export function leggiConfigurazione(env: Ambiente, adesso: Date = new Date()): C
   const data = valore(env, "SOCIAL_DATA") ?? oggiInSvizzera(adesso);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) errori.push(`SOCIAL_DATA deve essere AAAA-MM-GG, non «${data}».`);
 
+  const formato = (valore(env, "SOCIAL_FORMATO") ?? "carosello").toLowerCase();
+  if (!(FORMATI as readonly string[]).includes(formato)) errori.push(`SOCIAL_FORMATO deve essere ${FORMATI.join(" o ")}, non «${formato}».`);
+
   const richieste = (valore(env, "SOCIAL_PIATTAFORME") ?? PIATTAFORME.join(","))
     .split(",")
     .map((p) => p.trim().toLowerCase())
@@ -75,6 +83,8 @@ export function leggiConfigurazione(env: Ambiente, adesso: Date = new Date()): C
   return {
     data,
     prova: /^(1|true|si|sì)$/i.test(valore(env, "SOCIAL_PROVA") ?? ""),
+    formato: (FORMATI as readonly string[]).includes(formato) ? (formato as Formato) : "carosello",
+    video: valore(env, "SOCIAL_VIDEO"),
     piattaforme,
     sitoUrl,
     immaginiUrl,
@@ -101,14 +111,16 @@ export function statoPiattaforma(
   piattaforma: Piattaforma,
 ): { stato: "non collegato" | "incompleto"; motivo: string } | null {
   const mancano = (cosa: string[]) => ({ stato: "incompleto" as const, motivo: `manca ${cosa.join(" e ")}` });
+  // Le immagini Meta le scarica da un indirizzo pubblico; il video invece si carica dal file.
+  const immagini = conf.formato === "video" || conf.immaginiUrl ? [] : ["SOCIAL_IMMAGINI_URL"];
   switch (piattaforma) {
     case "instagram": {
       if (!conf.meta?.instagramId) return { stato: "non collegato", motivo: "mancano META_PAGE_TOKEN o INSTAGRAM_USER_ID" };
-      return conf.immaginiUrl ? null : mancano(["SOCIAL_IMMAGINI_URL"]);
+      return immagini.length ? mancano(immagini) : null;
     }
     case "facebook": {
       if (!conf.meta?.paginaId) return { stato: "non collegato", motivo: "mancano META_PAGE_TOKEN o FACEBOOK_PAGE_ID" };
-      const cosa = [...(conf.immaginiUrl ? [] : ["SOCIAL_IMMAGINI_URL"]), ...(conf.sitoUrl ? [] : ["SITO_URL"])];
+      const cosa = [...immagini, ...(conf.sitoUrl ? [] : ["SITO_URL"])];
       return cosa.length ? mancano(cosa) : null;
     }
     case "linkedin": {

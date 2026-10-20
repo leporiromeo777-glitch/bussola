@@ -9,7 +9,8 @@
     "studio": "remotion studio",
     "render": "tsx scripts/render.ts",
     "typecheck": "tsc --noEmit",
-    "social": "tsx scripts/social.ts"
+    "social": "tsx scripts/social.ts",
+    "reel": "tsx scripts/reel.ts"
   },
   "engines": {
     "node": ">=22"
