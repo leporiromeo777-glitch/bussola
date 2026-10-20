@@ -23,7 +23,8 @@ on:
         default: true
 
 permissions:
-  contents: read
+  # Per salvare social/storico.json nel repository dopo la pubblicazione.
+  contents: write
 
 concurrency:
   group: post-social
@@ -40,7 +41,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run social:pubblica
+      - id: pubblica
+        run: npm run social:pubblica
         env:
           SOCIAL_DATA: ${{ inputs.data }}
           SOCIAL_PIATTAFORME: ${{ inputs.piattaforme }}
@@ -51,3 +53,17 @@ jobs:
           INSTAGRAM_USER_ID: ${{ vars.INSTAGRAM_USER_ID }}
           META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
           LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
+      # Il registro di cosa è uscito resta nel repository: evita di ripubblicare
+      # lo stesso post e serve per le statistiche. Anche se un social ha dato
+      # errore, gli altri pubblicati vanno registrati. [skip netlify]: il sito
+      # non cambia, niente build.
+      - name: Salva il registro delle pubblicazioni
+        if: always() && steps.pubblica.outcome != 'skipped'
+        run: |
+          git diff --quiet -- social/storico.json && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add social/storico.json
+          git commit -m "Social: registro delle pubblicazioni [skip netlify]"
+          git pull --rebase origin "${{ github.ref_name }}"
+          git push origin "HEAD:${{ github.ref_name }}"

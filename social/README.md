@@ -19,6 +19,11 @@ profilo LinkedIn, da solo e gratis.
   Instagram e Facebook scaricano le immagini da
   `raw.githubusercontent.com`, alla versione del commit.
 
+Ogni pubblicazione finisce in [`storico.json`](storico.json) (giorno, post,
+social, formato, id e ora), che il workflow salva nel repository: un post già
+uscito su un social non viene pubblicato una seconda volta, nemmeno se rilanci
+il workflow a mano.
+
 Il workflow pianificato parte solo dal branch `main`: i post escono dopo il
 merge. Un social senza credenziali viene saltato, quindi si possono collegare
 uno alla volta.
@@ -105,9 +110,8 @@ uscirebbe il post), senza pubblicare nulla. Puoi scegliere il giorno, per
 esempio `2026-10-28`. Se il token di Meta non è quello della pagina (per
 esempio un token utente, che scade), la prova lo dice.
 
-Per rilanciare un solo social (per esempio dopo un errore), togli la spunta,
-scrivi il giorno e in «Social» solo quello da rifare (`linkedin`). Attenzione:
-sugli altri il post uscirebbe due volte.
+Per rilanciare dopo un errore, togli la spunta e scrivi il giorno: i social
+dove il post è già uscito vengono saltati (lo dice `storico.json`).
 
 In locale:
 

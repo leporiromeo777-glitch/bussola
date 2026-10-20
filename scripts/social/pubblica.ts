@@ -7,6 +7,8 @@
  * Lo lancia ogni giorno il workflow .github/workflows/social.yml. Variabili
  * d'ambiente e collegamento dei social: social/README.md. Con SOCIAL_PROVA=true
  * mostra testi e immagini e controlla chiavi e id, senza pubblicare nulla.
+ * Ogni pubblicazione finisce in social/storico.json (scripts/social/storico.ts):
+ * un post già uscito su un social non viene ripubblicato.
  */
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -16,6 +18,7 @@ import { didascalia, testiAlternativi, type Piattaforma } from "../../src/lib/so
 import { leggiConfigurazione, statoPiattaforma, type Configurazione } from "./configurazione";
 import { autoreLinkedIn, pubblicaLinkedIn } from "./linkedin";
 import { pubblicaFacebook, pubblicaInstagram, verificaMeta } from "./meta";
+import { aggiungiAlloStorico, giaPubblicato, leggiStorico, scriviStorico, type VoceStorico } from "./storico";
 
 type Esito = { piattaforma: Piattaforma; stato: "pubblicato" | "prova" | "saltato" | "errore"; dettaglio: string };
 
@@ -110,8 +113,16 @@ async function main() {
   // Il controllo degli indirizzi si fa una volta sola, solo se serve a qualcuno.
   let problemaIndirizzi: string | null | undefined;
   const esiti: Esito[] = [];
+  const storico = leggiStorico();
+  const pubblicati: VoceStorico[] = [];
   for (const piattaforma of conf.piattaforme) {
     const nome = NOMI[piattaforma];
+    const gia = giaPubblicato(storico, { data: conf.data, post: post.id, piattaforma, formato: "carosello" });
+    if (gia) {
+      console.log(`${nome}: già pubblicato il ${gia.pubblicatoIl} (${gia.id}), salto.`);
+      esiti.push({ piattaforma, stato: "saltato", dettaglio: `già pubblicato (${gia.id})` });
+      continue;
+    }
     const stato = statoPiattaforma(conf, piattaforma);
     if (stato?.stato === "non collegato" && !conf.prova) {
       console.log(`${nome}: non collegato (${stato.motivo}), salto.`);
@@ -152,6 +163,7 @@ async function main() {
       const id = await pubblica(conf, post, piattaforma, file, indirizzi);
       console.log(`${nome}: pubblicato (${id}).`);
       esiti.push({ piattaforma, stato: "pubblicato", dettaglio: id });
+      pubblicati.push({ data: conf.data, post: post.id, piattaforma, formato: "carosello", id, pubblicatoIl: new Date().toISOString() });
     } catch (errore) {
       const messaggio = errore instanceof Error ? errore.message : String(errore);
       console.error(`${nome}: non pubblicato. ${messaggio}`);
@@ -159,6 +171,7 @@ async function main() {
     }
   }
 
+  if (pubblicati.length) scriviStorico(aggiungiAlloStorico(storico, pubblicati));
   riassunto(post, conf.data, esiti);
   if (esiti.some((e) => e.stato === "errore")) process.exitCode = 1;
   if (!esiti.some((e) => e.stato !== "saltato")) console.log("Nessun social collegato: niente da pubblicare (vedi social/README.md).");
