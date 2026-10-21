@@ -74,8 +74,9 @@ async function controllaCredenziali(conf: Configurazione, piattaforma: Piattafor
   switch (piattaforma) {
     case "instagram":
     case "facebook": {
-      const { pagina, instagram } = await verificaMeta(conf.meta!, conf.meta!.paginaId, conf.meta!.instagramId);
-      return piattaforma === "instagram" ? `account @${instagram}` : `pagina «${pagina}»`;
+      const { pagina, instagram, permessiMancanti } = await verificaMeta(conf.meta!, conf.meta!.paginaId, conf.meta!.instagramId);
+      const nota = permessiMancanti.length ? ` (per le statistiche manca ${permessiMancanti.join(" e ")})` : "";
+      return `${piattaforma === "instagram" ? `account @${instagram}` : `pagina «${pagina}»`}${nota}`;
     }
     case "linkedin":
       return `profilo ${await autoreLinkedIn(conf.linkedin!)}`;

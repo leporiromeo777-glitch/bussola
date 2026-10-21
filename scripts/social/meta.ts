@@ -25,6 +25,9 @@ const PAUSA_MS = 5_000;
 const CONTROLLI = 24;
 const CONTROLLI_VIDEO = 120;
 
+/** I permessi che servono per leggere le statistiche (scripts/social/aggiorna-statistiche.ts). */
+export const PERMESSI_STATISTICHE = ["instagram_manage_insights", "read_insights"] as const;
+
 /** Un errore della Graph API, con il codice di Meta (100: parametro non valido, 10 e 200: permessi, 190: token). */
 export class ErroreMeta extends Error {
   constructor(
@@ -114,7 +117,30 @@ export async function verificaMeta(cfg: ConfigMeta, paginaId: string | null, igU
     );
   }
   const instagram = igUserId ? await graph(cfg, "GET", igUserId, { fields: "username" }) : null;
-  return { pagina: String(io.name), instagram: instagram ? String(instagram.username) : null };
+  // Il token della pagina preso con un token utente esteso non scade mai. Se
+  // ha una scadenza, è stato preso con un token utente breve e smette di
+  // funzionare dopo un paio d'ore. Se Meta non dà le informazioni, si salta.
+  const info = await graph(cfg, "GET", "debug_token", { input_token: cfg.token }).catch(() => null);
+  const dati = (info?.data ?? {}) as { expires_at?: number; scopes?: string[] };
+  if (dati.expires_at && dati.expires_at > 0) {
+    const quando = new Intl.DateTimeFormat("de-CH", {
+      timeZone: "Europe/Zurich",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(dati.expires_at * 1000));
+    throw new Error(
+      `Meta: il token della pagina scade il ${quando}, quindi è stato preso con un token utente breve. Rifai me/accounts con il token esteso: quello della pagina deve dire «Scade: mai» (vedi social/README.md).`,
+    );
+  }
+  return {
+    pagina: String(io.name),
+    instagram: instagram ? String(instagram.username) : null,
+    /** I permessi per le statistiche che il token non ha (vuoto se Meta non dice i permessi). */
+    permessiMancanti: dati.scopes ? PERMESSI_STATISTICHE.filter((p) => !dati.scopes!.includes(p)) : [],
+  };
 }
 
 /** Pubblica un carosello (da 2 a 10 immagini JPEG) e restituisce l'id del post. */

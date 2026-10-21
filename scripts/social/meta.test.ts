@@ -114,9 +114,22 @@ describe("verificaMeta", () => {
     const { cfg, chiamate } = graphFinta((c) =>
       c.url.endsWith("/me") ? { id: "99", name: "Bleo" } : { id: "17", username: "bleo.ticino" },
     );
-    expect(await verificaMeta(cfg, "99", "17")).toEqual({ pagina: "Bleo", instagram: "bleo.ticino" });
+    expect(await verificaMeta(cfg, "99", "17")).toEqual({ pagina: "Bleo", instagram: "bleo.ticino", permessiMancanti: [] });
     expect(chiamate.every((c) => c.metodo === "GET")).toBe(true);
     expect(chiamate[1].parametri).toMatchObject({ fields: "username" });
+  });
+
+  it("riconosce un token della pagina che scade e i permessi mancanti per le statistiche", async () => {
+    const risposte = (scade: number) =>
+      graphFinta((c) => {
+        if (c.url.endsWith("/me")) return { id: "99", name: "Bleo" };
+        if (c.url.endsWith("/debug_token")) {
+          return { data: { is_valid: true, expires_at: scade, scopes: ["pages_manage_posts", "read_insights"] } };
+        }
+        return { id: "17", username: "bleo.ticino" };
+      });
+    await expect(verificaMeta(risposte(1_792_537_200).cfg, "99", "17")).rejects.toThrow("scade il 21.10.2026");
+    expect(await verificaMeta(risposte(0).cfg, "99", "17")).toMatchObject({ permessiMancanti: ["instagram_manage_insights"] });
   });
 
   it("riconosce un token che non è quello della pagina", async () => {
