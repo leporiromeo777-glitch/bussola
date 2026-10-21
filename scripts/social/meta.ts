@@ -140,6 +140,8 @@ export async function verificaMeta(cfg: ConfigMeta, paginaId: string | null, igU
     instagram: instagram ? String(instagram.username) : null,
     /** I permessi per le statistiche che il token non ha (vuoto se Meta non dice i permessi). */
     permessiMancanti: dati.scopes ? PERMESSI_STATISTICHE.filter((p) => !dati.scopes!.includes(p)) : [],
+    /** true: Meta conferma che il token non scade; false: Meta non l'ha detto. */
+    nonScade: info !== null && dati.expires_at === 0,
   };
 }
 

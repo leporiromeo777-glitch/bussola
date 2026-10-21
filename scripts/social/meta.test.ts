@@ -114,7 +114,7 @@ describe("verificaMeta", () => {
     const { cfg, chiamate } = graphFinta((c) =>
       c.url.endsWith("/me") ? { id: "99", name: "Bleo" } : { id: "17", username: "bleo.ticino" },
     );
-    expect(await verificaMeta(cfg, "99", "17")).toEqual({ pagina: "Bleo", instagram: "bleo.ticino", permessiMancanti: [] });
+    expect(await verificaMeta(cfg, "99", "17")).toEqual({ pagina: "Bleo", instagram: "bleo.ticino", permessiMancanti: [], nonScade: false });
     expect(chiamate.every((c) => c.metodo === "GET")).toBe(true);
     expect(chiamate[1].parametri).toMatchObject({ fields: "username" });
   });
@@ -129,7 +129,10 @@ describe("verificaMeta", () => {
         return { id: "17", username: "bleo.ticino" };
       });
     await expect(verificaMeta(risposte(1_792_537_200).cfg, "99", "17")).rejects.toThrow("scade il 21.10.2026");
-    expect(await verificaMeta(risposte(0).cfg, "99", "17")).toMatchObject({ permessiMancanti: ["instagram_manage_insights"] });
+    expect(await verificaMeta(risposte(0).cfg, "99", "17")).toMatchObject({
+      permessiMancanti: ["instagram_manage_insights"],
+      nonScade: true,
+    });
   });
 
   it("riconosce un token che non è quello della pagina", async () => {
