@@ -40,6 +40,11 @@ export function aggiungiAlloStorico(storico: readonly VoceStorico[], nuove: read
   return [...storico, ...nuove].sort((a, b) => chiave(a).localeCompare(chiave(b)));
 }
 
+/** Lo storico senza la voce indicata (un post cancellato dal social e ripubblicato). */
+export function togliDalloStorico(storico: readonly VoceStorico[], voce: VoceStorico): VoceStorico[] {
+  return storico.filter((v) => v !== voce);
+}
+
 export function leggiStorico(file: string = FILE_STORICO): VoceStorico[] {
   return existsSync(file) ? (JSON.parse(readFileSync(file, "utf8")) as VoceStorico[]) : [];
 }

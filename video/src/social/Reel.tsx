@@ -1,11 +1,11 @@
 /**
- * Il video verticale del post del giorno (1080×1920, ~20 s, senza voce): le
+ * Il video verticale del post del giorno (1080×1920, ~20 s, musica senza voce): le
  * schede del carosello una dopo l'altra, Bleo presentatore in basso che
  * saluta e indica, la bussolina che entra, tocca i punti e fa festa. Lo fa
  * scripts/reel.ts; i tempi e le mosse sono in tempi-reel.ts.
  */
 import type { CSSProperties, ReactNode } from "react";
-import { AbsoluteFill, interpolate, Sequence, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Html5Audio, interpolate, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { AVVISO, POST_SOCIAL, type PostSocial, type SchedaPost } from "../../../src/data/social";
 import { dataSvizzera } from "../../../src/data/svizzera";
 import { Marchio } from "../componenti/Marchio";
@@ -17,15 +17,28 @@ import { posa } from "../presentatore/coreografia";
 import { Scintille } from "../presentatore/Scintille";
 import { COLORI, OMBRA_SCHEDA, SFUMATURA, TESTO, TITOLI } from "../stile";
 import {
+  ATTACCO_VOCE,
   conApostrofi,
+  CONTA,
   GRIGLIA_REEL,
   numeroDaContare,
   pianoReel,
   tempiReel,
   type ParteReel,
+  type VoceReel,
 } from "./tempi-reel";
 
-export type PropsReel = { postId: string; clip: NonNullable<Durate["presentatore"]> | null };
+export type PropsReel = {
+  postId: string;
+  clip: NonNullable<Durate["presentatore"]> | null;
+  /** Musica ed effetti in public/ (li fa scripts/audio-reel.py); null: muto. */
+  audio: string | null;
+  /**
+   * La voce di Bleo: i file sono in public/<cartella>/ (01.mp3, 02.mp3, … una
+   * per scheda, e chiusura.mp3); null: senza voce, solo musica.
+   */
+  voce: (VoceReel & { cartella: string }) | null;
+};
 
 const MOLLA = { damping: 14, stiffness: 120, mass: 0.9 };
 const USCITA = 10;
@@ -41,16 +54,28 @@ function unito(testo: string): string {
   return testo.replace(/CHF /g, "CHF ");
 }
 
-export function Reel({ postId, clip }: PropsReel) {
+export function Reel({ postId, clip, audio, voce }: PropsReel) {
   const frame = useCurrentFrame();
   const post = trovaPost(postId);
-  const tempi = tempiReel(post);
+  const tempi = tempiReel(post, voce);
   const piano = pianoReel(tempi);
   const adesso = posa(piano, frame);
   const { bleo, bussolina } = GRIGLIA_REEL;
   return (
     <AbsoluteFill style={{ fontFamily: TESTO, color: COLORI.testo }}>
       <Sfondo />
+      {audio ? <Html5Audio src={staticFile(audio)} /> : null}
+      {voce
+        ? tempi.parti.map((parte) => (
+            <Sequence key={`voce-${parte.indice}`} from={parte.inizio + ATTACCO_VOCE} name="voce">
+              <Html5Audio
+                src={staticFile(
+                  `${voce.cartella}/${parte.scheda ? `${String(parte.indice + 1).padStart(2, "0")}.mp3` : "chiusura.mp3"}`,
+                )}
+              />
+            </Sequence>
+          ))
+        : null}
       <div style={{ position: "absolute", left: GRIGLIA_REEL.margine, top: GRIGLIA_REEL.marchio.y }}>
         <Marchio altezza={56} />
       </div>
@@ -249,7 +274,7 @@ function Cifra({ scheda, durata }: { scheda: Extract<SchedaPost, { tipo: "cifra"
   const comparsa = useComparsa(durata);
   const conta = numeroDaContare(scheda.cifra);
   // Il numero sale da 0 al valore in poco più di un secondo, poi resta fermo.
-  const u = interpolate(frame, [10, 48], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const u = interpolate(frame, [CONTA.da, CONTA.a], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const salita = 1 - (1 - u) ** 3;
   const testo = conta ? `${conta.prima}${conApostrofi(conta.numero * salita)}${conta.dopo}` : scheda.cifra;
   return (

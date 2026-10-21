@@ -9,6 +9,7 @@ describe("leggiConfigurazione", () => {
     expect(conf).toMatchObject({
       data: "2026-10-21",
       prova: false,
+      ripubblica: false,
       formato: "carosello",
       video: null,
       piattaforme: ["instagram", "facebook", "linkedin"],
@@ -33,6 +34,7 @@ describe("leggiConfigurazione", () => {
         SOCIAL_DATA: "2026-11-01",
         SOCIAL_PIATTAFORME: " LinkedIn, instagram ",
         SOCIAL_PROVA: "true",
+        SOCIAL_RIPUBBLICA: "true",
         SOCIAL_FORMATO: "Video",
         SOCIAL_VIDEO: "video/out/reel.mp4",
         SITO_URL: "https://bleo.example.ch/",
@@ -45,6 +47,7 @@ describe("leggiConfigurazione", () => {
     expect(conf).toMatchObject({
       data: "2026-11-01",
       prova: true,
+      ripubblica: true,
       formato: "video",
       video: "video/out/reel.mp4",
       piattaforme: ["instagram", "linkedin"],

@@ -40,13 +40,25 @@ export type ParteReel = {
 
 export type TempiReel = { parti: ParteReel[]; totale: number };
 
+/**
+ * La voce di Bleo (la misura scripts/reel.ts): per ogni scheda quanto dura la
+ * frase e, negli elenchi, quando comincia ogni punto (fotogrammi dall'inizio
+ * della frase); poi la chiusura.
+ */
+export type VoceReel = { schede: { durata: number; punti: number[] | null }[]; chiusura: number };
+
 const DURATA_COPERTINA = 120;
 const DURATA_CIFRA = 105;
 const DURATA_CHIUSURA = 130;
 /** Elenco: la scheda entra, poi un punto ogni 48 fotogrammi, poi una pausa per leggere. */
 const ELENCO = { primo: 24, passo: 48, coda: 40 } as const;
+/** Con la voce: la frase parte poco dopo la scheda e, finita, resta un attimo di respiro. */
+export const ATTACCO_VOCE = 8;
+const CODA_VOCE = 14;
+/** Fra un punto e l'altro almeno il tempo di un tocco della bussolina. */
+const PASSO_MINIMO = 18;
 
-export function tempiReel(post: PostSocial): TempiReel {
+export function tempiReel(post: PostSocial, voce: VoceReel | null = null): TempiReel {
   const parti: ParteReel[] = [];
   let t = 0;
   post.schede.forEach((scheda, indice) => {
@@ -57,11 +69,21 @@ export function tempiReel(post: PostSocial): TempiReel {
       punti = scheda.punti.map((_, k) => ELENCO.primo + k * ELENCO.passo);
       durata = ELENCO.primo + scheda.punti.length * ELENCO.passo + ELENCO.coda;
     }
+    const frase = voce?.schede[indice];
+    if (frase) {
+      // Ogni punto compare quando Bleo comincia a dirlo, un attimo prima.
+      if (frase.punti) {
+        punti = frase.punti.map((p) => Math.max(ELENCO.primo, ATTACCO_VOCE + p - 3));
+        for (let k = 1; k < punti.length; k++) punti[k] = Math.max(punti[k], punti[k - 1] + PASSO_MINIMO);
+      }
+      durata = Math.max(scheda.tipo === "copertina" ? DURATA_COPERTINA : 60, ATTACCO_VOCE + frase.durata + CODA_VOCE, (punti.at(-1) ?? 0) + 30);
+    }
     parti.push({ scheda, indice, inizio: t, durata, punti });
     t += durata;
   });
-  parti.push({ scheda: null, indice: post.schede.length, inizio: t, durata: DURATA_CHIUSURA, punti: [] });
-  return { parti, totale: t + DURATA_CHIUSURA };
+  const chiusura = voce ? Math.max(DURATA_CHIUSURA, ATTACCO_VOCE + voce.chiusura + 20) : DURATA_CHIUSURA;
+  parti.push({ scheda: null, indice: post.schede.length, inizio: t, durata: chiusura, punti: [] });
+  return { parti, totale: t + chiusura };
 }
 
 /** Il centro della riga `k` di un elenco (pixel del video). */
@@ -104,6 +126,43 @@ export function pianoReel(tempi: TempiReel): Piano {
     }
   }
   return { ...r, fine: tempi.totale };
+}
+
+/** Un suono del video, a un fotogramma preciso (li suona scripts/audio-reel.py). */
+export type SuonoReel = {
+  tipo: "passaggio" | "entra" | "punto" | "scintilla" | "conta" | "cifra" | "festa";
+  fotogramma: number;
+  /** Punto: quale (la nota sale a ogni punto). */
+  indice?: number;
+  /** Conta: per quanti fotogrammi ticchetta. */
+  durata?: number;
+};
+
+/** Il fotogramma (dall'inizio della cifra) in cui il numero comincia e finisce di salire (vedi Reel.tsx). */
+export const CONTA = { da: 10, a: 48 } as const;
+
+/**
+ * I suoni del video, legati alle animazioni: un soffio a ogni cambio di
+ * scheda, un «pop» quando compare un punto, le scintille, il ticchettio
+ * mentre la cifra sale e una piccola festa quando la bussolina festeggia.
+ */
+export function suoniReel(tempi: TempiReel, piano: Piano): SuonoReel[] {
+  const suoni: SuonoReel[] = [];
+  for (const parte of tempi.parti) {
+    // Il soffio parte un attimo prima, mentre la scheda vecchia esce.
+    suoni.push({ tipo: "passaggio", fotogramma: Math.max(0, parte.inizio - (parte.indice ? 6 : 0)) });
+    parte.punti.forEach((comparsa, k) => suoni.push({ tipo: "punto", fotogramma: parte.inizio + comparsa, indice: k }));
+    if (parte.scheda?.tipo === "cifra" && numeroDaContare(parte.scheda.cifra)) {
+      suoni.push({ tipo: "conta", fotogramma: parte.inizio + CONTA.da, durata: CONTA.a - CONTA.da });
+      suoni.push({ tipo: "cifra", fotogramma: parte.inizio + CONTA.a });
+    }
+  }
+  for (const m of piano.mosse) {
+    if (m.tipo === "entra") suoni.push({ tipo: "entra", fotogramma: m.inizio });
+    if (m.tipo === "festeggia") suoni.push({ tipo: "festa", fotogramma: m.inizio });
+  }
+  for (const sc of piano.scintille) suoni.push({ tipo: "scintilla", fotogramma: sc.inizio });
+  return suoni.sort((a, b) => a.fotogramma - b.fotogramma);
 }
 
 /** «CHF 100'000» → { prima: "CHF ", numero: 100000, dopo: "" }; null se non c'è un numero da far salire. */

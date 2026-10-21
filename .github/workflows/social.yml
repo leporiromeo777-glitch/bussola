@@ -13,6 +13,10 @@ on:
     - cron: "11 11 * * *"
     # Il carosello: 16:41 UTC, 17:41 d'inverno e 18:41 d'estate.
     - cron: "41 16 * * *"
+    # Riserve mezz'ora dopo: GitHub a volte salta un orario programmato. Se
+    # il post è già uscito, social/storico.json lo dice e la riserva non fa nulla.
+    - cron: "41 11 * * *"
+    - cron: "11 17 * * *"
   workflow_dispatch:
     inputs:
       formato:
@@ -33,9 +37,13 @@ on:
         description: "Solo prova: mostra testi e immagini senza pubblicare"
         type: boolean
         default: true
+      ripubblica:
+        description: "Ripubblica i post di quel giorno cancellati a mano dal social"
+        type: boolean
+        default: false
 
 env:
-  FORMATO: ${{ inputs.formato || (github.event.schedule == '11 11 * * *' && 'video') || 'carosello' }}
+  FORMATO: ${{ inputs.formato || ((github.event.schedule == '11 11 * * *' || github.event.schedule == '41 11 * * *') && 'video') || 'carosello' }}
 
 permissions:
   # Per salvare registro, statistiche e analisi nel repository.
@@ -50,7 +58,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
+      # L'ultima versione del branch, non quella di quando è partito il
+      # workflow: così un'esecuzione in coda vede il registro aggiornato da
+      # quella prima e non pubblica due volte.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -92,6 +105,7 @@ jobs:
           SOCIAL_DATA: ${{ inputs.data }}
           SOCIAL_PIATTAFORME: ${{ inputs.piattaforme }}
           SOCIAL_PROVA: ${{ inputs.prova }}
+          SOCIAL_RIPUBBLICA: ${{ inputs.ripubblica }}
           # Finché non c'è il dominio definitivo: imposta la variabile SITO_URL quando cambia.
           SITO_URL: ${{ vars.SITO_URL || 'https://bussola-ticino.netlify.app' }}
           FACEBOOK_PAGE_ID: ${{ vars.FACEBOOK_PAGE_ID }}

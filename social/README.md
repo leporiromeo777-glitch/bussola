@@ -15,9 +15,15 @@ perché ([`analisi.md`](analisi.md)).
 - **Le immagini** sono in questa cartella, `social/<id-del-post>/01.jpg, 02.jpg, …`
   (JPEG 1080×1350). Le fa Remotion con i colori e i caratteri del sito:
   `cd video && npm run social`.
-- **Il video** (1080×1920, circa 20 secondi, senza voce) lo fa Remotion al
-  momento, dalle stesse schede: Bleo presentatore saluta e indica, la
-  bussolina entra, tocca i punti uno a uno e fa festa sulla cifra. In locale:
+- **Il video** (1080×1920, circa 30 secondi) lo fa Remotion al momento,
+  dalle stesse schede: Bleo presentatore saluta e indica, la bussolina
+  entra, tocca i punti uno a uno e fa festa sulla cifra, mentre **Bleo legge
+  le schede con la sua voce** (vedi sotto). Ogni scheda dura quanto la sua
+  frase e ogni punto compare quando Bleo lo dice. Sotto, musica ed effetti
+  fatti dal codice ([`video/scripts/audio-reel.py`](../video/scripts/audio-reel.py)):
+  una marimba allegra e, a tempo con le animazioni, un soffio a ogni cambio
+  di scheda, un «pop» per ogni punto, le scintille, il ticchettio della cifra
+  che sale e una piccola festa. Volume finale -14 LUFS. In locale:
   `cd video && npm run reel -- <id-del-post>` (serve anche `ffmpeg` e Python
   con Pillow e NumPy). Composizione in
   [`video/src/social/Reel.tsx`](../video/src/social/Reel.tsx), tempi e mosse in
@@ -28,7 +34,9 @@ perché ([`analisi.md`](analisi.md)).
   ([`.github/workflows/social.yml`](../.github/workflows/social.yml), script
   [`scripts/social/pubblica.ts`](../scripts/social/pubblica.ts)): il video
   alle 12:11 d'inverno e alle 13:11 d'estate, il carosello alle 17:41
-  d'inverno e alle 18:41 d'estate. Il repository è pubblico, quindi i minuti
+  d'inverno e alle 18:41 d'estate. GitHub a volte ritarda o salta un orario
+  programmato: per questo il workflow riparte anche mezz'ora dopo, e se il
+  post è già uscito non fa nulla. Il repository è pubblico, quindi i minuti
   di GitHub Actions non costano nulla. Instagram e Facebook scaricano le
   immagini da `raw.githubusercontent.com`, alla versione del commit; il
   video invece lo carica lo script.
@@ -121,6 +129,27 @@ sono già pronti: il video lo scarichi dalla pagina dell'esecuzione del
 workflow su GitHub («Artifacts»), le immagini da questa cartella, e dal
 telefono li pubblichi in un minuto.
 
+## La voce di Bleo nei video
+
+È la stessa voce delle lezioni: Higgsfield, `text2speech_v2` con motore
+ElevenLabs e voce «Dylan» (vedi `video/README.md`). Una frase per scheda più
+una chiusura uguale per tutti, in `video/sorgenti/social/<id-post>/01.mp3,
+02.mp3, …` e `video/sorgenti/social/chiusura.mp3`; i testi usati sono in
+`voci.json`. Costa circa 0,3 crediti a frase.
+
+Il testo lo ricava il codice dalle schede ([`src/lib/social/voce.ts`](../src/lib/social/voce.ts)):
+«Blìo» al posto di Bleo, gli importi in parole («centomila franchi»), le
+sigle come si dicono («a-vu-esse») e niente parentesi. Per un post nuovo o
+cambiato:
+
+1. `cd video && npm run voci`: elenca le frasi da fare, con il testo.
+2. Genera ogni frase con la voce «Dylan» e salvala con il nome indicato.
+3. `npm run voci -- --registra`, poi `npm test` dalla cartella principale.
+
+Se un post non ha tutte le sue voci, o il testo è cambiato dopo la
+registrazione, il video esce lo stesso con la sola musica, e `npm test`
+segnala le voci da rifare.
+
 ## Statistiche e analisi
 
 Ogni sera, dopo il carosello, il workflow legge da Instagram e Facebook le
@@ -171,7 +200,10 @@ prova lo crea davvero: lo trovi in fondo alla pagina dell'esecuzione
 token utente, che scade), la prova lo dice.
 
 Per rilanciare dopo un errore, togli la spunta e scrivi il giorno: i social
-dove il post è già uscito vengono saltati (lo dice `storico.json`).
+dove il post è già uscito vengono saltati (lo dice `storico.json`). Se hai
+cancellato un post dal social e vuoi che esca di nuovo, spunta anche
+«Ripubblica»: il workflow chiede a Meta quali post di quel giorno non ci sono
+più e ripubblica solo quelli.
 
 In locale:
 
