@@ -120,6 +120,7 @@ const PIANO: readonly Omit<PostSocial, "data">[] = [
           "Ti preparo un percorso con i passi nell'ordine giusto",
           "Per ogni passo ti do il link al modulo ufficiale",
           "Rispondo alle tue domande citando sempre la fonte",
+          "Ti aiuto a tenere la tua contabilità: ricevute, entrate e uscite in ordine",
         ],
       },
       {
@@ -127,7 +128,7 @@ const PIANO: readonly Omit<PostSocial, "data">[] = [
         titolo: "Cosa non faccio",
         punti: [
           "Non compilo la tua dichiarazione d'imposta",
-          "Non tengo la contabilità per te",
+          "Non tengo la contabilità al posto tuo",
           "Nei casi complessi ti indico un fiduciario autorizzato",
         ],
       },

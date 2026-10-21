@@ -30,29 +30,31 @@ const VIDEO = resolve(QUI, "..");
 const VOCI = join(VIDEO, "sorgenti", "social");
 
 /**
- * Quando comincia ogni punto di un elenco (secondi): alla fine delle pause
- * più lunghe fra le frasi (titolo, punto, punto…). Se le pause non bastano,
- * in proporzione alla lunghezza delle frasi.
+ * Quando comincia ogni punto di un elenco (secondi). Prima una stima in
+ * proporzione alla lunghezza delle frasi (titolo, punto, punto…), poi ogni
+ * stima si aggancia alla fine della pausa più vicina, se ce n'è una entro un
+ * secondo: così una pausa dentro una frase («contabilità: ricevute…») non
+ * sposta i punti.
  */
 function iniziPunti(file: string, testo: string, durata: number): number[] {
   const frasi = testo.split("\n");
-  const servono = frasi.length - 1;
-  const interne = pauseVoce(file).filter(([a, b]) => a > 0.2 && b < durata - 0.2);
-  if (interne.length >= servono) {
-    return interne
-      .sort((x, y) => y[1] - y[0] - (x[1] - x[0]))
-      .slice(0, servono)
-      .map(([, b]) => b)
-      .sort((x, y) => x - y);
-  }
+  const pause = pauseVoce(file)
+    .filter(([a, b]) => a > 0.2 && b < durata - 0.2)
+    .map(([, b]) => b);
   const caratteri = frasi.map((f) => f.length);
   const totale = caratteri.reduce((a, b) => a + b, 0);
-  let somma = caratteri[0];
-  return caratteri.slice(1).map((c) => {
-    const inizio = (somma / totale) * durata;
+  const inizi: number[] = [];
+  let somma = 0;
+  for (const c of caratteri.slice(0, -1)) {
     somma += c;
-    return inizio;
-  });
+    const stima = (somma / totale) * durata;
+    const dopo = inizi.at(-1) ?? 0;
+    const vicina = pause
+      .filter((t) => t > dopo && Math.abs(t - stima) <= 1)
+      .sort((x, y) => Math.abs(x - stima) - Math.abs(y - stima))[0];
+    inizi.push(vicina ?? Math.max(stima, dopo + 0.6));
+  }
+  return inizi;
 }
 
 /**
