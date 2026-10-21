@@ -1,1 +1,42 @@
-[]
+[
+  {
+    "data": "2026-10-21",
+    "post": "ciao-sono-bleo",
+    "piattaforma": "facebook",
+    "formato": "video",
+    "id": "1687470786322149",
+    "lettoIl": "2026-10-21T17:23:46.720Z",
+    "giorni": 0.1,
+    "metriche": {}
+  },
+  {
+    "data": "2026-10-21",
+    "post": "ciao-sono-bleo",
+    "piattaforma": "instagram",
+    "formato": "carosello",
+    "id": "18140911183623036",
+    "lettoIl": "2026-10-21T17:23:46.720Z",
+    "giorni": 0,
+    "metriche": {
+      "reach": 0,
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "saved": 0,
+      "total_interactions": 0,
+      "profile_visits": 0,
+      "follows": 0
+    }
+  },
+  {
+    "data": "2026-10-21",
+    "post": "ciao-sono-bleo",
+    "piattaforma": "instagram",
+    "formato": "video",
+    "id": "18153184054549104",
+    "lettoIl": "2026-10-21T17:23:46.720Z",
+    "giorni": 0.1,
+    "metriche": {}
+  }
+]
