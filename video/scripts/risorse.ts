@@ -20,6 +20,21 @@ function contaFotogrammi(file: string): number {
   return Number(ffprobe(file, "-count_frames", "-select_streams", "v:0", "-show_entries", "stream=nb_read_frames"));
 }
 
+/** La durata di un file audio o video, in secondi. */
+export function durataSecondi(file: string): number {
+  return Number(ffprobe(file, "-show_entries", "format=duration"));
+}
+
+/** Le pause di una voce ([inizio, fine] in secondi), con silencedetect di ffmpeg. */
+export function pauseVoce(file: string, soglia = "-30dB", minima = 0.08): [number, number][] {
+  const r = spawnSync("ffmpeg", ["-hide_banner", "-i", file, "-af", `silencedetect=noise=${soglia}:d=${minima}`, "-f", "null", "-"], {
+    encoding: "utf8",
+  });
+  const inizi = [...r.stderr.matchAll(/silence_start: ([\d.]+)/g)].map((m) => Number(m[1]));
+  const fini = [...r.stderr.matchAll(/silence_end: ([\d.]+)/g)].map((m) => Number(m[1]));
+  return inizi.map((a, i): [number, number] => [a, fini[i] ?? a]);
+}
+
 /** Copia in public/mascotte/ le immagini della mascotte del sito. */
 export function copiaMascotte(video: string, nomi: readonly string[]) {
   mkdirSync(join(video, "public", "mascotte"), { recursive: true });

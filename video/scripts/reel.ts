@@ -6,25 +6,92 @@
  *   npm run reel -- <id-post>     un post preciso
  *
  * Scrive out/reel-<id>.mp4: H.264 1080×1920 a 30 fps con audio AAC 48 kHz,
- * come chiedono i Reel di Instagram e Facebook. Musica ed effetti li fa
+ * come chiedono i Reel di Instagram e Facebook. La voce di Bleo viene da
+ * sorgenti/social/ (social/README.md), musica ed effetti li fa
  * scripts/audio-reel.py, a tempo con le animazioni (suoniReel). Servono curl,
  * ffmpeg e python3 con Pillow e NumPy (vedi scripts/risorse.ts). Il browser è
  * quello che Remotion scarica da solo; per usarne un altro:
  * REMOTION_BROWSER=/percorso/di/chrome.
  */
 import { spawnSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, selectComposition } from "@remotion/renderer";
-import { POST_SOCIAL, postDelGiorno } from "../../src/data/social";
+import { POST_SOCIAL, postDelGiorno, type PostSocial } from "../../src/data/social";
+import { testiVoce, VOCE_CHIUSURA } from "../../src/lib/social/voce";
 import { scaricaCaratteri } from "./caratteri";
-import { FPS_REEL, pianoReel, suoniReel, tempiReel } from "../src/social/tempi-reel";
-import { copiaMascotte, preparaPresentatore, tagliaBussolina } from "./risorse";
+import { FPS_REEL, pianoReel, suoniReel, tempiReel, type VoceReel } from "../src/social/tempi-reel";
+import { copiaMascotte, durataSecondi, pauseVoce, preparaPresentatore, tagliaBussolina } from "./risorse";
 
 const QUI = dirname(fileURLToPath(import.meta.url));
 const VIDEO = resolve(QUI, "..");
+const VOCI = join(VIDEO, "sorgenti", "social");
+
+/**
+ * Quando comincia ogni punto di un elenco (secondi): alla fine delle pause
+ * più lunghe fra le frasi (titolo, punto, punto…). Se le pause non bastano,
+ * in proporzione alla lunghezza delle frasi.
+ */
+function iniziPunti(file: string, testo: string, durata: number): number[] {
+  const frasi = testo.split("\n");
+  const servono = frasi.length - 1;
+  const interne = pauseVoce(file).filter(([a, b]) => a > 0.2 && b < durata - 0.2);
+  if (interne.length >= servono) {
+    return interne
+      .sort((x, y) => y[1] - y[0] - (x[1] - x[0]))
+      .slice(0, servono)
+      .map(([, b]) => b)
+      .sort((x, y) => x - y);
+  }
+  const caratteri = frasi.map((f) => f.length);
+  const totale = caratteri.reduce((a, b) => a + b, 0);
+  let somma = caratteri[0];
+  return caratteri.slice(1).map((c) => {
+    const inizio = (somma / totale) * durata;
+    somma += c;
+    return inizio;
+  });
+}
+
+/**
+ * La voce del post (sorgenti/social/<id>/01.mp3, … e chiusura.mp3), copiata
+ * in public/ e misurata. Solo se c'è una frase per ogni scheda e i testi
+ * sono quelli di voci.json: se il post è cambiato, il video esce senza voce.
+ */
+function preparaVoce(post: PostSocial): (VoceReel & { cartella: string }) | null {
+  const elenco = existsSync(join(VOCI, "voci.json")) ? (JSON.parse(readFileSync(join(VOCI, "voci.json"), "utf8")) as Record<string, string>) : {};
+  const testi = testiVoce(post);
+  const nomi = testi.map((_, i) => `${post.id}/${String(i + 1).padStart(2, "0")}.mp3`);
+  const mancanti = [...nomi, "chiusura.mp3"].filter((n) => !existsSync(join(VOCI, n)));
+  const cambiati = nomi.filter((n, i) => existsSync(join(VOCI, n)) && elenco[n] !== testi[i]);
+  if (elenco["chiusura.mp3"] !== VOCE_CHIUSURA) cambiati.push("chiusura.mp3");
+  if (mancanti.length || cambiati.length) {
+    console.warn(
+      `Voce di Bleo non usata per ${post.id}: ${mancanti.length ? `mancano ${mancanti.join(", ")}` : ""}${cambiati.length ? ` testo cambiato in ${cambiati.join(", ")}` : ""} (vedi social/README.md). Il video esce con la sola musica.`,
+    );
+    return null;
+  }
+  const cartella = `voce-social/${post.id}`;
+  rmSync(join(VIDEO, "public", cartella), { recursive: true, force: true });
+  mkdirSync(join(VIDEO, "public", cartella), { recursive: true });
+  for (const n of nomi) copyFileSync(join(VOCI, n), join(VIDEO, "public", cartella, n.split("/")[1]));
+  copyFileSync(join(VOCI, "chiusura.mp3"), join(VIDEO, "public", cartella, "chiusura.mp3"));
+  const fotogrammi = (secondi: number) => Math.ceil(secondi * FPS_REEL);
+  return {
+    cartella,
+    schede: post.schede.map((scheda, i) => {
+      const file = join(VOCI, nomi[i]);
+      const durata = durataSecondi(file);
+      return {
+        durata: fotogrammi(durata),
+        punti: scheda.tipo === "punti" ? iniziPunti(file, testi[i], durata).map(fotogrammi) : null,
+      };
+    }),
+    chiusura: fotogrammi(durataSecondi(join(VOCI, "chiusura.mp3"))),
+  };
+}
 
 const [richiesto] = process.argv.slice(2);
 const oggi = process.env.SOCIAL_DATA?.trim() || new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Zurich" }).format(new Date());
@@ -44,10 +111,18 @@ copiaMascotte(VIDEO, ["bussolina.webp"]);
 if (!tagliaBussolina(VIDEO)) process.exit(1);
 const clip = preparaPresentatore(VIDEO) ?? null;
 
-// Musica ed effetti in public/audio/ (anche questi prima del bundle). Se non
-// riesce, il video esce muto invece di non uscire.
-const tempi = tempiReel(post);
-const suoni = { fps: FPS_REEL, fotogrammi: tempi.totale, seme: post.id, suoni: suoniReel(tempi, pianoReel(tempi)) };
+// La voce di Bleo, poi musica ed effetti in public/ (prima del bundle). Se
+// l'audio non riesce, il video esce muto invece di non uscire; sotto la
+// voce la musica è più bassa.
+const voce = preparaVoce(post);
+const tempi = tempiReel(post, voce);
+const suoni = {
+  fps: FPS_REEL,
+  fotogrammi: tempi.totale,
+  seme: post.id,
+  voce: voce !== null,
+  suoni: suoniReel(tempi, pianoReel(tempi)),
+};
 const fileSuoni = join(VIDEO, "out", `suoni-${post.id}.json`);
 const audio = `audio/reel-${post.id}.wav`;
 mkdirSync(join(VIDEO, "out"), { recursive: true });
@@ -62,7 +137,7 @@ const uscita = join(VIDEO, "out", `reel-${post.id}.mp4`);
 mkdirSync(dirname(uscita), { recursive: true });
 const browserExecutable = process.env.REMOTION_BROWSER ?? null;
 const serveUrl = await bundle({ entryPoint: join(VIDEO, "src", "index.ts") });
-const inputProps = { postId: post.id, clip, audio: sintesi.status === 0 ? audio : null };
+const inputProps = { postId: post.id, clip, audio: sintesi.status === 0 ? audio : null, voce };
 const composition = await selectComposition({ serveUrl, id: "reel", inputProps, browserExecutable });
 await renderMedia({
   composition,
@@ -80,4 +155,15 @@ await renderMedia({
   outputLocation: uscita,
   browserExecutable,
 });
-console.log(`Fatto: video/out/reel-${post.id}.mp4 (${(composition.durationInFrames / composition.fps).toFixed(1)} s)`);
+// Lo stesso volume ogni giorno: -14 LUFS, il livello dei social. Il video si copia, l'audio si rifà.
+const normale = join(VIDEO, "out", `reel-${post.id}-norm.mp4`);
+const volume = spawnSync(
+  "ffmpeg",
+  ["-v", "error", "-y", "-i", uscita, "-c:v", "copy", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-ar", "48000", "-c:a", "aac", "-b:a", "128k", normale],
+  { stdio: "inherit" },
+);
+if (volume.status === 0) renameSync(normale, uscita);
+else console.warn("Non sono riuscito a regolare il volume: il video resta com'è.");
+console.log(
+  `Fatto: video/out/reel-${post.id}.mp4 (${(composition.durationInFrames / composition.fps).toFixed(1)} s, ${voce ? "con la voce di Bleo" : "senza voce"})`,
+);

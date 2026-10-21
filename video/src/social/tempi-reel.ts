@@ -40,13 +40,25 @@ export type ParteReel = {
 
 export type TempiReel = { parti: ParteReel[]; totale: number };
 
+/**
+ * La voce di Bleo (la misura scripts/reel.ts): per ogni scheda quanto dura la
+ * frase e, negli elenchi, quando comincia ogni punto (fotogrammi dall'inizio
+ * della frase); poi la chiusura.
+ */
+export type VoceReel = { schede: { durata: number; punti: number[] | null }[]; chiusura: number };
+
 const DURATA_COPERTINA = 120;
 const DURATA_CIFRA = 105;
 const DURATA_CHIUSURA = 130;
 /** Elenco: la scheda entra, poi un punto ogni 48 fotogrammi, poi una pausa per leggere. */
 const ELENCO = { primo: 24, passo: 48, coda: 40 } as const;
+/** Con la voce: la frase parte poco dopo la scheda e, finita, resta un attimo di respiro. */
+export const ATTACCO_VOCE = 8;
+const CODA_VOCE = 14;
+/** Fra un punto e l'altro almeno il tempo di un tocco della bussolina. */
+const PASSO_MINIMO = 18;
 
-export function tempiReel(post: PostSocial): TempiReel {
+export function tempiReel(post: PostSocial, voce: VoceReel | null = null): TempiReel {
   const parti: ParteReel[] = [];
   let t = 0;
   post.schede.forEach((scheda, indice) => {
@@ -57,11 +69,21 @@ export function tempiReel(post: PostSocial): TempiReel {
       punti = scheda.punti.map((_, k) => ELENCO.primo + k * ELENCO.passo);
       durata = ELENCO.primo + scheda.punti.length * ELENCO.passo + ELENCO.coda;
     }
+    const frase = voce?.schede[indice];
+    if (frase) {
+      // Ogni punto compare quando Bleo comincia a dirlo, un attimo prima.
+      if (frase.punti) {
+        punti = frase.punti.map((p) => Math.max(ELENCO.primo, ATTACCO_VOCE + p - 3));
+        for (let k = 1; k < punti.length; k++) punti[k] = Math.max(punti[k], punti[k - 1] + PASSO_MINIMO);
+      }
+      durata = Math.max(scheda.tipo === "copertina" ? DURATA_COPERTINA : 60, ATTACCO_VOCE + frase.durata + CODA_VOCE, (punti.at(-1) ?? 0) + 30);
+    }
     parti.push({ scheda, indice, inizio: t, durata, punti });
     t += durata;
   });
-  parti.push({ scheda: null, indice: post.schede.length, inizio: t, durata: DURATA_CHIUSURA, punti: [] });
-  return { parti, totale: t + DURATA_CHIUSURA };
+  const chiusura = voce ? Math.max(DURATA_CHIUSURA, ATTACCO_VOCE + voce.chiusura + 20) : DURATA_CHIUSURA;
+  parti.push({ scheda: null, indice: post.schede.length, inizio: t, durata: chiusura, punti: [] });
+  return { parti, totale: t + chiusura };
 }
 
 /** Il centro della riga `k` di un elenco (pixel del video). */

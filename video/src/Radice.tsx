@@ -77,11 +77,11 @@ export function Radice() {
         width={LARGHEZZA_REEL}
         height={ALTEZZA_REEL}
         durationInFrames={1}
-        defaultProps={{ postId: POST_SOCIAL[0].id, clip: null, audio: null } satisfies PropsReel}
+        defaultProps={{ postId: POST_SOCIAL[0].id, clip: null, audio: null, voce: null } satisfies PropsReel}
         calculateMetadata={({ props }) => {
           const post = POST_SOCIAL.find((p) => p.id === props.postId);
           if (!post) throw new Error(`Post sconosciuto: ${props.postId}`);
-          return { durationInFrames: tempiReel(post).totale };
+          return { durationInFrames: tempiReel(post, props.voce).totale };
         }}
       />
     </>

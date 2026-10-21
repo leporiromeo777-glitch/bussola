@@ -5,7 +5,7 @@ qui con un po' di sintesi: niente file presi da fuori, niente diritti.
     python3 audio-reel.py suoni.json uscita.wav
 
 suoni.json lo scrive scripts/reel.ts:
-{"fps": 30, "fotogrammi": 560, "seme": "id-del-post",
+{"fps": 30, "fotogrammi": 560, "seme": "id-del-post", "voce": true,
  "suoni": [{"tipo": "punto", "fotogramma": 140, "indice": 0}, ...]}
 
 Il sottofondo è una marimba allegra in Do maggiore a 100 battiti al minuto
@@ -186,10 +186,12 @@ def main():
     effetti(mixer, dati["suoni"], fps, rng)
 
     # Volume: valore efficace a -20 dBFS (circa -14 LUFS, come vogliono i
-    # social), poi un limitatore morbido per i picchi.
+    # social), poi un limitatore morbido per i picchi. Sotto la voce di Bleo
+    # tutto 9 dB più basso, perché la voce si capisca bene.
     uscita = mixer.canali
     efficace = np.sqrt(np.mean(uscita**2)) or 1.0
-    uscita = np.tanh(uscita * (10 ** (-20 / 20) / efficace) * 1.1) / np.tanh(1.1)
+    obiettivo = -29 if dati.get("voce") else -20
+    uscita = np.tanh(uscita * (10 ** (obiettivo / 20) / efficace) * 1.1) / np.tanh(1.1)
     uscita *= np.minimum(1, (durata - t) / 0.05).clip(0, 1)
     pcm = (np.clip(uscita, -1, 1) * 32_000).astype("<i2").T.reshape(-1)
     with wave.open(sys.argv[2], "wb") as f:

@@ -17,6 +17,7 @@ import { posa } from "../presentatore/coreografia";
 import { Scintille } from "../presentatore/Scintille";
 import { COLORI, OMBRA_SCHEDA, SFUMATURA, TESTO, TITOLI } from "../stile";
 import {
+  ATTACCO_VOCE,
   conApostrofi,
   CONTA,
   GRIGLIA_REEL,
@@ -24,6 +25,7 @@ import {
   pianoReel,
   tempiReel,
   type ParteReel,
+  type VoceReel,
 } from "./tempi-reel";
 
 export type PropsReel = {
@@ -31,6 +33,11 @@ export type PropsReel = {
   clip: NonNullable<Durate["presentatore"]> | null;
   /** Musica ed effetti in public/ (li fa scripts/audio-reel.py); null: muto. */
   audio: string | null;
+  /**
+   * La voce di Bleo: i file sono in public/<cartella>/ (01.mp3, 02.mp3, … una
+   * per scheda, e chiusura.mp3); null: senza voce, solo musica.
+   */
+  voce: (VoceReel & { cartella: string }) | null;
 };
 
 const MOLLA = { damping: 14, stiffness: 120, mass: 0.9 };
@@ -47,10 +54,10 @@ function unito(testo: string): string {
   return testo.replace(/CHF /g, "CHF ");
 }
 
-export function Reel({ postId, clip, audio }: PropsReel) {
+export function Reel({ postId, clip, audio, voce }: PropsReel) {
   const frame = useCurrentFrame();
   const post = trovaPost(postId);
-  const tempi = tempiReel(post);
+  const tempi = tempiReel(post, voce);
   const piano = pianoReel(tempi);
   const adesso = posa(piano, frame);
   const { bleo, bussolina } = GRIGLIA_REEL;
@@ -58,6 +65,17 @@ export function Reel({ postId, clip, audio }: PropsReel) {
     <AbsoluteFill style={{ fontFamily: TESTO, color: COLORI.testo }}>
       <Sfondo />
       {audio ? <Html5Audio src={staticFile(audio)} /> : null}
+      {voce
+        ? tempi.parti.map((parte) => (
+            <Sequence key={`voce-${parte.indice}`} from={parte.inizio + ATTACCO_VOCE} name="voce">
+              <Html5Audio
+                src={staticFile(
+                  `${voce.cartella}/${parte.scheda ? `${String(parte.indice + 1).padStart(2, "0")}.mp3` : "chiusura.mp3"}`,
+                )}
+              />
+            </Sequence>
+          ))
+        : null}
       <div style={{ position: "absolute", left: GRIGLIA_REEL.margine, top: GRIGLIA_REEL.marchio.y }}>
         <Marchio altezza={56} />
       </div>
