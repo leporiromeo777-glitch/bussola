@@ -106,6 +106,43 @@ export function pianoReel(tempi: TempiReel): Piano {
   return { ...r, fine: tempi.totale };
 }
 
+/** Un suono del video, a un fotogramma preciso (li suona scripts/audio-reel.py). */
+export type SuonoReel = {
+  tipo: "passaggio" | "entra" | "punto" | "scintilla" | "conta" | "cifra" | "festa";
+  fotogramma: number;
+  /** Punto: quale (la nota sale a ogni punto). */
+  indice?: number;
+  /** Conta: per quanti fotogrammi ticchetta. */
+  durata?: number;
+};
+
+/** Il fotogramma (dall'inizio della cifra) in cui il numero comincia e finisce di salire (vedi Reel.tsx). */
+export const CONTA = { da: 10, a: 48 } as const;
+
+/**
+ * I suoni del video, legati alle animazioni: un soffio a ogni cambio di
+ * scheda, un «pop» quando compare un punto, le scintille, il ticchettio
+ * mentre la cifra sale e una piccola festa quando la bussolina festeggia.
+ */
+export function suoniReel(tempi: TempiReel, piano: Piano): SuonoReel[] {
+  const suoni: SuonoReel[] = [];
+  for (const parte of tempi.parti) {
+    // Il soffio parte un attimo prima, mentre la scheda vecchia esce.
+    suoni.push({ tipo: "passaggio", fotogramma: Math.max(0, parte.inizio - (parte.indice ? 6 : 0)) });
+    parte.punti.forEach((comparsa, k) => suoni.push({ tipo: "punto", fotogramma: parte.inizio + comparsa, indice: k }));
+    if (parte.scheda?.tipo === "cifra" && numeroDaContare(parte.scheda.cifra)) {
+      suoni.push({ tipo: "conta", fotogramma: parte.inizio + CONTA.da, durata: CONTA.a - CONTA.da });
+      suoni.push({ tipo: "cifra", fotogramma: parte.inizio + CONTA.a });
+    }
+  }
+  for (const m of piano.mosse) {
+    if (m.tipo === "entra") suoni.push({ tipo: "entra", fotogramma: m.inizio });
+    if (m.tipo === "festeggia") suoni.push({ tipo: "festa", fotogramma: m.inizio });
+  }
+  for (const sc of piano.scintille) suoni.push({ tipo: "scintilla", fotogramma: sc.inizio });
+  return suoni.sort((a, b) => a.fotogramma - b.fotogramma);
+}
+
 /** «CHF 100'000» → { prima: "CHF ", numero: 100000, dopo: "" }; null se non c'è un numero da far salire. */
 export function numeroDaContare(cifra: string): { prima: string; numero: number; dopo: string } | null {
   const m = /^(\D*?)(\d[\d']*)(.*)$/.exec(cifra);

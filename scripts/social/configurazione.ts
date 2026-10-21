@@ -15,6 +15,8 @@ export type Configurazione = {
   data: string;
   /** Solo prova: mostra i testi senza pubblicare. */
   prova: boolean;
+  /** Ripubblica i post del giorno cancellati a mano dal social (vedi social/README.md). */
+  ripubblica: boolean;
   /** Il carosello di immagini o il video (Reel). */
   formato: Formato;
   /** Il file del video; null: quello che fa `npm run reel` in video/. */
@@ -83,6 +85,7 @@ export function leggiConfigurazione(env: Ambiente, adesso: Date = new Date()): C
   return {
     data,
     prova: /^(1|true|si|sì)$/i.test(valore(env, "SOCIAL_PROVA") ?? ""),
+    ripubblica: /^(1|true|si|sì)$/i.test(valore(env, "SOCIAL_RIPUBBLICA") ?? ""),
     formato: (FORMATI as readonly string[]).includes(formato) ? (formato as Formato) : "carosello",
     video: valore(env, "SOCIAL_VIDEO"),
     piattaforme,

@@ -37,6 +37,10 @@ on:
         description: "Solo prova: mostra testi e immagini senza pubblicare"
         type: boolean
         default: true
+      ripubblica:
+        description: "Ripubblica i post di quel giorno cancellati a mano dal social"
+        type: boolean
+        default: false
 
 env:
   FORMATO: ${{ inputs.formato || ((github.event.schedule == '11 11 * * *' || github.event.schedule == '41 11 * * *') && 'video') || 'carosello' }}
@@ -101,6 +105,7 @@ jobs:
           SOCIAL_DATA: ${{ inputs.data }}
           SOCIAL_PIATTAFORME: ${{ inputs.piattaforme }}
           SOCIAL_PROVA: ${{ inputs.prova }}
+          SOCIAL_RIPUBBLICA: ${{ inputs.ripubblica }}
           # Finché non c'è il dominio definitivo: imposta la variabile SITO_URL quando cambia.
           SITO_URL: ${{ vars.SITO_URL || 'https://bussola-ticino.netlify.app' }}
           FACEBOOK_PAGE_ID: ${{ vars.FACEBOOK_PAGE_ID }}

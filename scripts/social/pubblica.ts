@@ -19,8 +19,22 @@ import { dataSvizzera } from "../../src/data/svizzera";
 import { didascalia, testiAlternativi, type Piattaforma } from "../../src/lib/social/post";
 import { leggiConfigurazione, statoPiattaforma, type Configurazione } from "./configurazione";
 import { autoreLinkedIn, pubblicaLinkedIn } from "./linkedin";
-import { pubblicaFacebook, pubblicaInstagram, pubblicaReelFacebook, pubblicaReelInstagram, verificaMeta } from "./meta";
-import { aggiungiAlloStorico, giaPubblicato, leggiStorico, scriviStorico, type VoceStorico } from "./storico";
+import {
+  esisteSuMeta,
+  pubblicaFacebook,
+  pubblicaInstagram,
+  pubblicaReelFacebook,
+  pubblicaReelInstagram,
+  verificaMeta,
+} from "./meta";
+import {
+  aggiungiAlloStorico,
+  giaPubblicato,
+  leggiStorico,
+  scriviStorico,
+  togliDalloStorico,
+  type VoceStorico,
+} from "./storico";
 
 type Esito = { piattaforma: Piattaforma; stato: "pubblicato" | "prova" | "saltato" | "errore"; dettaglio: string };
 
@@ -149,7 +163,7 @@ async function main() {
   // Il controllo degli indirizzi si fa una volta sola, solo se serve a qualcuno.
   let problemaIndirizzi: string | null | undefined;
   const esiti: Esito[] = [];
-  const storico = leggiStorico();
+  let storico = leggiStorico();
   const pubblicati: VoceStorico[] = [];
   for (const piattaforma of conf.piattaforme) {
     const nome = NOMI[piattaforma];
@@ -160,7 +174,14 @@ async function main() {
       continue;
     }
     const gia = giaPubblicato(storico, { data: conf.data, post: post.id, piattaforma, formato: conf.formato });
-    if (gia) {
+    // Con «ripubblica» un post cancellato a mano dal social esce di nuovo; uno
+    // ancora online no. Su LinkedIn non si può controllare: resta com'è.
+    let cancellato = false;
+    if (gia && conf.ripubblica && piattaforma !== "linkedin" && conf.meta) {
+      cancellato = !(await esisteSuMeta(conf.meta, gia.id).catch(() => true));
+      if (cancellato) console.log(`${nome}: il post ${gia.id} non c'è più, lo ripubblico.`);
+    }
+    if (gia && !cancellato) {
       console.log(`${nome}: già pubblicato il ${gia.pubblicatoIl} (${gia.id}), salto.`);
       esiti.push({ piattaforma, stato: "saltato", dettaglio: `già pubblicato (${gia.id})` });
       continue;
@@ -205,6 +226,7 @@ async function main() {
       const id = await pubblica(conf, post, piattaforma, file, indirizzi);
       console.log(`${nome}: pubblicato (${id}).`);
       esiti.push({ piattaforma, stato: "pubblicato", dettaglio: id });
+      if (gia) storico = togliDalloStorico(storico, gia);
       pubblicati.push({ data: conf.data, post: post.id, piattaforma, formato: conf.formato, id, pubblicatoIl: new Date().toISOString() });
     } catch (errore) {
       const messaggio = errore instanceof Error ? errore.message : String(errore);

@@ -15,9 +15,13 @@ perché ([`analisi.md`](analisi.md)).
 - **Le immagini** sono in questa cartella, `social/<id-del-post>/01.jpg, 02.jpg, …`
   (JPEG 1080×1350). Le fa Remotion con i colori e i caratteri del sito:
   `cd video && npm run social`.
-- **Il video** (1080×1920, circa 20 secondi, senza voce) lo fa Remotion al
-  momento, dalle stesse schede: Bleo presentatore saluta e indica, la
-  bussolina entra, tocca i punti uno a uno e fa festa sulla cifra. In locale:
+- **Il video** (1080×1920, circa 20 secondi) lo fa Remotion al momento,
+  dalle stesse schede: Bleo presentatore saluta e indica, la bussolina
+  entra, tocca i punti uno a uno e fa festa sulla cifra. Musica ed effetti
+  sono fatti dal codice ([`video/scripts/audio-reel.py`](../video/scripts/audio-reel.py)):
+  una marimba allegra e, a tempo con le animazioni, un soffio a ogni cambio
+  di scheda, un «pop» per ogni punto, le scintille, il ticchettio della cifra
+  che sale e una piccola festa. Niente voce e niente diritti da pagare. In locale:
   `cd video && npm run reel -- <id-del-post>` (serve anche `ffmpeg` e Python
   con Pillow e NumPy). Composizione in
   [`video/src/social/Reel.tsx`](../video/src/social/Reel.tsx), tempi e mosse in
@@ -173,7 +177,10 @@ prova lo crea davvero: lo trovi in fondo alla pagina dell'esecuzione
 token utente, che scade), la prova lo dice.
 
 Per rilanciare dopo un errore, togli la spunta e scrivi il giorno: i social
-dove il post è già uscito vengono saltati (lo dice `storico.json`).
+dove il post è già uscito vengono saltati (lo dice `storico.json`). Se hai
+cancellato un post dal social e vuoi che esca di nuovo, spunta anche
+«Ripubblica»: il workflow chiede a Meta quali post di quel giorno non ci sono
+più e ripubblica solo quelli.
 
 In locale:
 

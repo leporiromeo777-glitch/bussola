@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { POST_SOCIAL } from "../../src/data/social";
 import { PIATTAFORME } from "../../src/lib/social/post";
-import { aggiungiAlloStorico, FILE_STORICO, FORMATI, giaPubblicato, type VoceStorico } from "./storico";
+import { aggiungiAlloStorico, FILE_STORICO, FORMATI, giaPubblicato, togliDalloStorico, type VoceStorico } from "./storico";
 
 const voce = (v: Partial<VoceStorico>): VoceStorico => ({
   data: "2026-10-21",
@@ -15,6 +15,14 @@ const voce = (v: Partial<VoceStorico>): VoceStorico => ({
 });
 
 describe("storico delle pubblicazioni", () => {
+  it("toglie la voce di un post cancellato, così il ripubblicato la sostituisce", () => {
+    const vecchia = voce({ formato: "video", id: "cancellato" });
+    const altra = voce({ id: "2" });
+    const storico = togliDalloStorico([vecchia, altra], vecchia);
+    expect(storico).toEqual([altra]);
+    expect(aggiungiAlloStorico(storico, [voce({ formato: "video", id: "nuovo" })]).map((v) => v.id)).toEqual(["2", "nuovo"]);
+  });
+
   it("riconosce un post già pubblicato sullo stesso social e nello stesso formato", () => {
     const storico = [voce({})];
     expect(giaPubblicato(storico, { data: "2026-10-21", post: "ciao-sono-bleo", piattaforma: "instagram", formato: "carosello" })).toBe(

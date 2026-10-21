@@ -145,6 +145,20 @@ export async function verificaMeta(cfg: ConfigMeta, paginaId: string | null, igU
   };
 }
 
+/**
+ * Il post è ancora sul social? false se Meta dice che non esiste più
+ * (cancellato a mano); gli altri errori (token, rete) passano.
+ */
+export async function esisteSuMeta(cfg: ConfigMeta, id: string): Promise<boolean> {
+  try {
+    await graph(cfg, "GET", id, { fields: "id" });
+    return true;
+  } catch (errore) {
+    if (errore instanceof ErroreMeta && errore.codice === 100) return false;
+    throw errore;
+  }
+}
+
 /** Pubblica un carosello (da 2 a 10 immagini JPEG) e restituisce l'id del post. */
 export async function pubblicaInstagram(cfg: ConfigMeta, igUserId: string, immagini: readonly string[], didascalia: string) {
   if (immagini.length < 2 || immagini.length > 10) throw new Error("Instagram: un carosello ha da 2 a 10 immagini");

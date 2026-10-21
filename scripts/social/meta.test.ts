@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  esisteSuMeta,
   pubblicaFacebook,
   pubblicaInstagram,
   pubblicaReelFacebook,
@@ -277,5 +278,20 @@ describe("statistiche", () => {
       shares: 3,
       comments: 2,
     });
+  });
+});
+
+describe("esisteSuMeta", () => {
+  it("dice se un post è ancora online o è stato cancellato", async () => {
+    const { cfg } = graphFinta((c) =>
+      c.url.endsWith("/vivo") ? { id: "vivo" } : { error: { message: "Object with ID 'morto' does not exist", code: 100 } },
+    );
+    expect(await esisteSuMeta(cfg, "vivo")).toBe(true);
+    expect(await esisteSuMeta(cfg, "morto")).toBe(false);
+  });
+
+  it("non scambia un problema di token per un post cancellato", async () => {
+    const { cfg } = graphFinta(() => ({ error: { message: "Error validating access token", code: 190 } }));
+    await expect(esisteSuMeta(cfg, "x")).rejects.toThrow("access token");
   });
 });
