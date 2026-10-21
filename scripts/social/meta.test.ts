@@ -226,6 +226,18 @@ describe("pubblicaReelFacebook", () => {
     expect(controlli).toBe(2);
   });
 
+  it("se subito dopo l'invio Meta dice che il video non esiste ancora, riprova", async () => {
+    let letture = 0;
+    const { cfg } = graphFinta((c) => {
+      if (c.parametri.upload_phase === "start") return { video_id: "v1" };
+      if (c.metodo === "GET" && ++letture === 1) return { error: { message: "Object with ID 'v1' does not exist", code: 100 } };
+      if (c.metodo === "GET") return { status: { video_status: "ready", publishing_phase: { status: "completed" } } };
+      return { success: true };
+    });
+    expect(await pubblicaReelFacebook(cfg, "99", VIDEO, "x")).toBe("v1");
+    expect(letture).toBe(2);
+  });
+
   it("dice se Facebook non riesce a elaborare il video", async () => {
     const { cfg } = graphFinta((c) => {
       if (c.parametri.upload_phase === "start") return { video_id: "v1" };
@@ -264,6 +276,15 @@ describe("statistiche", () => {
   it("non nasconde gli errori di permessi", async () => {
     const { cfg } = graphFinta(() => ({ error: { message: "(#10) Application does not have permission", code: 10 } }));
     await expect(statisticheInstagram(cfg, "m1", "carosello")).rejects.toThrow("permission");
+  });
+
+  it("su Facebook, senza i permessi per commenti e condivisioni, tiene le altre metriche", async () => {
+    const { cfg } = graphFinta((c) =>
+      c.url.endsWith("/insights")
+        ? { data: [insight("post_media_view", 300)] }
+        : { error: { message: "(#10) This endpoint requires the 'pages_read_user_content' permission", code: 10 } },
+    );
+    expect(await statisticheFacebook(cfg, "99_1", "carosello")).toEqual({ post_media_view: 300 });
   });
 
   it("su Facebook somma le reazioni per tipo e aggiunge condivisioni e commenti del post", async () => {
