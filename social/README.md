@@ -28,7 +28,9 @@ perché ([`analisi.md`](analisi.md)).
   ([`.github/workflows/social.yml`](../.github/workflows/social.yml), script
   [`scripts/social/pubblica.ts`](../scripts/social/pubblica.ts)): il video
   alle 12:11 d'inverno e alle 13:11 d'estate, il carosello alle 17:41
-  d'inverno e alle 18:41 d'estate. Il repository è pubblico, quindi i minuti
+  d'inverno e alle 18:41 d'estate. GitHub a volte ritarda o salta un orario
+  programmato: per questo il workflow riparte anche mezz'ora dopo, e se il
+  post è già uscito non fa nulla. Il repository è pubblico, quindi i minuti
   di GitHub Actions non costano nulla. Instagram e Facebook scaricano le
   immagini da `raw.githubusercontent.com`, alla versione del commit; il
   video invece lo carica lo script.
