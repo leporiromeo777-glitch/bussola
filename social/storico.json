@@ -42,9 +42,25 @@
   {
     "data": "2026-10-22",
     "post": "cos-e-la-ditta-individuale",
+    "piattaforma": "facebook",
+    "formato": "video",
+    "id": "1566588358485587",
+    "pubblicatoIl": "2026-10-22T19:57:06.192Z"
+  },
+  {
+    "data": "2026-10-22",
+    "post": "cos-e-la-ditta-individuale",
     "piattaforma": "instagram",
     "formato": "carosello",
     "id": "18074737775765468",
     "pubblicatoIl": "2026-10-22T19:51:57.470Z"
+  },
+  {
+    "data": "2026-10-22",
+    "post": "cos-e-la-ditta-individuale",
+    "piattaforma": "instagram",
+    "formato": "video",
+    "id": "18384188062232028",
+    "pubblicatoIl": "2026-10-22T19:56:32.481Z"
   }
 ]
