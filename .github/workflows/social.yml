@@ -8,15 +8,11 @@ name: Post social di Bleo
 
 on:
   schedule:
-    # Non all'ora esatta, quando GitHub è più carico e può ritardare.
-    # Il video: 11:11 UTC, 12:11 d'inverno e 13:11 d'estate in Svizzera.
-    - cron: "11 11 * * *"
-    # Il carosello: 16:41 UTC, 17:41 d'inverno e 18:41 d'estate.
-    - cron: "41 16 * * *"
-    # Riserve mezz'ora dopo: GitHub a volte salta un orario programmato. Se
-    # il post è già uscito, social/storico.json lo dice e la riserva non fa nulla.
-    - cron: "41 11 * * *"
-    - cron: "11 17 * * *"
+    # Ogni ora, non all'ora esatta: GitHub ritarda gli orari programmati anche
+    # di ore, o li salta. Il primo passo decide se è il momento (video dalle
+    # 13 svizzere, carosello dalle 18, scripts/social/turno.ts) e, se il post
+    # è già uscito, social/storico.json lo dice e l'esecuzione non fa nulla.
+    - cron: "17 * * * *"
   workflow_dispatch:
     inputs:
       formato:
@@ -41,9 +37,6 @@ on:
         description: "Ripubblica i post di quel giorno cancellati a mano dal social"
         type: boolean
         default: false
-
-env:
-  FORMATO: ${{ inputs.formato || ((github.event.schedule == '11 11 * * *' || github.event.schedule == '41 11 * * *') && 'video') || 'carosello' }}
 
 permissions:
   # Per salvare registro, statistiche e analisi nel repository.
@@ -73,15 +66,23 @@ jobs:
             video/package-lock.json
       - run: npm ci
 
+      # A mano si sceglie il formato; dallo schedule lo decide turno.ts.
+      - name: Cosa pubblicare
+        id: turno
+        run: |
+          if [ -n "${{ inputs.formato }}" ]; then echo "formato=${{ inputs.formato }}" >> "$GITHUB_OUTPUT"; else npm run -s social:turno; fi
+        env:
+          HA_LINKEDIN: ${{ secrets.LINKEDIN_TOKEN != '' }}
+
       # Il video lo fa Remotion (video/scripts/reel.ts): servono ffmpeg e
       # Python con Pillow e NumPy per preparare Bleo e la bussolina.
       - name: Strumenti per il video
-        if: env.FORMATO == 'video'
+        if: steps.turno.outputs.formato == 'video'
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q --no-install-recommends ffmpeg python3-pil python3-numpy
       - name: Fai il video
-        if: env.FORMATO == 'video'
+        if: steps.turno.outputs.formato == 'video'
         working-directory: video
         run: |
           npm ci
@@ -90,7 +91,7 @@ jobs:
           SOCIAL_DATA: ${{ inputs.data }}
       # Il video resta scaricabile per due settimane (per esempio per TikTok).
       - name: Conserva il video
-        if: env.FORMATO == 'video'
+        if: steps.turno.outputs.formato == 'video'
         uses: actions/upload-artifact@v4
         with:
           name: video-${{ inputs.data || github.run_id }}
@@ -99,9 +100,10 @@ jobs:
           if-no-files-found: ignore
 
       - id: pubblica
+        if: steps.turno.outputs.formato != 'niente'
         run: npm run social:pubblica
         env:
-          SOCIAL_FORMATO: ${{ env.FORMATO }}
+          SOCIAL_FORMATO: ${{ steps.turno.outputs.formato }}
           SOCIAL_DATA: ${{ inputs.data }}
           SOCIAL_PIATTAFORME: ${{ inputs.piattaforme }}
           SOCIAL_PROVA: ${{ inputs.prova }}
@@ -117,7 +119,7 @@ jobs:
       # possono leggere (per esempio mancano i permessi) il post resta
       # pubblicato: il problema si vede nel riassunto del workflow.
       - name: Statistiche e analisi
-        if: always() && env.FORMATO == 'carosello' && inputs.prova != true && steps.pubblica.outcome != 'skipped'
+        if: always() && steps.turno.outputs.formato == 'carosello' && inputs.prova != true && steps.pubblica.outcome != 'skipped'
         continue-on-error: true
         run: npm run social:statistiche
         env:
