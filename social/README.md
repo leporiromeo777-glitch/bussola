@@ -61,9 +61,8 @@ resta in modalità demo e chi arriva dai social non viene salvato.
 
 Nella bio di Instagram metti il link con la provenienza, così la lista
 d'attesa sa da dove arriva chi si iscrive:
-`https://bussola-ticino.netlify.app/lista-attesa?utm_source=instagram` (poi
-il dominio definitivo). Nei post di Facebook e LinkedIn il link c'è già, con
-`utm_source=facebook` e `utm_source=linkedin`.
+`https://bleo.ch/lista-attesa?utm_source=instagram`. Nei post di Facebook e
+LinkedIn il link c'è già, con `utm_source=facebook` e `utm_source=linkedin`.
 
 ## Collegare Instagram e la pagina Facebook
 
@@ -233,7 +232,7 @@ dato in `src/data/svizzera.ts`, rifai le immagini dei post che lo usano.
 ## Da sapere
 
 - **Variabili.** Oltre a quelle sopra: `SITO_URL` (variabile; se manca si usa
-  `https://bussola-ticino.netlify.app`) per i link nei post;
+  `https://bleo.ch`) per i link nei post;
   `META_GRAPH_VERSIONE` e `LINKEDIN_VERSIONE` per cambiare la versione delle
   API. Quelle predefinite sono in `scripts/social/configurazione.ts`: Meta
   tiene ogni versione circa due anni, LinkedIn circa uno. Quando una versione
