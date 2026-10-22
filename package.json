@@ -12,7 +12,8 @@
     "fonti:importa": "tsx --env-file-if-exists=.env.local scripts/importa-fonti.ts",
     "supabase:sql": "node scripts/genera-sql-completo.mjs",
     "social:pubblica": "tsx scripts/social/pubblica.ts",
-    "social:statistiche": "tsx scripts/social/aggiorna-statistiche.ts"
+    "social:statistiche": "tsx scripts/social/aggiorna-statistiche.ts",
+    "social:turno": "tsx scripts/social/cosa-pubblicare.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",

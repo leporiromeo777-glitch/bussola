@@ -3,6 +3,20 @@
     "data": "2026-10-21",
     "post": "ciao-sono-bleo",
     "piattaforma": "facebook",
+    "formato": "carosello",
+    "id": "1336180176253880_122096357403522570",
+    "lettoIl": "2026-10-22T19:52:09.126Z",
+    "giorni": 1.1,
+    "metriche": {
+      "post_media_view": 0,
+      "post_total_media_view_unique": 0,
+      "post_clicks": 0
+    }
+  },
+  {
+    "data": "2026-10-21",
+    "post": "ciao-sono-bleo",
+    "piattaforma": "facebook",
     "formato": "video",
     "id": "1687470786322149",
     "lettoIl": "2026-10-21T17:23:46.720Z",
@@ -12,14 +26,28 @@
   {
     "data": "2026-10-21",
     "post": "ciao-sono-bleo",
+    "piattaforma": "facebook",
+    "formato": "video",
+    "id": "1678516750371811",
+    "lettoIl": "2026-10-22T19:52:09.126Z",
+    "giorni": 1.1,
+    "metriche": {
+      "blue_reels_play_count": 221,
+      "post_video_avg_time_watched": 1977,
+      "post_video_followers": 0
+    }
+  },
+  {
+    "data": "2026-10-21",
+    "post": "ciao-sono-bleo",
     "piattaforma": "instagram",
     "formato": "carosello",
     "id": "18140911183623036",
-    "lettoIl": "2026-10-21T17:23:46.720Z",
-    "giorni": 0,
+    "lettoIl": "2026-10-22T19:52:09.126Z",
+    "giorni": 1.1,
     "metriche": {
-      "reach": 0,
-      "views": 0,
+      "reach": 1,
+      "views": 3,
       "likes": 0,
       "comments": 0,
       "shares": 0,
@@ -38,5 +66,59 @@
     "lettoIl": "2026-10-21T17:23:46.720Z",
     "giorni": 0.1,
     "metriche": {}
+  },
+  {
+    "data": "2026-10-21",
+    "post": "ciao-sono-bleo",
+    "piattaforma": "instagram",
+    "formato": "video",
+    "id": "18014873774994707",
+    "lettoIl": "2026-10-22T19:52:09.126Z",
+    "giorni": 1.1,
+    "metriche": {
+      "reach": 8,
+      "views": 9,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "saved": 0,
+      "total_interactions": 0,
+      "ig_reels_avg_watch_time": 9404,
+      "reels_skip_rate": 62.5
+    }
+  },
+  {
+    "data": "2026-10-22",
+    "post": "cos-e-la-ditta-individuale",
+    "piattaforma": "facebook",
+    "formato": "carosello",
+    "id": "1336180176253880_122097266169522570",
+    "lettoIl": "2026-10-22T19:52:09.126Z",
+    "giorni": 0,
+    "metriche": {
+      "post_media_view": 0,
+      "post_total_media_view_unique": 0,
+      "post_clicks": 0
+    }
+  },
+  {
+    "data": "2026-10-22",
+    "post": "cos-e-la-ditta-individuale",
+    "piattaforma": "instagram",
+    "formato": "carosello",
+    "id": "18074737775765468",
+    "lettoIl": "2026-10-22T19:52:09.126Z",
+    "giorni": 0,
+    "metriche": {
+      "reach": 0,
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "saved": 0,
+      "total_interactions": 0,
+      "profile_visits": 0,
+      "follows": 0
+    }
   }
 ]

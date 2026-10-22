@@ -227,7 +227,17 @@ export async function pubblicaReelFacebook(cfg: ConfigMeta, paginaId: string, vi
   });
   if (fine.success !== true) throw new Error("Meta: Facebook non ha accettato il Reel");
   for (let i = 0; i < CONTROLLI_VIDEO; i++) {
-    const { status } = await graph(cfg, "GET", videoId, { fields: "status" });
+    // Subito dopo l'invio Meta a volte risponde che il video «non esiste»:
+    // non è ancora leggibile, ma è stato accettato. Si riprova.
+    const letto = await graph(cfg, "GET", videoId, { fields: "status" }).catch((e: unknown) => {
+      if (e instanceof ErroreMeta && e.codice === 100) return null;
+      throw e;
+    });
+    if (!letto) {
+      await (cfg.attesa ?? aspetta)(PAUSA_MS);
+      continue;
+    }
+    const { status } = letto;
     const stato = (status ?? {}) as {
       video_status?: string;
       processing_phase?: { status?: string; error?: { message?: string } };
@@ -328,7 +338,13 @@ export function statisticheInstagram(cfg: ConfigMeta, mediaId: string, formato: 
 export async function statisticheFacebook(cfg: ConfigMeta, postId: string, formato: "carosello" | "video") {
   if (formato === "video") return insights(cfg, `${postId}/video_insights`, METRICHE.facebook.video);
   const metriche = await insights(cfg, `${postId}/insights`, METRICHE.facebook.carosello);
-  const post = await graph(cfg, "GET", postId, { fields: "shares,comments.summary(true).limit(0)" });
+  // Commenti e condivisioni del post: servono permessi che il token può non
+  // avere (pages_read_user_content). Senza, restano le altre metriche.
+  const post = await graph(cfg, "GET", postId, { fields: "shares,comments.summary(true).limit(0)" }).catch((e: unknown) => {
+    if (e instanceof ErroreMeta && (e.codice === 10 || e.codice === 200)) return null;
+    throw e;
+  });
+  if (!post) return metriche;
   const condivisioni = (post.shares as { count?: number } | undefined)?.count;
   const commenti = (post.comments as { summary?: { total_count?: number } } | undefined)?.summary?.total_count;
   return { ...metriche, shares: condivisioni ?? 0, ...(commenti === undefined ? {} : { comments: commenti }) };

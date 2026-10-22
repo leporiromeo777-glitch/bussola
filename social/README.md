@@ -30,15 +30,16 @@ perché ([`analisi.md`](analisi.md)).
   [`tempi-reel.ts`](../video/src/social/tempi-reel.ts). Il video non va nel
   repository: GitHub lo tiene due settimane tra i file dell'esecuzione
   («Artifacts»).
-- **La pubblicazione** la fa GitHub Actions ogni giorno
+- **La pubblicazione** la fa GitHub Actions
   ([`.github/workflows/social.yml`](../.github/workflows/social.yml), script
   [`scripts/social/pubblica.ts`](../scripts/social/pubblica.ts)): il video
-  alle 12:11 d'inverno e alle 13:11 d'estate, il carosello alle 17:41
-  d'inverno e alle 18:41 d'estate. GitHub a volte ritarda o salta un orario
-  programmato: per questo il workflow riparte anche mezz'ora dopo, e se il
-  post è già uscito non fa nulla. Il repository è pubblico, quindi i minuti
-  di GitHub Actions non costano nulla. Instagram e Facebook scaricano le
-  immagini da `raw.githubusercontent.com`, alla versione del commit; il
+  dalle 13 e il carosello dalle 18, ora svizzera. GitHub ritarda gli orari
+  programmati anche di ore, o li salta: per questo il workflow parte ogni ora
+  e il primo passo ([`scripts/social/turno.ts`](../scripts/social/turno.ts))
+  decide se è il momento e se il post manca ancora su qualche social. Di
+  solito escono poco dopo le 13 e le 18. Il repository è pubblico, quindi i
+  minuti di GitHub Actions non costano nulla. Instagram e Facebook scaricano
+  le immagini da `raw.githubusercontent.com`, alla versione del commit; il
   video invece lo carica lo script.
 
 Ogni pubblicazione finisce in [`storico.json`](storico.json) (giorno, post,
@@ -60,9 +61,8 @@ resta in modalità demo e chi arriva dai social non viene salvato.
 
 Nella bio di Instagram metti il link con la provenienza, così la lista
 d'attesa sa da dove arriva chi si iscrive:
-`https://bussola-ticino.netlify.app/lista-attesa?utm_source=instagram` (poi
-il dominio definitivo). Nei post di Facebook e LinkedIn il link c'è già, con
-`utm_source=facebook` e `utm_source=linkedin`.
+`https://bleo.ch/lista-attesa?utm_source=instagram`. Nei post di Facebook e
+LinkedIn il link c'è già, con `utm_source=facebook` e `utm_source=linkedin`.
 
 ## Collegare Instagram e la pagina Facebook
 
@@ -232,7 +232,7 @@ dato in `src/data/svizzera.ts`, rifai le immagini dei post che lo usano.
 ## Da sapere
 
 - **Variabili.** Oltre a quelle sopra: `SITO_URL` (variabile; se manca si usa
-  `https://bussola-ticino.netlify.app`) per i link nei post;
+  `https://bleo.ch`) per i link nei post;
   `META_GRAPH_VERSIONE` e `LINKEDIN_VERSIONE` per cambiare la versione delle
   API. Quelle predefinite sono in `scripts/social/configurazione.ts`: Meta
   tiene ogni versione circa due anni, LinkedIn circa uno. Quando una versione
