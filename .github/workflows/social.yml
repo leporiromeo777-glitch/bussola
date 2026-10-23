@@ -78,12 +78,22 @@ jobs:
           HA_LINKEDIN: ${{ secrets.LINKEDIN_TOKEN != '' }}
 
       # Il video lo fa Remotion (video/scripts/reel.ts): servono ffmpeg e
-      # Python con Pillow e NumPy per preparare Bleo e la bussolina.
+      # Python con Pillow e NumPy per preparare Bleo e la bussolina. Niente
+      # apt: il 23.10 il mirror di Ubuntu ha impiegato più di un quarto d'ora
+      # per ffmpeg. Da GitHub e da PyPI bastano pochi secondi.
+      - name: Python per il video
+        if: steps.turno.outputs.formato == 'video'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Strumenti per il video
         if: steps.turno.outputs.formato == 'video'
+        timeout-minutes: 8
         run: |
-          sudo apt-get update -q
-          sudo apt-get install -y -q --no-install-recommends ffmpeg python3-pil python3-numpy
+          pip install -q numpy pillow
+          mkdir -p "$RUNNER_TEMP/ffmpeg"
+          curl -sSfL --retry 3 "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-linux64-gpl-8.1.tar.xz" | tar -xJ -C "$RUNNER_TEMP/ffmpeg" --strip-components=1
+          echo "$RUNNER_TEMP/ffmpeg/bin" >> "$GITHUB_PATH"
       - name: Fai il video
         if: steps.turno.outputs.formato == 'video'
         working-directory: video
