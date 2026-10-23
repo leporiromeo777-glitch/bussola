@@ -12,15 +12,18 @@ on:
     # di ore, o li salta. Il primo passo decide se è il momento (video dalle
     # 13 svizzere, carosello dalle 18, scripts/social/turno.ts) e, se il post
     # è già uscito, social/storico.json lo dice e l'esecuzione non fa nulla.
+    # Lo stesso fa ogni ora Netlify con formato «auto»
+    # (netlify/functions/turno-social.ts), che non salta le esecuzioni.
     - cron: "17 * * * *"
   workflow_dispatch:
     inputs:
       formato:
-        description: "Carosello di immagini o video (Reel)"
+        description: "Carosello di immagini o video (Reel); auto: decide l'ora, come lo schedule"
         type: choice
         options:
           - carosello
           - video
+          - auto
         default: carosello
       data:
         description: "Giorno del post (AAAA-MM-GG). Vuoto: oggi."
@@ -66,11 +69,11 @@ jobs:
             video/package-lock.json
       - run: npm ci
 
-      # A mano si sceglie il formato; dallo schedule lo decide turno.ts.
+      # A mano si sceglie il formato; dallo schedule e con «auto» lo decide turno.ts.
       - name: Cosa pubblicare
         id: turno
         run: |
-          if [ -n "${{ inputs.formato }}" ]; then echo "formato=${{ inputs.formato }}" >> "$GITHUB_OUTPUT"; else npm run -s social:turno; fi
+          if [ -n "${{ inputs.formato }}" ] && [ "${{ inputs.formato }}" != "auto" ]; then echo "formato=${{ inputs.formato }}" >> "$GITHUB_OUTPUT"; else npm run -s social:turno; fi
         env:
           HA_LINKEDIN: ${{ secrets.LINKEDIN_TOKEN != '' }}
 

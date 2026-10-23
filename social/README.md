@@ -52,6 +52,26 @@ Il workflow pianificato parte solo dal branch `main`: i post escono dopo il
 merge. Un social senza credenziali viene saltato, quindi si possono collegare
 uno alla volta.
 
+Lo schedule di GitHub da solo non basta: il 23.10 ha fatto partire il
+workflow tre volte in dodici ore, l'ultima prima delle 13. Per questo ogni ora
+anche Netlify, che non salta le esecuzioni, lo fa partire con formato «auto»
+([`netlify/functions/turno-social.ts`](../netlify/functions/turno-social.ts),
+orario in `netlify.toml`). Gli serve un token di GitHub, da creare una volta:
+
+1. Su GitHub: foto del profilo → **Settings** → **Developer settings** →
+   **Personal access tokens** → **Fine-grained tokens** → **Generate new
+   token**.
+2. Nome `bleo-turno-social`, scadenza la più lunga possibile; **Repository
+   access** → **Only select repositories** → `bussola`; **Permissions** →
+   **Actions** → **Read and write**. Poi **Generate token** e copialo.
+3. Su Netlify: **Project configuration** → **Environment variables** → **Add
+   a variable**: chiave `GITHUB_TOKEN_SOCIAL`, valore il token, **Contains
+   secret values** spuntato, scope **Functions**. Poi un nuovo deploy.
+
+Quando il token scade la funzione lo scrive nei log di Netlify («GitHub ha
+risposto 401») e resta solo lo schedule di GitHub: rifai il token e
+sostituisci il valore.
+
 ## Prima di cominciare
 
 I post invitano a iscriversi alla lista d'attesa. Controlla che la lista

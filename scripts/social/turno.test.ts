@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { POST_SOCIAL } from "../../src/data/social";
 import type { VoceStorico } from "./storico";
-import { cosaPubblicare, oraInSvizzera } from "./turno";
+import { cosaPubblicare, momentoDiControllare, oraInSvizzera } from "./turno";
 
 const SOCIAL = { video: 2, carosello: 2 };
 const giorno = POST_SOCIAL[1].data;
@@ -38,5 +38,14 @@ describe("cosaPubblicare", () => {
 
   it("senza un post per oggi non fa nulla", () => {
     expect(cosaPubblicare([], new Date("2030-01-01T15:00:00Z"), SOCIAL)).toBeNull();
+  });
+});
+
+describe("momentoDiControllare", () => {
+  it("dalle 13 a mezzanotte, ora svizzera", () => {
+    expect(momentoDiControllare(alle(12))).toBe(false);
+    expect(momentoDiControllare(alle(13))).toBe(true);
+    expect(momentoDiControllare(alle(23))).toBe(true);
+    expect(momentoDiControllare(new Date(`${giorno}T23:30:00Z`))).toBe(false);
   });
 });

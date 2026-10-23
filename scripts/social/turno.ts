@@ -18,6 +18,14 @@ export function oraInSvizzera(adesso: Date): number {
 }
 
 /**
+ * Se conviene far partire il workflow adesso: dall'ora del primo formato a
+ * mezzanotte. Prima non c'è niente da pubblicare (netlify/functions/turno-social.ts).
+ */
+export function momentoDiControllare(adesso: Date): boolean {
+  return oraInSvizzera(adesso) >= Math.min(...Object.values(ORE));
+}
+
+/**
  * Il formato da pubblicare adesso, o null se non c'è niente da fare. Il
  * carosello passa per primo: se il video continua a non uscire, la sera
  * esce comunque il carosello.
