@@ -1,6 +1,6 @@
 # Come vanno i post di Bleo
 
-Aggiornata il 23.10.2026. La scrive il workflow dei social ogni giorno da `social/statistiche.json` (Instagram e Facebook: per i profili LinkedIn l'API non dà le statistiche).
+Aggiornata il 24.10.2026. La scrive il workflow dei social ogni giorno da `social/statistiche.json` (Instagram e Facebook: per i profili LinkedIn l'API non dà le statistiche).
 
 ## In breve
 
@@ -23,7 +23,7 @@ Aggiornata il 23.10.2026. La scrive il workflow dei social ogni giorno da `socia
 | Instagram | carosello | 1 | 1 | 0,0 | - |
 | Instagram | video | 1 | 8 | 0,0 | 9,4 s |
 
-Usciti da meno di 2 giorni, non ancora confrontati: «Apri un'attività in Ticino? Ti accompagno io», «Cos'è una ditta individuale?», «Devo iscrivermi al registro di commercio?».
+Usciti da meno di 2 giorni, non ancora confrontati: «Apri un'attività in Ticino? Ti accompagno io», «Cos'è una ditta individuale?», «Devo iscrivermi al registro di commercio?», «Quando devo pagare l'IVA?».
 
 ## Come leggere
 

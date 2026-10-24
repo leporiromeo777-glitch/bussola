@@ -5,8 +5,8 @@
     "piattaforma": "facebook",
     "formato": "carosello",
     "id": "1336180176253880_122096357403522570",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 2,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 3,
     "metriche": {
       "post_media_view": 1,
       "post_total_media_view_unique": 0,
@@ -29,8 +29,8 @@
     "piattaforma": "facebook",
     "formato": "video",
     "id": "1678516750371811",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 2,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 3,
     "metriche": {
       "blue_reels_play_count": 224,
       "post_video_avg_time_watched": 1965,
@@ -43,8 +43,8 @@
     "piattaforma": "instagram",
     "formato": "carosello",
     "id": "18140911183623036",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 2,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 3,
     "metriche": {
       "reach": 1,
       "views": 3,
@@ -73,8 +73,8 @@
     "piattaforma": "instagram",
     "formato": "video",
     "id": "18014873774994707",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 2,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 3,
     "metriche": {
       "reach": 8,
       "views": 9,
@@ -93,8 +93,8 @@
     "piattaforma": "facebook",
     "formato": "carosello",
     "id": "1336180176253880_122097266169522570",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 0.9,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 1.9,
     "metriche": {
       "post_media_view": 3,
       "post_total_media_view_unique": 0,
@@ -107,8 +107,8 @@
     "piattaforma": "facebook",
     "formato": "video",
     "id": "1566588358485587",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 0.9,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 1.9,
     "metriche": {
       "blue_reels_play_count": 215,
       "post_video_avg_time_watched": 2309,
@@ -121,8 +121,8 @@
     "piattaforma": "instagram",
     "formato": "carosello",
     "id": "18074737775765468",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 0.9,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 1.9,
     "metriche": {
       "reach": 0,
       "views": 0,
@@ -141,8 +141,8 @@
     "piattaforma": "instagram",
     "formato": "video",
     "id": "18384188062232028",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 0.9,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 1.9,
     "metriche": {
       "reach": 21,
       "views": 22,
@@ -161,8 +161,8 @@
     "piattaforma": "facebook",
     "formato": "carosello",
     "id": "1336180176253880_122097840243522570",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 0,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 1,
     "metriche": {
       "post_media_view": 0,
       "post_total_media_view_unique": 0,
@@ -175,8 +175,8 @@
     "piattaforma": "facebook",
     "formato": "video",
     "id": "1513526497260352",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 0.2,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 1.2,
     "metriche": {
       "blue_reels_play_count": 0,
       "post_video_avg_time_watched": 0,
@@ -189,8 +189,8 @@
     "piattaforma": "instagram",
     "formato": "carosello",
     "id": "17909508264586997",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 0,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 1,
     "metriche": {
       "reach": 0,
       "views": 0,
@@ -209,18 +209,67 @@
     "piattaforma": "instagram",
     "formato": "video",
     "id": "17864226552696910",
-    "lettoIl": "2026-10-23T16:31:50.572Z",
-    "giorni": 0.2,
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 1.2,
     "metriche": {
-      "reach": 2,
-      "views": 3,
+      "reach": 19,
+      "views": 19,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "saved": 0,
       "total_interactions": 0,
-      "ig_reels_avg_watch_time": 2715,
-      "reels_skip_rate": 66.7
+      "ig_reels_avg_watch_time": 4546,
+      "reels_skip_rate": 63.2
+    }
+  },
+  {
+    "data": "2026-10-24",
+    "post": "quando-scatta-l-iva",
+    "piattaforma": "facebook",
+    "formato": "carosello",
+    "id": "1336180176253880_122098722627522570",
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 0,
+    "metriche": {
+      "post_media_view": 0,
+      "post_total_media_view_unique": 0,
+      "post_clicks": 0
+    }
+  },
+  {
+    "data": "2026-10-24",
+    "post": "quando-scatta-l-iva",
+    "piattaforma": "facebook",
+    "formato": "video",
+    "id": "4593394837539938",
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 0.2,
+    "metriche": {
+      "blue_reels_play_count": 221,
+      "post_video_avg_time_watched": 1547,
+      "post_video_likes_by_reaction_type": 1,
+      "post_video_followers": 0
+    }
+  },
+  {
+    "data": "2026-10-24",
+    "post": "quando-scatta-l-iva",
+    "piattaforma": "instagram",
+    "formato": "carosello",
+    "id": "18031391264858241",
+    "lettoIl": "2026-10-24T16:38:19.799Z",
+    "giorni": 0,
+    "metriche": {
+      "reach": 0,
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "saved": 0,
+      "total_interactions": 0,
+      "profile_visits": 0,
+      "follows": 0
     }
   }
 ]
