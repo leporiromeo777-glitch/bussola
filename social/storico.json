@@ -131,8 +131,24 @@
     "data": "2026-10-25",
     "post": "fattura-senza-iva",
     "piattaforma": "facebook",
+    "formato": "carosello",
+    "id": "1336180176253880_122099908797522570",
+    "pubblicatoIl": "2026-10-25T19:41:28.040Z"
+  },
+  {
+    "data": "2026-10-25",
+    "post": "fattura-senza-iva",
+    "piattaforma": "facebook",
     "formato": "video",
     "id": "1856705878666917",
     "pubblicatoIl": "2026-10-25T16:30:59.589Z"
+  },
+  {
+    "data": "2026-10-25",
+    "post": "fattura-senza-iva",
+    "piattaforma": "instagram",
+    "formato": "carosello",
+    "id": "18089823569313578",
+    "pubblicatoIl": "2026-10-25T19:41:20.720Z"
   }
 ]
