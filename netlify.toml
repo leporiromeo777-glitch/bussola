@@ -12,3 +12,8 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Ogni ora fa partire il workflow dei post social: lo schedule di GitHub salta
+# molte esecuzioni (netlify/functions/turno-social.ts). Orario in UTC.
+[functions."turno-social"]
+  schedule = "7 * * * *"
