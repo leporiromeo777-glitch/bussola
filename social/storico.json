@@ -163,8 +163,24 @@
     "data": "2026-10-26",
     "post": "nome-della-ditta",
     "piattaforma": "facebook",
+    "formato": "carosello",
+    "id": "1336180176253880_122100867771522570",
+    "pubblicatoIl": "2026-10-26T20:32:34.567Z"
+  },
+  {
+    "data": "2026-10-26",
+    "post": "nome-della-ditta",
+    "piattaforma": "facebook",
     "formato": "video",
     "id": "1604404274762600",
     "pubblicatoIl": "2026-10-26T14:23:27.432Z"
+  },
+  {
+    "data": "2026-10-26",
+    "post": "nome-della-ditta",
+    "piattaforma": "instagram",
+    "formato": "carosello",
+    "id": "17920644858458135",
+    "pubblicatoIl": "2026-10-26T20:32:25.148Z"
   }
 ]
