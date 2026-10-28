@@ -1,6 +1,6 @@
 # Come vanno i post di Bleo
 
-Aggiornata il 27.10.2026. La scrive il workflow dei social ogni giorno da `social/statistiche.json` (Instagram e Facebook: per i profili LinkedIn l'API non dà le statistiche).
+Aggiornata il 28.10.2026. La scrive il workflow dei social ogni giorno da `social/statistiche.json` (Instagram e Facebook: per i profili LinkedIn l'API non dà le statistiche).
 
 ## In breve
 
